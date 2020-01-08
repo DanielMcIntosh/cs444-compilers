@@ -1,0 +1,41 @@
+EXEC ?= joosc
+
+BUILD_DIR ?= ./build
+SRC_DIRS ?= ./src
+
+SRCS := $(shell find $(SRC_DIRS) -name *.cpp)
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+DEPS := $(OBJS:.o=.d)
+
+INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+
+CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -g
+LDFLAGS += -g -rdynamic
+
+$(EXEC): $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
+
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	$(MKDIR_P) $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+.PHONY: clean
+
+clean:
+	$(RM) -r $(BUILD_DIR)
+
+a1: $(EXEC)
+	export JOOSC_MODE=test; export JOOSC_ASSN=1; ./$(EXEC)
+a2: $(EXEC)
+	export JOOSC_MODE=test; export JOOSC_ASSN=2; ./$(EXEC)
+a3: $(EXEC)
+	export JOOSC_MODE=test; export JOOSC_ASSN=3; ./$(EXEC)
+a4: $(EXEC)
+	export JOOSC_MODE=test; export JOOSC_ASSN=4; ./$(EXEC)
+a5: $(EXEC)
+	export JOOSC_MODE=test; export JOOSC_ASSN=5; ./$(EXEC)
+
+-include $(DEPS)
+
+MKDIR_P ?= mkdir -p
