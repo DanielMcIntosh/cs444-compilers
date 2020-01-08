@@ -6,11 +6,15 @@ stages:
 
 job cs444-build:
   stage: build
+  tags:
+    - main
   script:
     - make
 
 job cs444-test:
   stage: test
+  tags:
+    - main
   script:
     - make a1
   
