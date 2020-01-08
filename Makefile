@@ -10,7 +10,14 @@ DEPS := $(OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimization -Winit-self -Wlogical-op -Wmissing-include-dirs -Wredundant-decls -Wshadow -Wundef -Wno-variadic-macros -Wstrict-aliasing=3 -Wwrite-strings -Wfloat-conversion -Wbad-function-cast -Wsuggest-attribute=pure -Wsuggest-attribute=const -Wsuggest-attribute=noreturn -Wsuggest-attribute=malloc -Wsuggest-attribute=format -Wnull-dereference
+CXX := g++-9
+
+WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimization -Winit-self -Wlogical-op -Wmissing-include-dirs -Wredundant-decls \
+	-Wshadow -Wundef -Wno-variadic-macros -Wstrict-aliasing=3 -Wwrite-strings \
+  -Wfloat-conversion -Wsuggest-attribute=pure -Wsuggest-attribute=const \
+  -Wsuggest-attribute=noreturn -Wsuggest-attribute=malloc \
+  -Wsuggest-attribute=format -Wnull-dereference
+
 CPPFLAGS ?= $(INC_FLAGS) $(WARNINGS) -MMD -MP -g
 LDFLAGS += -g -rdynamic
 

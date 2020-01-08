@@ -18,7 +18,7 @@ void assertImpl_(bool value, const char *str, const char *fmt, ...) {
   }
 }
 
-void unimplementedImpl() {
+[[noreturn]] void unimplementedImpl() {
   raise(SIGTRAP);
   abort();
 }
@@ -68,7 +68,7 @@ void getCivicTime(CivicTimeInfo *info) {
   info->millisecond = 0;
 }
 
-void signalHandler(int num) {
+[[noreturn]] void signalHandler(int num) {
   void *frames[128];
   s32 numTrace = backtrace(frames, 128);
   fprintf(stderr, "\nReceived signal: %s\n", strsignal(num));

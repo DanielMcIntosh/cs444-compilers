@@ -13,6 +13,7 @@
 
 #include <vector>
 #include <string>
+#include <algorithm>
 
 #include "utility.h"
 
@@ -57,7 +58,7 @@ void compileMain(const vector<string> &fileList) {
       continue;      
     }
 
-    LOGR("%s: %d bytes", fileName, statBuf.st_size);
+    LOGR("%s: %ld bytes", fileName, statBuf.st_size);
   }
   LOGR("End of compilation");
 }
@@ -68,6 +69,7 @@ void batchTesting(const string &baseDir, const vector<string> &stdlib) {
     return;
 
   auto fileList = stdlib;
+  const s32 numLib = stdlib.size();
   s32 numTests = 0;
   LOGR("Batch test starting...");  
   while (true) {
@@ -89,9 +91,11 @@ void batchTesting(const string &baseDir, const vector<string> &stdlib) {
       compileMain(fileList);
       fileList.pop_back();
     } else if (ent->d_type == DT_DIR) {
-      fileList.push_back(fullPath + string("/Main.java"));
+      vector<string> fileBundle;
+      getJavaFilesRecursive(fileBundle, fullPath + "/");
+      fileList.insert(fileList.end(), fileBundle.begin(), fileBundle.end());
       compileMain(fileList);
-      fileList.pop_back();      
+      fileList.resize(numLib);
     } else {
       continue;
     }
@@ -124,9 +128,16 @@ void checkTestMode() {
 }
 
 int main(int argc, const char ** argv) {
+  vector<string> fileList;
+  for (int i = 1; i < argc; ++i) {
+    fileList.push_back(string(argv[i]));
+  }
+  
   globalInit();
 
   checkTestMode();
+
+  compileMain(fileList);
   
   globalFini();
 }
