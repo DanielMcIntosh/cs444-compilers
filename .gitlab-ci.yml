@@ -1,0 +1,16 @@
+image: gcc
+
+stages:
+  - build
+  - test
+
+job cs444-build:
+  stage: build
+  script:
+    - make
+
+job cs444-test:
+  stage: test
+  script:
+    - make a1
+  
