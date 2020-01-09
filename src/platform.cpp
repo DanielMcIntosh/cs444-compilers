@@ -6,8 +6,11 @@
 #include <execinfo.h>
 #include <signal.h>
 #include <time.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
-void getCivicTime(CivicTimeInfo *) {
+void getCivicTime(CivicTimeInfo *info) {
   struct tm ts;
   time_t timePoint = time(0);
   localtime_r(&timePoint, &ts);
@@ -38,11 +41,23 @@ void platformInit() {
 }
 
 FileType getFileType(const char *path) {
-  
+  struct stat statBuf;
+  s32 value = stat(path, &statBuf);
+  if (value)
+    return FileTypeUnknown;
+  if ((statBuf.st_mode & S_IFMT) == S_IFREG)
+    return FileTypeRegular;
+  if ((statBuf.st_mode & S_IFMT) == S_IFDIR)
+    return FileTypeDirectory;
+  return FileTypeUnknown;  
 }
 
 s64 getFileSize(const char *path) {
-  
+  struct stat statBuf;
+  s32 value = stat(path, &statBuf);
+  if (value)
+    return -1;
+  return statBuf.st_size;
 }
 
 #endif // __linux__

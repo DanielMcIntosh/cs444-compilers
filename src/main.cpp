@@ -54,7 +54,7 @@ void compileMain(const vector<string> &fileList) {
       LOGR("%s is not accessible", fileName);
       continue;
     }
-    LOGR("%s: %lld bytes", fileName, size);
+    LOGR("%s: %ld bytes", fileName, size);
   }
   LOGR("End of compilation");
 }

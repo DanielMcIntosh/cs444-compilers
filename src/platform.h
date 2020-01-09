@@ -17,6 +17,7 @@ void platformInit();
 
 enum FileType
 {
+  FileTypeUnknown,
   FileTypeDirectory,
   FileTypeRegular,   
 };
