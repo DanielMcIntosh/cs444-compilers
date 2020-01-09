@@ -4,18 +4,15 @@
 #include <dirent.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <time.h>
-#include <locale.h>
 #include <string.h>
 #include <signal.h>
-#include <execinfo.h>
-#include <sys/stat.h>
 
 #include <vector>
 #include <string>
 #include <algorithm>
 
 #include "utility.h"
+#include "platform.h"
 
 using namespace std;
 
@@ -38,9 +35,10 @@ void getJavaFilesRecursive(vector<string> &fileList, string folder) {
     string name(ent->d_name);
     string fullPath = folder + name;
 
-    if (ent->d_type == DT_REG && strstr(ent->d_name, ".java")) {      
+    if (getFileType(fullPath.c_str()) == FileTypeRegular &&
+        strstr(ent->d_name, ".java")) {      
       fileList.push_back(fullPath);
-    } else if (ent->d_type == DT_DIR) {
+    } else if (getFileType(fullPath.c_str()) == FileTypeDirectory) {
       getJavaFilesRecursive(fileList, fullPath + string("/"));
     }
   }
@@ -50,15 +48,13 @@ void getJavaFilesRecursive(vector<string> &fileList, string folder) {
 void compileMain(const vector<string> &fileList) {
   LOGR("Compilation starting...");
   for (const auto &file: fileList) {
-    struct stat statBuf;
     const char *fileName = file.c_str();
-    s32 value = stat(fileName, &statBuf);
-    if (value) {
-      LOGR("failed to open %s: %s", fileName, strerror(errno));
-      continue;      
+    const s64 size = getFileSize(fileName);
+    if (size < 0) {
+      LOGR("%s is not accessible", fileName);
+      continue;
     }
-
-    LOGR("%s: %ld bytes", fileName, statBuf.st_size);
+    LOGR("%s: %lld bytes", fileName, size);
   }
   LOGR("End of compilation");
 }
@@ -86,11 +82,11 @@ void batchTesting(const string &baseDir, const vector<string> &stdlib) {
     string name(ent->d_name);
     string fullPath = baseDir + name;    
 
-    if (ent->d_type == DT_REG) {
+    if (getFileType(fullPath.c_str()) == FileTypeRegular) {
       fileList.push_back(fullPath);
       compileMain(fileList);
       fileList.pop_back();
-    } else if (ent->d_type == DT_DIR) {
+    } else if (getFileType(fullPath.c_str()) == FileTypeDirectory) {
       vector<string> fileBundle;
       getJavaFilesRecursive(fileBundle, fullPath + "/");
       fileList.insert(fileList.end(), fileBundle.begin(), fileBundle.end());

@@ -1,15 +1,10 @@
+#pragma once
+
 #include <stdio.h>
 #include <stdint.h>
-#include <unistd.h>
-#include <dirent.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <time.h>
-#include <locale.h>
 #include <string.h>
-#include <signal.h>
-#include <execinfo.h>
-#include <sys/stat.h>
 
 //
 // handy macros
@@ -64,18 +59,6 @@ void unimplementedImpl();
 //
 // Log and asserts
 //
-
-typedef struct {
-  s32 year;
-  s32 month;
-  s32 day;
-  s32 hour;
-  s32 minute;
-  s32 second;
-  s32 millisecond;
-} CivicTimeInfo;
-
-void getCivicTime(CivicTimeInfo *);
 
 [[gnu::format(printf, 1, 5)]] void logImpl(const char *str, const char *file, s32 line, const char *func, ...);
 

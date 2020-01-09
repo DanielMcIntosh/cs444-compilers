@@ -19,7 +19,11 @@ WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimiza
   -Wsuggest-attribute=noreturn -Wsuggest-attribute=format -Wnull-dereference
 
 CPPFLAGS ?= $(INC_FLAGS) $(WARNINGS) -MMD -MP -g
-LDFLAGS += -g -rdynamic
+ifeq ($(OS),Windows_NT)
+	LDFLAGS += -g
+else
+	LDFLAGS += -g -rdynamic
+endif
 
 $(EXEC): $(OBJS)
 	$(CXX) $(OBJS) -o $@ $(LDFLAGS)

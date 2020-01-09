@@ -1,4 +1,7 @@
+#include <time.h>
+
 #include "utility.h"
+#include "platform.h"
 
 void assertImpl(bool value, const char *str, ...) {
   if (!value) {
@@ -19,7 +22,6 @@ void assertImpl_(bool value, const char *str, const char *fmt, ...) {
 }
 
 [[noreturn]] void unimplementedImpl() {
-  raise(SIGTRAP);
   abort();
 }
 
@@ -54,35 +56,9 @@ void logImpl(const char *str, const char *file, s32 line, const char *func, ...)
   fprintf(stderr, "%s", logEntry);  
 }
 
-void getCivicTime(CivicTimeInfo *info) {
-  struct tm ts;
-  time_t timePoint = time(0);
-  localtime_r(&timePoint, &ts);
-
-  info->year = ts.tm_year + 1900;
-  info->month = ts.tm_mon;
-  info->day = ts.tm_mday;
-  info->hour = ts.tm_hour;
-  info->minute = ts.tm_min;
-  info->second = ts.tm_sec;
-  info->millisecond = 0;
-}
-
-[[noreturn]] void signalHandler(int num) {
-  void *frames[128];
-  s32 numTrace = backtrace(frames, 128);
-  fprintf(stderr, "\nReceived signal: %s\n", strsignal(num));
-  backtrace_symbols_fd(frames, numTrace, STDERR_FILENO);
-  fprintf(stderr, "Exiting\n");
-  exit(1);
-}
-
 void globalInit() {
-  setlocale(LC_ALL, "en_US.UTF-8");
   srand(time(0));
-  signal(SIGSEGV, signalHandler);
-  signal(SIGBUS, signalHandler);
-  signal(SIGILL, signalHandler);    
+  platformInit();
 }
 
 void globalFini() {
