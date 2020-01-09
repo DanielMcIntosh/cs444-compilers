@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <stdint.h>
-#include <unistd.h>
 #include <dirent.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <signal.h>
 
 #include <vector>
 #include <string>
@@ -111,12 +109,12 @@ void checkTestMode() {
     return;
   
   s32 num = atoi(assnNum);
-  const char *assnBase = "./tests/assignment_testcases";
+  const char *assnBase = "tests/assignment_testcases";
   strdecl256(progFolder, "%s/a%d/", assnBase, num);
 
   vector<string> stdlib;
   if (num >= 2) {
-    const char *libBase = "./tests/stdlib";
+    const char *libBase = "tests/stdlib";
     strdecl256(libFolder, "%s/%d.0/", libBase, num);
     getJavaFilesRecursive(stdlib, string(libFolder));
   }

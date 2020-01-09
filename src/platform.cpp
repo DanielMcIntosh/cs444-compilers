@@ -64,6 +64,8 @@ s64 getFileSize(const char *path) {
 
 #ifdef _WIN32
 
+#include <fileapi.h>
+
 void getCivicTime(CivicTimeInfo *) {  
 }
 
@@ -71,11 +73,23 @@ void platformInit() {
 }
 
 FileType getFileType(const char *path) {
-  
+  DWORD result = GetFileAttributesA(path);
+  if (result & FILE_ATTRIBUTE_DIRECTORY)
+    return FileTypeDirectory;
+  if ((result & FILE_ATTRIBUTE_NORMAL) || (result & FILE_ATTRIBUTE_ARCHIVE))
+    return FileTypeRegular;
+  return FileTypeUnknown;
 }
 
 s64 getFileSize(const char *path) {
-  
+  WIN32_FILE_ATTRIBUTE_DATA attrData;
+  DWORD result = GetFileAttributesExA(path, GetFileExInfoStandard, &attrData);
+  if (!result)
+      return -1;
+  LARGE_INTEGER size;
+  size.HighPart = attrData.nFileSizeHigh;
+  size.LowPart = attrData.nFileSizeLow;
+  return size.QuadPart;
 }
 
 #endif // _WIN32
