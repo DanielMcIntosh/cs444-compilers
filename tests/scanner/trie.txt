@@ -1,0 +1,8 @@
+Goal:
+  Keyword
+
+Keyword:
+  w a
+  w ad
+  w bc
+  w be
