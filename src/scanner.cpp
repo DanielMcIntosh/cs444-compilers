@@ -216,7 +216,7 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
           if (it == transitionArray.end() || it->letter != letter)
             continue;
 
-          nextNStates.push_back(nstate);
+          nextNStates.push_back(it->state);
         }
 
         if (nextNStates.empty())

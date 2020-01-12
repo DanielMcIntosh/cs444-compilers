@@ -1,0 +1,37 @@
+Goal:
+  Keyword
+  Identifier
+  Number
+
+Keyword:
+  w if
+  w int
+
+Identifier:
+  IdentifierChars
+
+IdentifierChars:
+  Letter
+  IdentifierChars LetterNumber
+
+Letter:
+  v $ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz   
+
+LetterNumber:
+  v $0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz
+
+Number:
+  v 0
+  NonZeroDigit
+  NonZeroDigit Digits
+
+Digits:
+  Digit
+  Digits Digit
+
+Digit:
+  v 0
+  NonZeroDigit
+
+NonZeroDigit:
+  v 123456789
