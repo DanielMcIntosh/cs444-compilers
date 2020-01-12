@@ -50,7 +50,7 @@ void scannerRules(Scanner *scanner, const char *text) {
     s32 lineLen = strcspn(textPtr, newline);
 
     char line[TWO_TO_EIGHT];
-    snprintf(line, lineLen, "%s", textPtr);
+    snprintf(line, lineLen + 1, "%s", textPtr);
     line[lineLen] = 0;
     textPtr += lineLen;
     textPtr += strspn(textPtr, newline);
@@ -154,7 +154,7 @@ void scannerRules(Scanner *scanner, const char *text) {
     sort(curNStates.begin(), curNStates.end(), greater<void *>());
     scannerCreateDStateFromNState(scanner, curNStates);
 
-    for (s32 curDStateIndex = 0; curDStateIndex < scanner->dstates.size();
+    for (size_t curDStateIndex = 0; curDStateIndex < scanner->dstates.size();
          ++curDStateIndex) {
       DState *curDState = scanner->dstates[curDStateIndex];      
       for (s32 letter = 0; letter < NumLetters; ++letter) {
@@ -194,7 +194,7 @@ void scannerRules(Scanner *scanner, const char *text) {
 
       LOGR("State %d: \n  ", dstate->index);
 
-      for (s32 dstateIndex = 0; dstateIndex < transitionMap.size();
+      for (size_t dstateIndex = 0; dstateIndex < transitionMap.size();
            ++dstateIndex) {
         const vector<bool> &bitmap = transitionMap[dstateIndex];
         bool hasAny = false;
@@ -205,7 +205,7 @@ void scannerRules(Scanner *scanner, const char *text) {
           }
         }
         if (hasAny)
-          fprintf(stderr, " : %d\n  ", dstateIndex);
+          fprintf(stderr, " : %ld\n  ", dstateIndex);
       }
     }
   }

@@ -122,8 +122,8 @@ void checkTestMode() {
 
 void checkScanner() {
   const char *mode = getenv("JOOSC_MODE");
-  //if (!mode || strcmp(mode, "scanner"))
-  //return;
+  if (!mode || strcmp(mode, "scanner"))
+    return;
 
   {       
     using namespace Scan;
@@ -138,7 +138,7 @@ void checkScanner() {
     scannerRules(&scanner, fileContents);
     scannerNFAtoDFA(&scanner);
     scannerDumpDFA(&scanner);
-    LOGR("%d tokens, %d nstates, %d dstates", scanner.tokens.size(),
+    LOGR("%lu tokens, %lu nstates, %lu dstates", scanner.tokens.size(),
          scanner.nstates.size(), scanner.dstates.size());    
   }
 }

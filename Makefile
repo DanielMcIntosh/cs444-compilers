@@ -32,7 +32,7 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-.PHONY: clean a1 a2 a3 a4 a5
+.PHONY: clean a1 a2 a3 a4 a5 scanner
 
 clean:
 	$(RM) -r $(BUILD_DIR)
@@ -47,6 +47,9 @@ a4: $(EXEC)
 	export JOOSC_MODE=test; export JOOSC_ASSN=4; ./$(EXEC)
 a5: $(EXEC)
 	export JOOSC_MODE=test; export JOOSC_ASSN=5; ./$(EXEC)
+scanner: $(EXEC)
+	export JOOSC_MODE=scanner; ./$(EXEC)
+
 
 -include $(DEPS)
 

@@ -16,7 +16,7 @@ const s32 NumLetters = 128;
 
 template <typename T>
 struct Edge {
-  char letter;
+  s32 letter;
   T *state;
 
   bool operator<(const Edge &other) {
