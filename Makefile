@@ -18,7 +18,7 @@ WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimiza
   -Wfloat-conversion -Wsuggest-attribute=pure -Wsuggest-attribute=const \
   -Wsuggest-attribute=noreturn -Wsuggest-attribute=format -Wnull-dereference
 
-CPPFLAGS ?= $(INC_FLAGS) $(WARNINGS) -MMD -MP -g
+CPPFLAGS ?= $(INC_FLAGS) $(WARNINGS) -D__USE_MINGW_ANSI_STDIO -MMD -MP -g
 ifeq ($(OS),Windows_NT)
 	LDFLAGS += -g
 else

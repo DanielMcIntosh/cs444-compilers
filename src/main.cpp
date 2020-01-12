@@ -5,7 +5,6 @@
 
 #include <vector>
 #include <string>
-#include <algorithm>
 
 #include "utility.h"
 #include "platform.h"
@@ -125,17 +124,21 @@ void checkScanner() {
   if (!mode || strcmp(mode, "scanner"))
     return;
 
+  const char *file = getenv("JOOSC_SCANNER_FILE");
+  if (!file)
+    file = "lex.txt";
+
   {       
     using namespace Scan;
 
     char *fileContents;
     s32 fileSize;
-    readEntireFile("lex.txt", &fileContents, &fileSize);
+    readEntireFile(file, &fileContents, &fileSize);
     if (!fileContents)
       return;
     
     Scanner scanner;
-    scannerRules(&scanner, fileContents);
+    scannerRegularLanguageToNFA(&scanner, fileContents);
     scannerNFAtoDFA(&scanner);
     scannerDumpDFA(&scanner);
     LOGR("%lu tokens, %lu nstates, %lu dstates", scanner.tokens.size(),

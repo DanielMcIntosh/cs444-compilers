@@ -4,7 +4,6 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-#include <array>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -13,21 +12,24 @@
 
 namespace Scan {
 
+NState *scannerCreateNState(Scanner *scanner) {
+  NState *state = new NState;
+  state->index = scanner->nstates.size();
+  scanner->nstates.push_back(state);
+  return state;
+}
+
 void scannerCreateToken(Scanner *scanner, const string &tokenS) {
   ASSERT(!scanner->tokenMap.count(tokenS));
   Token *token = new Token;
-  NState *start = new NState, *accept = new NState;
-
-  start->index = scanner->nstates.size();  
-  accept->index = scanner->nstates.size();
-
-  token->startingNState = start;
-  token->acceptingNState = accept;
+  
+  token->startingNState = scannerCreateNState(scanner);
+  token->acceptingNState = scannerCreateNState(scanner);
   token->index = scanner->tokenMap.size();
+  token->declared = false;
+  token->name = tokenS;
   
   scanner->tokens.push_back(token);
-  scanner->nstates.push_back(start);
-  scanner->nstates.push_back(accept);
   
   scanner->tokenMap[tokenS] = token;
 }
@@ -41,7 +43,7 @@ Token *scannerFindOrCreateToken(Scanner *scanner, const string &tokenS) {
   return it->second;
 }
 
-void scannerRules(Scanner *scanner, const char *text) {
+void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
   const char *textPtr = text;
 
   Token *curMajorToken = 0;
@@ -57,45 +59,92 @@ void scannerRules(Scanner *scanner, const char *text) {
 
     bool isDef = (*line != ' ');
 
-    const char *delim = " ";
+    const char *delim = " \t";
     char *token = strtok(line, delim);
+    if (!token)
+      continue;
+        
     s32 tokenLen = strlen(token);
     if (isDef) { // token definition
       token[tokenLen - 1] = 0;
       string tokenS(token);
       curMajorToken = scannerFindOrCreateToken(scanner, tokenS);
+      curMajorToken->declared = true;
       continue;
     }
 
     if (!strcmp(token, "v")) { // terminating letters
       token = strtok(0, delim);
-      for (char s = *token; s; s = *++token) {
+      for (char c = *token; c; c = *++token) {
         auto &transitionArray = curMajorToken->startingNState->letterTransition;
-        transitionArray.push_back({s, curMajorToken->acceptingNState});
+        transitionArray.push_back({c, curMajorToken->acceptingNState});
       }
       continue;
     }
 
-    // list of rules
-    Token *rulePrevToken = 0;    
+    if (!strcmp(token, "w")) { // build a chain of states from a word
+      token = strtok(0, delim);
+        
+      NState * intermediateState = scannerCreateNState(scanner);
+      curMajorToken->startingNState->epsilonTransitions.push_back(intermediateState);        
+      for (char c = *token; c; c = *++token) {
+        NState *nextNState = scannerCreateNState(scanner);
+        intermediateState->letterTransition.push_back({c, nextNState});
+        intermediateState->stateSymbol = c;
+        intermediateState = nextNState;
+      }
+      intermediateState->epsilonTransitions.push_back(curMajorToken->acceptingNState);
+
+      continue;
+    }
+
+    // a single rule
+    NState *prevAcceptingState = 0;
     while (token) {
+      if (!strcmp(token, "c")) { // single character follows
+        token = strtok(0, delim);
+        s32 value = atoi(token);
+        if (!value)
+          value = token[0];
+        
+        NState *nextState = scannerCreateNState(scanner);
+        if (!prevAcceptingState) {
+          NState *ruleBeginState = scannerCreateNState(scanner);          
+          curMajorToken->startingNState->epsilonTransitions.push_back(ruleBeginState);
+          prevAcceptingState = ruleBeginState;
+        }
+
+        prevAcceptingState->letterTransition.push_back({(char)value,
+                                                        nextState});
+        prevAcceptingState = nextState;
+
+        token = strtok(0, delim);
+        continue;
+      }
+      
       string tokenS(token);
       Token *thisToken = scannerFindOrCreateToken(scanner, tokenS);
-      if (!rulePrevToken) { // beginning of a rule
+      if (!prevAcceptingState) { // beginning of a rule
         curMajorToken->startingNState->epsilonTransitions.push_back(thisToken->startingNState);
       } else { // concatenation
-        rulePrevToken->acceptingNState->epsilonTransitions.push_back(thisToken->startingNState);
+        prevAcceptingState->epsilonTransitions.push_back(thisToken->startingNState);
       }
 
-      rulePrevToken = thisToken;
+      prevAcceptingState = thisToken->acceptingNState;
       token = strtok(0, delim);
     }
 
-    rulePrevToken->acceptingNState->epsilonTransitions.push_back(curMajorToken->acceptingNState);
+    prevAcceptingState->epsilonTransitions.push_back(curMajorToken->acceptingNState);
   }
 
   for (NState *nstate : scanner->nstates) {
     sort(nstate->letterTransition.begin(), nstate->letterTransition.end());
+  }
+
+  for (const auto &statePair: scanner->tokenMap) {
+    if (!statePair.second->declared) {
+      LOGR("%s not declared!", statePair.first.c_str());
+    }
   }
 }
 
@@ -151,7 +200,7 @@ void scannerRules(Scanner *scanner, const char *text) {
     
     vector<NState *> curNStates {goal->startingNState};
     curNStates = epsilonClosure(curNStates);
-    sort(curNStates.begin(), curNStates.end(), greater<void *>());
+    sort(curNStates.begin(), curNStates.end(), greater<>());
     scannerCreateDStateFromNState(scanner, curNStates);
 
     for (size_t curDStateIndex = 0; curDStateIndex < scanner->dstates.size();
@@ -162,7 +211,8 @@ void scannerRules(Scanner *scanner, const char *text) {
         
         for (NState* nstate: curDState->nstates) {
           auto &transitionArray = nstate->letterTransition;
-          auto it = lower_bound(transitionArray.begin(), transitionArray.end(), Edge<NState>{letter, 0});
+          auto it = lower_bound(transitionArray.begin(), transitionArray.end(),
+                  Edge<NState>{(char)letter, 0});
           if (it == transitionArray.end() || it->letter != letter)
             continue;
 
@@ -173,13 +223,13 @@ void scannerRules(Scanner *scanner, const char *text) {
           continue;
         
         nextNStates = epsilonClosure(nextNStates);
-        sort(nextNStates.begin(), nextNStates.end(), greater<void *>());
+        sort(nextNStates.begin(), nextNStates.end(), greater<>());
         DState *nextDState = scannerFindDStateFromNState(scanner, nextNStates);
         if (!nextDState) {
           nextDState = scannerCreateDStateFromNState(scanner, nextNStates);
         }
 
-        curDState->transition.push_back({letter, nextDState});        
+        curDState->transition.push_back({(char)letter, nextDState});
       }
     }    
   }
@@ -201,11 +251,15 @@ void scannerRules(Scanner *scanner, const char *text) {
         for (s32 j = 0; j < NumLetters; ++j) {
           if (bitmap[j]) {
             hasAny = true;
-            fputc(j, stderr);
+            if (j <= ' ') {
+              fprintf(stderr, "\\x%x", j);
+            } else {
+              fputc(j, stderr);              
+            }
           }
         }
         if (hasAny)
-          fprintf(stderr, " : %ld\n  ", dstateIndex);
+          fprintf(stderr, " -> %lld\n  ", dstateIndex);
       }
     }
   }

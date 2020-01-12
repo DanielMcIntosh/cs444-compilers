@@ -16,7 +16,7 @@ const s32 NumLetters = 128;
 
 template <typename T>
 struct Edge {
-  s32 letter;
+  char letter;
   T *state;
 
   bool operator<(const Edge &other) {
@@ -35,6 +35,7 @@ struct NState {
   vector<NState *> epsilonTransitions;
 
   s32 index;
+  char stateSymbol;
 };
 
 struct Token {   
@@ -42,6 +43,8 @@ struct Token {
   NState *acceptingNState;
 
   s32 index;
+  bool declared;
+  string name;
 };
 
 struct DState;
@@ -61,7 +64,7 @@ struct Scanner {
   vector<DState *> dstates;
 };
 
-void scannerRules(Scanner *scanner, const char *text);
+void scannerRegularLanguageToNFA(Scanner *scanner, const char *text);
 void scannerNFAtoDFA(Scanner *scanner);
 void scannerDumpDFA(const Scanner *scanner);
  

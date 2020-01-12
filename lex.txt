@@ -1,7 +1,135 @@
-Goal:
-  Literals
+LineTerminator:
+  c 10
+  c 13
+  c 10 c 13
 
-Literals:
+InputCharacter:
+  v !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+
+Goal:
+  Input
+
+Input:
+  InputElements
+
+InputElements:
+  InputElement
+  InputElements InputElement
+
+InputElement:
+  WhiteSpace
+  Comment
+  Token
+
+Token:
+  Identifier
+  Keyword
+  Literal
+  Separator
+  Operator
+
+WhiteSpace:
+  c 32
+  c 9
+  c 12
+  LineTerminator
+
+Comment:
+  TraditionalComment
+  EndOfLineComment
+
+TraditionalComment:
+  c / c * NotStar CommentTail
+
+EndOfLineComment:
+  c / c / LineTerminator
+  c / c / CharactersInLine LineTerminator
+
+CommentTail:
+  c * CommentTailStar
+  NotStar CommentTail
+
+CommentTailStar:
+  c /
+  c * CommentTailStar
+	NotStarNotSlash CommentTail
+
+NotStar:
+  v !"#$%&'()+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+	LineTerminator
+
+NotStarNotSlash:
+  v !"#$%&'()+,-.0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+	LineTerminator
+
+CharactersInLine:
+	InputCharacter
+	CharactersInLine InputCharacter
+
+Identifier:
+  IdentifierChars
+
+IdentifierChars:
+  JavaLetter
+  IdentifierChars JavaLetterOrDigit
+
+JavaLetter:
+  v $ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz
+
+JavaLetterOrDigit:
+  v $0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz
+
+Keyword:
+  w abstract
+  w boolean
+  w break
+  w byte
+  w case
+  w catch
+  w char
+  w class
+  w const
+  w continue
+  w default
+  w do
+  w double
+  w else
+  w extends
+  w final
+  w finally
+  w float
+  w for
+  w goto
+  w if
+  w implements
+  w import
+  w instanceof
+  w int
+  w interface
+  w long
+  w native
+  w new
+  w package
+  w private
+  w protected
+  w public
+  w return
+  w short
+  w static
+  w strictfp
+  w super
+  w switch
+  w synchronized
+  w this
+  w throw
+  w throws
+  w transient
+  w try
+  w void
+  w volatile
+  w while 
+
+Literal:
   IntegerLiteral
   BooleanLiteral
   CharacterLiteral
@@ -29,3 +157,101 @@ Digit:
 
 NonZeroDigit:
   v 123456789
+
+BooleanLiteral:
+  w true
+  w false
+
+CharacterLiteral:
+  c ' SingleCharacter c '
+  c ' EscapeSequence c '
+
+SingleCharacter:
+  v !"#$%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~  
+
+StringLiteral:
+  c " c "
+  c " StringCharacters c "
+
+StringCharacters:
+  StringCharacter
+  StringCharacters StringCharacter
+
+StringCharacter:
+  v !#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~
+  EscapeSequence
+
+EscapeSequence:
+  c \ c b
+  c \ c t
+  c \ c n
+  c \ c f
+  c \ c r
+  c \ c "
+  c \ c '
+  c \ c \
+  OctalEscape
+
+OctalEscape:
+  c \ OctalDigit
+  c \ OctalDigit OctalDigit
+  c \ ZeroToThree OctalDigit OctalDigit
+
+OctalDigit:
+  v 01234567
+
+ZeroToThree:
+  v 0123
+
+NullLiteral:
+  w null
+
+Separator:
+  w (
+  w )
+  w {
+  w }
+  w [
+  w ]
+  w ;
+  w ,
+  w .
+
+Operator:
+  w =
+  w >
+  w <
+  w !
+  w ~
+  w ?
+  w :
+  w ==
+  w <=
+  w >=
+  w !=
+  w &&
+  w ||
+  w ++
+  w --
+  w +
+  w -
+  w *
+  w /
+  w &
+  w |
+  w ^
+  w %
+  w <<
+  w >>
+  w >>>
+  w +=
+  w -=
+  w *=
+  w /=
+  w &=
+  w |=
+  w ^=
+  w %=
+  w <<=
+  w >>=
+  w >>>=
