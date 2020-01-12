@@ -67,3 +67,9 @@ void unimplementedImpl();
 [[gnu::format(printf, 3, 4)]] void assertImpl_(bool val, const char *str, const char *fmt, ...);
 void globalInit();
 void globalFini();
+
+//
+// File operations
+//
+
+void readEntireFile(const char *path, char **content, s32 *size);

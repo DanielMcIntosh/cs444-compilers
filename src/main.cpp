@@ -1,8 +1,6 @@
 #include <stdio.h>
-#include <stdint.h>
 #include <dirent.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
 
 #include <vector>
@@ -11,6 +9,7 @@
 
 #include "utility.h"
 #include "platform.h"
+#include "scanner.h"
 
 using namespace std;
 
@@ -121,6 +120,29 @@ void checkTestMode() {
   batchTesting(string(progFolder), stdlib);    
 }
 
+void checkScanner() {
+  const char *mode = getenv("JOOSC_MODE");
+  //if (!mode || strcmp(mode, "scanner"))
+  //return;
+
+  {       
+    using namespace Scan;
+
+    char *fileContents;
+    s32 fileSize;
+    readEntireFile("lex.txt", &fileContents, &fileSize);
+    if (!fileContents)
+      return;
+    
+    Scanner scanner;
+    scannerRules(&scanner, fileContents);
+    scannerNFAtoDFA(&scanner);
+    scannerDumpDFA(&scanner);
+    LOGR("%d tokens, %d nstates, %d dstates", scanner.tokens.size(),
+         scanner.nstates.size(), scanner.dstates.size());    
+  }
+}
+
 int main(int argc, const char ** argv) {
   vector<string> fileList;
   for (int i = 1; i < argc; ++i) {
@@ -129,7 +151,9 @@ int main(int argc, const char ** argv) {
   
   globalInit();
 
-  checkTestMode();
+  checkScanner();
+
+  checkTestMode();  
 
   compileMain(fileList);
   

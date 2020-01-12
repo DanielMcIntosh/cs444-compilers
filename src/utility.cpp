@@ -5,14 +5,14 @@
 
 void assertImpl(bool value, const char *str, ...) {
   if (!value) {
-    LOG("failed: %d (%s) ", value, str);
+    LOGR("failed: %d (%s) ", value, str);
     UNIMPLEMENTED();
   }
 }
 
 void assertImpl_(bool value, const char *str, const char *fmt, ...) {
   if (!value) {
-    LOG("failed: %d (%s) ", value, str);
+    LOGR("failed: %d (%s) ", value, str);
     va_list arg;
     va_start(arg, fmt);
     vfprintf(stderr, fmt, arg);
@@ -63,4 +63,25 @@ void globalInit() {
 
 void globalFini() {
   fprintf(stderr, "\n");
+}
+
+void readEntireFile(const char *path, char **content, s32 *size) {
+  *content = 0;
+  *size = 0;
+  
+  FILE *file = fopen(path, "rb");
+  if (!file)
+    return;
+
+  fseek(file, 0, SEEK_END);
+  s32 fileSize = ftell(file);
+  fseek(file, 0, SEEK_SET);
+
+  char *filePtr = (char *)malloc(fileSize + 1);
+  
+  fread(filePtr, fileSize, 1, file);
+  filePtr[fileSize] = 0;
+  
+  *content = filePtr;
+  *size = fileSize;
 }

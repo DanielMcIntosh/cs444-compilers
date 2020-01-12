@@ -1,0 +1,31 @@
+Goal:
+  Literals
+
+Literals:
+  IntegerLiteral
+  BooleanLiteral
+  CharacterLiteral
+  StringLiteral
+  NullLiteral
+
+IntegerLiteral:
+  DecimalIntegerLiteral
+
+DecimalIntegerLiteral:
+  DecimalNumeral
+
+DecimalNumeral:
+  v 0
+  NonZeroDigit
+  NonZeroDigit Digits
+
+Digits:
+  Digit
+  Digits Digit
+
+Digit:
+  v 0
+  NonZeroDigit
+
+NonZeroDigit:
+  v 123456789

@@ -32,7 +32,7 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-.PHONY: clean
+.PHONY: clean a1 a2 a3 a4 a5
 
 clean:
 	$(RM) -r $(BUILD_DIR)
