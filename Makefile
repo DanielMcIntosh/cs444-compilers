@@ -1,7 +1,17 @@
-EXEC ?= joosc
+PERF := release
 
-BUILD_DIR ?= ./build
-SRC_DIRS ?= ./src
+ifeq ($(PERF), release)
+	CXXFLAGS += -O3
+	LDFLAGS += -flto -s
+  EXEC := joosc
+else
+	CXXFLAGS += -g -fsanitize=address
+	LDFLAGS += -g -lasan
+	EXEC := joosc_debug
+endif
+
+BUILD_DIR := ./build/$(PERF)
+SRC_DIRS := ./src
 
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp)
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
@@ -18,11 +28,10 @@ WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimiza
   -Wfloat-conversion -Wsuggest-attribute=pure -Wsuggest-attribute=const \
   -Wsuggest-attribute=noreturn -Wsuggest-attribute=format -Wnull-dereference
 
-CPPFLAGS ?= $(INC_FLAGS) $(WARNINGS) -D__USE_MINGW_ANSI_STDIO -MMD -MP -g
-ifeq ($(OS),Windows_NT)
-	LDFLAGS += -g
-else
-	LDFLAGS += -g -rdynamic
+CXXFLAGS += $(INC_FLAGS) $(WARNINGS) -D__USE_MINGW_ANSI_STDIO -MMD -MP -march=native
+
+ifneq ($(OS),Windows_NT)
+	LDFLAGS += -rdynamic
 endif
 
 $(EXEC): $(OBJS)
@@ -30,9 +39,9 @@ $(EXEC): $(OBJS)
 
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-.PHONY: clean a1 a2 a3 a4 a5 scanner
+.PHONY: clean a1 a2 a3 a4 a5 scanner scanner_tiger
 
 clean:
 	$(RM) -r $(BUILD_DIR)
@@ -49,6 +58,8 @@ a5: $(EXEC)
 	export JOOSC_MODE=test; export JOOSC_ASSN=5; ./$(EXEC)
 scanner: $(EXEC)
 	export JOOSC_MODE=scanner; ./$(EXEC)
+scanner_tiger: $(EXEC)
+	export JOOSC_MODE=scanner; export JOOSC_SCANNER_FILE=tests/scanner/tiger.txt; ./$(EXEC)
 
 
 -include $(DEPS)

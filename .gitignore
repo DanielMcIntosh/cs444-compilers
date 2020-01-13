@@ -3,6 +3,8 @@
 build
 joosc
 joosc.exe
+joosc_debug
+joosc_debug.exe
 *~
 \#*\#
 .\#*

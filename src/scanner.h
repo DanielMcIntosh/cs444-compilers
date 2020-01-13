@@ -3,8 +3,9 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-#include <array>
+#include <map>
 #include <unordered_map>
+#include <memory>
 
 #include "utility.h"
 
@@ -19,16 +20,17 @@ struct Edge {
   char letter;
   T *state;
 
-  bool operator<(const Edge &other) {
+  bool operator<(const Edge &other) const {
     return letter < other.letter;
   }
 
-  bool operator==(const Edge &other) {
+  bool operator==(const Edge &other) const {
     return letter == other.letter;
   }  
 };  
 
 struct NState;
+struct Token;
   
 struct NState {
   vector<Edge<NState>> letterTransition;
@@ -36,6 +38,9 @@ struct NState {
 
   s32 index;
   char stateSymbol;
+
+  bool emit;
+  Token *token;
 };
 
 struct Token {   
@@ -44,6 +49,7 @@ struct Token {
 
   s32 index;
   bool declared;
+  bool emit;
   string name;
 };
 
@@ -53,15 +59,19 @@ struct DState {
   vector<NState *> nstates;
   vector<Edge<DState>> transition;
 
+  vector<string> tokenEmission;
+
   s32 index;
 };
 
 struct Scanner {
   unordered_map<string, Token *> tokenMap;
 
-  vector<Token *> tokens;
-  vector<NState *> nstates;
-  vector<DState *> dstates;
+  vector<unique_ptr<Token>> tokens;
+  vector<unique_ptr<NState>> nstates;
+  vector<unique_ptr<DState>> dstates;
+
+  multimap<s32, DState *> dstateMap;
 };
 
 void scannerRegularLanguageToNFA(Scanner *scanner, const char *text);

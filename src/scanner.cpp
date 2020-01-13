@@ -13,24 +13,28 @@
 namespace Scan {
 
 NState *scannerCreateNState(Scanner *scanner) {
-  NState *state = new NState;
-  state->index = scanner->nstates.size();
-  scanner->nstates.push_back(state);
+  scanner->nstates.push_back(make_unique<NState>());
+
+  NState *state = scanner->nstates.back().get();
+  state->index = scanner->nstates.size() - 1;
+  state->stateSymbol = 0;
+  state->emit = false;
   return state;
 }
 
 void scannerCreateToken(Scanner *scanner, const string &tokenS) {
   ASSERT(!scanner->tokenMap.count(tokenS));
-  Token *token = new Token;
-  
+
+  scanner->tokens.push_back(make_unique<Token>());
+  Token *token = scanner->tokens.back().get();
+
   token->startingNState = scannerCreateNState(scanner);
   token->acceptingNState = scannerCreateNState(scanner);
-  token->index = scanner->tokenMap.size();
+  token->index = scanner->tokenMap.size() - 1;
   token->declared = false;
+  token->emit = false;
   token->name = tokenS;
-  
-  scanner->tokens.push_back(token);
-  
+
   scanner->tokenMap[tokenS] = token;
 }
 
@@ -38,7 +42,7 @@ Token *scannerFindOrCreateToken(Scanner *scanner, const string &tokenS) {
   auto it = scanner->tokenMap.find(tokenS);
   if (it == scanner->tokenMap.end()) {
     scannerCreateToken(scanner, tokenS);
-    it = scanner->tokenMap.find(tokenS);        
+    it = scanner->tokenMap.find(tokenS);
   }
   return it->second;
 }
@@ -63,7 +67,7 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
     char *token = strtok(line, delim);
     if (!token)
       continue;
-        
+
     s32 tokenLen = strlen(token);
     if (isDef) { // token definition
       token[tokenLen - 1] = 0;
@@ -76,17 +80,23 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
     if (!strcmp(token, "v")) { // terminating letters
       token = strtok(0, delim);
       for (char c = *token; c; c = *++token) {
-        auto &transitionArray = curMajorToken->startingNState->letterTransition;
-        transitionArray.push_back({c, curMajorToken->acceptingNState});
+        vector<Edge<NState>> *transitionArray =
+                &curMajorToken->startingNState->letterTransition;
+        transitionArray->push_back({c, curMajorToken->acceptingNState});
       }
+      continue;
+    }
+
+    if (!strcmp(token, "e")) { // actually emit a token
+      curMajorToken->emit = true;
       continue;
     }
 
     if (!strcmp(token, "w")) { // build a chain of states from a word
       token = strtok(0, delim);
-        
+
       NState * intermediateState = scannerCreateNState(scanner);
-      curMajorToken->startingNState->epsilonTransitions.push_back(intermediateState);        
+      curMajorToken->startingNState->epsilonTransitions.push_back(intermediateState);
       for (char c = *token; c; c = *++token) {
         NState *nextNState = scannerCreateNState(scanner);
         intermediateState->letterTransition.push_back({c, nextNState});
@@ -106,22 +116,21 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
         s32 value = atoi(token);
         if (!value)
           value = token[0];
-        
+
         NState *nextState = scannerCreateNState(scanner);
         if (!prevAcceptingState) {
-          NState *ruleBeginState = scannerCreateNState(scanner);          
+          NState *ruleBeginState = scannerCreateNState(scanner);
           curMajorToken->startingNState->epsilonTransitions.push_back(ruleBeginState);
           prevAcceptingState = ruleBeginState;
         }
 
-        prevAcceptingState->letterTransition.push_back({(char)value,
-                                                        nextState});
+        prevAcceptingState->letterTransition.push_back({(char)value, nextState});
         prevAcceptingState = nextState;
 
         token = strtok(0, delim);
         continue;
       }
-      
+
       string tokenS(token);
       Token *thisToken = scannerFindOrCreateToken(scanner, tokenS);
       if (!prevAcceptingState) { // beginning of a rule
@@ -137,14 +146,15 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
     prevAcceptingState->epsilonTransitions.push_back(curMajorToken->acceptingNState);
   }
 
-  for (NState *nstate : scanner->nstates) {
+  for (auto &nstate : scanner->nstates) {
     sort(nstate->letterTransition.begin(), nstate->letterTransition.end());
   }
 
-  for (const auto &statePair: scanner->tokenMap) {
-    if (!statePair.second->declared) {
-      LOGR("%s not declared!", statePair.first.c_str());
-    }
+  for (auto &statePair: scanner->tokenMap) {
+    Token *token = statePair.second;
+    ASSERT(token->declared);
+    token->acceptingNState->emit = token->emit;
+    token->acceptingNState->token = token;
   }
 }
 
@@ -168,30 +178,41 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
 
         seen.insert(epsilonNext);
         frontier.push_back(epsilonNext);
-        result.push_back(epsilonNext);        
+        result.push_back(epsilonNext);
       }
     }
 
     return result;
-  }  
+  }
 
   DState *scannerCreateDStateFromNState(Scanner *scanner,
                                         const vector<NState *> &nstates) {
-    DState *dstate = new DState;
+    scanner->dstates.push_back(make_unique<DState>());
+
+    DState *dstate = scanner->dstates.back().get();
     dstate->nstates = nstates;
-    dstate->index = scanner->dstates.size();
-    scanner->dstates.push_back(dstate);
+    dstate->index = scanner->dstates.size() - 1;
+
+    for (const NState* nstate: nstates) {
+      if (nstate->emit) {
+        dstate->tokenEmission.push_back(nstate->token->name);
+      }
+    }
+
+    scanner->dstateMap.insert(make_pair(nstates.size(), dstate));
+    
     return dstate;
   }
 
-  DState *scannerFindDStateFromNState(Scanner *scanner,
+  DState *scannerFindDStateFromNStateFast(Scanner *scanner,
                                       const vector<NState *> &nstates) {
-    for (DState *dstate: scanner->dstates) {
+    auto itPair = scanner->dstateMap.equal_range(nstates.size());
+    for (auto it = itPair.first; it != itPair.second; ++it) {
+      DState *dstate = it->second;
       if (equal(dstate->nstates.begin(), dstate->nstates.end(),
                 nstates.begin()))
         return dstate;
     }
-    
     return 0;
   }
 
@@ -200,19 +221,20 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
     
     vector<NState *> curNStates {goal->startingNState};
     curNStates = epsilonClosure(curNStates);
-    sort(curNStates.begin(), curNStates.end(), greater<>());
+    sort(curNStates.begin(), curNStates.end());
     scannerCreateDStateFromNState(scanner, curNStates);
 
     for (size_t curDStateIndex = 0; curDStateIndex < scanner->dstates.size();
          ++curDStateIndex) {
-      DState *curDState = scanner->dstates[curDStateIndex];      
+      DState *curDState = scanner->dstates[curDStateIndex].get();
       for (s32 letter = 0; letter < NumLetters; ++letter) {
         vector<NState *> nextNStates;
         
         for (NState* nstate: curDState->nstates) {
-          auto &transitionArray = nstate->letterTransition;
+          const vector<Edge<NState>> &transitionArray =
+                  nstate->letterTransition;
           auto it = lower_bound(transitionArray.begin(), transitionArray.end(),
-                  Edge<NState>{(char)letter, 0});
+                                Edge<NState>{(char)letter, 0});
           if (it == transitionArray.end() || it->letter != letter)
             continue;
 
@@ -223,8 +245,8 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
           continue;
         
         nextNStates = epsilonClosure(nextNStates);
-        sort(nextNStates.begin(), nextNStates.end(), greater<>());
-        DState *nextDState = scannerFindDStateFromNState(scanner, nextNStates);
+        sort(nextNStates.begin(), nextNStates.end());
+        DState *nextDState = scannerFindDStateFromNStateFast(scanner, nextNStates);
         if (!nextDState) {
           nextDState = scannerCreateDStateFromNState(scanner, nextNStates);
         }
@@ -235,14 +257,30 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
   }
 
   void scannerDumpDFA(const Scanner *scanner) {
-    for (const DState *dstate : scanner->dstates) {
+    FILE *file;
+    if (scanner->dstates.size() > 100)
+      file = fopen("dfa.txt", "w");
+    else
+      file = stderr;
+    
+    for (const auto &dstate : scanner->dstates) {
       vector<vector<bool>> transitionMap(scanner->dstates.size(),
                                          vector<bool>(NumLetters));
-      for (const Edge<DState> &edge : dstate->transition) {        
+      for (const Edge<DState> &edge : dstate->transition) {
         transitionMap[edge.state->index][edge.letter] = true;
       }
 
-      LOGR("State %d: \n  ", dstate->index);
+      fprintf(file, "\nState %d: ", dstate->index);
+      /*
+      for (const NState *nstate: dstate->nstates) {
+        fprintf(file, "%d ", nstate->index);
+      }
+      */
+
+      for (const string &tokenName: dstate->tokenEmission) {
+        fprintf(file, "%s ", tokenName.c_str());
+      }
+      fprintf(file, "\n  ");
 
       for (size_t dstateIndex = 0; dstateIndex < transitionMap.size();
            ++dstateIndex) {
@@ -252,14 +290,14 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
           if (bitmap[j]) {
             hasAny = true;
             if (j <= ' ') {
-              fprintf(stderr, "\\x%x", j);
+              fprintf(file, "\\x%x", j);
             } else {
-              fputc(j, stderr);              
+              fputc(j, file);              
             }
           }
         }
         if (hasAny)
-          fprintf(stderr, " -> %lld\n  ", dstateIndex);
+          fprintf(file, " -> %ld\n  ", dstateIndex);
       }
     }
   }

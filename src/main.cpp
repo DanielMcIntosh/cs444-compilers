@@ -142,7 +142,9 @@ void checkScanner() {
     scannerNFAtoDFA(&scanner);
     scannerDumpDFA(&scanner);
     LOGR("%lu tokens, %lu nstates, %lu dstates", scanner.tokens.size(),
-         scanner.nstates.size(), scanner.dstates.size());    
+         scanner.nstates.size(), scanner.dstates.size());
+
+    free(fileContents);
   }
 }
 

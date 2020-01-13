@@ -52,21 +52,22 @@ CommentTail:
 CommentTailStar:
   c /
   c * CommentTailStar
-	NotStarNotSlash CommentTail
+  NotStarNotSlash CommentTail
 
 NotStar:
   v !"#$%&'()+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
-	LineTerminator
+  LineTerminator
 
 NotStarNotSlash:
   v !"#$%&'()+,-.0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
-	LineTerminator
+  LineTerminator
 
 CharactersInLine:
-	InputCharacter
-	CharactersInLine InputCharacter
+  InputCharacter
+  CharactersInLine InputCharacter
 
 Identifier:
+  e 
   IdentifierChars
 
 IdentifierChars:
@@ -80,6 +81,7 @@ JavaLetterOrDigit:
   v $0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz
 
 Keyword:
+  e
   w abstract
   w boolean
   w break
@@ -137,6 +139,7 @@ Literal:
   NullLiteral
 
 IntegerLiteral:
+  e
   DecimalIntegerLiteral
 
 DecimalIntegerLiteral:
@@ -159,10 +162,12 @@ NonZeroDigit:
   v 123456789
 
 BooleanLiteral:
+  e
   w true
   w false
 
 CharacterLiteral:
+  e
   c ' SingleCharacter c '
   c ' EscapeSequence c '
 
@@ -170,6 +175,7 @@ SingleCharacter:
   v !"#$%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~  
 
 StringLiteral:
+  e
   c " c "
   c " StringCharacters c "
 
@@ -204,9 +210,11 @@ ZeroToThree:
   v 0123
 
 NullLiteral:
+  e
   w null
 
 Separator:
+  e
   w (
   w )
   w {
@@ -218,6 +226,7 @@ Separator:
   w .
 
 Operator:
+  e
   w =
   w >
   w <

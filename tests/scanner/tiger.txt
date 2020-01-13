@@ -4,6 +4,7 @@ Goal:
   Number
 
 Keyword:
+  w g
   w if
   w int
 
