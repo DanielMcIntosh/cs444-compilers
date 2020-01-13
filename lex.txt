@@ -34,24 +34,39 @@ WhiteSpace:
   c 12
   LineTerminator
 
+ForwardSlash:
+  v /
+
+BackSlash:
+  v \
+
+SingleQuote:
+  v '
+
+DoubleQuote:
+  v "
+
+Star:
+  v *
+
 Comment:
   TraditionalComment
   EndOfLineComment
 
 TraditionalComment:
-  c / c * NotStar CommentTail
+  ForwardSlash Star NotStar CommentTail
 
 EndOfLineComment:
-  c / c / LineTerminator
-  c / c / CharactersInLine LineTerminator
+  ForwardSlash ForwardSlash LineTerminator
+  ForwardSlash ForwardSlash CharactersInLine LineTerminator
 
 CommentTail:
-  c * CommentTailStar
+  Star CommentTailStar
   NotStar CommentTail
 
 CommentTailStar:
-  c /
-  c * CommentTailStar
+  ForwardSlash
+  Star CommentTailStar
   NotStarNotSlash CommentTail
 
 NotStar:
@@ -168,16 +183,16 @@ BooleanLiteral:
 
 CharacterLiteral:
   e
-  c ' SingleCharacter c '
-  c ' EscapeSequence c '
+  SingleQuote SingleCharacter SingleQuote
+  SingleQuote EscapeSequence SingleQuote
 
 SingleCharacter:
   v !"#$%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~  
 
 StringLiteral:
   e
-  c " c "
-  c " StringCharacters c "
+  DoubleQuote DoubleQuote
+  DoubleQuote StringCharacters DoubleQuote
 
 StringCharacters:
   StringCharacter
@@ -188,20 +203,20 @@ StringCharacter:
   EscapeSequence
 
 EscapeSequence:
-  c \ c b
-  c \ c t
-  c \ c n
-  c \ c f
-  c \ c r
-  c \ c "
-  c \ c '
-  c \ c \
+  BackSlash c b
+  BackSlash c t
+  BackSlash c n
+  BackSlash c f
+  BackSlash c r
+  BackSlash DoubleQuote
+  BackSlash SingleQuote
+  BackSlash BackSlash
   OctalEscape
 
 OctalEscape:
-  c \ OctalDigit
-  c \ OctalDigit OctalDigit
-  c \ ZeroToThree OctalDigit OctalDigit
+  BackSlash OctalDigit
+  BackSlash OctalDigit OctalDigit
+  BackSlash ZeroToThree OctalDigit OctalDigit
 
 OctalDigit:
   v 01234567

@@ -12,7 +12,11 @@
 
 using namespace std;
 
-void getJavaFilesRecursive(vector<string> &fileList, string folder) {
+struct JoosC {
+  Scan::Scanner scanner;
+};
+
+void getJavaFilesRecursive(vector<string> &fileList, const string &folder) {
   DIR *dir = opendir(folder.c_str());
   if (!dir)
     return;
@@ -41,7 +45,7 @@ void getJavaFilesRecursive(vector<string> &fileList, string folder) {
   closedir(dir);
 }
 
-void compileMain(const vector<string> &fileList) {
+void compileMain(JoosC *joosc, const vector<string> &fileList) {
   LOGR("Compilation starting...");
   for (const auto &file: fileList) {
     const char *fileName = file.c_str();
@@ -50,7 +54,19 @@ void compileMain(const vector<string> &fileList) {
       LOGR("%s is not accessible", fileName);
       continue;
     }
-    LOGR("%s: %ld bytes", fileName, size);
+    /*
+    char *contents;
+    s32 fileSize;
+    readEntireFile(fileName, &contents, &fileSize);
+    Scan::ScanResult result = Scan::scannerProcessFile(&joosc->scanner, contents);
+    if (result.valid) {
+      LOGR("Valid, %ld bytes, %s", size, fileName);
+    } else {
+      char snapshot[TWO_TO_EIGHT];
+
+      LOGR("Invalid (%s), %ld bytes, %s", snapshot, size, fileName);
+    }
+     */
   }
   LOGR("End of compilation");
 }
@@ -80,13 +96,13 @@ void batchTesting(const string &baseDir, const vector<string> &stdlib) {
 
     if (getFileType(fullPath.c_str()) == FileTypeRegular) {
       fileList.push_back(fullPath);
-      compileMain(fileList);
+      //compileMain(fileList);
       fileList.pop_back();
     } else if (getFileType(fullPath.c_str()) == FileTypeDirectory) {
       vector<string> fileBundle;
       getJavaFilesRecursive(fileBundle, fullPath + "/");
       fileList.insert(fileList.end(), fileBundle.begin(), fileBundle.end());
-      compileMain(fileList);
+      //compileMain(fileList);
       fileList.resize(numLib);
     } else {
       continue;
@@ -158,9 +174,12 @@ int main(int argc, const char ** argv) {
 
   checkScanner();
 
-  checkTestMode();  
+  checkTestMode();
 
-  compileMain(fileList);
+  JoosC joosc;
+  Scan::scannerRegularLanguageToNFA(&joosc.scanner, "lex.txt");
+
+  //compileMain(fileList);
   
   globalFini();
 }

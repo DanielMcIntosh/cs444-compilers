@@ -32,7 +32,7 @@ void logImplRaw(const char *str, ...) {
   vsnprintf(logEntry, ARRAY_SIZE(logEntry), str, arg);
   va_end(arg);
   
-  fprintf(stderr, "\n%s", logEntry);
+  fprintf(stderr, "%s\n", logEntry);
 }
 
 void logImpl(const char *str, const char *file, s32 line, const char *func, ...) {
@@ -41,7 +41,7 @@ void logImpl(const char *str, const char *file, s32 line, const char *func, ...)
 
   char logHeader[TWO_TO_EIGHT];
   snprintf(logHeader, ARRAY_SIZE(logHeader),
-                 "\n%d/%d %2d:%02d:%02d.%03d %s:%4d:",
+                 "%d/%d %2d:%02d:%02d.%03d %s:%4d:\n",
                  info.month, info.day, info.hour, info.minute, info.second,
                  info.millisecond, file, line);
 
@@ -62,7 +62,7 @@ void globalInit() {
 }
 
 void globalFini() {
-  fprintf(stderr, "\n");
+
 }
 
 void readEntireFile(const char *path, char **content, s32 *size) {

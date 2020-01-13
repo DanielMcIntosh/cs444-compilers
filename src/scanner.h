@@ -43,7 +43,7 @@ struct NState {
   Token *token;
 };
 
-struct Token {   
+struct Token {
   NState *startingNState;
   NState *acceptingNState;
 
@@ -59,9 +59,39 @@ struct DState {
   vector<NState *> nstates;
   vector<Edge<DState>> transition;
 
-  vector<string> tokenEmission;
+  vector<Token *> tokenEmission;
 
   s32 index;
+};
+
+struct Statistic {
+  s64 sum = 0;
+  s64 min = 0;
+  s64 max = 0;
+  s64 numElement = 0;
+
+  void add(s64 value) {
+    this->min = std::min(value, this->min);
+    this->max = std::max(value, this->max);
+    this->numElement++;
+    this->sum += value;
+  }
+
+  void report() const {
+    LOGR("Data points %ld, min %ld, max %ld, avg %f",
+         this->numElement, this->min, this->max, (f64)sum/(f64)numElement);
+  }
+};
+
+struct LexToken {
+  string name;
+  string lexeme;
+};
+
+struct ScanResult {
+  vector<LexToken> tokens;
+  bool valid;
+  s32 errorPosition;
 };
 
 struct Scanner {
@@ -71,11 +101,15 @@ struct Scanner {
   vector<unique_ptr<NState>> nstates;
   vector<unique_ptr<DState>> dstates;
 
-  multimap<s32, DState *> dstateMap;
+  multimap<u64, DState *> dstateMap;
+
+  Statistic ndfaStat;
+  Statistic dfsStat;
 };
 
 void scannerRegularLanguageToNFA(Scanner *scanner, const char *text);
 void scannerNFAtoDFA(Scanner *scanner);
 void scannerDumpDFA(const Scanner *scanner);
- 
+ScanResult scannerProcessFile(const Scanner *scanner, const char *text);
+
 } // namespace Scan
