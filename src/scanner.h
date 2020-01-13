@@ -4,6 +4,7 @@
 #include <string>
 #include <algorithm>
 #include <map>
+#include <array>
 #include <unordered_map>
 #include <memory>
 
@@ -50,18 +51,23 @@ struct Token {
   s32 index;
   bool declared;
   bool emit;
+  s32 priority;
   string name;
 };
 
 struct DState;
 
+typedef array<u64, 16> NStateBitField;
+
 struct DState {
   vector<NState *> nstates;
   vector<Edge<DState>> transition;
 
-  vector<Token *> tokenEmission;
+  Token *tokenEmission;
 
   s32 index;
+
+  NStateBitField nstatesField;
 };
 
 struct Statistic {
@@ -102,6 +108,7 @@ struct Scanner {
   vector<unique_ptr<DState>> dstates;
 
   multimap<u64, DState *> dstateMap;
+  vector<NStateBitField> epsilonClosureCache;
 
   Statistic ndfaStat;
   Statistic dfsStat;
@@ -110,6 +117,7 @@ struct Scanner {
 void scannerRegularLanguageToNFA(Scanner *scanner, const char *text);
 void scannerNFAtoDFA(Scanner *scanner);
 void scannerDumpDFA(const Scanner *scanner);
+void scannerLoadJoosRule(Scanner *scanner);
 ScanResult scannerProcessFile(const Scanner *scanner, const char *text);
 
 } // namespace Scan

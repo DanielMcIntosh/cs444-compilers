@@ -33,6 +33,7 @@ void scannerCreateToken(Scanner *scanner, const string &tokenS) {
   token->index = scanner->tokenMap.size() - 1;
   token->declared = false;
   token->emit = false;
+  token->priority = 0;
   token->name = tokenS;
 
   scanner->tokenMap[tokenS] = token;
@@ -88,6 +89,8 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
     }
 
     if (!strcmp(token, "e")) { // actually emit a token
+      token = strtok(0, delim);
+      curMajorToken->priority = atoi(token);
       curMajorToken->emit = true;
       continue;
     }
@@ -171,6 +174,51 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
   }
 }
 
+template<size_t size>
+void arrayBitFieldSet(array<u64, size> *arr, s32 position) {
+  s32 index = position / 64;
+  s32 internalPosition = position % 64;
+  (*arr)[index] |= (1ULL << (u32)internalPosition);
+}
+
+template<size_t size>
+bool arrayBitFieldIsSet(const array<u64, size> &arr, s32 position) {
+  s32 index = position / 64;
+  s32 internalPosition = position % 64;
+  return arr[index] & (1ULL << (u32)internalPosition);
+}
+
+template<size_t size>
+void arrayBitFieldUnion(array<u64, size> *a, const array<u64, size> &b) {
+  for (size_t i = 0; i < size; ++i) {
+    (*a)[i] |= b[i];
+  }
+}
+
+void epsilonClosureFast(const NState *nstate, NStateBitField* bitfield) {
+  NStateBitField seenField;
+  seenField.fill(0);
+
+  arrayBitFieldSet(&seenField, nstate->index);
+
+  vector<const NState *> frontier{nstate};
+
+  while (!frontier.empty()) {
+    const NState *theState = frontier.back();
+    frontier.pop_back();
+
+    for (NState *epsilonNext: theState->epsilonTransitions) {
+      if (arrayBitFieldIsSet(seenField, epsilonNext->index))
+        continue;
+
+      arrayBitFieldSet(&seenField, epsilonNext->index);
+      frontier.push_back(epsilonNext);
+    }
+  }
+
+  *bitfield = seenField;
+}
+
 vector<NState *> epsilonClosure(const vector<NState *> &base) {
   unordered_set<NState *> seen;
   vector<NState *> frontier;
@@ -205,13 +253,17 @@ DState *scannerCreateDStateFromNState(Scanner *scanner,
   DState *dstate = scanner->dstates.back().get();
   dstate->nstates = nstates;
   dstate->index = scanner->dstates.size() - 1;
+  dstate->tokenEmission = 0;
+  dstate->nstatesField.fill(0);
 
   u64 sum = 0;
 
+  s32 curPriority = 100;
   for (const NState* nstate: nstates) {
     sum += nstate->index;
-    if (nstate->emit) {
-      dstate->tokenEmission.push_back(nstate->token);
+    if (nstate->emit && nstate->token->priority < curPriority) {
+      dstate->tokenEmission = nstate->token;
+      curPriority = nstate->token->priority;
     }
   }
 
@@ -245,6 +297,11 @@ DState *scannerFindDStateFromNStateFast(Scanner *scanner,
 }
 
 void scannerNFAtoDFA(Scanner *scanner) {
+  scanner->epsilonClosureCache = vector<NStateBitField>(scanner->nstates.size(), {0});
+  for (size_t i = 0; i < scanner->nstates.size(); ++i) {
+    epsilonClosureFast(scanner->nstates[i].get(), &scanner->epsilonClosureCache[i]);
+  }
+
   Token *goal = scanner->tokenMap["Goal"];
 
   vector<NState *> curNStates {goal->startingNState};
@@ -256,6 +313,9 @@ void scannerNFAtoDFA(Scanner *scanner) {
        ++curDStateIndex) {
     DState *curDState = scanner->dstates[curDStateIndex].get();
     for (s32 letter = 0; letter < NumLetters; ++letter) {
+      NStateBitField nextBitField;
+      nextBitField.fill(0);
+
       vector<NState *> nextNStates;
 
       for (NState* nstate: curDState->nstates) {
@@ -266,6 +326,7 @@ void scannerNFAtoDFA(Scanner *scanner) {
         if (it == transitionArray.end() || it->letter != letter)
           continue;
 
+        arrayBitFieldUnion(&nextBitField, scanner->epsilonClosureCache[it->state->index]);
         nextNStates.push_back(it->state);
       }
 
@@ -305,10 +366,8 @@ void scannerDumpDFA(const Scanner *scanner) {
       fprintf(file, "%d ", nstate->index);
     }
     */
-
-    for (const Token *token: dstate->tokenEmission) {
-      fprintf(file, "%s ", token->name.c_str());
-    }
+    if (dstate->tokenEmission)
+      fprintf(file, "%s ", dstate->tokenEmission->name.c_str());
     fprintf(file, "\n  ");
 
     for (size_t dstateIndex = 0; dstateIndex < transitionMap.size();
@@ -346,18 +405,13 @@ ScanResult scannerProcessFile(const Scanner *scanner, const char *text) {
     auto it = lower_bound(transitionArray.begin(), transitionArray.end(),
             Edge<DState>{c, 0});
     if (it == transitionArray.end() || it->letter != c) { // invalid transition
-      if (curState->tokenEmission.empty()) { // invalid program
+      if (!curState->tokenEmission) { // invalid program
         result.valid = false;
         result.errorPosition = textPtr - text;
         return result;
       }
 
-      string allTheNames;
-      for (const Token *token: curState->tokenEmission) {
-        allTheNames.append(token->name);
-        allTheNames.append("|");
-      }
-      result.tokens.push_back({allTheNames, curLexeme});
+      result.tokens.push_back({curState->tokenEmission->name, curLexeme});
 
       curLexeme = to_string(c);
       curState = startState;
@@ -370,6 +424,16 @@ ScanResult scannerProcessFile(const Scanner *scanner, const char *text) {
   result.valid = true;
   result.errorPosition = -1;
   return result;
+}
+
+void scannerLoadJoosRule(Scanner *scanner) {
+  char *fileContents;
+  s32 fileSize;
+  readEntireFile("lex.txt", &fileContents, &fileSize);
+  if (!fileContents)
+    return;
+  scannerRegularLanguageToNFA(scanner, fileContents);
+  scannerNFAtoDFA(scanner);  
 }
 
 } // namespace Scan

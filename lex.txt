@@ -82,7 +82,7 @@ CharactersInLine:
   CharactersInLine InputCharacter
 
 Identifier:
-  e 
+  e 30
   IdentifierChars
 
 IdentifierChars:
@@ -96,7 +96,7 @@ JavaLetterOrDigit:
   v $0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz
 
 Keyword:
-  e
+  e 10
   w abstract
   w boolean
   w break
@@ -154,7 +154,7 @@ Literal:
   NullLiteral
 
 IntegerLiteral:
-  e
+  e 20
   DecimalIntegerLiteral
 
 DecimalIntegerLiteral:
@@ -177,12 +177,12 @@ NonZeroDigit:
   v 123456789
 
 BooleanLiteral:
-  e
+  e 10
   w true
   w false
 
 CharacterLiteral:
-  e
+  e 15
   SingleQuote SingleCharacter SingleQuote
   SingleQuote EscapeSequence SingleQuote
 
@@ -190,7 +190,7 @@ SingleCharacter:
   v !"#$%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~  
 
 StringLiteral:
-  e
+  e 20
   DoubleQuote DoubleQuote
   DoubleQuote StringCharacters DoubleQuote
 
@@ -225,11 +225,11 @@ ZeroToThree:
   v 0123
 
 NullLiteral:
-  e
+  e 15
   w null
 
 Separator:
-  e
+  e 15
   w (
   w )
   w {
@@ -241,7 +241,7 @@ Separator:
   w .
 
 Operator:
-  e
+  e 15
   w =
   w >
   w <

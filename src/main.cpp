@@ -71,7 +71,8 @@ void compileMain(JoosC *joosc, const vector<string> &fileList) {
   LOGR("End of compilation");
 }
 
-void batchTesting(const string &baseDir, const vector<string> &stdlib) {
+void batchTesting(JoosC *joosc, const string &baseDir,
+                  const vector<string> &stdlib) {
   DIR *dir = opendir(baseDir.c_str());
   if (!dir)
     return;
@@ -96,13 +97,13 @@ void batchTesting(const string &baseDir, const vector<string> &stdlib) {
 
     if (getFileType(fullPath.c_str()) == FileTypeRegular) {
       fileList.push_back(fullPath);
-      //compileMain(fileList);
+      compileMain(joosc, fileList);
       fileList.pop_back();
     } else if (getFileType(fullPath.c_str()) == FileTypeDirectory) {
       vector<string> fileBundle;
       getJavaFilesRecursive(fileBundle, fullPath + "/");
       fileList.insert(fileList.end(), fileBundle.begin(), fileBundle.end());
-      //compileMain(fileList);
+      compileMain(joosc, fileList);
       fileList.resize(numLib);
     } else {
       continue;
@@ -114,7 +115,7 @@ void batchTesting(const string &baseDir, const vector<string> &stdlib) {
   closedir(dir);
 }
 
-void checkTestMode() {
+void checkTestMode(JoosC *joosc) {
   const char *mode = getenv("JOOSC_MODE");
   if (!mode || strcmp(mode, "test"))
     return;
@@ -132,7 +133,7 @@ void checkTestMode() {
     strdecl256(libFolder, "%s/%d.0/", libBase, num);
     getJavaFilesRecursive(stdlib, string(libFolder));
   }
-  batchTesting(string(progFolder), stdlib);    
+  batchTesting(joosc, string(progFolder), stdlib);    
 }
 
 void checkScanner() {
@@ -174,12 +175,12 @@ int main(int argc, const char ** argv) {
 
   checkScanner();
 
-  checkTestMode();
-
   JoosC joosc;
-  Scan::scannerRegularLanguageToNFA(&joosc.scanner, "lex.txt");
+  scannerLoadJoosRule(&joosc.scanner);
 
-  //compileMain(fileList);
+  checkTestMode(&joosc);  
+  
+  compileMain(&joosc, fileList);
   
   globalFini();
 }

@@ -4,13 +4,13 @@ Goal:
   Number
 
 Keyword:
-  e
+  e 10
   w g
   w if
   w int
 
 Identifier:
-  e
+  e 15
   IdentifierChars
 
 IdentifierChars:
@@ -24,7 +24,7 @@ LetterNumber:
   v $0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz
 
 Number:
-  e
+  e 20
   v 0
   NonZeroDigit
   NonZeroDigit Digits
