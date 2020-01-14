@@ -414,11 +414,12 @@ ScanResult scannerProcessFile(const Scanner *scanner, const char *text) {
 
     DState *nextState = it->state;
     curState = nextState;
-
+/*
     if (!curState->tokenEmission)
       fprintf(stdout, "%c ---\n", c);
     else
       fprintf(stdout, "%c %s\n", c, curState->tokenEmission->name.c_str());
+*/
   }
   result.valid = true;
   result.errorPosition = -1;
