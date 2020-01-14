@@ -46,15 +46,14 @@ void getJavaFilesRecursive(vector<string> &fileList, const string &folder) {
 }
 
 void compileMain(JoosC *joosc, const vector<string> &fileList) {
-  LOGR("Compilation starting...");
-  for (const auto &file: fileList) {
+  for (const string &file: fileList) {
     const char *fileName = file.c_str();
     const s64 size = getFileSize(fileName);
     if (size < 0) {
       LOGR("%s is not accessible", fileName);
       continue;
     }
-    /*
+
     char *contents;
     s32 fileSize;
     readEntireFile(fileName, &contents, &fileSize);
@@ -63,12 +62,35 @@ void compileMain(JoosC *joosc, const vector<string> &fileList) {
       LOGR("Valid, %ld bytes, %s", size, fileName);
     } else {
       char snapshot[TWO_TO_EIGHT];
-
+      const char *snapshotStart = max(contents, contents + result.errorPosition - 4);
+      s32 snapshotLen = min(fileSize - result.errorPosition, 4);
+      snprintf(snapshot, snapshotLen, "%s", snapshotStart);
       LOGR("Invalid (%s), %ld bytes, %s", snapshot, size, fileName);
     }
-     */
+    free(contents);
+
+    strdecl256(scannerOutputPath, "output/scanner/%s", file.c_str());
+    char *lastSlash = strrchr(scannerOutputPath, '/');
+    *lastSlash = 0;
+    strdecl512(mkdirCommand, "mkdir -p %s", scannerOutputPath);
+    system(mkdirCommand);
+    *lastSlash = '/';
+
+    FILE *scannerDump = fopen(scannerOutputPath, "w");
+    s32 curLineLen = 0;
+    for (const Scan::LexToken &token : result.tokens) {
+      curLineLen += token.name.length();
+      curLineLen += token.lexeme.length();
+      curLineLen += 3;
+
+      fprintf(scannerDump, "%s(%s) ", token.name.c_str(), token.lexeme.c_str());
+      if (curLineLen > 80) {
+        fprintf(scannerDump, "\r\n");
+        curLineLen = 0;
+      }
+    }
+    fclose(scannerDump);
   }
-  LOGR("End of compilation");
 }
 
 void batchTesting(JoosC *joosc, const string &baseDir,

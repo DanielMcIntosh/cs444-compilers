@@ -40,7 +40,6 @@ struct NState {
   s32 index;
   char stateSymbol;
 
-  bool emit;
   Token *token;
 };
 
@@ -57,17 +56,16 @@ struct Token {
 
 struct DState;
 
-typedef array<u64, 16> NStateBitField;
+const s32 NStateFieldLen = 8;
+
+typedef array<u64, NStateFieldLen> NStateBitField;
 
 struct DState {
-  vector<NState *> nstates;
+  NStateBitField nstatesField;
   vector<Edge<DState>> transition;
 
-  Token *tokenEmission;
-
   s32 index;
-
-  NStateBitField nstatesField;
+  Token *tokenEmission;
 };
 
 struct Statistic {
@@ -107,8 +105,8 @@ struct Scanner {
   vector<unique_ptr<NState>> nstates;
   vector<unique_ptr<DState>> dstates;
 
-  multimap<u64, DState *> dstateMap;
   vector<NStateBitField> epsilonClosureCache;
+  multimap<u64, DState *> dstateMap;
 
   Statistic ndfaStat;
   Statistic dfsStat;

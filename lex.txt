@@ -29,6 +29,7 @@ Token:
   Operator
 
 WhiteSpace:
+  e 9
   c 32
   c 9
   c 12
@@ -50,6 +51,7 @@ Star:
   v *
 
 Comment:
+  e 8
   TraditionalComment
   EndOfLineComment
 
@@ -82,7 +84,7 @@ CharactersInLine:
   CharactersInLine InputCharacter
 
 Identifier:
-  e 30
+  e 15
   IdentifierChars
 
 IdentifierChars:
@@ -229,7 +231,7 @@ NullLiteral:
   w null
 
 Separator:
-  e 15
+  e 25
   w (
   w )
   w {
@@ -241,7 +243,7 @@ Separator:
   w .
 
 Operator:
-  e 15
+  e 20
   w =
   w >
   w <

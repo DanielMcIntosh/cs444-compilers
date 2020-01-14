@@ -28,6 +28,7 @@ typedef int16_t s16;
 #define TWO_TO_FIVE   32
 #define TWO_TO_SIX    64
 #define TWO_TO_EIGHT  256
+#define TWO_TO_NINE   512
 
 #define strdecl(_name, _len, _format, ...) \
   char _name[_len]; snprintf(_name, _len, _format, __VA_ARGS__)
@@ -35,6 +36,8 @@ typedef int16_t s16;
   strdecl(_name, TWO_TO_FIVE, _format, __VA_ARGS__)
 #define strdecl256(_name, _format, ...) \
   strdecl(_name, TWO_TO_EIGHT, _format, __VA_ARGS__)
+#define strdecl512(_name, _format, ...) \
+  strdecl(_name, TWO_TO_NINE, _format, __VA_ARGS__)
 
 //
 // assert and logging and others

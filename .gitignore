@@ -12,3 +12,4 @@ joosc_debug.exe
 cmake-build-debug
 cmake-build-release
 CMakeLists.txt
+output

@@ -18,7 +18,7 @@ NState *scannerCreateNState(Scanner *scanner) {
   NState *state = scanner->nstates.back().get();
   state->index = scanner->nstates.size() - 1;
   state->stateSymbol = 0;
-  state->emit = false;
+  state->token = 0;
   return state;
 }
 
@@ -169,7 +169,6 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
   for (auto &statePair: scanner->tokenMap) {
     Token *token = statePair.second;
     ASSERT(token->declared);
-    token->acceptingNState->emit = token->emit;
     token->acceptingNState->token = token;
   }
 }
@@ -177,14 +176,21 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
 template<size_t size>
 void arrayBitFieldSet(array<u64, size> *arr, s32 position) {
   s32 index = position / 64;
-  s32 internalPosition = position % 64;
+  s32 internalPosition = 63 - position % 64;
   (*arr)[index] |= (1ULL << (u32)internalPosition);
+}
+
+template<size_t size>
+void arrayBitFieldClear(array<u64, size> *arr, s32 position) {
+  s32 index = position / 64;
+  s32 internalPosition = 63 - position % 64;
+  (*arr)[index] &= ~(1ULL << (u32)internalPosition);
 }
 
 template<size_t size>
 bool arrayBitFieldIsSet(const array<u64, size> &arr, s32 position) {
   s32 index = position / 64;
-  s32 internalPosition = position % 64;
+  s32 internalPosition = 63 - position % 64;
   return arr[index] & (1ULL << (u32)internalPosition);
 }
 
@@ -195,9 +201,50 @@ void arrayBitFieldUnion(array<u64, size> *a, const array<u64, size> &b) {
   }
 }
 
+template<size_t size>
+s32 arrayBitFieldNextNonZeroIndexWithClear(array<u64, size> *a, s32 *state) {
+  s32 result = -1;
+  while (*state < (s32)size && !(*a)[*state]) {
+    ++*state;
+  }
+  if (*state >= (s32)size)
+    return result;
+  s32 internalIndex = __builtin_clzll((*a)[*state]);
+  result = *state * 64 + internalIndex;
+  arrayBitFieldClear(a, result);
+  return result;
+}
+
+template<size_t size>
+u64 arrayHash(const array<u64, size> &a) {
+  u64 result = 0xcafebabebaadf00d;
+  for (const u64 value: a) {
+    result ^= std::hash<u64>()(value);
+  }
+  return result;
+}
+
+void arrayBitFieldTest() {
+  NStateBitField bitfield{0};
+
+  u64 sum = 0;
+  for (s32 i = 0; i < NStateFieldLen * 64; ++i) {
+    arrayBitFieldSet(&bitfield, i);
+  }
+  bitfield[2] = 0;
+  bitfield[3] = 0;
+  bitfield[7] = 0;
+
+  s32 state = 0;
+  for (s32 val = arrayBitFieldNextNonZeroIndexWithClear(&bitfield, &state);
+       state < NStateFieldLen; val = arrayBitFieldNextNonZeroIndexWithClear(
+          &bitfield, &state)) {
+    LOGR("%d", val);
+  }
+}
+
 void epsilonClosureFast(const NState *nstate, NStateBitField* bitfield) {
-  NStateBitField seenField;
-  seenField.fill(0);
+  NStateBitField seenField{0};
 
   arrayBitFieldSet(&seenField, nstate->index);
 
@@ -219,84 +266,38 @@ void epsilonClosureFast(const NState *nstate, NStateBitField* bitfield) {
   *bitfield = seenField;
 }
 
-vector<NState *> epsilonClosure(const vector<NState *> &base) {
-  unordered_set<NState *> seen;
-  vector<NState *> frontier;
-  vector<NState *> result = base;
-
-  for (NState *state: base) {
-    seen.insert(state);
-    frontier.push_back(state);
-  }
-
-  while (!frontier.empty()) {
-    NState *state = frontier.back();
-    frontier.pop_back();
-
-    for (NState *epsilonNext: state->epsilonTransitions) {
-      if (seen.count(epsilonNext))
-        continue;
-
-      seen.insert(epsilonNext);
-      frontier.push_back(epsilonNext);
-      result.push_back(epsilonNext);
-    }
-  }
-
-  return result;
-}
-
 DState *scannerCreateDStateFromNState(Scanner *scanner,
-                                      const vector<NState *> &nstates) {
+                                      const NStateBitField &nstates) {
   scanner->dstates.push_back(make_unique<DState>());
 
   DState *dstate = scanner->dstates.back().get();
-  dstate->nstates = nstates;
   dstate->index = scanner->dstates.size() - 1;
-  dstate->tokenEmission = 0;
-  dstate->nstatesField.fill(0);
+  dstate->nstatesField = nstates;
 
-  u64 sum = 0;
-
-  s32 curPriority = 100;
-  for (const NState* nstate: nstates) {
-    sum += nstate->index;
-    if (nstate->emit && nstate->token->priority < curPriority) {
-      dstate->tokenEmission = nstate->token;
-      curPriority = nstate->token->priority;
-    }
-  }
-
-  scanner->dstateMap.insert(make_pair(sum, dstate));
-
+  u64 hashValue = arrayHash(nstates);
+  scanner->dstateMap.insert(make_pair(hashValue, dstate));
   return dstate;
 }
 
-DState *scannerFindDStateFromNStateFast(Scanner *scanner,
-                                        const vector<NState *> &nstates) {
-  u64 sum = 0;
-  for (const NState *nstate: nstates) {
-    sum += nstate->index;
-  }
-  auto itPair = scanner->dstateMap.equal_range(sum);
-  s64 numLooked = 0;
-  DState *result = 0;
+DState *scannerFindDStateFromNState(Scanner *scanner, const NStateBitField &nstates) {
+  u64 hashValue = arrayHash(nstates);
+  auto itPair = scanner->dstateMap.equal_range(hashValue);
+  s64 compares = 0;
+  DState *state = 0;
   for (auto it = itPair.first; it != itPair.second; ++it) {
-    numLooked++;
-    DState *dstate = it->second;
-    if (dstate->nstates.size() != nstates.size())
-      continue;
-    if (equal(dstate->nstates.begin(), dstate->nstates.end(),
-              nstates.begin())) {
-      result = dstate;
+    ++compares;
+    if (it->second->nstatesField == nstates) {
+      state = it->second;
       break;
     }
   }
-  scanner->ndfaStat.add(numLooked);
-  return result;
+  scanner->ndfaStat.add(compares);
+  return state;
 }
 
 void scannerNFAtoDFA(Scanner *scanner) {
+  ASSERT(scanner->nstates.size() <= NStateFieldLen * 64);
+
   scanner->epsilonClosureCache = vector<NStateBitField>(scanner->nstates.size(), {0});
   for (size_t i = 0; i < scanner->nstates.size(); ++i) {
     epsilonClosureFast(scanner->nstates[i].get(), &scanner->epsilonClosureCache[i]);
@@ -304,41 +305,47 @@ void scannerNFAtoDFA(Scanner *scanner) {
 
   Token *goal = scanner->tokenMap["Goal"];
 
-  vector<NState *> curNStates {goal->startingNState};
-  curNStates = epsilonClosure(curNStates);
-  sort(curNStates.begin(), curNStates.end());
+  NStateBitField curNStates = scanner->epsilonClosureCache[goal->startingNState->index];
   scannerCreateDStateFromNState(scanner, curNStates);
 
   for (size_t curDStateIndex = 0; curDStateIndex < scanner->dstates.size();
        ++curDStateIndex) {
     DState *curDState = scanner->dstates[curDStateIndex].get();
     for (s32 letter = 0; letter < NumLetters; ++letter) {
-      NStateBitField nextBitField;
-      nextBitField.fill(0);
+      NStateBitField nextNStates{0};
+      curNStates = curDState->nstatesField;
 
-      vector<NState *> nextNStates;
-
-      for (NState* nstate: curDState->nstates) {
+      bool hasAny = false;
+      s32 state = 0;
+      s32 tokenPriority = numeric_limits<s32>::max();
+      Token *tokenEmission = 0;
+      for (s32 nstateIndex = arrayBitFieldNextNonZeroIndexWithClear(&curNStates, &state);
+           state < NStateFieldLen;
+           nstateIndex = arrayBitFieldNextNonZeroIndexWithClear(&curNStates, &state)) {
         const vector<Edge<NState>> &transitionArray =
-                nstate->letterTransition;
+                scanner->nstates[nstateIndex]->letterTransition;
         auto it = lower_bound(transitionArray.begin(), transitionArray.end(),
                               Edge<NState>{(char)letter, 0});
         if (it == transitionArray.end() || it->letter != letter)
           continue;
 
-        arrayBitFieldUnion(&nextBitField, scanner->epsilonClosureCache[it->state->index]);
-        nextNStates.push_back(it->state);
+        NState *nextNState = it->state;
+        if (nextNState->token && nextNState->token->emit &&
+            nextNState->token->priority < tokenPriority) {
+          tokenEmission = nextNState->token;
+          tokenPriority = nextNState->token->priority;
+        }
+        arrayBitFieldUnion(&nextNStates, scanner->epsilonClosureCache[it->state->index]);
+        hasAny = true;
       }
 
-      if (nextNStates.empty())
+      if (!hasAny)
         continue;
 
-      nextNStates = epsilonClosure(nextNStates);
-      sort(nextNStates.begin(), nextNStates.end());
-      DState *nextDState = scannerFindDStateFromNStateFast(scanner,
-                                                           nextNStates);
+      DState *nextDState = scannerFindDStateFromNState(scanner, nextNStates);
       if (!nextDState) {
         nextDState = scannerCreateDStateFromNState(scanner, nextNStates);
+        nextDState->tokenEmission = tokenEmission;
       }
 
       curDState->transition.push_back({(char)letter, nextDState});
@@ -361,11 +368,6 @@ void scannerDumpDFA(const Scanner *scanner) {
     }
 
     fprintf(file, "\nState %d: ", dstate->index);
-    /*
-    for (const NState *nstate: dstate->nstates) {
-      fprintf(file, "%d ", nstate->index);
-    }
-    */
     if (dstate->tokenEmission)
       fprintf(file, "%s ", dstate->tokenEmission->name.c_str());
     fprintf(file, "\n  ");
@@ -405,24 +407,23 @@ ScanResult scannerProcessFile(const Scanner *scanner, const char *text) {
     auto it = lower_bound(transitionArray.begin(), transitionArray.end(),
             Edge<DState>{c, 0});
     if (it == transitionArray.end() || it->letter != c) { // invalid transition
-      if (!curState->tokenEmission) { // invalid program
-        result.valid = false;
-        result.errorPosition = textPtr - text;
-        return result;
-      }
-
-      result.tokens.push_back({curState->tokenEmission->name, curLexeme});
-
-      curLexeme = to_string(c);
-      curState = startState;
-      continue;
+      result.valid = false;
+      result.errorPosition = textPtr - text;
+      goto out;
     }
 
-    curLexeme.push_back(c);
-    curState = it->state;
+    DState *nextState = it->state;
+    curState = nextState;
+
+    if (!curState->tokenEmission)
+      fprintf(stdout, "%c ---\n", c);
+    else
+      fprintf(stdout, "%c %s\n", c, curState->tokenEmission->name.c_str());
   }
   result.valid = true;
   result.errorPosition = -1;
+
+  out:
   return result;
 }
 
@@ -433,7 +434,8 @@ void scannerLoadJoosRule(Scanner *scanner) {
   if (!fileContents)
     return;
   scannerRegularLanguageToNFA(scanner, fileContents);
-  scannerNFAtoDFA(scanner);  
+  scannerNFAtoDFA(scanner);
+  free(fileContents);
 }
 
 } // namespace Scan
