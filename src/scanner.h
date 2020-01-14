@@ -65,7 +65,7 @@ struct DState {
   vector<Edge<DState>> transition;
 
   s32 index;
-  Token *tokenEmission;
+  vector<Token *>tokenEmission;
 };
 
 struct Statistic {

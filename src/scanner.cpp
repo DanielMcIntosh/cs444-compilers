@@ -317,8 +317,7 @@ void scannerNFAtoDFA(Scanner *scanner) {
 
       bool hasAny = false;
       s32 state = 0;
-      s32 tokenPriority = numeric_limits<s32>::max();
-      Token *tokenEmission = 0;
+      vector<Token *>tokenEmission;
       for (s32 nstateIndex = arrayBitFieldNextNonZeroIndexWithClear(&curNStates, &state);
            state < NStateFieldLen;
            nstateIndex = arrayBitFieldNextNonZeroIndexWithClear(&curNStates, &state)) {
@@ -330,12 +329,10 @@ void scannerNFAtoDFA(Scanner *scanner) {
           continue;
 
         NState *nextNState = it->state;
-        if (nextNState->token && nextNState->token->emit &&
-            nextNState->token->priority < tokenPriority) {
-          tokenEmission = nextNState->token;
-          tokenPriority = nextNState->token->priority;
+        if (nextNState->token && nextNState->token->emit) {
+          tokenEmission.push_back(nextNState->token);
         }
-        arrayBitFieldUnion(&nextNStates, scanner->epsilonClosureCache[it->state->index]);
+        arrayBitFieldUnion(&nextNStates, scanner->epsilonClosureCache[nextNState->index]);
         hasAny = true;
       }
 
@@ -368,8 +365,8 @@ void scannerDumpDFA(const Scanner *scanner) {
     }
 
     fprintf(file, "\nState %d: ", dstate->index);
-    if (dstate->tokenEmission)
-      fprintf(file, "%s ", dstate->tokenEmission->name.c_str());
+    for (const Token *token: dstate->tokenEmission)
+      fprintf(file, "%s ", token->name.c_str());
     fprintf(file, "\n  ");
 
     for (size_t dstateIndex = 0; dstateIndex < transitionMap.size();
