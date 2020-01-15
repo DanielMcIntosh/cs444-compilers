@@ -24,4 +24,4 @@ enum FileType
 
 FileType getFileType(const char *path);
 s64 getFileSize(const char *path);
-
+void createDirectoryChain(const char *path);

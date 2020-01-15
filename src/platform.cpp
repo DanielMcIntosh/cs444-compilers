@@ -60,11 +60,17 @@ s64 getFileSize(const char *path) {
   return statBuf.st_size;
 }
 
+void createDirectoryChain(const char *path) {
+  strdecl256(commandBuffer, "mkdir -p %s", path);
+  system(commandBuffer);
+}
+
 #endif // __linux__
 
 #ifdef _WIN32
 
 #include <fileapi.h>
+#include <dirent.h>
 
 void getCivicTime(CivicTimeInfo *) {  
 }
@@ -90,6 +96,18 @@ s64 getFileSize(const char *path) {
   size.HighPart = attrData.nFileSizeHigh;
   size.LowPart = attrData.nFileSizeLow;
   return size.QuadPart;
+}
+
+void createDirectoryChain(const char *path) {
+  DIR *dir = opendir(path);
+  if (dir)
+    return;
+  strdecl256(commandBuffer, "mkdir %s", path);
+  for (char *ptr = commandBuffer; *ptr; ++ptr) {
+      if (*ptr == '/')
+          *ptr = '\\';
+  }
+  system(commandBuffer);
 }
 
 #endif // _WIN32

@@ -69,7 +69,8 @@ CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
     s32 sourceFileSize;
     readEntireFile(sourceFileName, &sourceCode, &sourceFileSize);
     
-    Scan::ScanResult result = Scan::scannerProcessFile(&joosc->scanner, sourceCode);
+    Scan::ScanResult result = Scan::scannerProcessText(&joosc->scanner,
+                                                       sourceCode);
 
     const char *colorHead, *colorTail = "\033[0m";
     { // determine the validity of the program from file name, if possible
@@ -102,8 +103,7 @@ CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
     { // create descending directories
       char *lastSlash = strrchr(baseOutputPath, '/');
       *lastSlash = 0;
-      strdecl512(mkdirCommand, "mkdir -p %s", baseOutputPath);
-      system(mkdirCommand);
+      createDirectoryChain(baseOutputPath);
       *lastSlash = '/';      
     }
 
@@ -191,10 +191,10 @@ void batchTesting(JoosC *joosc, const string &baseDir,
 }
 
 void checkTestMode(JoosC *joosc) {
-  const char *mode = getenv("JOOSC_MODE");
+  const char *mode = getenv("JOOSC_TEST");
   if (!mode || strcmp(mode, "test"))
     return;
-  const char *assnNum = getenv("JOOSC_ASSN");
+  const char *assnNum = getenv("JOOSC_TEST_ASSN");
   if (!assnNum)
     return;
   
@@ -212,13 +212,15 @@ void checkTestMode(JoosC *joosc) {
 }
 
 void checkScanner() {
-  const char *mode = getenv("JOOSC_MODE");
-  if (!mode || strcmp(mode, "scanner"))
+  const char *mode = getenv("JOOSC_SCANNER");
+  if (!mode)
     return;
 
   const char *file = getenv("JOOSC_SCANNER_FILE");
-  if (!file)
-    file = "lex.txt";
+  if (!file) {
+    Scan::scannerTest();
+    return;
+  }
 
   {       
     using namespace Scan;

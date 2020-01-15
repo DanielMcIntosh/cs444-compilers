@@ -3,11 +3,22 @@ Goal:
   Identifier
   Number
 
+AWord:
+  w ijk
+
+TheXY:
+  c x c y
+  c u c v
+
 Keyword:
   e 10
   w g
   w if
   w int
+  c z AWord TheXY
+  TheXY AWord c z
+  AWord c z AWord
+  AWord Number AWord
 
 Identifier:
   e 15

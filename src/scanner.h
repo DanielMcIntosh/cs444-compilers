@@ -56,7 +56,7 @@ struct Token {
 
 struct DState;
 
-const s32 NStateFieldLen = 8;
+const s32 NStateFieldLen = 16;
 
 typedef array<u64, NStateFieldLen> NStateBitField;
 
@@ -66,6 +66,7 @@ struct DState {
 
   s32 index;
   Token *tokenEmission;
+  vector<Token *> allTokens;
 };
 
 struct Statistic {
@@ -119,6 +120,7 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text);
 void scannerNFAtoDFA(Scanner *scanner);
 void scannerDumpDFA(const Scanner *scanner);
 void scannerLoadJoosRule(Scanner *scanner);
-ScanResult scannerProcessFile(const Scanner *scanner, const char *text);
+void scannerTest();
+ScanResult scannerProcessText(const Scanner *scanner, const char *text);
 
 } // namespace Scan

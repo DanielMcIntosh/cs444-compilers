@@ -293,8 +293,13 @@ DState *scannerCreateDStateFromNState(Scanner *scanner,
   Token *curToken = 0;
   for (auto it = arrayBitFieldBegin(nstates); *it != -1; ++it) {
     const NState *nstate = scanner->nstates[*it].get();
-    if (nstate->token && nstate->token->emit && nstate->token->priority < curPriority)
+    if (nstate->token && nstate->token->emit)
+      dstate->allTokens.push_back(nstate->token);
+    if (nstate->token && nstate->token->emit && nstate->token->priority <
+        curPriority) {
       curToken = nstate->token;
+      curPriority = curToken->priority; 
+    }
   }
   dstate->tokenEmission = curToken;
 
@@ -377,8 +382,11 @@ void scannerDumpDFA(const Scanner *scanner) {
     fprintf(file, "\nState %d: ", dstate->index);
     //for (auto val = arrayBitFieldBegin(dstate->nstatesField); *val != -1; ++val)
     //fprintf(file, "%d ", *val);
+    for (const Token *token : dstate->allTokens) {
+        fprintf(file, "%s ", token->name.c_str());
+    }
     if (dstate->tokenEmission)
-      fprintf(file, "%s ", dstate->tokenEmission->name.c_str());
+      fprintf(file, "(%s)", dstate->tokenEmission->name.c_str());
     fprintf(file, "\n  ");
 
     for (size_t dstateIndex = 0; dstateIndex < transitionMap.size();
@@ -399,16 +407,17 @@ void scannerDumpDFA(const Scanner *scanner) {
         fprintf(file, " -> %ld\n  ", dstateIndex);
     }
   }
+  fclose(file);
 }
 
-ScanResult scannerProcessFile(const Scanner *scanner, const char *text) {
+ScanResult scannerProcessText(const Scanner *scanner, const char *text) {
   DState *startState = scanner->dstates[0].get();
   ScanResult result;
 
   DState *curState = startState;
   string curLexeme;
   const char *textPtr = text;
-  for (char c = *textPtr; c; c = *++textPtr) {
+  for (char c = *textPtr; ; c = *++textPtr) {
     const vector<Edge<DState>> &transitionArray = curState->transition;
     auto it = lower_bound(transitionArray.begin(), transitionArray.end(),
             Edge<DState>{c, 0});
@@ -444,6 +453,9 @@ ScanResult scannerProcessFile(const Scanner *scanner, const char *text) {
       strdecl256(step, "%s %s %d %c\r\n", theChar, stateName, curState->index, isInvalid ? 'X' : 'V');
       result.detailedStep.append(string(step));
     }
+
+    if (!c)
+      break;
   }
   result.valid = true;
   result.errorPosition = -1;
@@ -453,13 +465,73 @@ ScanResult scannerProcessFile(const Scanner *scanner, const char *text) {
 void scannerLoadJoosRule(Scanner *scanner) {
   char *fileContents;
   s32 fileSize;
-  readEntireFile("lex.txt", &fileContents, &fileSize);
+  readEntireFile("joos.txt", &fileContents, &fileSize);
   if (!fileContents)
     return;
   scannerRegularLanguageToNFA(scanner, fileContents);
   scannerNFAtoDFA(scanner);
-  scannerDumpDFA(scanner);
   free(fileContents);
 }
 
+void scannerTest() {
+  Scanner scanner;
+  char *fileContents;
+  s32 fileSize;
+  readEntireFile("tests/scanner/tiger.txt", &fileContents, &fileSize);
+  if (!fileContents)
+    return;
+  scannerRegularLanguageToNFA(&scanner, fileContents);
+  scannerNFAtoDFA(&scanner);
+  scannerDumpDFA(&scanner);
+
+  struct StrPair {
+    const char *text;
+    const char *type;
+  };
+
+  StrPair testInput[] = {
+          {"abc", "Identifier"},
+          {"i", "Identifier"},
+          {"ij", "Identifier"},
+          {"in", "Identifier"},
+          {"ijk", 0},
+          {"if", "Keyword"},
+          {"int", "Keyword"},
+          {"zijkxy", "Keyword"},
+          {"ijkzijk", "Keyword"},
+          {"xyijkz", "Keyword"},
+          {"z", "Identifier"},
+          {"xy", "Identifier"},
+          {"0", "Number"},
+          {"00", 0},
+          {"01", 0},
+          {"1", "Number"},
+          {"12", "Number"},
+          {"10", "Number"},
+          {"ijk0ijk", "Keyword"},
+          {"ijk1ijk", "Keyword"},
+          {"?", 0},
+          {"!", 0},
+  };
+
+  s32 size = ARRAY_SIZE(testInput);
+  for (s32 i = 0; i < size; ++i) {
+    StrPair *pair = &testInput[i];
+    ScanResult result = scannerProcessText(&scanner, pair->text);
+    bool testSuccess = false;
+    if (!pair->type) { // invalid
+      testSuccess = !result.valid;
+    } else { // valid
+      testSuccess = result.valid && result.tokens.size() == 1 &&
+              !strcmp(result.tokens[0].name.c_str(), pair->type);
+    }
+    const char *given = result.tokens.size() > 0 ? result.tokens[0].name.c_str
+            () : 0;
+    LOGR("%s: %s (should be %s, given %s)", testSuccess ?
+    "success" :
+    "fail", pair->text, pair->type, given);
+  }
+}
+
 } // namespace Scan
+

@@ -85,3 +85,12 @@ void readEntireFile(const char *path, char **content, s32 *size) {
   *content = filePtr;
   *size = fileSize;
 }
+
+char *getPrintableChar(char c) {
+  static char buffer[8];
+  if (c <= 0x20)
+    snprintf(buffer, 8, "\\x%x", c);
+  else
+    snprintf(buffer, 8, "%c", c);
+  return buffer;
+}

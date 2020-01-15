@@ -5,8 +5,10 @@ ifeq ($(PERF), release)
 	LDFLAGS += -flto -s
   EXEC := joosc
 else
-	CXXFLAGS += -g -fsanitize=address
-	LDFLAGS += -g -lasan
+  ifneq ($(OS),Windows_NT)
+    CXXFLAGS += -g -fsanitize=address
+		LDFLAGS += -g -lasan
+	endif
 	EXEC := joosc_debug
 endif
 
@@ -41,26 +43,25 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-.PHONY: clean a1 a2 a3 a4 a5 scanner scanner_tiger
+.PHONY: clean a1 a2 a3 a4 a5 scanner scanner_joos
 
 clean:
 	$(RM) -r $(BUILD_DIR)
 
 a1: $(EXEC)
-	export JOOSC_MODE=test; export JOOSC_ASSN=1; ./$(EXEC)
+	export JOOSC_TEST=test; export JOOSC_TEST_ASSN=1; ./$(EXEC)
 a2: $(EXEC)
-	export JOOSC_MODE=test; export JOOSC_ASSN=2; ./$(EXEC)
+	export JOOSC_TEST=test; export JOOSC_TEST_ASSN=2; ./$(EXEC)
 a3: $(EXEC)
-	export JOOSC_MODE=test; export JOOSC_ASSN=3; ./$(EXEC)
+	export JOOSC_TEST=test; export JOOSC_TEST_ASSN=3; ./$(EXEC)
 a4: $(EXEC)
-	export JOOSC_MODE=test; export JOOSC_ASSN=4; ./$(EXEC)
+	export JOOSC_TEST=test; export JOOSC_TEST_ASSN=4; ./$(EXEC)
 a5: $(EXEC)
-	export JOOSC_MODE=test; export JOOSC_ASSN=5; ./$(EXEC)
+	export JOOSC_TEST=test; export JOOSC_TEST_ASSN=5; ./$(EXEC)
 scanner: $(EXEC)
-	export JOOSC_MODE=scanner; ./$(EXEC)
-scanner_tiger: $(EXEC)
-	export JOOSC_MODE=scanner; export JOOSC_SCANNER_FILE=tests/scanner/tiger.txt; ./$(EXEC)
-
+	export JOOSC_SCANNER=1; ./$(EXEC)
+scanner_joos: $(EXEC)
+	export JOOSC_SCANNER=1; export JOOSC_SCANNER_FILE=joos.txt; ./$(EXEC)
 
 -include $(DEPS)
 
