@@ -65,7 +65,7 @@ struct DState {
   vector<Edge<DState>> transition;
 
   s32 index;
-  vector<Token *>tokenEmission;
+  Token *tokenEmission;
 };
 
 struct Statistic {
@@ -107,6 +107,8 @@ struct Scanner {
 
   vector<NStateBitField> epsilonClosureCache;
   multimap<u64, DState *> dstateMap;
+
+  vector<Token *> silentTokens;
 
   Statistic ndfaStat;
   Statistic dfsStat;

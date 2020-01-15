@@ -32,7 +32,7 @@ void logImplRaw(const char *str, ...) {
   vsnprintf(logEntry, ARRAY_SIZE(logEntry), str, arg);
   va_end(arg);
   
-  fprintf(stderr, "%s\n", logEntry);
+  fprintf(stdout, "%s\n", logEntry);
 }
 
 void logImpl(const char *str, const char *file, s32 line, const char *func, ...) {
@@ -45,7 +45,7 @@ void logImpl(const char *str, const char *file, s32 line, const char *func, ...)
                  info.month, info.day, info.hour, info.minute, info.second,
                  info.millisecond, file, line);
 
-  fprintf(stderr, "%s", logHeader);
+  fprintf(stdout, "%s", logHeader);
 
   char logEntry[TWO_TO_EIGHT];
   va_list arg;
@@ -53,7 +53,7 @@ void logImpl(const char *str, const char *file, s32 line, const char *func, ...)
   vsnprintf(logEntry, ARRAY_SIZE(logEntry), str, arg);
   va_end(arg);
 
-  fprintf(stderr, "%s", logEntry);  
+  fprintf(stdout, "%s", logEntry);
 }
 
 void globalInit() {

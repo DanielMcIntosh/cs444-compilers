@@ -4,17 +4,13 @@ LineTerminator:
   c 10 c 13
 
 InputCharacter:
+  c 9
+  c 12
+  c 32
   v !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
 
 Goal:
-  Input
-
-Input:
-  InputElements
-
-InputElements:
   InputElement
-  InputElements InputElement
 
 InputElement:
   WhiteSpace
@@ -29,7 +25,8 @@ Token:
   Operator
 
 WhiteSpace:
-  e 9
+  i
+  e 35
   c 32
   c 9
   c 12
@@ -51,7 +48,8 @@ Star:
   v *
 
 Comment:
-  e 8
+  i
+  e 40
   TraditionalComment
   EndOfLineComment
 
@@ -84,7 +82,7 @@ CharactersInLine:
   CharactersInLine InputCharacter
 
 Identifier:
-  e 15
+  e 30
   IdentifierChars
 
 IdentifierChars:
@@ -98,7 +96,7 @@ JavaLetterOrDigit:
   v $0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz
 
 Keyword:
-  e 10
+  e 5
   w abstract
   w boolean
   w break
@@ -156,7 +154,7 @@ Literal:
   NullLiteral
 
 IntegerLiteral:
-  e 20
+  e 10
   DecimalIntegerLiteral
 
 DecimalIntegerLiteral:
@@ -179,7 +177,7 @@ NonZeroDigit:
   v 123456789
 
 BooleanLiteral:
-  e 10
+  e 15
   w true
   w false
 
@@ -231,7 +229,7 @@ NullLiteral:
   w null
 
 Separator:
-  e 25
+  e 15
   w (
   w )
   w {
@@ -243,7 +241,7 @@ Separator:
   w .
 
 Operator:
-  e 20
+  e 15
   w =
   w >
   w <
