@@ -45,52 +45,100 @@ void getJavaFilesRecursive(vector<string> &fileList, const string &folder) {
   closedir(dir);
 }
 
-void compileMain(JoosC *joosc, const vector<string> &fileList) {
+struct CompileResult {
+  s32 numValid;
+  s32 numCorrect;
+  s32 fileProcessed;
+};
+
+CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
+  CompileResult compileResult;
+  compileResult.numCorrect = 0; compileResult.numValid = 0; compileResult.fileProcessed = 0;
+
   for (const string &file: fileList) {
-    const char *fileName = file.c_str();
-    const s64 size = getFileSize(fileName);
+    const char *sourceFileName = file.c_str();
+    const s64 size = getFileSize(sourceFileName);
     if (size < 0) {
-      LOGR("%s is not accessible", fileName);
+      LOGR("%s is not accessible", sourceFileName);
       continue;
     }
 
-    char *contents;
-    s32 fileSize;
-    readEntireFile(fileName, &contents, &fileSize);
-    Scan::ScanResult result = Scan::scannerProcessFile(&joosc->scanner, contents);
-    if (result.valid) {
-      LOGR("Valid, %ld bytes, %s", size, fileName);
-    } else {
-      char snapshot[TWO_TO_EIGHT];
-      const char *snapshotStart = max(contents, contents + result.errorPosition - 4);
-      s32 snapshotLen = min(fileSize - result.errorPosition, 4);
-      snprintf(snapshot, snapshotLen, "%s", snapshotStart);
-      LOGR("Invalid (%s), %ld bytes, %s", snapshot, size, fileName);
-    }
-    free(contents);
+    ++compileResult.fileProcessed;
 
-    strdecl256(scannerOutputPath, "output/scanner/%s", file.c_str());
-    char *lastSlash = strrchr(scannerOutputPath, '/');
-    *lastSlash = 0;
-    strdecl512(mkdirCommand, "mkdir -p %s", scannerOutputPath);
-    system(mkdirCommand);
-    *lastSlash = '/';
+    char *sourceCode;
+    s32 sourceFileSize;
+    readEntireFile(sourceFileName, &sourceCode, &sourceFileSize);
+    
+    Scan::ScanResult result = Scan::scannerProcessFile(&joosc->scanner, sourceCode);
 
-    FILE *scannerDump = fopen(scannerOutputPath, "w");
-    s32 curLineLen = 0;
-    for (const Scan::LexToken &token : result.tokens) {
-      curLineLen += token.name.length();
-      curLineLen += token.lexeme.length();
-      curLineLen += 3;
-
-      fprintf(scannerDump, "%s(%s) ", token.name.c_str(), token.lexeme.c_str());
-      if (curLineLen > 80) {
-        fprintf(scannerDump, "\r\n");
-        curLineLen = 0;
+    const char *colorHead, *colorTail = "\033[0m";
+    { // determine the validity of the program from file name, if possible
+      bool sourceValidity;
+      const char *lastSlash = strrchr(sourceFileName, '/');
+      sourceValidity = (lastSlash[2] != 'e');
+      if (result.valid != sourceValidity) {
+        colorHead = "\033[0;31m"; // red
+      } else {
+        colorHead = "\033[0;32m"; // green
+        ++compileResult.numCorrect;
       }
     }
-    fclose(scannerDump);
+
+    strdecl256(fileInfo, "%d bytes, %ld tokens, %s", sourceFileSize, result.tokens.size(), sourceFileName);
+
+    if (result.valid) {
+      ++compileResult.numValid;
+      LOGR("%s%s%s", colorHead, fileInfo, colorTail);
+    } else {
+      char snapshot[TWO_TO_EIGHT];
+      const char *snapshotStart = max(sourceCode, sourceCode + result.errorPosition - 6);
+      s32 snapshotLen = min(sourceFileSize - result.errorPosition, 6);
+      snprintf(snapshot, snapshotLen, "%s", snapshotStart);
+      LOGR("%s(%s) %s%s", colorHead, snapshot, fileInfo, colorTail);
+    }
+
+    strdecl256(baseOutputPath, "output/%s", file.c_str());
+
+    { // create descending directories
+      char *lastSlash = strrchr(baseOutputPath, '/');
+      *lastSlash = 0;
+      strdecl512(mkdirCommand, "mkdir -p %s", baseOutputPath);
+      system(mkdirCommand);
+      *lastSlash = '/';      
+    }
+
+    { // copy the original source code file so that it appears in the same directory
+      // as debug output files
+      FILE *originalFile = fopen(baseOutputPath, "wb");
+      fwrite(sourceCode, sourceFileSize, 1, originalFile);
+      fclose(originalFile);
+      free(sourceCode);          
+    }
+
+    { // scanner debug output
+      strdecl512(scannerOutputPath, "%s.tokens.txt", baseOutputPath);
+      FILE *scannerDump = fopen(scannerOutputPath, "w");
+      s32 curLineLen = 0;
+      for (const Scan::LexToken &token : result.tokens) {
+        curLineLen += token.name.length();
+        curLineLen += 2;
+        curLineLen += 3;
+
+        fprintf(scannerDump, "%s(%2s) ", token.lexeme.c_str(), token.name.c_str());
+        if (curLineLen > 70) {
+          fprintf(scannerDump, "\r\n");
+          curLineLen = 0;
+        }
+      }
+      fclose(scannerDump);
+
+      snprintf(scannerOutputPath, 512, "%s.scanner.txt", baseOutputPath);
+      scannerDump = fopen(scannerOutputPath, "w");
+      fwrite(result.detailedStep.c_str(), result.detailedStep.size(), 1, scannerDump);
+      fclose(scannerDump);
+    }
   }
+  return compileResult;
 }
 
 void batchTesting(JoosC *joosc, const string &baseDir,
@@ -102,6 +150,7 @@ void batchTesting(JoosC *joosc, const string &baseDir,
   auto fileList = stdlib;
   const s32 numLib = stdlib.size();
   s32 numTests = 0;
+  s32 numPassed = 0;
   LOGR("Batch test starting...");  
   while (true) {
     struct dirent *ent = readdir(dir);
@@ -115,25 +164,29 @@ void batchTesting(JoosC *joosc, const string &baseDir,
       continue;    
    
     string name(ent->d_name);
-    string fullPath = baseDir + name;    
+    string fullPath = baseDir + name;
+
+    CompileResult result;
 
     if (getFileType(fullPath.c_str()) == FileTypeRegular) {
       fileList.push_back(fullPath);
-      compileMain(joosc, fileList);
+      result = compileMain(joosc, fileList);
       fileList.pop_back();
     } else if (getFileType(fullPath.c_str()) == FileTypeDirectory) {
       vector<string> fileBundle;
       getJavaFilesRecursive(fileBundle, fullPath + "/");
       fileList.insert(fileList.end(), fileBundle.begin(), fileBundle.end());
-      compileMain(joosc, fileList);
+      result = compileMain(joosc, fileList);
       fileList.resize(numLib);
     } else {
       continue;
     }
 
+    if (result.numCorrect == result.fileProcessed)
+      ++numPassed;
     ++numTests;
   }
-  LOGR("%d tests.", numTests);
+  LOGR("%d/%d tests passed.", numPassed, numTests);
   closedir(dir);
 }
 

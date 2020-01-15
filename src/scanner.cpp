@@ -366,12 +366,7 @@ void scannerNFAtoDFA(Scanner *scanner) {
 }
 
 void scannerDumpDFA(const Scanner *scanner) {
-  FILE *file;
-  if (scanner->dstates.size() > 100)
-    file = fopen("dfa.txt", "w");
-  else
-    file = stderr;
-
+  FILE *file = fopen("dfa.txt", "w");
   for (const auto &dstate : scanner->dstates) {
     vector<vector<bool>> transitionMap(scanner->dstates.size(),
                                        vector<bool>(NumLetters));
@@ -404,9 +399,6 @@ void scannerDumpDFA(const Scanner *scanner) {
         fprintf(file, " -> %ld\n  ", dstateIndex);
     }
   }
-
-  scanner->ndfaStat.report();
-  scanner->dfsStat.report();
 }
 
 ScanResult scannerProcessFile(const Scanner *scanner, const char *text) {
@@ -420,23 +412,37 @@ ScanResult scannerProcessFile(const Scanner *scanner, const char *text) {
     const vector<Edge<DState>> &transitionArray = curState->transition;
     auto it = lower_bound(transitionArray.begin(), transitionArray.end(),
             Edge<DState>{c, 0});
-    if (it == transitionArray.end() || it->letter != c) { // invalid transition
-      if (!curState->tokenEmission) {
+    bool isInvalid = it == transitionArray.end() || it->letter != c;
+    Token *theToken = curState->tokenEmission;
+    if (isInvalid) { // invalid transition
+      bool doEmit = theToken &&
+                    find(scanner->silentTokens.begin(), scanner->silentTokens.end(),
+                         theToken) == scanner->silentTokens.end();
+      if (!theToken) {
         result.valid = false;
         result.errorPosition = textPtr - text;
         return result;
       }
 
-      if (find(scanner->silentTokens.begin(), scanner->silentTokens.end(),
-              curState->tokenEmission) == scanner->silentTokens.end()) {
-        result.tokens.push_back({curState->tokenEmission->name, curLexeme});
-      }
+      if (doEmit)
+        result.tokens.push_back({theToken->name, curLexeme});
+
       textPtr--;
-      curLexeme.clear();
       curState = startState;
+      curLexeme.clear();
     } else {
-      curLexeme.push_back(c);
       curState = it->state;
+      curLexeme.push_back(c);
+    }
+
+    if (true) { // debug output
+      strdecl32(theChar, "%c", c);
+      if (c <= ' ')
+        snprintf(theChar, 32, "\\x%x", c);
+
+      const char* stateName = curState->tokenEmission ? curState->tokenEmission->name.c_str() : "-";
+      strdecl256(step, "%s %s %d %c\r\n", theChar, stateName, curState->index, isInvalid ? 'X' : 'V');
+      result.detailedStep.append(string(step));
     }
   }
   result.valid = true;
@@ -452,6 +458,7 @@ void scannerLoadJoosRule(Scanner *scanner) {
     return;
   scannerRegularLanguageToNFA(scanner, fileContents);
   scannerNFAtoDFA(scanner);
+  scannerDumpDFA(scanner);
   free(fileContents);
 }
 

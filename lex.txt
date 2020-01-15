@@ -27,25 +27,16 @@ Token:
 WhiteSpace:
   i
   e 35
-  c 32
+  WhiteSpaceSingle
+  WhiteSpace WhiteSpaceSingle
+
+WhiteSpaceSingle:
   c 9
   c 12
-  LineTerminator
-
-ForwardSlash:
-  v /
-
-BackSlash:
-  v \
-
-SingleQuote:
-  v '
-
-DoubleQuote:
-  v "
-
-Star:
-  v *
+  c 32
+  c 10
+  c 13
+  c 10 c 13
 
 Comment:
   i
@@ -54,26 +45,32 @@ Comment:
   EndOfLineComment
 
 TraditionalComment:
-  ForwardSlash Star NotStar CommentTail
+  c / c * NotStar CommentTail
 
 EndOfLineComment:
-  ForwardSlash ForwardSlash LineTerminator
-  ForwardSlash ForwardSlash CharactersInLine LineTerminator
+  c / c / LineTerminator
+  c / c / CharactersInLine LineTerminator
 
 CommentTail:
-  Star CommentTailStar
+  c * CommentTailStar
   NotStar CommentTail
 
 CommentTailStar:
-  ForwardSlash
-  Star CommentTailStar
+  c /
+  c * CommentTailStar
   NotStarNotSlash CommentTail
 
 NotStar:
+  c 9
+  c 12
+  c 32
   v !"#$%&'()+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
   LineTerminator
 
 NotStarNotSlash:
+  c 9
+  c 12
+  c 32
   v !"#$%&'()+,-.0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
   LineTerminator
 
@@ -183,16 +180,16 @@ BooleanLiteral:
 
 CharacterLiteral:
   e 15
-  SingleQuote SingleCharacter SingleQuote
-  SingleQuote EscapeSequence SingleQuote
+  c ' SingleCharacter c '
+  c ' EscapeSequence c '
 
 SingleCharacter:
   v !"#$%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~  
 
 StringLiteral:
   e 20
-  DoubleQuote DoubleQuote
-  DoubleQuote StringCharacters DoubleQuote
+  c " c "
+  c " StringCharacters c "
 
 StringCharacters:
   StringCharacter
@@ -203,20 +200,20 @@ StringCharacter:
   EscapeSequence
 
 EscapeSequence:
-  BackSlash c b
-  BackSlash c t
-  BackSlash c n
-  BackSlash c f
-  BackSlash c r
-  BackSlash DoubleQuote
-  BackSlash SingleQuote
-  BackSlash BackSlash
+  c \ c b
+  c \ c t
+  c \ c n
+  c \ c f
+  c \ c r
+  c \ c "
+  c \ c '
+  c \ c \
   OctalEscape
 
 OctalEscape:
-  BackSlash OctalDigit
-  BackSlash OctalDigit OctalDigit
-  BackSlash ZeroToThree OctalDigit OctalDigit
+  c \ OctalDigit
+  c \ OctalDigit OctalDigit
+  c \ ZeroToThree OctalDigit OctalDigit
 
 OctalDigit:
   v 01234567

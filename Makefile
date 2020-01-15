@@ -1,4 +1,4 @@
-PERF := release
+PERF := debug
 
 ifeq ($(PERF), release)
 	CXXFLAGS += -O3

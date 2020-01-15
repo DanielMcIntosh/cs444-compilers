@@ -96,6 +96,7 @@ struct ScanResult {
   vector<LexToken> tokens;
   bool valid;
   s32 errorPosition;
+  string detailedStep;
 };
 
 struct Scanner {
