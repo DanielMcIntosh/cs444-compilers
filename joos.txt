@@ -186,10 +186,32 @@ BooleanLiteral:
 CharacterLiteral:
   e 15
   c ' SingleCharacter c '
-  c ' EscapeSequence c '
+  c ' EscapeSequenceChar c '
 
 SingleCharacter:
-  v !"#$%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~  
+  v !"#$%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~
+
+EscapeSequenceChar:
+  c \ c b
+  c \ c t
+  c \ c n
+  c \ c f
+  c \ c r
+  c \ c "
+  c \ c '
+  c \ c \
+  OctalEscapeChar
+
+OctalEscapeChar:
+  c \ OctalDigitChar
+  c \ OctalDigitChar OctalDigitChar
+  c \ ZeroToThreeChar OctalDigitChar OctalDigitChar
+
+OctalDigitChar:
+  v 01234567
+
+ZeroToThreeChar:
+  v 0123
 
 StringLiteral:
   e 20
@@ -202,9 +224,12 @@ StringCharacters:
 
 StringCharacter:
   v !#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~
-  EscapeSequence
+  c 9
+  c 12
+  c 32
+  EscapeSequenceStr
 
-EscapeSequence:
+EscapeSequenceStr:
   c \ c b
   c \ c t
   c \ c n
@@ -213,17 +238,17 @@ EscapeSequence:
   c \ c "
   c \ c '
   c \ c \
-  OctalEscape
+  OctalEscapeStr
 
-OctalEscape:
-  c \ OctalDigit
-  c \ OctalDigit OctalDigit
-  c \ ZeroToThree OctalDigit OctalDigit
+OctalEscapeStr:
+  c \ OctalDigitStr
+  c \ OctalDigitStr OctalDigitStr
+  c \ ZeroToThreeStr OctalDigitStr OctalDigitStr
 
-OctalDigit:
+OctalDigitStr:
   v 01234567
 
-ZeroToThree:
+ZeroToThreeStr:
   v 0123
 
 NullLiteral:

@@ -470,6 +470,7 @@ void scannerLoadJoosRule(Scanner *scanner) {
     return;
   scannerRegularLanguageToNFA(scanner, fileContents);
   scannerNFAtoDFA(scanner);
+  scannerDumpDFA(scanner);
   free(fileContents);
 }
 

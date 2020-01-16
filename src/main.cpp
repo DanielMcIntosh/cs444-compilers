@@ -85,7 +85,9 @@ CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
       }
     }
 
-    strdecl256(fileInfo, "%d bytes, %ld tokens, %s", sourceFileSize, result.tokens.size(), sourceFileName);
+    strdecl256(fileInfo, "%s, %d bytes, %ld tokens", sourceFileName,
+            sourceFileSize, result
+    .tokens.size());
 
     if (result.valid) {
       ++compileResult.numValid;
@@ -95,7 +97,7 @@ CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
       const char *snapshotStart = max(sourceCode, sourceCode + result.errorPosition - 6);
       s32 snapshotLen = min(sourceFileSize - result.errorPosition, 6);
       snprintf(snapshot, snapshotLen, "%s", snapshotStart);
-      LOGR("%s(%s) %s%s", colorHead, snapshot, fileInfo, colorTail);
+      LOGR("%s%s (%s) %s", colorHead, fileInfo, snapshot, colorTail);
     }
 
     strdecl256(baseOutputPath, "output/%s", file.c_str());
@@ -192,7 +194,7 @@ void batchTesting(JoosC *joosc, const string &baseDir,
 
 void checkTestMode(JoosC *joosc) {
   const char *mode = getenv("JOOSC_TEST");
-  if (!mode || strcmp(mode, "test"))
+  if (!mode)
     return;
   const char *assnNum = getenv("JOOSC_TEST_ASSN");
   if (!assnNum)
