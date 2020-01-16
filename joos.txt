@@ -192,16 +192,16 @@ EscapeSequenceChar:
   char \ char \
   OctalEscapeChar
 
-OctalDigitChar:
+OctalDigit:
   any 01234567
 
-ZeroToThreeChar:
+ZeroToThree:
   any 0123
 
 OctalEscapeChar:
-  char \ copy OctalDigitChar
-  char \ copy OctalDigitChar copy OctalDigitChar
-  char \ copy ZeroToThreeChar copy OctalDigitChar copy OctalDigitChar
+  char \ copy OctalDigit
+  char \ copy OctalDigit copy OctalDigit
+  char \ copy ZeroToThree copy OctalDigit copy OctalDigit
 
 StringLiteral:
   emit 20
@@ -227,16 +227,10 @@ EscapeSequenceStr:
   char \ char \
   OctalEscapeStr
 
-OctalDigitStr:
-  any 01234567
-
-ZeroToThreeStr:
-  any 0123
-
 OctalEscapeStr:
-  char \ copy OctalDigitStr
-  char \ copy OctalDigitStr copy OctalDigitStr
-  char \ copy ZeroToThreeStr copy OctalDigitStr copy OctalDigitStr
+  char \ copy OctalDigit
+  char \ copy OctalDigit copy OctalDigit
+  char \ copy ZeroToThree copy OctalDigit copy OctalDigit
 
 NullLiteral:
   emit 15
