@@ -1,13 +1,7 @@
 LineTerminator:
-  c 10
-  c 13
-  c 10 c 13
-
-InputCharacter:
-  c 9
-  c 12
-  c 32
-  v !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+  char 10
+  char 13
+  char 10 char 13
 
 Goal:
   InputElement
@@ -25,66 +19,63 @@ Token:
   Operator
 
 WhiteSpace:
-  i
-  e 35
+  silent
+  emit 35
   WhiteSpaceSingle
   WhiteSpace WhiteSpaceSingle
 
 WhiteSpaceSingle:
-  c 9
-  c 12
-  c 32
-  c 10
-  c 13
-  c 10 c 13
+  char 9
+  char 12
+  char 32
+  char 10
+  char 13
+  char 10 char 13
 
 Comment:
-  i
-  e 40
+  silent
+  emit 40
   TraditionalComment
   EndOfLineComment
 
 TraditionalComment:
-  c / c * NotStar CommentTail
-  c / c * c * NotStar CommentTail
+  char / char * NotStar CommentTail
+  char / char * char * NotStar CommentTail
 
 EndOfLineComment:
-  c / c / LineTerminator
-  c / c / CharactersInLine LineTerminator
+  char / char / LineTerminator
+  char / char / CharactersInLine LineTerminator
 
 CommentTail:
-  c * CommentTailStar
+  char * CommentTailStar
   NotStar CommentTail
 
 CommentTailStar:
-  c /
-  c * CommentTailStar
+  char /
+  char * CommentTailStar
   NotStarNotSlash CommentTail
 
 NotStar:
-  c 9
-  c 12
-  c 32
-  v !"#$%&'()+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
-  c 10
-  c 13
-  c 10 c 13
+  inputchar *
+  char 10
+  char 13
+  char 10 char 13
 
 NotStarNotSlash:
-  c 9
-  c 12
-  c 32
-  v !"#$%&'()+,-.0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
-  c 10
-  c 13
-  c 10 c 13
+  inputchar */
+  char 10
+  char 13
+  char 10 char 13
+
+CharactersInLineSingle:
+  inputchar
 
 CharactersInLine:
-  InputCharacter
-  CharactersInLine InputCharacter
+  CharactersInLineSingle
+  CharactersInLine CharactersInLineSingle
 
 Identifier:
-  e 30
+  emit 30
   IdentifierChars
 
 IdentifierChars:
@@ -92,61 +83,61 @@ IdentifierChars:
   IdentifierChars JavaLetterOrDigit
 
 JavaLetter:
-  v $ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz
+  any $ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz
 
 JavaLetterOrDigit:
-  v $0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz
+  any $0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz
 
 Keyword:
-  e 5
-  w abstract
-  w boolean
-  w break
-  w byte
-  w case
-  w catch
-  w char
-  w class
-  w const
-  w continue
-  w default
-  w do
-  w double
-  w else
-  w extends
-  w final
-  w finally
-  w float
-  w for
-  w goto
-  w if
-  w implements
-  w import
-  w instanceof
-  w int
-  w interface
-  w long
-  w native
-  w new
-  w package
-  w private
-  w protected
-  w public
-  w return
-  w short
-  w static
-  w strictfp
-  w super
-  w switch
-  w synchronized
-  w this
-  w throw
-  w throws
-  w transient
-  w try
-  w void
-  w volatile
-  w while 
+  emit 5
+  word abstract
+  word boolean
+  word break
+  word byte
+  word case
+  word catch
+  word char
+  word class
+  word const
+  word continue
+  word default
+  word do
+  word double
+  word else
+  word extends
+  word final
+  word finally
+  word float
+  word for
+  word goto
+  word if
+  word implements
+  word import
+  word instanceof
+  word int
+  word interface
+  word long
+  word native
+  word new
+  word package
+  word private
+  word protected
+  word public
+  word return
+  word short
+  word static
+  word strictfp
+  word super
+  word switch
+  word synchronized
+  word this
+  word throw
+  word throws
+  word transient
+  word try
+  word void
+  word volatile
+  word while
 
 Literal:
   IntegerLiteral
@@ -156,15 +147,15 @@ Literal:
   NullLiteral
 
 IntegerLiteral:
-  e 10
+  emit 10
   DecimalIntegerLiteral
 
 DecimalIntegerLiteral:
   DecimalNumeral
 
 DecimalNumeral:
-  v 0
-  NonZeroDigit
+  any 0
+  any 123456789
   NonZeroDigit Digits
 
 Digits:
@@ -172,137 +163,133 @@ Digits:
   Digits Digit
 
 Digit:
-  v 0
-  NonZeroDigit
+  any 0123456789
 
 NonZeroDigit:
-  v 123456789
+  any 123456789
 
 BooleanLiteral:
-  e 15
-  w true
-  w false
+  emit 15
+  word true
+  word false
 
 CharacterLiteral:
-  e 15
-  c ' SingleCharacter c '
-  c ' EscapeSequenceChar c '
+  emit 15
+  char ' SingleCharacter char '
+  char ' EscapeSequenceChar char '
 
 SingleCharacter:
-  v !"#$%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~
+  inputchar '\
 
 EscapeSequenceChar:
-  c \ c b
-  c \ c t
-  c \ c n
-  c \ c f
-  c \ c r
-  c \ c "
-  c \ c '
-  c \ c \
+  char \ char b
+  char \ char t
+  char \ char n
+  char \ char f
+  char \ char r
+  char \ char "
+  char \ char '
+  char \ char \
   OctalEscapeChar
 
-OctalEscapeChar:
-  c \ OctalDigitChar
-  c \ OctalDigitChar OctalDigitChar
-  c \ ZeroToThreeChar OctalDigitChar OctalDigitChar
-
 OctalDigitChar:
-  v 01234567
+  any 01234567
 
 ZeroToThreeChar:
-  v 0123
+  any 0123
+
+OctalEscapeChar:
+  char \ copy OctalDigitChar
+  char \ copy OctalDigitChar copy OctalDigitChar
+  char \ copy ZeroToThreeChar copy OctalDigitChar copy OctalDigitChar
 
 StringLiteral:
-  e 20
-  c " c "
-  c " StringCharacters c "
+  emit 20
+  char " char "
+  char " StringCharacters char "
 
 StringCharacters:
   StringCharacter
   StringCharacters StringCharacter
 
 StringCharacter:
-  v !#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~
-  c 9
-  c 12
-  c 32
+  inputchar "\
   EscapeSequenceStr
 
 EscapeSequenceStr:
-  c \ c b
-  c \ c t
-  c \ c n
-  c \ c f
-  c \ c r
-  c \ c "
-  c \ c '
-  c \ c \
+  char \ char b
+  char \ char t
+  char \ char n
+  char \ char f
+  char \ char r
+  char \ char "
+  char \ char '
+  char \ char \
   OctalEscapeStr
 
-OctalEscapeStr:
-  c \ OctalDigitStr
-  c \ OctalDigitStr OctalDigitStr
-  c \ ZeroToThreeStr OctalDigitStr OctalDigitStr
-
 OctalDigitStr:
-  v 01234567
+  any 01234567
 
 ZeroToThreeStr:
-  v 0123
+  any 0123
+
+OctalEscapeStr:
+  char \ copy OctalDigitStr
+  char \ copy OctalDigitStr copy OctalDigitStr
+  char \ copy ZeroToThreeStr copy OctalDigitStr copy OctalDigitStr
 
 NullLiteral:
-  e 15
-  w null
+  emit 15
+  word null
 
 Separator:
-  e 15
-  w (
-  w )
-  w {
-  w }
-  w [
-  w ]
-  w ;
-  w ,
-  w .
+  emit 15
+  word (
+  word )
+  word {
+  word }
+  word [
+  word ]
+  word ;
+  word ,
+  word .
 
 Operator:
-  e 15
-  w =
-  w >
-  w <
-  w !
-  w ~
-  w ?
-  w :
-  w ==
-  w <=
-  w >=
-  w !=
-  w &&
-  w ||
-  w ++
-  w --
-  w +
-  w -
-  w *
-  w /
-  w &
-  w |
-  w ^
-  w %
-  w <<
-  w >>
-  w >>>
-  w +=
-  w -=
-  w *=
-  w /=
-  w &=
-  w |=
-  w ^=
-  w %=
-  w <<=
-  w >>=
-  w >>>=
+  emit 15
+  word =
+  word >
+  word <
+  word !
+  word ~
+  word ?
+  word :
+  word ==
+  word <=
+  word >=
+  word !=
+  word &&
+  word ||
+  word ++
+  word --
+  word +
+  word -
+  word *
+  word /
+  word &
+  word |
+  word ^
+  word %
+  word <<
+  word >>
+  word >>>
+  word +=
+  word -=
+  word *=
+  word /=
+  word &=
+  word |=
+  word ^=
+  word %=
+  word <<=
+  word >>=
+  word >>>=

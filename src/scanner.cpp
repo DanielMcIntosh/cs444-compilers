@@ -72,7 +72,7 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
       continue;
     }
 
-    if (!strcmp(token, "v")) { // terminating letters
+    if (!strcmp(token, "any")) { // terminating letters
       token = strtok(0, delim);
       for (char c = *token; c; c = *++token) {
         vector<Edge<NState>> *transitionArray =
@@ -82,19 +82,36 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
       continue;
     }
 
-    if (!strcmp(token, "e")) { // actually emit a token
+    if (!strcmp(token, "inputchar")) { // default input character with
+      // exceptions
+      token = strtok(0, delim); // exclude these characters
+      for (s32 c = 1; c < NumLetters; ++c) {
+        if (token && strchr(token, c))
+          continue;
+        if (c == 0xa || c == 0xd) // not LF or CR
+          continue;
+        vector<Edge<NState>> *transitionArray = &curMajorToken->startingNState->
+                letterTransition;
+        transitionArray->push_back({(char)c, curMajorToken->acceptingNState});
+      }
+
+      continue;
+    }
+
+    if (!strcmp(token, "emit")) { // accepting state
       token = strtok(0, delim);
       curMajorToken->priority = atoi(token);
       curMajorToken->emit = true;
       continue;
     }
 
-    if (!strcmp(token, "i")) { // an accepting state that doesn't emit anything
+    if (!strcmp(token, "silent")) { // an accepting state that doesn't emit
+      // anything
       scanner->silentTokens.push_back(curMajorToken);
       continue;
     }
 
-    if (!strcmp(token, "w")) { // build a chain of states from a word
+    if (!strcmp(token, "word")) { // build a chain of states from a word
       token = strtok(0, delim);
       s32 wordLen = strlen(token);
 
@@ -119,7 +136,7 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
     // a single rule
     NState *prevAcceptingState = 0;
     while (token) {
-      if (!strcmp(token, "c")) { // single character follows
+      if (!strcmp(token, "char")) { // single character follows
         token = strtok(0, delim);
         s32 value = atoi(token);
         if (!value)
@@ -142,22 +159,45 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
         prevAcceptingState->letterTransition.push_back({(char)value, nextState});
         prevAcceptingState = nextState;
         continue;
-      }
+      } else if (!strcmp(token, "copy")) {
+        token = strtok(0, delim);
+        string tokenS(token);
 
-      string tokenS(token);
-      token = strtok(0, delim);
+        token = strtok(0, delim);
 
-      Token *thisToken = scannerFindOrCreateToken(scanner, tokenS);
-      if (!prevAcceptingState) { // beginning of a rule
-        curMajorToken->startingNState->epsilonTransitions.push_back(thisToken->startingNState);
-      } else { // concatenation
+        ASSERT(scanner->tokenMap.find(tokenS) != scanner->tokenMap.end()); // must declare before use
+        Token *toCopy = scanner->tokenMap[tokenS];
+        ASSERT(toCopy->startingNState->epsilonTransitions.empty()); // prune non trivial cases
+        ASSERT(toCopy->acceptingNState->epsilonTransitions.empty());
+
+        NState *n1 = scannerCreateNState(scanner);
+        NState *n2 = scannerCreateNState(scanner);
+
+        for (const Edge<NState> &edge: toCopy->startingNState->letterTransition) {
+          ASSERT(edge.state == toCopy->acceptingNState); // only support simple graph for now
+          n1->letterTransition.push_back({edge.letter, n2});
+        }
+
+        if (!prevAcceptingState)
+          prevAcceptingState = curMajorToken->startingNState;
+        prevAcceptingState->epsilonTransitions.push_back(n1);
+        if (!token)
+          n2->epsilonTransitions.push_back(curMajorToken->acceptingNState);
+        prevAcceptingState = n2;
+      } else {
+        string tokenS(token);
+        token = strtok(0, delim);
+
+        Token *thisToken = scannerFindOrCreateToken(scanner, tokenS);
+        if (!prevAcceptingState)
+          prevAcceptingState = curMajorToken->startingNState;
         prevAcceptingState->epsilonTransitions.push_back(thisToken->startingNState);
-      }
 
-      if (!token) // end of a rule
-        thisToken->acceptingNState->epsilonTransitions.push_back
-                (curMajorToken->acceptingNState);
-      prevAcceptingState = thisToken->acceptingNState;
+        if (!token) // end of a rule
+          thisToken->acceptingNState->epsilonTransitions.push_back
+                  (curMajorToken->acceptingNState);
+        prevAcceptingState = thisToken->acceptingNState;
+      }
     }
   }
 
