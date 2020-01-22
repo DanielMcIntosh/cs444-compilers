@@ -12,7 +12,7 @@ NState *scannerCreateNState(Scanner *scanner) {
 	NState *state = scanner->nstates.back().get();
 	state->index = scanner->nstates.size() - 1;
 	state->stateSymbol = 0;
-	state->token = 0;
+	state->token = nullptr;
 	return state;
 }
 
@@ -45,14 +45,14 @@ Token *scannerFindOrCreateToken(Scanner *scanner, const string &tokenS) {
 void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
 	const char *textPtr = text;
 
-	Token *curMajorToken = 0;
+	Token *curMajorToken = nullptr;
 	while (*textPtr) {
 		const char *newline = "\r\n";
 		s32 lineLen = strcspn(textPtr, newline);
 
 		char line[TWO_TO_EIGHT];
 		snprintf(line, lineLen + 1, "%s", textPtr);
-		line[lineLen] = 0;
+		line[lineLen] = '\0';
 		textPtr += lineLen;
 		textPtr += strspn(textPtr, newline);
 
@@ -65,7 +65,7 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
 
 		s32 tokenLen = strlen(token);
 		if (isDef) { // token definition
-			token[tokenLen - 1] = 0;
+			token[tokenLen - 1] = '\0';
 			string tokenS(token);
 			curMajorToken = scannerFindOrCreateToken(scanner, tokenS);
 			curMajorToken->declared = true;
@@ -73,7 +73,7 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
 		}
 
 		if (!strcmp(token, "any")) { // terminating letters
-			token = strtok(0, delim);
+			token = strtok(nullptr, delim);
 			for (char c = *token; c; c = *++token) {
 				vector<Edge<NState>> *transitionArray =
 								&curMajorToken->startingNState->letterTransition;
@@ -84,7 +84,7 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
 
 		if (!strcmp(token, "inputchar")) { // default input character with
 			// exceptions
-			token = strtok(0, delim); // exclude these characters
+			token = strtok(nullptr, delim); // exclude these characters
 			for (s32 c = 1; c < NumLetters; ++c) {
 				if (token && strchr(token, c))
 					continue;
@@ -99,7 +99,7 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
 		}
 
 		if (!strcmp(token, "emit")) { // accepting state
-			token = strtok(0, delim);
+			token = strtok(nullptr, delim);
 			curMajorToken->priority = atoi(token);
 			curMajorToken->emit = true;
 			continue;
@@ -112,7 +112,7 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
 		}
 
 		if (!strcmp(token, "word")) { // build a chain of states from a word
-			token = strtok(0, delim);
+			token = strtok(nullptr, delim);
 			s32 wordLen = strlen(token);
 
 			NState * intermediateState = scannerCreateNState(scanner);
@@ -134,15 +134,15 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
 		}
 
 		// a single rule
-		NState *prevAcceptingState = 0;
+		NState *prevAcceptingState = nullptr;
 		while (token) {
 			if (!strcmp(token, "char")) { // single character follows
-				token = strtok(0, delim);
+				token = strtok(nullptr, delim);
 				s32 value = atoi(token);
 				if (!value)
 					value = token[0];
 
-				token = strtok(0, delim);
+				token = strtok(nullptr, delim);
 				NState *nextState;
 				if (!token) { // end of a rule
 					nextState = curMajorToken->acceptingNState;
@@ -160,10 +160,10 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
 				prevAcceptingState = nextState;
 				continue;
 			} else if (!strcmp(token, "copy")) {
-				token = strtok(0, delim);
+				token = strtok(nullptr, delim);
 				string tokenS(token);
 
-				token = strtok(0, delim);
+				token = strtok(nullptr, delim);
 
 				ASSERT(scanner->tokenMap.find(tokenS) != scanner->tokenMap.end()); // must declare before use
 				Token *toCopy = scanner->tokenMap[tokenS];
@@ -186,7 +186,7 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
 				prevAcceptingState = n2;
 			} else {
 				string tokenS(token);
-				token = strtok(0, delim);
+				token = strtok(nullptr, delim);
 
 				Token *thisToken = scannerFindOrCreateToken(scanner, tokenS);
 				if (!prevAcceptingState)
@@ -330,7 +330,7 @@ DState *scannerCreateDStateFromNState(Scanner *scanner,
 	dstate->nstatesField = nstates;
 
 	s32 curPriority = numeric_limits<s32>::max();
-	Token *curToken = 0;
+	Token *curToken = nullptr;
 	for (auto it = arrayBitFieldBegin(nstates); *it != -1; ++it) {
 		const NState *nstate = scanner->nstates[*it].get();
 		if (nstate->token && nstate->token->emit)
@@ -352,7 +352,7 @@ DState *scannerFindDStateFromNState(Scanner *scanner, const NStateBitField &nsta
 	u64 hashValue = arrayHash(nstates);
 	auto itPair = scanner->dstateMap.equal_range(hashValue);
 	s64 compares = 0;
-	DState *state = 0;
+	DState *state = nullptr;
 	for (auto it = itPair.first; it != itPair.second; ++it) {
 		++compares;
 		if (it->second->nstatesField == nstates) {
@@ -389,7 +389,7 @@ void scannerNFAtoDFA(Scanner *scanner) {
 				const vector<Edge<NState>> &transitionArray =
 								scanner->nstates[*val]->letterTransition;
 				auto it = lower_bound(transitionArray.begin(), transitionArray.end(),
-															Edge<NState>{(char)letter, 0});
+															Edge<NState>{(char)letter, nullptr});
 				if (it == transitionArray.end() || it->letter != letter)
 					continue;
 
@@ -460,7 +460,7 @@ ScanResult scannerProcessText(const Scanner *scanner, const char *text) {
 	for (char c = *textPtr; ; c = *++textPtr) {
 		const vector<Edge<DState>> &transitionArray = curState->transition;
 		auto it = lower_bound(transitionArray.begin(), transitionArray.end(),
-						Edge<DState>{c, 0});
+						Edge<DState>{c, nullptr});
 		bool isInvalid = it == transitionArray.end() || it->letter != c;
 		Token *theToken = curState->tokenEmission;
 		if (isInvalid) { // invalid transition
@@ -535,7 +535,7 @@ void scannerTest() {
 					{"i", "Identifier"},
 					{"ij", "Identifier"},
 					{"in", "Identifier"},
-					{"ijk", 0},
+					{"ijk", nullptr},
 					{"if", "Keyword"},
 					{"int", "Keyword"},
 					{"zijkxy", "Keyword"},
@@ -544,15 +544,15 @@ void scannerTest() {
 					{"z", "Identifier"},
 					{"xy", "Identifier"},
 					{"0", "Number"},
-					{"00", 0},
-					{"01", 0},
+					{"00", nullptr},
+					{"01", nullptr},
 					{"1", "Number"},
 					{"12", "Number"},
 					{"10", "Number"},
 					{"ijk0ijk", "Keyword"},
 					{"ijk1ijk", "Keyword"},
-					{"?", 0},
-					{"!", 0},
+					{"?", nullptr},
+					{"!", nullptr},
 	};
 
 	s32 size = ARRAY_SIZE(testInput);
@@ -566,8 +566,8 @@ void scannerTest() {
 			testSuccess = result.valid && result.tokens.size() == 1 &&
 							!strcmp(result.tokens[0].name.c_str(), pair->type);
 		}
-		const char *given = result.tokens.size() > 0 ? result.tokens[0].name.c_str
-						() : 0;
+		const char *given = result.tokens.size() > 0 ? result.tokens[0].name.c_str()
+						: nullptr;
 		LOGR("%s: %s (should be %s, given %s)", testSuccess ?
 		"success" :
 		"fail", pair->text, pair->type, given);

@@ -57,7 +57,7 @@ void logImpl(const char *str, const char *file, s32 line, const char *func, ...)
 }
 
 void globalInit() {
-	srand(time(0));
+	srand(time(nullptr));
 	platformInit();
 }
 

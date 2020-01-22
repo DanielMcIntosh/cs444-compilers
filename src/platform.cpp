@@ -12,7 +12,7 @@
 
 void getCivicTime(CivicTimeInfo *info) {
 	struct tm ts;
-	time_t timePoint = time(0);
+	time_t timePoint = time(nullptr);
 	localtime_r(&timePoint, &ts);
 
 	info->year = ts.tm_year + 1900;

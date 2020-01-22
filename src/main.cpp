@@ -104,7 +104,7 @@ CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
 
 		{ // create descending directories
 			char *lastSlash = strrchr(baseOutputPath, '/');
-			*lastSlash = 0;
+			*lastSlash = '\0';
 			createDirectoryChain(baseOutputPath);
 			*lastSlash = '/';
 		}

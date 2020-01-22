@@ -28,7 +28,9 @@ WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimiza
   -Winit-self -Wlogical-op -Wmissing-include-dirs -Wredundant-decls \
 	-Wshadow -Wundef -Wno-variadic-macros -Wstrict-aliasing=3 -Wwrite-strings \
   -Wfloat-conversion -Wsuggest-attribute=pure -Wsuggest-attribute=const \
-  -Wsuggest-attribute=noreturn -Wsuggest-attribute=format -Wnull-dereference
+  -Wsuggest-attribute=noreturn -Wsuggest-attribute=format -Wnull-dereference \
+  -Wzero-as-null-pointer-constant -Wctor-dtor-privacy -Wnon-virtual-dtor \
+  -Woverloaded-virtual
 
 CXXFLAGS += $(INC_FLAGS) $(WARNINGS) -D__USE_MINGW_ANSI_STDIO -MMD -MP -march=native
 
