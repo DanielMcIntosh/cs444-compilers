@@ -2,24 +2,24 @@
 
 #include "utility.h"
 
-typedef struct {
-  s32 year;
-  s32 month;
-  s32 day;
-  s32 hour;
-  s32 minute;
-  s32 second;
-  s32 millisecond;
-} CivicTimeInfo;
+struct CivicTimeInfo {
+	s32 year;
+	s32 month;
+	s32 day;
+	s32 hour;
+	s32 minute;
+	s32 second;
+	s32 millisecond;
+};
 
 void getCivicTime(CivicTimeInfo *);
 void platformInit();
 
 enum FileType
 {
-  FileTypeUnknown,
-  FileTypeDirectory,
-  FileTypeRegular,   
+	FileTypeUnknown,
+	FileTypeDirectory,
+	FileTypeRegular,
 };
 
 FileType getFileType(const char *path);

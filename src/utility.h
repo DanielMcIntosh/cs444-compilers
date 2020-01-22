@@ -31,30 +31,30 @@ typedef int16_t s16;
 #define TWO_TO_NINE   512
 
 #define strdecl(_name, _len, _format, ...) \
-  char _name[_len]; snprintf(_name, _len, _format, __VA_ARGS__)
+	char _name[_len]; snprintf(_name, _len, _format, __VA_ARGS__)
 #define strdecl32(_name, _format, ...) \
-  strdecl(_name, TWO_TO_FIVE, _format, __VA_ARGS__)
+	strdecl(_name, TWO_TO_FIVE, _format, __VA_ARGS__)
 #define strdecl256(_name, _format, ...) \
-  strdecl(_name, TWO_TO_EIGHT, _format, __VA_ARGS__)
+	strdecl(_name, TWO_TO_EIGHT, _format, __VA_ARGS__)
 #define strdecl512(_name, _format, ...) \
-  strdecl(_name, TWO_TO_NINE, _format, __VA_ARGS__)
+	strdecl(_name, TWO_TO_NINE, _format, __VA_ARGS__)
 
 //
 // assert and logging and others
 //
 
 #define ASSERT(_exp, ...)                         \
-  assertImpl((bool)(_exp), #_exp, ##__VA_ARGS__)
+	assertImpl((bool)(_exp), #_exp, ##__VA_ARGS__)
 #define ASSERT2(_exp, _fmt, ...)                            \
-  assertImpl_((bool)(_exp), #_exp, _fmt, ##__VA_ARGS__)
+	assertImpl_((bool)(_exp), #_exp, _fmt, ##__VA_ARGS__)
 #define LOG(fmt, ...)                                       \
-  logImpl((fmt), __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+	logImpl((fmt), __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #define LOGR(fmt, ...)                                       \
-  logImplRaw((fmt), ##__VA_ARGS__)
+	logImplRaw((fmt), ##__VA_ARGS__)
 #define LOGI(_level, _fmt, ...) \
-  LOG("%*s" _fmt, _level, "", ##__VA_ARGS__)
+	LOG("%*s" _fmt, _level, "", ##__VA_ARGS__)
 #define LOGIR(_level, _fmt, ...) \
-  LOGR("%*s" _fmt, _level, "", ##__VA_ARGS__)
+	LOGR("%*s" _fmt, _level, "", ##__VA_ARGS__)
 
 #define UNIMPLEMENTED unimplementedImpl
 void unimplementedImpl();
