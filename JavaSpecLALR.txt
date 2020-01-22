@@ -1,0 +1,452 @@
+Goal:
+	CompilationUnit
+
+Literal:
+	IntegerLiteral
+	BooleanLiteral
+	CharacterLiteral
+	StringLiteral
+	NullLiteral
+
+Type:
+	PrimitiveType
+	ReferenceType
+
+PrimitiveType:
+	NumericType
+	</i>boolean<i>
+
+NumericType:
+	IntegralType
+
+IntegralType:
+	</i>byte<i>
+	</i>short<i>
+	</i>int<i>
+	</i>char<i>
+
+ReferenceType:
+	ClassOrInterfaceType
+	ArrayType
+
+ClassOrInterfaceType:
+	Name
+
+ClassType:
+	ClassOrInterfaceType
+
+InterfaceType:
+	ClassOrInterfaceType
+
+ArrayType:
+	PrimitiveType </i>[<i> </i>]<i>
+	Name </i>[<i> </i>]<i>
+	ArrayType </i>[<i> </i>]<i>
+
+Name:
+	SimpleName
+	QualifiedName
+
+SimpleName:
+	Identifier
+
+QualifiedName:
+	Name </i>.<i> Identifier
+
+CompilationUnit:
+
+	PackageDeclaration
+	ImportDeclarations
+	PackageDeclaration ImportDeclarations
+	TypeDeclarations
+	PackageDeclaration TypeDeclarations
+	ImportDeclarations TypeDeclarations
+	PackageDeclaration ImportDeclarations TypeDeclarations
+
+ImportDeclarations:
+	ImportDeclaration
+	ImportDeclarations ImportDeclaration
+
+TypeDeclarations:
+	TypeDeclaration
+	TypeDeclarations TypeDeclaration
+
+PackageDeclaration:
+	</i>package<i> Name </i>;<i>
+
+ImportDeclaration:
+	SingleTypeImportDeclaration
+	TypeImportOnDemandDeclaration
+
+SingleTypeImportDeclaration:
+	</i>import<i> Name </i>;<i>
+
+TypeImportOnDemandDeclaration:
+	</i>import<i> Name </i>.<i> </i>*<i> </i>;<i>
+
+TypeDeclaration:
+	ClassDeclaration
+	InterfaceDeclaration
+	</i>;<i>
+
+Modifiers:
+	Modifier
+	Modifiers Modifier
+
+Modifier:
+	</i>public<i>
+	</i>protected<i>
+	</i>static<i>
+	</i>abstract<i>
+	</i>final<i>
+	</i>native<i>
+
+ClassDeclaration:
+	</i>class<i> Identifier ClassBody
+	Modifiers </i>class<i> Identifier ClassBody
+	</i>class<i> Identifier Super ClassBody
+	Modifiers </i>class<i> Identifier Super ClassBody
+	</i>class<i> Identifier Interfaces ClassBody
+	Modifiers </i>class<i> Identifier Interfaces ClassBody
+	</i>class<i> Identifier Super Interfaces ClassBody
+	Modifiers </i>class<i> Identifier Super Interfaces ClassBody
+
+Super:
+	</i>extends<i> ClassType
+
+Interfaces:
+	</i>implements<i> InterfaceTypeList
+
+InterfaceTypeList:
+	InterfaceType
+	InterfaceTypeList </i>,<i> InterfaceType
+
+ClassBody:
+	</i>{<i> </i>}<i>
+	</i>{<i> ClassBodyDeclarations </i>}<i>
+
+ClassBodyDeclarations:
+	ClassBodyDeclaration
+	ClassBodyDeclarations ClassBodyDeclaration
+
+ClassBodyDeclaration:
+	ClassMemberDeclaration
+	StaticInitializer
+	ConstructorDeclaration
+
+ClassMemberDeclaration:
+	FieldDeclaration
+	MethodDeclaration
+
+FieldDeclaration:
+	Type VariableDeclarator </i>;<i>
+	Modifiers Type VariableDeclarator </i>;<i>
+
+VariableDeclarator:
+	VariableDeclaratorId
+	VariableDeclaratorId </i>=<i> VariableInitializer
+
+VariableDeclaratorId:
+	Identifier
+	VariableDeclaratorId </i>[<i> </i>]<i>
+
+VariableInitializer:
+	Expression
+	ArrayInitializer
+
+MethodDeclaration:
+	MethodHeader MethodBody
+
+MethodHeader:
+	Type MethodDeclarator
+	Modifiers Type MethodDeclarator
+	</i>void<i> MethodDeclarator
+	Modifiers </i>void<i> MethodDeclarator
+
+MethodDeclarator:
+	Identifier </i>(<i> </i>)<i>
+	Identifier </i>(<i> FormalParameterList </i>)<i>
+	MethodDeclarator </i>[<i> </i>]<i>
+
+FormalParameterList:
+	FormalParameter
+	FormalParameterList </i>,<i> FormalParameter
+
+FormalParameter:
+	Type VariableDeclaratorId
+
+ClassTypeList:
+	ClassType
+	ClassTypeList </i>,<i> ClassType
+
+MethodBody:
+	Block
+	</i>;<i>
+
+StaticInitializer:
+	</i>static<i> Block
+
+ConstructorDeclaration:
+	ConstructorDeclarator ConstructorBody
+	Modifiers ConstructorDeclarator ConstructorBody
+
+ConstructorDeclarator:
+	SimpleName </i>(<i> </i>)<i>
+	SimpleName </i>(<i> FormalParameterList </i>)<i>
+
+ConstructorBody:
+	</i>{<i> </i>}<i>
+	</i>{<i> BlockStatements </i>}<i>
+
+InterfaceDeclaration:
+	</i>interface<i> Identifier InterfaceBody
+	Modifiers </i>interface<i> Identifier InterfaceBody
+	</i>interface<i> Identifier ExtendsInterfaces InterfaceBody
+	Modifiers </i>interface<i> Identifier ExtendsInterfaces InterfaceBody
+
+ExtendsInterfaces:
+	</i>extends<i> InterfaceType
+	ExtendsInterfaces </i>,<i> InterfaceType
+
+InterfaceBody:
+	</i>{<i> </i>}<i>
+	</i>{<i> InterfaceMemberDeclarations </i>}<i>
+
+InterfaceMemberDeclarations:
+	InterfaceMemberDeclaration
+	InterfaceMemberDeclarations InterfaceMemberDeclaration
+
+InterfaceMemberDeclaration:
+	ConstantDeclaration
+	AbstractMethodDeclaration
+
+ConstantDeclaration:
+	FieldDeclaration
+
+AbstractMethodDeclaration:
+	MethodHeader </i>;<i>
+
+ArrayInitializer:
+	</i>{<i> </i>}<i>
+	</i>{<i> VariableInitializers </i>}<i>
+	</i>{<i> </i>,<i> </i>}<i>
+	</i>{<i> VariableInitializers </i>,<i> </i>}<i>
+
+VariableInitializers:
+	VariableInitializer
+	VariableInitializers </i>,<i> VariableInitializer
+
+Block:
+	</i>{<i> </i>}<i>
+	</i>{<i> BlockStatements </i>}<i>
+
+BlockStatements:
+	BlockStatement
+	BlockStatements BlockStatement
+
+BlockStatement:
+	LocalVariableDeclarationStatement
+	Statement
+
+LocalVariableDeclarationStatement:
+	LocalVariableDeclaration </i>;<i>
+
+LocalVariableDeclaration:
+	Type VariableDeclarator
+
+Statement:
+	StatementWithoutTrailingSubstatement
+	IfThenStatement
+	IfThenElseStatement
+	WhileStatement
+	ForStatement
+
+StatementNoShortIf:
+	StatementWithoutTrailingSubstatement
+	IfThenElseStatementNoShortIf
+	WhileStatementNoShortIf
+	ForStatementNoShortIf
+
+StatementWithoutTrailingSubstatement:
+	Block
+	EmptyStatement
+	ExpressionStatement
+	ReturnStatement
+
+EmptyStatement:
+	</i>;<i>
+
+ExpressionStatement:
+	StatementExpression </i>;<i>
+
+StatementExpression:
+	Assignment
+	MethodInvocation
+	ClassInstanceCreationExpression
+
+IfThenStatement:
+	</i>if<i> </i>(<i> Expression </i>)<i> Statement
+
+IfThenElseStatement:
+	</i>if<i> </i>(<i> Expression </i>)<i> StatementNoShortIf </i>else<i> Statement
+
+IfThenElseStatementNoShortIf:
+	</i>if<i> </i>(<i> Expression </i>)<i> StatementNoShortIf </i>else<i> StatementNoShortIf
+
+WhileStatement:
+	</i>while<i> </i>(<i> Expression </i>)<i> Statement
+
+WhileStatementNoShortIf:
+	</i>while<i> </i>(<i> Expression </i>)<i> StatementNoShortIf
+
+ForStatement:
+	</i>for<i> </i>(<i> </i>;<i> </i>;<i> </i>)<i> Statement
+	</i>for<i> </i>(<i> ForInit </i>;<i> </i>;<i> </i>)<i> Statement
+	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> </i>)<i> Statement
+	</i>for<i> </i>(<i> ForInit </i>;<i> Expression </i>;<i> </i>)<i> Statement
+	</i>for<i> </i>(<i> </i>;<i> </i>;<i> ForUpdate </i>)<i> Statement
+	</i>for<i> </i>(<i> ForInit </i>;<i> </i>;<i> ForUpdate </i>)<i> Statement
+	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> Statement
+	</i>for<i> </i>(<i> ForInit </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> Statement
+
+ForStatementNoShortIf:
+	</i>for<i> </i>(<i> </i>;<i> </i>;<i> </i>)<i> StatementNoShortIf
+	</i>for<i> </i>(<i> ForInit </i>;<i> </i>;<i> </i>)<i> StatementNoShortIf
+	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> </i>)<i> StatementNoShortIf
+	</i>for<i> </i>(<i> ForInit </i>;<i> Expression </i>;<i> </i>)<i> StatementNoShortIf
+	</i>for<i> </i>(<i> </i>;<i> </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
+	</i>for<i> </i>(<i> ForInit </i>;<i> </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
+	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
+	</i>for<i> </i>(<i> ForInit </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
+
+ForInit:
+	StatementExpression
+	LocalVariableDeclaration
+
+ForUpdate:
+	StatementExpression
+
+ReturnStatement:
+	</i>return<i> </i>;<i>
+	</i>return<i> Expression </i>;<i>
+
+Primary:
+	PrimaryNoNewArray
+	ArrayCreationExpression
+
+PrimaryNoNewArray:
+	Literal
+	</i>this<i>
+	</i>(<i> Expression </i>)<i>
+	ClassInstanceCreationExpression
+	FieldAccess
+	MethodInvocation
+	ArrayAccess
+
+ClassInstanceCreationExpression:
+	</i>new<i> ClassType </i>(<i> </i>)<i>
+	</i>new<i> ClassType </i>(<i> ArgumentList </i>)<i>
+
+ArgumentList:
+	Expression
+	ArgumentList </i>,<i> Expression
+
+ArrayCreationExpression:
+	</i>new<i> PrimitiveType DimExprs
+	</i>new<i> PrimitiveType DimExprs Dims
+	</i>new<i> ClassOrInterfaceType DimExprs
+	</i>new<i> ClassOrInterfaceType DimExprs Dims
+
+DimExprs:
+	DimExpr
+	DimExprs DimExpr
+
+DimExpr:
+	</i>[<i> Expression </i>]<i>
+
+Dims:
+	</i>[<i> </i>]<i>
+	Dims </i>[<i> </i>]<i>
+
+FieldAccess:
+	Primary </i>.<i> Identifier
+
+MethodInvocation:
+	Name </i>(<i> </i>)<i>
+	Name </i>(<i> ArgumentList </i>)<i>
+	Primary </i>.<i> Identifier </i>(<i> </i>)<i>
+	Primary </i>.<i> Identifier </i>(<i> ArgumentList </i>)<i>
+
+ArrayAccess:
+	Name </i>[<i> Expression </i>]<i>
+	PrimaryNoNewArray </i>[<i> Expression </i>]<i>
+
+PostfixExpression:
+	Primary
+	Name
+
+UnaryExpression:
+	</i>-<i> UnaryExpression
+	UnaryExpressionNotPlusMinus
+
+UnaryExpressionNotPlusMinus:
+	PostfixExpression
+	</i>~<i> UnaryExpression
+	</i>!<i> UnaryExpression
+	CastExpression
+
+CastExpression:
+	</i>(<i> PrimitiveType </i>)<i> UnaryExpression
+	</i>(<i> PrimitiveType Dims </i>)<i> UnaryExpression
+	</i>(<i> Expression </i>)<i> UnaryExpressionNotPlusMinus
+	</i>(<i> Name Dims </i>)<i> UnaryExpressionNotPlusMinus
+
+MultiplicativeExpression:
+	UnaryExpression
+	MultiplicativeExpression </i>*<i> UnaryExpression
+	MultiplicativeExpression </i>/<i> UnaryExpression
+	MultiplicativeExpression </i>%<i> UnaryExpression
+
+AdditiveExpression:
+	MultiplicativeExpression
+	AdditiveExpression </i>+<i> MultiplicativeExpression
+	AdditiveExpression </i>-<i> MultiplicativeExpression
+
+RelationalExpression:
+	AdditiveExpression
+	RelationalExpression </i>&lt;<i> AdditiveExpression
+	RelationalExpression </i>&gt;<i> AdditiveExpression
+	RelationalExpression </i>&lt;=<i> AdditiveExpression
+	RelationalExpression </i>&gt;=<i> AdditiveExpression
+	RelationalExpression </i>instanceof<i> ReferenceType
+
+EqualityExpression:
+	RelationalExpression
+	EqualityExpression </i>==<i> RelationalExpression
+	EqualityExpression </i>!=<i> RelationalExpression
+
+ConditionalAndExpression:
+	EqualityExpression
+	ConditionalAndExpression </i>&amp;&amp;<i> EqualityExpression
+
+ConditionalOrExpression:
+	ConditionalAndExpression
+	ConditionalOrExpression </i>||<i> ConditionalAndExpression
+
+AssignmentExpression:
+	ConditionalOrExpression
+	Assignment
+
+Assignment:
+	LeftHandSide </i>=<i> AssignmentExpression
+
+LeftHandSide:
+	Name
+	FieldAccess
+	ArrayAccess
+
+Expression:
+	AssignmentExpression
+
+ConstantExpression:
+	Expression
