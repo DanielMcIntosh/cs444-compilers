@@ -65,12 +65,11 @@ CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
 
 		++compileResult.fileProcessed;
 
-		char *sourceCode;
 		s32 sourceFileSize;
-		readEntireFile(sourceFileName, &sourceCode, &sourceFileSize);
+		std::unique_ptr<char[]> sourceCode = readEntireFile(sourceFileName, &sourceFileSize);
 
 		Scan::ScanResult result = Scan::scannerProcessText(&joosc->scanner,
-		                                                   sourceCode);
+		                                                   sourceCode.get());
 
 		const char *colorHead, *colorTail = "\033[0m";
 		{ // determine the validity of the program from file name, if possible
@@ -94,7 +93,7 @@ CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
 			LOGR("%s%s%s", colorHead, fileInfo, colorTail);
 		} else {
 			char snapshot[TWO_TO_EIGHT];
-			const char *snapshotStart = max(sourceCode, sourceCode + result.errorPosition - 6);
+			const char *snapshotStart = max(sourceCode.get(), sourceCode.get() + result.errorPosition - 6);
 			s32 snapshotLen = min(sourceFileSize - result.errorPosition, 6);
 			snprintf(snapshot, snapshotLen, "%s", snapshotStart);
 			LOGR("%s%s (%s) %s", colorHead, fileInfo, snapshot, colorTail);
@@ -112,9 +111,8 @@ CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
 		{ // copy the original source code file so that it appears in the same directory
 			// as debug output files
 			FILE *originalFile = fopen(baseOutputPath, "wb");
-			fwrite(sourceCode, sourceFileSize, 1, originalFile);
+			fwrite(sourceCode.get(), sourceFileSize, 1, originalFile);
 			fclose(originalFile);
-			free(sourceCode);
 		}
 
 		{ // scanner debug output
@@ -227,20 +225,17 @@ void checkScanner() {
 	{
 		using namespace Scan;
 
-		char *fileContents;
 		s32 fileSize;
-		readEntireFile(file, &fileContents, &fileSize);
+		std::unique_ptr<char[]> fileContents = readEntireFile(file, &fileSize);
 		if (!fileContents)
 			return;
 
 		Scanner scanner;
-		scannerRegularLanguageToNFA(&scanner, fileContents);
+		scannerRegularLanguageToNFA(&scanner, fileContents.get());
 		scannerNFAtoDFA(&scanner);
 		scannerDumpDFA(&scanner);
 		LOGR("%lu tokens, %lu nstates, %lu dstates", scanner.tokens.size(),
 				 scanner.nstates.size(), scanner.dstates.size());
-
-		free(fileContents);
 	}
 }
 

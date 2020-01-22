@@ -65,25 +65,24 @@ void globalFini() {
 
 }
 
-void readEntireFile(const char *path, char **content, s32 *size) {
-	*content = 0;
+std::unique_ptr<char[]> readEntireFile(const char *path, s32 *size) {
 	*size = 0;
 
 	FILE *file = fopen(path, "rb");
 	if (!file)
-		return;
+		return nullptr;
 
 	fseek(file, 0, SEEK_END);
 	s32 fileSize = ftell(file);
 	fseek(file, 0, SEEK_SET);
 
-	char *filePtr = (char *)malloc(fileSize + 1);
+	std::unique_ptr<char[]> filePtr(new char[fileSize + 1]);
 
-	fread(filePtr, fileSize, 1, file);
-	filePtr[fileSize] = 0;
+	fread(filePtr.get(), fileSize, 1, file);
+	filePtr[fileSize] = '\0';
 
-	*content = filePtr;
 	*size = fileSize;
+	return std::move(filePtr);
 }
 
 char *getPrintableChar(char c) {

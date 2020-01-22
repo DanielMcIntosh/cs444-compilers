@@ -503,25 +503,22 @@ ScanResult scannerProcessText(const Scanner *scanner, const char *text) {
 }
 
 void scannerLoadJoosRule(Scanner *scanner) {
-	char *fileContents;
 	s32 fileSize;
-	readEntireFile("joos.txt", &fileContents, &fileSize);
+	std::unique_ptr<char[]> fileContents = readEntireFile("joos.txt", &fileSize);
 	if (!fileContents)
 		return;
-	scannerRegularLanguageToNFA(scanner, fileContents);
+	scannerRegularLanguageToNFA(scanner, fileContents.get());
 	scannerNFAtoDFA(scanner);
 	scannerDumpDFA(scanner);
-	free(fileContents);
 }
 
 void scannerTest() {
 	Scanner scanner;
-	char *fileContents;
 	s32 fileSize;
-	readEntireFile("tests/scanner/tiger.txt", &fileContents, &fileSize);
+	std::unique_ptr<char[]> fileContents = readEntireFile("tests/scanner/tiger.txt", &fileSize);
 	if (!fileContents)
 		return;
-	scannerRegularLanguageToNFA(&scanner, fileContents);
+	scannerRegularLanguageToNFA(&scanner, fileContents.get());
 	scannerNFAtoDFA(&scanner);
 	scannerDumpDFA(&scanner);
 

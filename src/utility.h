@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <memory>
 
 //
 // handy macros
@@ -75,4 +76,4 @@ void globalFini();
 // File operations
 //
 
-void readEntireFile(const char *path, char **content, s32 *size);
+std::unique_ptr<char[]> readEntireFile(const char *path, s32 *size);
