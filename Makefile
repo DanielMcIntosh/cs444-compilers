@@ -22,7 +22,11 @@ DEPS := $(OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
+ifeq ($(shell echo $$GITLAB_CI),true)
 CXX := g++
+else
+CXX := g++-9
+endif
 
 WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimization \
   -Winit-self -Wlogical-op -Wmissing-include-dirs -Wredundant-decls \
@@ -39,7 +43,6 @@ ifneq ($(OS),Windows_NT)
 endif
 
 $(EXEC): $(OBJS)
-	$(shell) echo $$GITLAB_CI
 	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 
 $(BUILD_DIR)/%.cpp.o: %.cpp
