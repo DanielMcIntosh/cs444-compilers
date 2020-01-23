@@ -22,10 +22,14 @@ DEPS := $(OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
+CXX := g++-9
+
 ifeq ($(shell echo $$GITLAB_CI),true)
 CXX := g++
-else
-CXX := g++-9
+endif
+
+ifeq ($(OS),Windows_NT)
+CXX := g++
 endif
 
 WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimization \
