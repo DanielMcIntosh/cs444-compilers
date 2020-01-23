@@ -39,6 +39,7 @@ ifneq ($(OS),Windows_NT)
 endif
 
 $(EXEC): $(OBJS)
+	$(shell) echo $$GITLAB_CI
 	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 
 $(BUILD_DIR)/%.cpp.o: %.cpp
