@@ -254,7 +254,9 @@ int main(int argc, const char ** argv) {
 
 	checkTestMode(&joosc);
 
-	compileMain(&joosc, fileList);
+	CompileResult result = compileMain(&joosc, fileList);
 
 	globalFini();
+
+  return result.fileProcessed == result.numValid ? 0 : 42;
 }

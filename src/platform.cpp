@@ -30,7 +30,7 @@ void getCivicTime(CivicTimeInfo *info) {
 	fprintf(stderr, "\nReceived signal: %s\n", strsignal(num));
 	backtrace_symbols_fd(frames, numTrace, STDERR_FILENO);
 	fprintf(stderr, "Exiting\n");
-	exit(1);
+	exit(42);
 }
 
 void platformInit() {
