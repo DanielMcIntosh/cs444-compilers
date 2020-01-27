@@ -1,9 +1,12 @@
 CXXFLAGS_RELEASE := -O3 -flto -s 
-CXXFLAGS_DEBUG := -g 
+CXXFLAGS_DEBUG := -g
+
+LDFLAGS_RELEASE := -O3 -flto -s 
+LDFLAGS_DEBUG := -g
 
 ifneq ($(OS),Windows_NT)
-CXXFLAGS_DEBUG += -g -fsanitize=address
-LDFLAGS_DEBUG += -g -lasan -rdynamic
+CXXFLAGS_DEBUG += -fsanitize=address
+LDFLAGS_DEBUG += -lasan -rdynamic
 endif
 
 BUILD_DIR_DEBUG := ./build/debug
@@ -39,10 +42,10 @@ WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimiza
 EXTRA_CXXFLAGS += $(WARNINGS) -D__USE_MINGW_ANSI_STDIO -MMD -MP
 
 joosc: $(OBJS_RELEASE)
-	$(CXX) $(OBJS_RELEASE) -o $@ $(LDFLAGS_RELEASE)
+	$(CXX) $(OBJS_RELEASE) -o $@ $(LDFLAGS_RELEASE) $(WARNINGS)
 
 joosc_debug: $(OBJS_DEBUG)
-	$(CXX) $(OBJS_DEBUG) -o $@ $(LDFLAGS_DEBUG)
+	$(CXX) $(OBJS_DEBUG) -o $@ $(LDFLAGS_DEBUG) $(WARNINGS)
 
 $(BUILD_DIR_RELEASE)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
@@ -57,6 +60,8 @@ $(BUILD_DIR_DEBUG)/%.cpp.o: %.cpp
 clean:
 	$(RM) -r $(BUILD_DIR_RELEASE)
 	$(RM) -r $(BUILD_DIR_DEBUG)
+	$(RM) joosc
+	$(RM) joosc_debug
 
 a1: joosc
 	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=1; ./joosc
