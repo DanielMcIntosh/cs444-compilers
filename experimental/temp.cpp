@@ -76,120 +76,54 @@ int main()
     
     char line[256];
     lineHelper(line, &textPtr);
-    /*
-    *
-    * Number of Terminals
-    *
-    */
-    int numTerminal = atoi(line);
-    
-    printf("Terminals: %d\n", numTerminal);
-    
+    int numTerminal = atoi(line);    
+    printf("Terminals: %d\n", numTerminal);    
     for (int i = 0; i < numTerminal; ++i) {
         lineHelper(line, &textPtr);
         
         printf("%s\n", line);
-    }
-    
-    lineHelper(line, &textPtr);
-    
-    /*
-    *
-    * Number of Non terminals
-    *
-    */
-    int numNonTerminal = atoi(line);
-    
-    printf("Non terminals: %d\n", numNonTerminal);
-    
+    }   
+    lineHelper(line, &textPtr);    
+    int numNonTerminal = atoi(line);    
+    printf("Non terminals: %d\n", numNonTerminal);    
     for (int i = 0; i < numNonTerminal; ++i) {
         lineHelper(line, &textPtr);
         printf("%s\n", line);
-    }
-    
-    lineHelper(line, &textPtr);
-    
-    /*
-    *
-    * Starting symbol
-    *
-    */
-    
-    string startingSymbol(line);
-    
-    printf("Starting symbol: %s\n", startingSymbol.c_str());
-    
-    lineHelper(line, &textPtr);
-    
-    /*
-    *
-    * Number of rules
-    *
-    */
-    
-    int numRules = atoi(line);
-    
-    printf("Productions rules: %d\n", numRules);
-    
+    }    
+    lineHelper(line, &textPtr);    
+    string startingSymbol(line);    
+    printf("Starting symbol: %s\n", startingSymbol.c_str());    
+    lineHelper(line, &textPtr);    
+    int numRules = atoi(line);    
+    printf("Productions rules: %d\n", numRules);    
     for (int i = 0; i < numRules; ++i) {
-        lineHelper(line, &textPtr);
-        
+        lineHelper(line, &textPtr);        
         char *token = strtok(line, Spaces);
-        string lhs(token);
-        
+        string lhs(token);        
         printf("%s -> ", lhs.c_str());
-
-        vector<string> rhses;
-        
+        vector<string> rhses;        
         while ((token = strtok(0, Spaces))) {
             string rhs(token);
             printf("%s ", rhs.c_str());
             rhses.push_back(rhs);
         }
-
-        rules.push_back({lhs, rhses});
-        
+        rules.push_back({lhs, rhses});        
         printf("\n");
-    }
-    
-    lineHelper(line, &textPtr);
-    
-    /*
-    *
-    * Number of DFA States
-    *
-    */
-    
-    int numDFAStates = atoi(line);
-    
-    lineHelper(line, &textPtr);
-    
-    /*
-    *
-    * Number of transitions
-    *
-    */
-    
-    int numTransitions = atoi(line);
-    
-    printf("%d DFA States, %d transitions\n", numDFAStates, numTransitions);
-    
+    }    
+    lineHelper(line, &textPtr);    
+    int numDFAStates = atoi(line);    
+    lineHelper(line, &textPtr);    
+    int numTransitions = atoi(line);    
+    printf("%d DFA States, %d transitions\n", numDFAStates, numTransitions);    
     for (int i = 0; i < numTransitions; ++i) {
-        lineHelper(line, &textPtr);
-        
-        int stateNum = atoi(strtok(line, Spaces));
-        
-        string symbol(strtok(0, Spaces));
-        
-        string action(strtok(0, Spaces));
-        
-        int stateOrRuleNumber = atoi(strtok(0, Spaces));
-        
+        lineHelper(line, &textPtr);        
+        int stateNum = atoi(strtok(line, Spaces));        
+        string symbol(strtok(0, Spaces));        
+        string action(strtok(0, Spaces));        
+        int stateOrRuleNumber = atoi(strtok(0, Spaces));        
         printf("Action: %s, %d -> %s -> %d\n", action.c_str(), stateNum, symbol.c_str(), stateOrRuleNumber);
-
         joos_dfa[stateNum][symbol] = {action == "shift" ? SHIFT : REDUCE, stateOrRuleNumber};
     }
-
     vector<string> test{"BOF", "id", "-", "(", "id", "-", "id", ")", "EOF"};
     state current_state = 0;
     bool accepted = true;
