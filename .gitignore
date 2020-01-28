@@ -1,5 +1,7 @@
 *.d
 *.o
+*.class
+*.exe
 build
 joosc
 joosc.exe

@@ -63,8 +63,8 @@ clean:
 	$(RM) joosc
 	$(RM) joosc_debug
 
-a1: joosc
-	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=1; ./joosc
+a1: joosc_debug
+	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=1; ./joosc_debug
 
 marmoset: joosc
 	@echo "joosc:" > ./build/Makefile
