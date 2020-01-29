@@ -1,4 +1,4 @@
-package jlalr;
+//package jlalr;
 
 import java.util.*;
 import java.io.*;
@@ -751,7 +751,7 @@ class Util {
     }
     public static int toInt(String line, String msg) {
         try {
-            return new Integer(line);
+            return Integer.parseInt(line);
         } catch(NumberFormatException e) {
             throw new Error("Expecting "+msg+" but the line is not a number:\n"+line);
         }

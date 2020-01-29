@@ -1,4 +1,5 @@
 *.d
+*.out
 *.o
 *.class
 *.exe
