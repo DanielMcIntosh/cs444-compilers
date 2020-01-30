@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <string.h>
+#include <cassert>
 
 #include <stdlib.h>
 using namespace std;
@@ -14,43 +15,16 @@ enum action {
     SHIFT,
     REDUCE
 };
-using state = int;
-using transition = pair<action, int>; // (SHIFT, state) or (REDUCE, rule_id)
-using dfa = unordered_map<state, unordered_map<string, transition>>;
+using transition = pair<action, int>; // (SHIFT, state_id) or (REDUCE, rule_id)
+using dfa = unordered_map<int, unordered_map<string, transition>>;
 
 struct rule {
     string lhs;
     vector<string> rhs;
 };
 
-vector<rule> rules;
-stack<state> state_stack;
-stack<string> token_stack;
-dfa joos_dfa;
-
 const char *newLines = "\r\n";
 const char *Spaces = " ";
-
-optional<state> follow(const state s, const string t, const vector<rule>& rules,
-        stack<state>& state_stack, stack<string>& token_stack, const dfa& d) {
-    printf("state %d, token %s\n", s, t.c_str());
-    if (d.at(s).count(t) == 0) return nullopt;
-    auto [action, id] = d.at(s).at(t);
-    if (action == SHIFT) {
-        printf("SHIFT\n");
-        token_stack.push(t);
-        state_stack.push(id);
-    } else {
-        printf("REDUCE\n");
-        for (int i = 0; i < rules[id].rhs.size(); ++i) {
-            token_stack.pop();
-            state_stack.pop();
-        }
-        token_stack.push(rules[id].lhs);
-    }
-    return state_stack.top();
-}
-
 
 void lineHelper(char *buffer, const char **textPtr) {
     int len = strcspn(*textPtr, newLines);
@@ -59,6 +33,46 @@ void lineHelper(char *buffer, const char **textPtr) {
     *textPtr += strspn(*textPtr, newLines);
 }
 
+bool can_parse(const vector<string>& input, const vector<rule>& rules, const dfa& joos_dfa) {
+    vector<int> state_stack;
+    vector<string> token_stack;
+    state_stack.push_back(0);
+    bool accepted = true;
+    for (auto token : input) {
+        while (true) {
+            if (joos_dfa.at(state_stack.back()).count(token) == 0) {
+                // invalid token at this state
+                return false;
+            }
+            transition next_rule = joos_dfa.at(state_stack.back()).at(token);
+            auto [action, rule_id] = next_rule;
+            if (action == SHIFT) {
+                auto next_state = rule_id;
+                token_stack.push_back(token);
+                state_stack.push_back(next_state);
+                break;
+            }
+
+            for (int i = 0; i < rules[rule_id].rhs.size(); ++i) {
+                token_stack.pop_back();
+                state_stack.pop_back();
+            }
+            token_stack.push_back(rules[rule_id].lhs);
+
+            if (joos_dfa.at(state_stack.back()).count(token_stack.back()) == 0) {
+                return false;
+            }
+
+            auto r = joos_dfa.at(state_stack.back()).at(token_stack.back());
+            if (r.first == SHIFT) {
+                state_stack.push_back(r.second);
+            } else {
+                assert(false); // this can never happen
+            }
+        }
+    }
+    return true;
+}
 
 int main()
 {
@@ -95,6 +109,7 @@ int main()
     printf("Starting symbol: %s\n", startingSymbol.c_str());    
     lineHelper(line, &textPtr);    
     int numRules = atoi(line);    
+    vector<rule> rules;
     printf("Productions rules: %d\n", numRules);    
     for (int i = 0; i < numRules; ++i) {
         lineHelper(line, &textPtr);        
@@ -115,6 +130,7 @@ int main()
     lineHelper(line, &textPtr);    
     int numTransitions = atoi(line);    
     printf("%d DFA States, %d transitions\n", numDFAStates, numTransitions);    
+    dfa joos_dfa;
     for (int i = 0; i < numTransitions; ++i) {
         lineHelper(line, &textPtr);        
         int stateNum = atoi(strtok(line, Spaces));        
@@ -124,21 +140,24 @@ int main()
         printf("Action: %s, %d -> %s -> %d\n", action.c_str(), stateNum, symbol.c_str(), stateOrRuleNumber);
         joos_dfa[stateNum][symbol] = {action == "shift" ? SHIFT : REDUCE, stateOrRuleNumber};
     }
-    vector<string> test{"BOF", "id", "-", "(", "id", "-", "id", ")", "EOF"};
-    state current_state = 0;
-    bool accepted = true;
-    for (auto token : test) {
-        auto result = follow(current_state, token, rules, state_stack, token_stack, joos_dfa);
-        if (result) {
-            current_state = *result;
-        } else {
-            accepted = false;
-            break;
-        }
-    }
-    if (accepted) {
-        printf("accepted\n");
-    } else {
-        printf("rejected\n");
+
+    vector<pair<bool,vector<string>>> tests = {
+        {true, {"BOF", "id", "-", "(", "id", "-", "id", ")", "EOF"}},
+        {true, {"BOF", "id", "EOF"}},
+        {true, {"BOF", "(", "id", "-", "id", ")", "-", "(", "id", "-", "id", ")", "EOF"}},
+        {true, {"BOF", "(", "id", "-", "id", ")", "-", "id", "EOF"}},
+        {true, {"BOF", "id", "-", "id", "EOF"}},
+        {true, {"BOF", "(", "(", "id", "-", "id", ")", "-", "id", ")", "-", "id", "EOF"}},
+        {true, {"BOF", "(", "id", "-", "(", "id", "-", "(", "id", "-", "(", "id", "-", "(", "id", "-", "id", ")", ")", ")", ")", ")", "EOF"}},
+        {true, {"BOF", "(", "(", "(", "(", "(", "(", "id", "-", "id", ")", "-", "id", ")", "-", "id", ")", "-", "(", "id", "-", "(", "id", "-", "(", "id", "-", "(", "id", "-", "(", "id", "-", "id", ")", ")", ")", ")", ")", ")", ")", ")", "EOF"}},
+        {false, {"BOF", "id"}}, // BUG: accepts valid prefix if EOF marker is missing
+        {false, {"BOF", "(", "EOF"}},
+        {false, {"BOF", "(", ")", "EOF"}},
+        {false, {"BOF", "id", "id", "EOF"}},
+    };
+
+    for (auto [expected, input] : tests) {
+        auto result = can_parse(input, rules, joos_dfa);
+        printf("expect: %d got: %d %s\n", expected, result, expected == result ? "" : "failed");
     }
 }
