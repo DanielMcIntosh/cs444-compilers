@@ -55,7 +55,7 @@ $(BUILD_DIR_DEBUG)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
 	$(CXX) $(CXXFLAGS_DEBUG) $(EXTRA_CXXFLAGS)  -c $< -o $@
 
-.PHONY: clean a1 marmoset
+.PHONY: clean a1 marmoset marmoset_direct
 
 clean:
 	$(RM) -r $(BUILD_DIR_RELEASE)
@@ -66,10 +66,14 @@ clean:
 a1: joosc_debug
 	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=1; ./joosc_debug
 
-marmoset: joosc
+marmoset_direct: joosc
 	@echo "joosc:" > ./build/Makefile
 	/u/cs_build/bin/marmoset_submit --username=-ddmcinto-q5an-whkuan- \
 	cs444 A1Code joosc ./build/Makefile joos.txt
+
+marmoset:
+	/u/cs_build/bin/marmoset_submit --username=-ddmcinto-q5an-whkuan- \
+	--zipargs=-r cs444 A1Code ./src ./Makefile ./joos.lr1 ./joos.txt 
 
 -include $(DEPS_DEBUG)
 -include $(DEPS_RELEASE)
