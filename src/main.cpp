@@ -13,39 +13,17 @@
 
 using namespace std;
 
+enum class CompileStageType {
+  Scan,
+  Parse,
+  Weed,
+  Max
+};
+
 struct JoosC {
 	Scan::Scanner scanner;
   Parse::Parser parser;
 };
-
-void getJavaFilesRecursive(vector<string> &fileList, const string &folder) {
-	DIR *dir = opendir(folder.c_str());
-	if (!dir)
-		return;
-
-	while (true) {
-		struct dirent *ent = readdir(dir);
-		if (!ent)
-			break;
-
-		if (!strcmp(".", ent->d_name))
-			continue;
-
-		if (!strcmp("..", ent->d_name))
-			continue;
-
-		string name(ent->d_name);
-		string fullPath = folder + name;
-
-		if (getFileType(fullPath.c_str()) == FileTypeRegular &&
-				strstr(ent->d_name, ".java")) {
-			fileList.push_back(fullPath);
-		} else if (getFileType(fullPath.c_str()) == FileTypeDirectory) {
-			getJavaFilesRecursive(fileList, fullPath + string("/"));
-		}
-	}
-	closedir(dir);
-}
 
 struct CompileResult {
 	s32 numValid;
@@ -53,9 +31,84 @@ struct CompileResult {
 	s32 fileProcessed;
 };
 
+struct CompileSingleResult {
+  string fileName;
+  s32 fileSize;
+  unique_ptr<char[]> fileContent;
+
+  CompileStageType failedStage;
+
+  Scan::ScanResult scanResult;
+  Parse::ParseResult parseResult;
+};
+
+void compileReportSingleFile(const CompileSingleResult &result) {
+  const char *colorHead, *colorTail = "\033[0m";
+  { // determine the validity of the program from file name, if possible
+    bool sourceValidity, ourVerdict;
+    const char *lastSlash = strrchr(result.fileName.c_str(), '/');
+    sourceValidity = (lastSlash[2] != 'e');
+    ourVerdict = result.failedStage == CompileStageType::Max;
+    if (ourVerdict != sourceValidity) {
+      colorHead = "\033[0;31m"; // red
+    } else {
+      colorHead = "\033[0;32m"; // green
+    }
+  }
+}
+
+void compilePrepareOutputDirAndFiles(char *baseOutputPath, const CompileSingleResult &singleResult) {
+  { // create descending directories
+    char *lastSlash = strrchr(baseOutputPath, '/');
+    *lastSlash = '\0';
+    createDirectoryChain(baseOutputPath);
+    *lastSlash = '/';
+  }
+
+  { // copy the original source code file so that it appears in the same directory
+    // as debug output files
+    FILE *originalFile = fopen(baseOutputPath, "wb");
+    fwrite(singleResult.fileContent.get(), singleResult.fileSize, 1, originalFile);
+    fclose(originalFile);
+  }
+
+  Scan::scannerDumpDebugInfo(singleResult.scanResult, baseOutputPath);
+}
+
+CompileSingleResult compileSingle(JoosC *joosc, const char *fileName) {
+
+  s32 sourceFileSize;
+  std::unique_ptr<char[]> sourceCode = readEntireFile(fileName, &sourceFileSize);
+
+  CompileSingleResult fileResult;
+  fileResult.fileName = string(fileName);
+  fileResult.fileSize = sourceFileSize;
+  fileResult.fileContent = move(sourceCode);
+
+  fileResult.scanResult = Scan::scannerProcessText(&joosc->scanner,
+          fileResult.fileContent.get());
+
+  if (!fileResult.scanResult.valid) {
+    fileResult.failedStage = CompileStageType::Scan;
+    return fileResult;
+  }
+
+  fileResult.parseResult = Parse::parserParse(&joosc->parser, fileResult.scanResult.tokens);
+  if (!fileResult.parseResult.valid) {
+    fileResult.failedStage = CompileStageType::Parse;
+    return fileResult;
+  }
+
+
+  fileResult.failedStage = CompileStageType::Max;
+  return fileResult;
+}
+
 CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
 	CompileResult compileResult;
-	compileResult.numCorrect = 0; compileResult.numValid = 0; compileResult.fileProcessed = 0;
+	compileResult.numCorrect = 0;
+	compileResult.numValid = 0;
+	compileResult.fileProcessed = 0;
 
 	for (const string &file: fileList) {
 		const char *sourceFileName = file.c_str();
@@ -67,78 +120,12 @@ CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
 
 		++compileResult.fileProcessed;
 
-		s32 sourceFileSize;
-		std::unique_ptr<char[]> sourceCode = readEntireFile(sourceFileName, &sourceFileSize);
-
-		Scan::ScanResult result = Scan::scannerProcessText(&joosc->scanner,
-		                                                   sourceCode.get());
-
-		const char *colorHead, *colorTail = "\033[0m";
-		{ // determine the validity of the program from file name, if possible
-			bool sourceValidity;
-			const char *lastSlash = strrchr(sourceFileName, '/');
-			sourceValidity = (lastSlash[2] != 'e');
-			if (result.valid != sourceValidity) {
-				colorHead = "\033[0;31m"; // red
-			} else {
-				colorHead = "\033[0;32m"; // green
-				++compileResult.numCorrect;
-			}
-		}
-
-		strdecl256(fileInfo, "%s, %d bytes, %ld tokens", sourceFileName,
-						sourceFileSize, result
-		.tokens.size());
-
-		if (result.valid) {
-			++compileResult.numValid;
-			LOGR("%s%s%s", colorHead, fileInfo, colorTail);
-		} else {
-			char snapshot[TWO_TO_EIGHT];
-			const char *snapshotStart = max(sourceCode.get(), sourceCode.get() + result.errorPosition - 6);
-			s32 snapshotLen = min(sourceFileSize - result.errorPosition, 6);
-			snprintf(snapshot, snapshotLen, "%s", snapshotStart);
-			LOGR("%s%s (%s) %s", colorHead, fileInfo, snapshot, colorTail);
-		}
+		CompileSingleResult fileResult = compileSingle(joosc, sourceFileName);
+		if (fileResult.failedStage == CompileStageType::Max)
+		  ++compileResult.numValid;
 
 		strdecl256(baseOutputPath, "output/%s", file.c_str());
-
-		{ // create descending directories
-			char *lastSlash = strrchr(baseOutputPath, '/');
-			*lastSlash = '\0';
-			createDirectoryChain(baseOutputPath);
-			*lastSlash = '/';
-		}
-
-		{ // copy the original source code file so that it appears in the same directory
-			// as debug output files
-			FILE *originalFile = fopen(baseOutputPath, "wb");
-			fwrite(sourceCode.get(), sourceFileSize, 1, originalFile);
-			fclose(originalFile);
-		}
-
-		{ // scanner debug output
-			strdecl512(scannerOutputPath, "%s.tokens.txt", baseOutputPath);
-			FILE *scannerDump = fopen(scannerOutputPath, "w");
-			s32 curLineLen = 0;
-			for (const Scan::LexToken &token : result.tokens) {
-				curLineLen += token.name.length();
-				curLineLen += 2;
-				curLineLen += 3;
-
-				fprintf(scannerDump, "%s(%2s) ", token.lexeme.c_str(), token.name.c_str());
-				if (curLineLen > 70) {
-					fprintf(scannerDump, "\r\n");
-					curLineLen = 0;
-				}
-			}
-			fclose(scannerDump);
-
-			snprintf(scannerOutputPath, 512, "%s.scanner.txt", baseOutputPath);
-			scannerDump = fopen(scannerOutputPath, "w");
-			fwrite(result.detailedStep.c_str(), result.detailedStep.size(), 1, scannerDump);
-			fclose(scannerDump);
-		}
+    compilePrepareOutputDirAndFiles(baseOutputPath, fileResult);
 	}
 	return compileResult;
 }

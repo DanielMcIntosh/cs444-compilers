@@ -512,5 +512,30 @@ void scannerLoadJoosRule(Scanner *scanner) {
 	scannerDumpDFA(scanner);
 }
 
+void scannerDumpDebugInfo(const ScanResult &result, const char* baseOutputPath) {
+  { // scanner debug output
+    strdecl512(scannerOutputPath, "%s.tokens.txt", baseOutputPath);
+    FILE *scannerDump = fopen(scannerOutputPath, "w");
+    s32 curLineLen = 0;
+    for (const Scan::LexToken &token : result.tokens) {
+      curLineLen += token.name.length();
+      curLineLen += 2;
+      curLineLen += 3;
+
+      fprintf(scannerDump, "%s(%2s) ", token.lexeme.c_str(), token.name.c_str());
+      if (curLineLen > 70) {
+        fprintf(scannerDump, "\r\n");
+        curLineLen = 0;
+      }
+    }
+    fclose(scannerDump);
+
+    snprintf(scannerOutputPath, 512, "%s.scanner.txt", baseOutputPath);
+    scannerDump = fopen(scannerOutputPath, "w");
+    fwrite(result.detailedStep.c_str(), result.detailedStep.size(), 1, scannerDump);
+    fclose(scannerDump);
+  }
+}
+
 } // namespace Scan
 

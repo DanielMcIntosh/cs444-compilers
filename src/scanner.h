@@ -110,5 +110,6 @@ void scannerNFAtoDFA(Scanner *scanner);
 void scannerDumpDFA(const Scanner *scanner);
 void scannerLoadJoosRule(Scanner *scanner);
 ScanResult scannerProcessText(const Scanner *scanner, const char *text);
+void scannerDumpDebugInfo(const ScanResult &result, const char* baseOutputPath);
 
 } // namespace Scan
