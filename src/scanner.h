@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "utility.h"
+#include "scanParse.h"
 
 namespace Scan {
 
@@ -88,18 +89,6 @@ struct Statistic {
 	}
 };
 
-struct LexToken {
-	string name;
-	string lexeme;
-};
-
-struct ScanResult {
-	vector<LexToken> tokens;
-	bool valid;
-	s32 errorPosition;
-	string detailedStep;
-};
-
 struct Scanner {
 	unordered_map<string, Token *> tokenMap;
 
@@ -120,7 +109,6 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text);
 void scannerNFAtoDFA(Scanner *scanner);
 void scannerDumpDFA(const Scanner *scanner);
 void scannerLoadJoosRule(Scanner *scanner);
-void scannerTest();
 ScanResult scannerProcessText(const Scanner *scanner, const char *text);
 
 } // namespace Scan

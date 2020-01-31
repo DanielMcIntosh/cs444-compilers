@@ -9,11 +9,13 @@
 #include "utility.h"
 #include "platform.h"
 #include "scanner.h"
+#include "parser.h"
 
 using namespace std;
 
 struct JoosC {
 	Scan::Scanner scanner;
+  Parse::Parser parser;
 };
 
 void getJavaFilesRecursive(vector<string> &fileList, const string &folder) {
@@ -217,10 +219,8 @@ void checkScanner() {
 		return;
 
 	const char *file = getenv("JOOSC_SCANNER_FILE");
-	if (!file) {
-		Scan::scannerTest();
+	if (!file)
 		return;
-	}
 
 	{
 		using namespace Scan;
@@ -239,6 +239,22 @@ void checkScanner() {
 	}
 }
 
+void checkParser() {
+	const char *mode = getenv("JOOSC_PARSER");
+	if (!mode)
+		return;
+
+  //Parse::parserTest();
+
+  s32 size;
+  auto file = readEntireFile("joos.lr1", &size);
+
+  using namespace Parse::AutoAST;
+  AutoAST *ast = autoASTCreate();
+  autoASTGenerate(ast, file.get());
+  autoASTDestory(ast);
+}
+
 int main(int argc, const char ** argv) {
 	vector<string> fileList;
 	for (int i = 1; i < argc; ++i) {
@@ -249,8 +265,11 @@ int main(int argc, const char ** argv) {
 
 	checkScanner();
 
+  checkParser();
+
 	JoosC joosc;
 	scannerLoadJoosRule(&joosc.scanner);
+  //parserReadJoosLR1(&joosc.parser);
 
 	checkTestMode(&joosc);
 
