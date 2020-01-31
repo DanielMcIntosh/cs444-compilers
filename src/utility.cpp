@@ -25,6 +25,16 @@ void assertImpl_(bool value, const char *str, const char *fmt, ...) {
 	abort();
 }
 
+void strAppend(std::string *str, const char *fmt, ...) {
+  char buffer[TWO_TO_EIGHT];
+	va_list arg;
+	va_start(arg, fmt);
+	vsnprintf(buffer, TWO_TO_EIGHT, fmt, arg);
+	va_end(arg);
+
+  str->append(buffer);
+}
+
 void logImplRaw(const char *str, ...) {
 	char logEntry[TWO_TO_EIGHT];
 	va_list arg;

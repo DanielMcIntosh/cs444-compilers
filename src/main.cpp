@@ -244,7 +244,15 @@ void checkParser() {
 	if (!mode)
 		return;
 
-  Parse::parserTest();
+  //Parse::parserTest();
+
+  s32 size;
+  auto file = readEntireFile("joos.lr1", &size);
+
+  using namespace Parse::AutoAST;
+  AutoAST *ast = autoASTCreate();
+  autoASTGenerate(ast, file.get());
+  autoASTDestory(ast);
 }
 
 int main(int argc, const char ** argv) {
@@ -261,7 +269,7 @@ int main(int argc, const char ** argv) {
 
 	JoosC joosc;
 	scannerLoadJoosRule(&joosc.scanner);
-  parserReadJoosLR1(&joosc.parser);
+  //parserReadJoosLR1(&joosc.parser);
 
 	checkTestMode(&joosc);
 

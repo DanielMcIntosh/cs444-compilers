@@ -16,29 +16,39 @@
 
 namespace Parse {
 
-  using namespace std;
+using namespace std;
 
-  enum action
-  {
-   SHIFT,
-   REDUCE
-  };
-  
-  using transition = pair<action, int>; // (SHIFT, state_id) or (REDUCE, rule_id)
-  using dfa = unordered_map<int, unordered_map<string, transition>>;
+enum action
+{
+  SHIFT,
+  REDUCE
+};
 
-  struct rule {
-    string lhs;
-    vector<string> rhs;
-  };
+using transition = pair<action, int>; // (SHIFT, state_id) or (REDUCE, rule_id)
+using dfa = unordered_map<int, unordered_map<string, transition>>;
 
-  struct Parser {
-    dfa joos_dfa;
-    vector<rule> rules;
-  };
+struct rule {
+  string lhs;
+  vector<string> rhs;
+};
 
-  void parserReadLR1(Parser *parser, const char *text);
-  void parserReadJoosLR1(Parser *parser);
-  void parserTest();
-  ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens);
-}
+struct Parser {
+  dfa joos_dfa;
+  vector<rule> rules;
+};
+
+void parserReadLR1(Parser *parser, const char *text);
+void parserReadJoosLR1(Parser *parser);
+void parserTest();
+ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens);
+
+namespace AutoAST {
+
+struct AutoAST;
+AutoAST *autoASTCreate();
+void autoASTDestory(AutoAST *);
+void autoASTGenerate(AutoAST *autoast, const char *lr1Text);
+
+} // namespace AutoAST
+
+} // namespace Parse

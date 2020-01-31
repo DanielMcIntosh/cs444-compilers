@@ -213,6 +213,7 @@ namespace Parse {
     };
 
     struct NonTerminalRule {
+      s32 ruleId;
       string serial;
       vector<string> rhs;
     };
@@ -229,7 +230,51 @@ namespace Parse {
     };
 
     string getAlphabeticalName(const char *terminal) {
-      return string(terminal);
+      static const map<char, string> gCharToStrMap = {
+        {'(', "LPar"},
+        {')', "RPar"},
+        {'{', "LCBr"},
+        {'}', "RCBr"},
+        {'[', "LSBr"},
+        {']', "RSBr"},
+        {';', "SCol"},
+        {',', "Com"},
+        {'.', "Dot"},
+        {'=', "Eq"},
+        {'>', "Gr"},
+        {'<', "Le"},
+        {'!', "Bang"},
+        {'~', "Til"},
+        {'?', "Q"},
+        {'&', "Amp"},
+        {':', "Col"},
+        {'+', "Plus"},
+        {'-', "Minus"},
+        {'*', "Star"},
+        {'/', "RSlash"},
+        {'%', "Perc"},
+        {'^', "Up"},
+        {'|', "Or"},        
+      };
+
+      string result;
+      for (char c = *terminal; c; c = *++terminal) {
+        auto it = gCharToStrMap.find(c);
+        if (it != gCharToStrMap.end())
+          result.append(it->second);
+        else
+          result.push_back(c);
+      }
+
+      return result;
+    }
+
+    AutoAST *autoASTCreate() {
+      return new AutoAST;
+    }
+
+    void autoASTDestory(AutoAST *ast) {
+      delete ast;
     }
 
     void autoASTGenerate(AutoAST *autoast, const char *lr1Text) {
@@ -279,6 +324,7 @@ namespace Parse {
         NonTerminalInfo *info = &nit->second;
 
         NonTerminalRule newRule;
+        newRule.ruleId = i;
         while ((token = strtok(nullptr, Spaces))) {
           string rhs(token);
           string representation;
@@ -292,34 +338,90 @@ namespace Parse {
           }
 
           newRule.serial.append(representation);
-          newRule.rhs.push_back(representation);
+          newRule.rhs.push_back(rhs);
         }
         info->rules.push_back(newRule);
       }
 
-      {
-        string output;
-        char lineBuffer[512];
+      // Output begin
 
-        output.append("enum class TerminalType {");
+      FILE *sourceOutput = fopen("autoAST.h", "w");
+
+      { // Terminal Type
+        string _output, *output = &_output;
+        const s32 width = 25;
+
+        output->append("enum class TerminalType {\n");
         for (const auto &[name, info]: autoast->terminalMap) {
-          snprintf(lineBuffer, 512, "  %s, \n", info.alphabeticalName.c_str());
-          output.append(string(lineBuffer));
+          s32 padding = width - info.alphabeticalName.length();
+          strAppend(output,
+                  "  %s,  %*s %s \n", info.alphabeticalName.c_str(), padding, "//", info.originalName.c_str());
         }
-        output.append("};");
+        output->append("  Max,\n};\n\n");
+        fwrite(output->data(), output->length(), 1, sourceOutput);
       }
 
-      {
-        string output;
-        char lineBuffer[512];
+      { // Non Terminal Type
+        string _output, *output = &_output;        
 
-        output.append("enum class NonTerminalType {");
+        output->append("enum class NonTerminalType {\n");
         for (const auto &[name, info]: autoast->nonTerminalMap) {
-          snprintf(lineBuffer, 512, "  %s, \n", name.c_str());
-          output.append(string(lineBuffer));
+          strAppend(output, "  %s, \n", name.c_str());
         }
-        output.append("};");
+        output->append("  Max,\n};\n\n");
+        fwrite(output->data(), output->length(), 1, sourceOutput);
       }
-    }     
+
+      { // Tree subclasses and variants
+        string _output, *output = &_output;        
+
+        for (const auto &[name, info]: autoast->nonTerminalMap) {
+          // enum class NT*Variants
+          strAppend(output,
+                  "enum class NT%sVariants {\n", name.c_str());
+          for (const NonTerminalRule &rule: info.rules) {
+            strAppend(output, "  %s,  // ", rule.serial.c_str());
+
+            for (const string &rhs: rule.rhs) {
+              output->append(rhs);
+              output->append(" ");
+            }
+            output->append("\n");
+          }
+
+          output->append("  Max,\n};\n\n");
+
+          // Tree subclass
+          strAppend(output,
+                   "struct Tree%s: public Tree {\n", name.c_str());
+
+          strAppend(output, "  enum NT%sVariants variant;\n", name.c_str());
+
+          { // Figure out all non terminal children, and emit fields for them.
+            unordered_set<string> nonTerminalChildren;
+            for (const NonTerminalRule &rule: info.rules) {
+              for (const string &rhs: rule.rhs) {
+                auto it = autoast->nonTerminalMap.find(rhs);
+                if (it == autoast->nonTerminalMap.end())
+                  continue;
+
+                nonTerminalChildren.insert(rhs);
+              }
+            }
+
+            for (const string &child: nonTerminalChildren) {
+              strAppend(output,
+                      "  Tree%s* %s;\n", child.c_str(), child.c_str());
+            }
+          }
+
+          output->append("};\n\n");
+
+          fwrite(output->data(), output->length(), 1, sourceOutput);
+          output->clear();
+        }
+
+      }
+    }
   } // namespace AutoAST
 } // namespace Parse
