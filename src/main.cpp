@@ -9,11 +9,13 @@
 #include "utility.h"
 #include "platform.h"
 #include "scanner.h"
+#include "parser.h"
 
 using namespace std;
 
 struct JoosC {
 	Scan::Scanner scanner;
+  Parse::Parser parser;
 };
 
 void getJavaFilesRecursive(vector<string> &fileList, const string &folder) {

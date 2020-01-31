@@ -39,7 +39,7 @@ WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimiza
   -Wzero-as-null-pointer-constant -Wctor-dtor-privacy -Wnon-virtual-dtor \
   -Woverloaded-virtual
 
-EXTRA_CXXFLAGS += $(WARNINGS) -D__USE_MINGW_ANSI_STDIO -MMD -MP
+EXTRA_CXXFLAGS += $(WARNINGS) -D__USE_MINGW_ANSI_STDIO -MMD -MP -std=c++17
 
 joosc: $(OBJS_RELEASE)
 	$(CXX) $(OBJS_RELEASE) -o $@ $(LDFLAGS_RELEASE) $(WARNINGS)

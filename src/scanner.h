@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "utility.h"
+#include "scanParse.h"
 
 namespace Scan {
 
@@ -86,18 +87,6 @@ struct Statistic {
 		LOGR("Data points %ld, min %ld, max %ld, avg %f",
 				 this->numElement, this->min, this->max, (f64)sum/(f64)numElement);
 	}
-};
-
-struct LexToken {
-	string name;
-	string lexeme;
-};
-
-struct ScanResult {
-	vector<LexToken> tokens;
-	bool valid;
-	s32 errorPosition;
-	string detailedStep;
 };
 
 struct Scanner {
