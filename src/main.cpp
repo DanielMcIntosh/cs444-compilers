@@ -219,10 +219,8 @@ void checkScanner() {
 		return;
 
 	const char *file = getenv("JOOSC_SCANNER_FILE");
-	if (!file) {
-		Scan::scannerTest();
+	if (!file)
 		return;
-	}
 
 	{
 		using namespace Scan;
@@ -241,6 +239,14 @@ void checkScanner() {
 	}
 }
 
+void checkParser() {
+	const char *mode = getenv("JOOSC_PARSER");
+	if (!mode)
+		return;
+
+  Parse::parserTest();
+}
+
 int main(int argc, const char ** argv) {
 	vector<string> fileList;
 	for (int i = 1; i < argc; ++i) {
@@ -251,8 +257,11 @@ int main(int argc, const char ** argv) {
 
 	checkScanner();
 
+  checkParser();
+
 	JoosC joosc;
 	scannerLoadJoosRule(&joosc.scanner);
+  parserReadJoosLR1(&joosc.parser);
 
 	checkTestMode(&joosc);
 

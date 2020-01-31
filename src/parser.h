@@ -39,5 +39,6 @@ namespace Parse {
 
   void parserReadLR1(Parser *parser, const char *text);
   void parserReadJoosLR1(Parser *parser);
+  void parserTest();
   ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens);
 }

@@ -109,7 +109,6 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text);
 void scannerNFAtoDFA(Scanner *scanner);
 void scannerDumpDFA(const Scanner *scanner);
 void scannerLoadJoosRule(Scanner *scanner);
-void scannerTest();
 ScanResult scannerProcessText(const Scanner *scanner, const char *text);
 
 } // namespace Scan
