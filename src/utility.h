@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <stdio.h>
 #include <stdint.h>
@@ -82,3 +83,4 @@ void globalFini();
 //
 
 std::unique_ptr<char[]> readEntireFile(const char *path, s32 *size);
+void getJavaFilesRecursive(std::vector<std::string> &fileList, const std::string &folder);

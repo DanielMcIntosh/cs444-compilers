@@ -1,7 +1,10 @@
 #include <time.h>
+#include <dirent.h>
 
 #include "utility.h"
 #include "platform.h"
+
+using namespace std;
 
 void assertImpl(bool value, const char *str, ...) {
 	if (!value) {
@@ -102,4 +105,33 @@ char *getPrintableChar(char c) {
 	else
 		snprintf(buffer, 8, "%c", c);
 	return buffer;
+}
+
+void getJavaFilesRecursive(vector<string> &fileList, const string &folder) {
+  DIR *dir = opendir(folder.c_str());
+  if (!dir)
+    return;
+
+  while (true) {
+    struct dirent *ent = readdir(dir);
+    if (!ent)
+      break;
+
+    if (!strcmp(".", ent->d_name))
+      continue;
+
+    if (!strcmp("..", ent->d_name))
+      continue;
+
+    string name(ent->d_name);
+    string fullPath = folder + name;
+
+    if (getFileType(fullPath.c_str()) == FileTypeRegular &&
+        strstr(ent->d_name, ".java")) {
+      fileList.push_back(fullPath);
+    } else if (getFileType(fullPath.c_str()) == FileTypeDirectory) {
+      getJavaFilesRecursive(fileList, fullPath + string("/"));
+    }
+  }
+  closedir(dir);
 }
