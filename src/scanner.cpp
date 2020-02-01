@@ -120,7 +120,7 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
 			for (s32 i = 0; i < wordLen; ++i) {
 				char c = token[i];
 				NState *nextNState;
-				if (i == wordLen - 1) { // end of a rule
+				if (i == wordLen - 1) { // end of a Rule
 					nextNState = curMajorToken->acceptingNState;
 				} else {
 					nextNState = scannerCreateNState(scanner);
@@ -133,7 +133,7 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
 			continue;
 		}
 
-		// a single rule
+		// a single Rule
 		NState *prevAcceptingState = nullptr;
 		while (token) {
 			if (!strcmp(token, "char")) { // single character follows
@@ -144,7 +144,7 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
 
 				token = strtok(nullptr, delim);
 				NState *nextState;
-				if (!token) { // end of a rule
+				if (!token) { // end of a Rule
 					nextState = curMajorToken->acceptingNState;
 				} else {
 					nextState = scannerCreateNState(scanner);
@@ -193,7 +193,7 @@ void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
 					prevAcceptingState = curMajorToken->startingNState;
 				prevAcceptingState->epsilonTransitions.push_back(thisToken->startingNState);
 
-				if (!token) // end of a rule
+				if (!token) // end of a Rule
 					thisToken->acceptingNState->epsilonTransitions.push_back
 									(curMajorToken->acceptingNState);
 				prevAcceptingState = thisToken->acceptingNState;
@@ -411,7 +411,7 @@ void scannerNFAtoDFA(Scanner *scanner) {
 }
 
 void scannerDumpDFA(const Scanner *scanner) {
-	FILE *file = fopen("dfa.txt", "w");
+	FILE *file = fopen("DFA.txt", "w");
 	for (const auto &dstate : scanner->dstates) {
 		vector<vector<bool>> transitionMap(scanner->dstates.size(),
 																			 vector<bool>(NumLetters));
@@ -463,7 +463,7 @@ ScanResult scannerProcessText(const Scanner *scanner, const char *text) {
 						Edge<DState>{c, nullptr});
 		bool isInvalid = it == transitionArray.end() || it->letter != c;
 		Token *theToken = curState->tokenEmission;
-		if (isInvalid) { // invalid transition
+		if (isInvalid) { // invalid Transition
 			bool doEmit = theToken &&
 										find(scanner->silentTokens.begin(), scanner->silentTokens.end(),
 												 theToken) == scanner->silentTokens.end();
@@ -509,7 +509,6 @@ void scannerLoadJoosRule(Scanner *scanner) {
 		return;
 	scannerRegularLanguageToNFA(scanner, fileContents.get());
 	scannerNFAtoDFA(scanner);
-	scannerDumpDFA(scanner);
 }
 
 void scannerDumpDebugInfo(const ScanResult &result, const char* baseOutputPath) {

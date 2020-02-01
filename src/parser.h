@@ -24,17 +24,17 @@ enum action
   REDUCE
 };
 
-using transition = pair<action, int>; // (SHIFT, state_id) or (REDUCE, rule_id)
-using dfa = unordered_map<int, unordered_map<string, transition>>;
+using Transition = pair<action, int>; // (SHIFT, state_id) or (REDUCE, rule_id)
+using DFA = unordered_map<int, unordered_map<string, Transition>>;
 
-struct rule {
+struct Rule {
   string lhs;
   vector<string> rhs;
 };
 
 struct Parser {
-  dfa joos_dfa;
-  vector<rule> rules;
+  DFA joos_dfa;
+  vector<Rule> rules;
 };
 
 void parserReadLR1(Parser *parser, const char *text);
@@ -47,7 +47,8 @@ namespace AutoAST {
 struct AutoAST;
 AutoAST *autoASTCreate();
 void autoASTDestory(AutoAST *);
-void autoASTGenerate(AutoAST *autoast, const char *lr1Text);
+void autoASTReadLR1(AutoAST *autoast, const char *lr1Text);
+void autoASTOutputHeaders(AutoAST *autoast);
 
 } // namespace AutoAST
 

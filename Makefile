@@ -55,13 +55,17 @@ $(BUILD_DIR_DEBUG)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
 	$(CXX) $(CXXFLAGS_DEBUG) $(EXTRA_CXXFLAGS)  -c $< -o $@
 
-.PHONY: clean a1 marmoset marmoset_direct
+.PHONY: clean rmhdr a1 marmoset marmoset_direct
 
 clean:
 	$(RM) -r $(BUILD_DIR_RELEASE)
 	$(RM) -r $(BUILD_DIR_DEBUG)
 	$(RM) joosc
 	$(RM) joosc_debug
+
+rmhdr:
+	$(RM) ./src/parserAST.h
+	$(RM) ./src/parserNode.h
 
 a1: joosc_debug
 	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=1; ./joosc_debug

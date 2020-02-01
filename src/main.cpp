@@ -17,7 +17,11 @@ enum class CompileStageType {
   Scan,
   Parse,
   Weed,
-  Max
+  Pass
+};
+
+const char *gCompileStageTypeName[] = {
+  "Scan", "Parse", "Weed", "Pass"
 };
 
 struct JoosC {
@@ -42,22 +46,28 @@ struct CompileSingleResult {
   Parse::ParseResult parseResult;
 };
 
+bool isProgramValidFromFileName(const char *name) {
+  const char *lastSlash = strrchr(name, '/');
+  return (lastSlash[2] != 'e');
+}
+
 void compileReportSingleFile(const CompileSingleResult &result) {
   const char *colorHead, *colorTail = "\033[0m";
   { // determine the validity of the program from file name, if possible
     bool sourceValidity, ourVerdict;
-    const char *lastSlash = strrchr(result.fileName.c_str(), '/');
-    sourceValidity = (lastSlash[2] != 'e');
-    ourVerdict = result.failedStage == CompileStageType::Max;
+    sourceValidity = isProgramValidFromFileName(result.fileName.c_str());
+    ourVerdict = result.failedStage == CompileStageType::Pass;
     if (ourVerdict != sourceValidity) {
       colorHead = "\033[0;31m"; // red
     } else {
       colorHead = "\033[0;32m"; // green
     }
   }
+
+  LOGR("%s%s (stage: %s) %s", colorHead, result.fileName.c_str(), gCompileStageTypeName[static_cast<int>(result.failedStage)], colorTail);
 }
 
-void compilePrepareOutputDirAndFiles(char *baseOutputPath, const CompileSingleResult &singleResult) {
+void compileDumpSingleResult(char *baseOutputPath, const CompileSingleResult &singleResult) {
   { // create descending directories
     char *lastSlash = strrchr(baseOutputPath, '/');
     *lastSlash = '\0';
@@ -73,6 +83,8 @@ void compilePrepareOutputDirAndFiles(char *baseOutputPath, const CompileSingleRe
   }
 
   Scan::scannerDumpDebugInfo(singleResult.scanResult, baseOutputPath);
+
+  compileReportSingleFile(singleResult);
 }
 
 CompileSingleResult compileSingle(JoosC *joosc, const char *fileName) {
@@ -92,15 +104,15 @@ CompileSingleResult compileSingle(JoosC *joosc, const char *fileName) {
     fileResult.failedStage = CompileStageType::Scan;
     return fileResult;
   }
-
+/*
   fileResult.parseResult = Parse::parserParse(&joosc->parser, fileResult.scanResult.tokens);
   if (!fileResult.parseResult.valid) {
     fileResult.failedStage = CompileStageType::Parse;
     return fileResult;
   }
+*/
 
-
-  fileResult.failedStage = CompileStageType::Max;
+  fileResult.failedStage = CompileStageType::Pass;
   return fileResult;
 }
 
@@ -121,11 +133,15 @@ CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
 		++compileResult.fileProcessed;
 
 		CompileSingleResult fileResult = compileSingle(joosc, sourceFileName);
-		if (fileResult.failedStage == CompileStageType::Max)
+		if (fileResult.failedStage == CompileStageType::Pass)
 		  ++compileResult.numValid;
+		if (isProgramValidFromFileName(sourceFileName) ==
+            (fileResult.failedStage == CompileStageType::Pass)) {
+		  ++compileResult.numCorrect;
+		}
 
 		strdecl256(baseOutputPath, "output/%s", file.c_str());
-    compilePrepareOutputDirAndFiles(baseOutputPath, fileResult);
+    compileDumpSingleResult(baseOutputPath, fileResult);
 	}
 	return compileResult;
 }
@@ -238,7 +254,8 @@ void checkParser() {
 
   using namespace Parse::AutoAST;
   AutoAST *ast = autoASTCreate();
-  autoASTGenerate(ast, file.get());
+  autoASTReadLR1(ast, file.get());
+  autoASTOutputHeaders(ast);
   autoASTDestory(ast);
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <string>
 
 #include "parserNode.h"
 
@@ -8,37 +9,36 @@ namespace Parse {
 
 using namespace std;
 
-enum class NodeType
-{
-  NonTerminal,
-  Terminal,
-  Max
-};
-
-struct NodeTerminal {
-  enum NodeType nodeType;
-  enum TerminalType terminalType;
-};
-
-struct Tree;
-
-struct NodeNonTerminal {
-  enum NodeType nodeType;
-  Tree *tree;
-};
-
-union Node {
-  NodeType nodeType;
-  NodeTerminal terminal;
-  NodeNonTerminal nonTerminal;
-};
-
-const int TreeMaxChild = 12;
+const int TreeMaxChild = 8;
 
 struct Tree {
   enum NonTerminalType type;
 
-  array<Node, TreeMaxChild> children;
+  array<Tree *, TreeMaxChild> children;
 };
-  
+
+
+struct TreeIntegerLiteral: public Tree {
+  int value;
+};
+
+struct TreeBooleanLiteral: public Tree {
+  bool value;
+};
+
+struct TreeCharacterLiteral: public Tree {
+  char value;
+};
+
+struct TreeStringLiteral: public Tree {
+  string value;
+};
+
+struct TreeNullLiteral: public Tree {
+};
+
+struct TreeIdentifier: public Tree {
+  string value;
+};
+
 } // namespace Parse

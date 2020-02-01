@@ -97,6 +97,7 @@ enum class NTMethodDeclaratorVariants {
 struct TreeMethodDeclarator: public Tree {
   enum NTMethodDeclaratorVariants variant;
   TreeMethodDeclarator* MethodDeclarator;
+  TreeIdentifier* Identifier;
   TreeFormalParameterList* FormalParameterList;
 };
 
@@ -174,9 +175,10 @@ enum class NTClassDeclarationVariants {
 struct TreeClassDeclaration: public Tree {
   enum NTClassDeclarationVariants variant;
   TreeInterfaces* Interfaces;
-  TreeClassBody* ClassBody;
   TreeSuper* Super;
   TreeModifiers* Modifiers;
+  TreeIdentifier* Identifier;
+  TreeClassBody* ClassBody;
 };
 
 enum class NTConstantExpressionVariants {
@@ -536,6 +538,11 @@ enum class NTLiteralVariants {
 
 struct TreeLiteral: public Tree {
   enum NTLiteralVariants variant;
+  TreeNullLiteral* NullLiteral;
+  TreeCharacterLiteral* CharacterLiteral;
+  TreeIntegerLiteral* IntegerLiteral;
+  TreeStringLiteral* StringLiteral;
+  TreeBooleanLiteral* BooleanLiteral;
 };
 
 enum class NTPackageDeclarationVariants {
@@ -587,6 +594,7 @@ enum class NTSimpleNameVariants {
 
 struct TreeSimpleName: public Tree {
   enum NTSimpleNameVariants variant;
+  TreeIdentifier* Identifier;
 };
 
 enum class NTClassBodyDeclarationVariants {
@@ -688,8 +696,9 @@ enum class NTInterfaceDeclarationVariants {
 struct TreeInterfaceDeclaration: public Tree {
   enum NTInterfaceDeclarationVariants variant;
   TreeExtendsInterfaces* ExtendsInterfaces;
-  TreeInterfaceBody* InterfaceBody;
   TreeModifiers* Modifiers;
+  TreeIdentifier* Identifier;
+  TreeInterfaceBody* InterfaceBody;
 };
 
 enum class NTExtendsInterfacesVariants {
@@ -723,6 +732,7 @@ enum class NTQualifiedNameVariants {
 
 struct TreeQualifiedName: public Tree {
   enum NTQualifiedNameVariants variant;
+  TreeIdentifier* Identifier;
   TreeName* Name;
 };
 
@@ -1030,6 +1040,7 @@ enum class NTVariableDeclaratorIdVariants {
 struct TreeVariableDeclaratorId: public Tree {
   enum NTVariableDeclaratorIdVariants variant;
   TreeVariableDeclaratorId* VariableDeclaratorId;
+  TreeIdentifier* Identifier;
 };
 
 enum class NTArgumentListVariants {
@@ -1176,6 +1187,7 @@ enum class NTFieldAccessVariants {
 
 struct TreeFieldAccess: public Tree {
   enum NTFieldAccessVariants variant;
+  TreeIdentifier* Identifier;
   TreePrimary* Primary;
 };
 
@@ -1189,6 +1201,7 @@ enum class NTMethodInvocationVariants {
 
 struct TreeMethodInvocation: public Tree {
   enum NTMethodInvocationVariants variant;
+  TreeIdentifier* Identifier;
   TreePrimary* Primary;
   TreeName* Name;
   TreeArgumentList* ArgumentList;

@@ -170,6 +170,12 @@ enum class NonTerminalType {
   Max,
 };
 
+struct TreeStringLiteral;
+struct TreeCharacterLiteral;
+struct TreeIntegerLiteral;
+struct TreeBooleanLiteral;
+struct TreeIdentifier;
+struct TreeNullLiteral;
 struct TreeExpression;
 struct TreeAssignment;
 struct TreeConditionalOrExpression;
