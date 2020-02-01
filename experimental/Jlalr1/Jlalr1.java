@@ -33,54 +33,54 @@ import java.io.*;
 
 /** Represents an item (a dotted production). */
 class Item {
-    Production Rule; // the production
-    int pos; // position of the dot (0 <= pos <= Rule.rhs.size())
+    Production rule; // the production
+    int pos; // position of the dot (0 <= pos <= rule.rhs.size())
     String lookahead; // the lookahead terminal
-    private Item( Production Rule, int pos, String lookahead ) {
-        this.Rule = Rule;
+    private Item( Production rule, int pos, String lookahead ) {
+        this.rule = rule;
         this.pos = pos;
         this.lookahead = lookahead;
     }
     private static Map<Pair<Production, Pair<Integer, String>>, Item> map =
         new HashMap<Pair<Production, Pair<Integer, String>>, Item>();
-    public static Item v(Production Rule, int pos, String lookahead) {
+    public static Item v(Production rule, int pos, String lookahead) {
         Pair<Production, Pair<Integer, String>> triple = 
             new Pair<Production, Pair<Integer, String>>(
-                    Rule, new Pair<Integer, String>(pos, lookahead));
+                    rule, new Pair<Integer, String>(pos, lookahead));
         Item ret = map.get(triple);
         if(ret == null) {
-            ret = new Item(Rule, pos, lookahead);
+            ret = new Item(rule, pos, lookahead);
             map.put(triple, ret);
         }
         return ret;
     }
-    public static Item v(Production Rule, int pos) {
-        return v(Rule, pos, "");
+    public static Item v(Production rule, int pos) {
+        return v(rule, pos, "");
     }
     /** Returns true if the dot is not at the end of the RHS. */
     public boolean hasNextSym() {
-        return pos < Rule.rhs.length;
+        return pos < rule.rhs.length;
     }
     /** Returns the symbol immediately after the dot. */
     public String nextSym() {
         if(!hasNextSym()) throw new RuntimeException("Internal error: getting next symbol of an item with no next symbol");
-        return Rule.rhs[pos];
+        return rule.rhs[pos];
     }
     /** Returns the item obtained by advancing (shifting) the dot by one
      *  symbol. */
     public Item advance() {
         if(!hasNextSym()) throw new RuntimeException("Internal error: advancing an item with no next symbol");
-        return Item.v(Rule, pos+1, lookahead);
+        return Item.v(rule, pos+1, lookahead);
     }
     public String toString() {
         StringBuffer ret = new StringBuffer();
         ret.append("(");
-        ret.append(Rule.lhs);
+        ret.append(rule.lhs);
         ret.append(" ->");
         int i;
-        for(i = 0; i < pos; i++) ret.append(" "+Rule.rhs[i]);
+        for(i = 0; i < pos; i++) ret.append(" "+rule.rhs[i]);
         ret.append(" ##");
-        for(; i < Rule.rhs.length; i++) ret.append(" "+Rule.rhs[i]);
+        for(; i < rule.rhs.length; i++) ret.append(" "+rule.rhs[i]);
         ret.append(", ");
         ret.append(lookahead);
         ret.append(")");
@@ -132,18 +132,18 @@ class ShiftAction extends Action {
 }
 /** Represents a reduce parser action. */
 class ReduceAction extends Action {
-    Production Rule; // the production to reduce by
-    public ReduceAction(Production Rule) {
-        this.Rule = Rule;
+    Production rule; // the production to reduce by
+    public ReduceAction(Production rule) {
+        this.rule = rule;
     }
-    public int hashCode() { return Rule.hashCode(); }
+    public int hashCode() { return rule.hashCode(); }
     public boolean equals(Object other) {
         if(!(other instanceof ReduceAction)) return false;
         ReduceAction o = (ReduceAction) other;
-        return Rule.equals(o.Rule);
+        return rule.equals(o.rule);
     }
     public String toString() {
-        return "reduce " + Rule;
+        return "reduce " + rule;
     }
 }
 /** Utility class representing a pair of arbitrary objects. */
@@ -251,8 +251,8 @@ class Generator {
                 String x = item.nextSym();
                 if(grammar.isTerminal(x)) continue;
                 List<String> betaz = new ArrayList<String>();
-                for(int p = item.pos+1; p < item.Rule.rhs.length; p++) {
-                    betaz.add(item.Rule.rhs[p]);
+                for(int p = item.pos+1; p < item.rule.rhs.length; p++) {
+                    betaz.add(item.rule.rhs[p]);
                 }
                 betaz.add(item.lookahead);
                 Collection<String> ws = generalFirst(betaz);
@@ -332,26 +332,26 @@ class Generator {
         boolean change;
         do {
             change = false;
-            for( Production Rule : grammar.productions ) {
-                if(allNullable(Rule.rhs)) {
-                    if( nullable.add(Rule.lhs) ) change = true;
+            for( Production rule : grammar.productions ) {
+                if(allNullable(rule.rhs)) {
+                    if( nullable.add(rule.lhs) ) change = true;
                 }
-                int k = Rule.rhs.length;
+                int k = rule.rhs.length;
                 for(int i = 0; i < k; i++) {
-                    if(allNullable(Rule.rhs, 0, i)) {
-                        if( first.get(Rule.lhs).addAll(
-                                first.get(Rule.rhs[i])))
+                    if(allNullable(rule.rhs, 0, i)) {
+                        if( first.get(rule.lhs).addAll(
+                                first.get(rule.rhs[i])))
                             change = true;
                     }
-                    if(allNullable(Rule.rhs, i+1,k)) {
-                        if( follow.get(Rule.rhs[i]).addAll(
-                                follow.get(Rule.lhs)))
+                    if(allNullable(rule.rhs, i+1,k)) {
+                        if( follow.get(rule.rhs[i]).addAll(
+                                follow.get(rule.lhs)))
                             change = true;
                     }
                     for(int j = i+1; j < k; j++) {
-                        if(allNullable(Rule.rhs, i+1,j)) {
-                            if( follow.get(Rule.rhs[i]).addAll(
-                                    first.get(Rule.rhs[j])))
+                        if(allNullable(rule.rhs, i+1,j)) {
+                            if( follow.get(rule.rhs[i]).addAll(
+                                    first.get(rule.rhs[j])))
                                 change = true;
                         }
                     }
@@ -393,7 +393,7 @@ class Generator {
             for( Item item : i.items ) {
                 if( item.hasNextSym() ) continue;
                 for( String x : grammar.syms() ) {
-                    addAction(i, x, new ReduceAction(item.Rule));
+                    addAction(i, x, new ReduceAction(item.rule));
                 }
             }
         }
@@ -427,8 +427,8 @@ class Generator {
         for( State i : t ) {
             for( Item item : i.items ) {
                 if( item.hasNextSym() ) continue;
-                for( String x : follow.get(item.Rule.lhs) ) {
-                    addAction(i, x, new ReduceAction(item.Rule));
+                for( String x : follow.get(item.rule.lhs) ) {
+                    addAction(i, x, new ReduceAction(item.rule));
                 }
             }
         }
@@ -467,14 +467,14 @@ class Generator {
         for( State i : t ) {
             for( Item item : i.items ) {
                 if( item.hasNextSym() ) continue;
-                addAction(i, item.lookahead, new ReduceAction(item.Rule));
+                addAction(i, item.lookahead, new ReduceAction(item.rule));
             }
         }
     }
     public Set<Item> core(Set<Item> items) {
         Set<Item> ret = new HashSet<Item>();
         for(Item item : items) {
-            ret.add(Item.v(item.Rule, item.pos));
+            ret.add(Item.v(item.rule, item.pos));
         }
         return ret;
     }
@@ -546,7 +546,7 @@ class Generator {
         for( State i : t ) {
             for( Item item : i.items ) {
                 if( item.hasNextSym() ) continue;
-                addAction(i, item.lookahead, new ReduceAction(item.Rule));
+                addAction(i, item.lookahead, new ReduceAction(item.rule));
             }
         }
     }
@@ -595,7 +595,7 @@ class Generator {
                         stateMap.get(((ShiftAction)a).nextState));
             } else if(a instanceof ReduceAction) {
                 System.out.println("reduce "+
-                        ruleMap.get(((ReduceAction)a).Rule));
+                        ruleMap.get(((ReduceAction)a).rule));
             } else throw new Error("Internal error: unknown action");
         }
     }
