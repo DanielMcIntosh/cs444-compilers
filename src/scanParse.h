@@ -26,6 +26,7 @@ struct ScanResult {
 namespace Parse {
 
 struct ParseResult {
+  s32 errorLexTokenIndex;
   bool valid;    
 };
   

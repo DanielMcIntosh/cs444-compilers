@@ -1,55 +1,11 @@
 #pragma once
 
-#include <iostream>
-#include <vector>
-#include <optional>
-#include <stack>
-#include <unordered_map>
-#include <map>
-#include <string>
-
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-
 #include "scanParse.h"
 
-namespace Parse {
-
-using namespace std;
-
-enum action
+namespace Parser
 {
-  SHIFT,
-  REDUCE
-};
+struct Grammar;
 
-using Transition = pair<action, int>; // (SHIFT, state_id) or (REDUCE, rule_id)
-using DFA = unordered_map<int, unordered_map<string, Transition>>;
+void parseTokens(std::vector<Scan::LexToken> const& tokens, Grammar const& grammar);
 
-struct Rule {
-  string lhs;
-  vector<string> rhs;
-};
-
-struct Parser {
-  DFA joos_dfa;
-  vector<Rule> rules;
-};
-
-void parserReadLR1(Parser *parser, const char *text);
-void parserReadJoosLR1(Parser *parser);
-void parserTest();
-ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens);
-
-namespace AutoAST {
-
-struct AutoAST;
-AutoAST *autoASTCreate();
-void autoASTDestory(AutoAST *);
-void autoASTReadLR1(AutoAST *autoast, const char *lr1Text);
-void autoASTOutputHeaders(AutoAST *autoast);
-
-} // namespace AutoAST
-
-} // namespace Parse
+} //namespace Parser

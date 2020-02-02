@@ -10,6 +10,8 @@
 #include "platform.h"
 #include "scanner.h"
 #include "parser.h"
+#include "grammar.h"
+#include "parserAutoAST.h"
 
 using namespace std;
 
@@ -21,12 +23,16 @@ enum class CompileStageType {
 };
 
 const char *gCompileStageTypeName[] = {
-  "Scan", "Parse", "Weed", "Pass"
+  "Scan", "Parse", "Weed", "(Pass)"
 };
 
 struct JoosC {
 	Scan::Scanner scanner;
-  Parse::Parser parser;
+	Parse::Parser parser;
+
+  Parser::Grammar grammar;
+
+  JoosC(): grammar(Parser::readLR1File("joos.lr1")) {}
 };
 
 struct CompileResult {
@@ -53,18 +59,18 @@ bool isProgramValidFromFileName(const char *name) {
 
 void compileReportSingleFile(const CompileSingleResult &result) {
   const char *colorHead, *colorTail = "\033[0m";
-  { // determine the validity of the program from file name, if possible
-    bool sourceValidity, ourVerdict;
-    sourceValidity = isProgramValidFromFileName(result.fileName.c_str());
-    ourVerdict = result.failedStage == CompileStageType::Pass;
-    if (ourVerdict != sourceValidity) {
-      colorHead = "\033[0;31m"; // red
-    } else {
-      colorHead = "\033[0;32m"; // green
-    }
+  // determine the validity of the program from file name, if possible
+  bool sourceValidity, ourVerdict;
+  sourceValidity = isProgramValidFromFileName(result.fileName.c_str());
+  ourVerdict = result.failedStage == CompileStageType::Pass;
+  if (ourVerdict != sourceValidity) {
+    colorHead = "\033[0;31m"; // red
+  } else {
+    colorHead = "\033[0;32m"; // green
   }
 
-  LOGR("%s%s (stage: %s) %s", colorHead, result.fileName.c_str(), gCompileStageTypeName[static_cast<int>(result.failedStage)], colorTail);
+  if (ourVerdict != sourceValidity)
+    LOGR("%s%s (Failed stage: %s) %s", colorHead, result.fileName.c_str(), gCompileStageTypeName[static_cast<s32>(result.failedStage)], colorTail);
 }
 
 void compileDumpSingleResult(char *baseOutputPath, const CompileSingleResult &singleResult) {
@@ -83,6 +89,7 @@ void compileDumpSingleResult(char *baseOutputPath, const CompileSingleResult &si
   }
 
   Scan::scannerDumpDebugInfo(singleResult.scanResult, baseOutputPath);
+  Parse::parserDumpDebugInfo(singleResult.parseResult, baseOutputPath);
 
   compileReportSingleFile(singleResult);
 }
@@ -104,13 +111,12 @@ CompileSingleResult compileSingle(JoosC *joosc, const char *fileName) {
     fileResult.failedStage = CompileStageType::Scan;
     return fileResult;
   }
-/*
+
   fileResult.parseResult = Parse::parserParse(&joosc->parser, fileResult.scanResult.tokens);
   if (!fileResult.parseResult.valid) {
     fileResult.failedStage = CompileStageType::Parse;
     return fileResult;
   }
-*/
 
   fileResult.failedStage = CompileStageType::Pass;
   return fileResult;
@@ -273,7 +279,7 @@ int main(int argc, const char ** argv) {
 
 	JoosC joosc;
 	scannerLoadJoosRule(&joosc.scanner);
-  //parserReadJoosLR1(&joosc.parser);
+  parserReadJoosLR1(&joosc.parser);
 
 	checkTestMode(&joosc);
 
