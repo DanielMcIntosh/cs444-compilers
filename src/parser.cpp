@@ -454,34 +454,38 @@ void autoASTOutputHeaders(AutoAST *autoast) {
   { // functions
     string _output, *output = &_output;    
     for (const auto &rule : autoast->ruleList) {
-      strAppend(output, "// %s -> ", rule->lhs.c_str());
+      const char *lhsName = rule->lhs.c_str();
+      strAppend(output, "// %s -> ", lhsName);
       for (const string &rhs: rule->rhs) {
         output->append(rhs);
         output->append(" ");
       }
       output->append("\n");      
-      strAppend(output, "void parserAST%s_%s(%s) {\n", rule->lhs.c_str(),
+      strAppend(output, "void parserAST%s_%s(%s) {\n", lhsName,
                 rule->serial.c_str(),
                 "vector<Tree *> *stack");
+      size_t captureSize = rule->captureIndices.size();
+      
       if (rule->rhs.empty())
         goto FuncGenEnd;
 
       // int n = stack->size();
       output->append("  int n = stack->size();\n");
       // assert(n >= *);  
-      strAppend(output, "  assert(n >= %ld);\n", rule->captureIndices.size());
+      strAppend(output, "  assert(n >= %ld);\n", captureSize);
       
       for (size_t i = 0; i < rule->captureIndices.size(); ++i) {
         s32 index = rule->captureIndices[i];
         //   assert((*stack)[n - *]->type == NonTerminalType::*);
-        strAppend(output, "  assert((*stack)[n - %ld]->type == NonTerminalType::%s);\n", i + 1, rule->rhs[index].c_str());
+        strAppend(output, "  assert((*stack)[n - %ld]->type == NonTerminalType::%s);\n",
+                  captureSize - i, rule->rhs[index].c_str());
       }
 
       // auto t = new Tree*;
-      strAppend(output, "  auto t = new Tree%s;\n", rule->lhs.c_str());
+      strAppend(output, "  auto t = new Tree%s;\n", lhsName);
 
       // t->variant = NT*::*;      
-      strAppend(output, "  t->variant = NT%sVariants::%s;\n", rule->lhs.c_str(), rule->serial.c_str());
+      strAppend(output, "  t->variant = NT%sVariants::%s;\n", lhsName, rule->serial.c_str());
       for (size_t i = 0; i < rule->captureIndices.size(); ++i) {
         s32 index = rule->captureIndices[i];
         string memberName = rule->rhs[index];
@@ -490,7 +494,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
         // t->* = dynamic_cast<Tree* *>((*stack)[n - *]);
         strAppend(output,
                   "  t->%s = dynamic_cast<Tree%s *>((*stack)[n - %ld]);\n",
-                  memberName.c_str(), rule->rhs[index].c_str(), i + 1);
+                  memberName.c_str(), rule->rhs[index].c_str(), captureSize - i);
         // assert(t->*);
         strAppend(output, "  assert(t->%s);\n", memberName.c_str());
       }
