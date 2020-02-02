@@ -2,6 +2,9 @@
 
 #include <array>
 #include <string>
+#include <vector>
+
+#include <assert.h>
 
 #include "parserNode.h"
 
@@ -15,8 +18,16 @@ struct Tree {
   enum NonTerminalType type;
 
   array<Tree *, TreeMaxChild> children;
+
+  Tree(enum NonTerminalType type_): type(type_) {}
+  virtual ~Tree() {}
 };
 
+typedef void (*parserASTFunc)(vector<Tree *> *stack);
+
+void parserASTDispatcher(vector<Tree *> *stack, int ruleID);
+
+/*
 
 struct TreeIntegerLiteral: public Tree {
   int value;
@@ -40,5 +51,7 @@ struct TreeNullLiteral: public Tree {
 struct TreeIdentifier: public Tree {
   string value;
 };
+
+*/
 
 } // namespace Parse

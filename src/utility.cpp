@@ -38,6 +38,11 @@ void strAppend(std::string *str, const char *fmt, ...) {
   str->append(buffer);
 }
 
+void strFlushFILE(std::string *output, FILE *file) {
+  fwrite(output->data(), output->length(), 1, file);
+  output->clear();
+}
+
 void logImplRaw(const char *str, ...) {
 	char logEntry[TWO_TO_EIGHT];
 	va_list arg;

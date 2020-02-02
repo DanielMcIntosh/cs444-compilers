@@ -75,6 +75,7 @@ void unimplementedImpl();
 [[gnu::format(printf, 3, 4)]] void assertImpl_(bool val, const char *str, const char *fmt, ...);
 
 [[gnu::format(printf, 2, 3)]] void strAppend(std::string *str, const char *fmt, ...);
+void strFlushFILE(std::string *str, FILE *file);
 
 void globalInit();
 void globalFini();

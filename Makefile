@@ -37,7 +37,7 @@ WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimiza
   -Wfloat-conversion -Wsuggest-attribute=pure -Wsuggest-attribute=const \
   -Wsuggest-attribute=noreturn -Wsuggest-attribute=format -Wnull-dereference \
   -Wzero-as-null-pointer-constant -Wctor-dtor-privacy -Wnon-virtual-dtor \
-  -Woverloaded-virtual
+  -Woverloaded-virtual -Wno-unused-parameter
 
 EXTRA_CXXFLAGS += $(WARNINGS) -D__USE_MINGW_ANSI_STDIO -MMD -MP -std=c++17
 
@@ -62,10 +62,6 @@ clean:
 	$(RM) -r $(BUILD_DIR_DEBUG)
 	$(RM) joosc
 	$(RM) joosc_debug
-
-rmhdr:
-	$(RM) ./src/parserAST.h
-	$(RM) ./src/parserNode.h
 
 a1: joosc_debug
 	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=1; ./joosc_debug

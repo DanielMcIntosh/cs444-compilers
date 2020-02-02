@@ -5,6 +5,7 @@
 
 #include "parserASTBase.h"
 #include "parserAST.h"
+//#include "parserASTImpl.h"
 #include "parser.h"
 
 namespace Parse {
@@ -164,8 +165,6 @@ namespace AutoAST {
 struct TerminalInfo {
   string originalName;
   string alphabeticalName;
-
-  bool needCapture;
 };
 
 struct NonTerminalRule {
@@ -173,28 +172,31 @@ struct NonTerminalRule {
   string serial;
   string lhs;
   vector<string> rhs;
+  vector<s32> captureIndices;  
 };
 
 struct NonTerminalInfo {
-  string originalName;
-
   vector<NonTerminalRule *> rules;
 };
+
+const int MaxNumRule = 256;
 
 struct AutoAST {
   unordered_map<string, TerminalInfo> terminalMap;
   unordered_map<string, NonTerminalInfo> nonTerminalMap;
-  unordered_map<s32, NonTerminalRule *> ruleIdMap;
-
+  array<NonTerminalRule *, MaxNumRule> ruleById;
+  s32 numRules;
+  
   vector<unique_ptr<NonTerminalRule>> ruleList;
+
+  // For runtime only
+  vector<Tree *> treeStack;
+
+  vector<unique_ptr<Tree>> treeList;
 };
 
-void autoASTShiftCapturedTerminal(AutoAST *autoast) {
+void autoASTShiftCapturedTerminal(AutoAST *autoast /* other stuff */) {
 
-}
-
-void autoASTApplyRule(AutoAST *autoast, s32 ruleId) {
-  
 }
 
 bool isTerminalCapture(const string &originalName);
@@ -219,7 +221,16 @@ void autoASTReadLR1(AutoAST *autoast, const char *lr1Text) {
     TerminalInfo *info = &result.first->second;
     info->originalName = name;
     info->alphabeticalName = getAlphabeticalName(name);
-    info->needCapture = isTerminalCapture(name);
+    
+    /*
+      TODO TODO TODO
+      HACK HACK HACK
+      Treat some terminals as non terminals so corresponding tree structures
+      are created
+     */
+
+    if (isTerminalCapture(name))
+      autoast->nonTerminalMap.insert(make_pair(name, NonTerminalInfo()));          
   }
   lineHelper(line, &textPtr);
 
@@ -230,9 +241,7 @@ void autoASTReadLR1(AutoAST *autoast, const char *lr1Text) {
 
     ASSERT(!autoast->terminalMap.count(name));
     ASSERT(!autoast->nonTerminalMap.count(name));
-    auto result = autoast->nonTerminalMap.insert(make_pair(name, NonTerminalInfo()));
-    NonTerminalInfo *info = &result.first->second;
-    info->originalName = name;
+    autoast->nonTerminalMap.insert(make_pair(name, NonTerminalInfo()));
   }
   lineHelper(line, &textPtr);
 
@@ -240,6 +249,7 @@ void autoASTReadLR1(AutoAST *autoast, const char *lr1Text) {
   lineHelper(line, &textPtr);
 
   int numRules = atoi(line);
+  autoast->numRules = numRules;
   for (int i = 0; i < numRules; ++i) {
     lineHelper(line, &textPtr);
     char *token = strtok(line, Spaces);
@@ -254,6 +264,8 @@ void autoASTReadLR1(AutoAST *autoast, const char *lr1Text) {
     auto newRule = make_unique<NonTerminalRule>();
     newRule->ruleId = i;
     newRule->lhs = lhs;
+
+    s32 index = 0;
     while ((token = strtok(nullptr, Spaces))) {
       string rhs(token);
       string representation;
@@ -264,13 +276,17 @@ void autoASTReadLR1(AutoAST *autoast, const char *lr1Text) {
       } else {
         // Non terminal
         representation = rhs;
+
+        newRule->captureIndices.push_back(index);
       }
 
       newRule->serial.append(representation);
       newRule->rhs.push_back(rhs);
+
+      ++index;
     }
     info->rules.push_back(newRule.get());
-    autoast->ruleIdMap.insert(make_pair(i, newRule.get()));
+    autoast->ruleById[i] = newRule.get();
     autoast->ruleList.push_back(move(newRule));
   }
 }
@@ -284,7 +300,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
     string _output, *output = &_output;
     output->append("#pragma once\n");
     output->append("namespace Parse { \n");
-    fwrite(output->data(), output->length(), 1, parserNodeHdr);
+    strFlushFILE(output, parserNodeHdr);
   }
 
   { // Terminal Type
@@ -298,7 +314,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
                 "  %s,  %*s %s \n", info.alphabeticalName.c_str(), padding, "//", info.originalName.c_str());
     }
     output->append("  Max,\n};\n\n");
-    fwrite(output->data(), output->length(), 1, parserNodeHdr);
+    strFlushFILE(output, parserNodeHdr);
   }
 
   { // Non Terminal Type
@@ -308,29 +324,25 @@ void autoASTOutputHeaders(AutoAST *autoast) {
     for (const auto &[name, info]: autoast->nonTerminalMap) {
       strAppend(output, "  %s, \n", name.c_str());
     }
+    
     output->append("  Max,\n};\n\n");
-    fwrite(output->data(), output->length(), 1, parserNodeHdr);
+    strFlushFILE(output, parserNodeHdr);    
   }
 
   { // Forward declarations
     string _output, *output = &_output;
 
-    for (const auto &[name, info] : autoast->terminalMap) {
-      if (info.needCapture)
-        strAppend(output, "struct Tree%s;\n", name.c_str());
-    }
-
     for (const auto &[name, info]: autoast->nonTerminalMap) {
       strAppend(output, "struct Tree%s;\n", name.c_str());
     }
     output->append("\n");
-    fwrite(output->data(), output->length(), 1, parserNodeHdr);
+    strFlushFILE(output, parserNodeHdr);        
   }
 
   { // footer
     string _output, *output = &_output;
     output->append("} // namespace Parse \n");
-    fwrite(output->data(), output->length(), 1, parserNodeHdr);
+    strFlushFILE(output, parserNodeHdr);            
   }
   fclose(parserNodeHdr);
 
@@ -341,7 +353,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
     output->append("#pragma once\n");
     output->append("#include \"parserASTBase.h\"\n");
     output->append("namespace Parse { \n");
-    fwrite(output->data(), output->length(), 1, parserASTHdr);
+    strFlushFILE(output, parserASTHdr);
   }
 
   { // Tree subclasses and variants
@@ -367,7 +379,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
 
       output->append("  Max,\n};\n\n");
 
-      // Tree subclass
+      // Tree subclass Tree*
       strAppend(output,
                 "struct Tree%s: public Tree {\n", name.c_str());
 
@@ -381,26 +393,39 @@ void autoASTOutputHeaders(AutoAST *autoast) {
             if (autoast->nonTerminalMap.count(rhs)) {
               // always emit field for non terminals
               capturingChildren.insert(rhs);
-            } else {
-              auto it = autoast->terminalMap.find(rhs);
-              ASSERT(it != autoast->terminalMap.end());
-              if (it->second.needCapture)
-                capturingChildren.insert(it->second.alphabeticalName);
             }
           }
         }
         maxChildren = max(capturingChildren.size(), maxChildren);
 
         for (const string &child: capturingChildren) {
+          string memberName = child;
+          // want lower case member name
+          memberName[0] += 'a' - 'A';
           strAppend(output,
-                    "  Tree%s* %s;\n", child.c_str(), child.c_str());
+                    "  Tree%s* %s;\n", child.c_str(), memberName.c_str());
         }
+
+        // defualt constructor
+        output->append("\n");
+        strAppend(output,
+                  "  Tree%s(): Tree(NonTerminalType::%s), variant(NT%sVariants::Max)",
+                  name.c_str(), name.c_str(), name.c_str());
+        if (!capturingChildren.empty()) {
+          // generate initializer list for members
+          for (const string &child : capturingChildren) {
+            string memberName = child;
+            // want lower case member name
+            memberName[0] += 'a' - 'A';            
+            strAppend(output, ", %s(nullptr) ", memberName.c_str());
+          }
+        }
+        output->append("{\n\n  }\n");
       }
 
       output->append("};\n\n");
 
-      fwrite(output->data(), output->length(), 1, parserASTHdr);
-      output->clear();
+      strFlushFILE(output, parserASTHdr);
     } // for each non terminal
 
     ASSERT(maxChildren <= TreeMaxChild);
@@ -409,10 +434,125 @@ void autoASTOutputHeaders(AutoAST *autoast) {
   { // footer
     string _output, *output = &_output;
     output->append("} // namespace Parse \n");
-    fwrite(output->data(), output->length(), 1, parserASTHdr);
+    strFlushFILE(output, parserASTHdr);
   }
 
-  fclose(parserASTHdr);  
+  fclose(parserASTHdr);
+
+  FILE *parserASTImpl = fopen("src/parserASTImpl.cpp", "w");
+
+  { // header
+    string _output, *output = &_output;
+    output->append("#include \"parserASTBase.h\"\n");
+    output->append("#include \"parserAST.h\"\n");    
+    output->append("#include \"parserNode.h\"\n\n");
+    output->append("namespace Parse { \n\n");
+    output->append("using namespace std;\n\n");
+    strFlushFILE(output, parserASTImpl);
+  }  
+
+  { // functions
+    string _output, *output = &_output;    
+    for (const auto &rule : autoast->ruleList) {
+      strAppend(output, "// %s -> ", rule->lhs.c_str());
+      for (const string &rhs: rule->rhs) {
+        output->append(rhs);
+        output->append(" ");
+      }
+      output->append("\n");      
+      strAppend(output, "void parserAST%s_%s(%s) {\n", rule->lhs.c_str(),
+                rule->serial.c_str(),
+                "vector<Tree *> *stack");
+      if (rule->rhs.empty())
+        goto FuncGenEnd;
+
+      // int n = stack->size();
+      output->append("  int n = stack->size();\n");
+      // assert(n >= *);  
+      strAppend(output, "  assert(n >= %ld);\n", rule->captureIndices.size());
+      
+      for (size_t i = 0; i < rule->captureIndices.size(); ++i) {
+        s32 index = rule->captureIndices[i];
+        //   assert((*stack)[n - *]->type == NonTerminalType::*);
+        strAppend(output, "  assert((*stack)[n - %ld]->type == NonTerminalType::%s);\n", i + 1, rule->rhs[index].c_str());
+      }
+
+      // auto t = new Tree*;
+      strAppend(output, "  auto t = new Tree%s;\n", rule->lhs.c_str());
+
+      // t->variant = NT*::*;      
+      strAppend(output, "  t->variant = NT%sVariants::%s;\n", rule->lhs.c_str(), rule->serial.c_str());
+      for (size_t i = 0; i < rule->captureIndices.size(); ++i) {
+        s32 index = rule->captureIndices[i];
+        string memberName = rule->rhs[index];
+        // want lower case member name
+        memberName[0] += 'a' - 'A';
+        // t->* = dynamic_cast<Tree* *>((*stack)[n - *]);
+        strAppend(output,
+                  "  t->%s = dynamic_cast<Tree%s *>((*stack)[n - %ld]);\n",
+                  memberName.c_str(), rule->rhs[index].c_str(), i + 1);
+        // assert(t->*);
+        strAppend(output, "  assert(t->%s);\n", memberName.c_str());
+      }
+
+      for (size_t i = 0; i < rule->captureIndices.size(); ++i) {
+        // stack->pop_back();
+        strAppend(output, "  stack->pop_back();\n");
+      }
+
+      // stack->push_back(t);
+      strAppend(output, "  stack->push_back(t);\n");
+    FuncGenEnd:
+      strAppend(output, "}\n\n");
+    }
+    strFlushFILE(output, parserASTImpl);
+  }
+
+/* 
+  int n = stack->size();
+  assert(n >= 3);  
+
+  assert((*stack)[n - 1]->type == NonTerminalType::TypeDeclarations);
+  assert((*stack)[n - 2]->type == NonTerminalType::ImportDeclarations);
+  assert((*stack)[n - 3]->type == NonTerminalType::PackageDeclaration);  
+  
+  auto t = new TreeCompilationUnit;
+  t->variant = NTCompilationUnitVariants::PackageDeclarationImportDeclarationsTypeDeclarations;
+  t->typeDeclarations = dynamic_cast<TreeTypeDeclarations*>((*stack)[n - 1]);
+  assert(t->typeDeclarations);
+  t->importDeclarations = dynamic_cast<TreeImportDeclarations*>((*stack)[n - 2]);
+  assert(t->importDeclarations);
+  t->packageDeclaration = dynamic_cast<TreePackageDeclaration*>((*stack)[n - 3]);
+  assert(t->packageDeclaration);
+
+  stack->pop_back();
+  stack->pop_back();
+  stack->pop_back();
+
+  stack->push_back(t);
+ */
+
+  { // dispatch table
+    string _output, *output = &_output;    
+    output->append("void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {\n");
+    output->append("  static const parserASTFunc table[] = {\n");
+    for (s32 i = 0; i < autoast->numRules; ++i) {
+      strAppend(output,
+                "    parserAST%s_%s, \n",
+                autoast->ruleById[i]->lhs.c_str(),
+                autoast->ruleById[i]->serial.c_str());
+    }
+    strAppend(output, "  };\n  table[ruleID](stack);\n}\n\n");
+    strFlushFILE(output, parserASTImpl);
+  }
+
+  { // footer
+    string _output, *output = &_output;
+    output->append("} // namespace Parse \n");
+    strFlushFILE(output, parserASTImpl);
+  }  
+
+  fclose(parserASTImpl);  
 }
 
 string getAlphabeticalName(const string &terminal) {

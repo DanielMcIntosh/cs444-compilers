@@ -67,64 +67,76 @@ enum class NonTerminalType {
   Expression, 
   Assignment, 
   ConditionalOrExpression, 
-  SingleTypeImportDeclaration, 
-  ConstructorDeclarator, 
-  NumericType, 
-  PrimaryNoNewArray, 
+  EqualityExpression, 
+  AdditiveExpression, 
+  MultiplicativeExpression, 
   MethodDeclarator, 
   VariableInitializer, 
   FieldDeclaration, 
   Interfaces, 
   ClassBodyDeclarations, 
-  InterfaceTypeList, 
   ClassDeclaration, 
   ConstantExpression, 
   ClassInstanceCreationExpression, 
   Modifier, 
   ConstructorDeclaration, 
-  ClassTypeList, 
-  Type, 
-  InterfaceBody, 
-  UnaryExpressionNotPlusMinus, 
-  ArrayType, 
-  ClassType, 
+  ClassBodyDeclaration, 
+  CastExpression, 
+  ClassMemberDeclaration, 
+  TypeDeclaration, 
+  MethodHeader, 
+  Modifiers, 
+  SingleTypeImportDeclaration, 
+  FormalParameterList, 
+  MethodDeclaration, 
+  PackageDeclaration, 
+  VariableDeclarator, 
+  DimExpr, 
   AssignmentExpression, 
   RelationalExpression, 
   ClassBody, 
   Name, 
   ArrayCreationExpression, 
   ClassOrInterfaceType, 
-  TypeImportOnDemandDeclaration, 
-  IfThenElseStatementNoShortIf, 
-  ExpressionStatement, 
-  InterfaceType, 
+  Type, 
+  ClassTypeList, 
+  Literal, 
+  InterfaceTypeList, 
+  BooleanLiteral, 
+  PrimitiveType, 
+  Identifier, 
+  StatementWithoutTrailingSubstatement, 
+  Goal, 
   LeftHandSide, 
   CompilationUnit, 
+  CharacterLiteral, 
+  InterfaceType, 
   ReferenceType, 
   ImportDeclarations, 
   FormalParameter, 
   StatementExpression, 
-  FormalParameterList, 
-  MethodDeclaration, 
-  Literal, 
-  PackageDeclaration, 
-  VariableDeclarator, 
-  DimExpr, 
-  Goal, 
+  ConstructorBody, 
+  LocalVariableDeclaration, 
+  ClassType, 
+  ArrayType, 
+  NumericType, 
+  ConstructorDeclarator, 
+  UnaryExpressionNotPlusMinus, 
+  InterfaceBody, 
+  PrimaryNoNewArray, 
   SimpleName, 
-  ClassBodyDeclaration, 
-  MethodHeader, 
-  Modifiers, 
-  MethodBody, 
   IntegralType, 
-  TypeDeclaration, 
-  PrimitiveType, 
+  MethodBody, 
+  TypeImportOnDemandDeclaration, 
+  ExpressionStatement, 
+  IfThenElseStatementNoShortIf, 
   InterfaceDeclaration, 
   ExtendsInterfaces, 
   DimExprs, 
   QualifiedName, 
   InterfaceMemberDeclarations, 
   BlockStatement, 
+  StringLiteral, 
   WhileStatementNoShortIf, 
   InterfaceMemberDeclaration, 
   PostfixExpression, 
@@ -133,110 +145,110 @@ enum class NonTerminalType {
   Super, 
   ArrayInitializer, 
   ReturnStatement, 
-  AdditiveExpression, 
   VariableInitializers, 
+  ImportDeclaration, 
+  ForStatementNoShortIf, 
+  Block, 
   TypeDeclarations, 
   LocalVariableDeclarationStatement, 
-  ConstructorBody, 
-  LocalVariableDeclaration, 
   StaticInitializer, 
+  IntegerLiteral, 
   Statement, 
   ArrayAccess, 
   StatementNoShortIf, 
-  StatementWithoutTrailingSubstatement, 
   EmptyStatement, 
   ForStatement, 
   IfThenStatement, 
   VariableDeclaratorId, 
+  NullLiteral, 
   ArgumentList, 
   IfThenElseStatement, 
   WhileStatement, 
   Primary, 
-  ImportDeclaration, 
-  Block, 
-  ForStatementNoShortIf, 
   ForInit, 
+  ConditionalAndExpression, 
+  ForUpdate, 
   UnaryExpression, 
   Dims, 
   BlockStatements, 
   FieldAccess, 
   MethodInvocation, 
-  ClassMemberDeclaration, 
-  CastExpression, 
-  MultiplicativeExpression, 
-  EqualityExpression, 
-  ForUpdate, 
-  ConditionalAndExpression, 
   Max,
 };
 
-struct TreeStringLiteral;
-struct TreeCharacterLiteral;
-struct TreeIntegerLiteral;
-struct TreeBooleanLiteral;
-struct TreeIdentifier;
-struct TreeNullLiteral;
 struct TreeExpression;
 struct TreeAssignment;
 struct TreeConditionalOrExpression;
-struct TreeSingleTypeImportDeclaration;
-struct TreeConstructorDeclarator;
-struct TreeNumericType;
-struct TreePrimaryNoNewArray;
+struct TreeEqualityExpression;
+struct TreeAdditiveExpression;
+struct TreeMultiplicativeExpression;
 struct TreeMethodDeclarator;
 struct TreeVariableInitializer;
 struct TreeFieldDeclaration;
 struct TreeInterfaces;
 struct TreeClassBodyDeclarations;
-struct TreeInterfaceTypeList;
 struct TreeClassDeclaration;
 struct TreeConstantExpression;
 struct TreeClassInstanceCreationExpression;
 struct TreeModifier;
 struct TreeConstructorDeclaration;
-struct TreeClassTypeList;
-struct TreeType;
-struct TreeInterfaceBody;
-struct TreeUnaryExpressionNotPlusMinus;
-struct TreeArrayType;
-struct TreeClassType;
+struct TreeClassBodyDeclaration;
+struct TreeCastExpression;
+struct TreeClassMemberDeclaration;
+struct TreeTypeDeclaration;
+struct TreeMethodHeader;
+struct TreeModifiers;
+struct TreeSingleTypeImportDeclaration;
+struct TreeFormalParameterList;
+struct TreeMethodDeclaration;
+struct TreePackageDeclaration;
+struct TreeVariableDeclarator;
+struct TreeDimExpr;
 struct TreeAssignmentExpression;
 struct TreeRelationalExpression;
 struct TreeClassBody;
 struct TreeName;
 struct TreeArrayCreationExpression;
 struct TreeClassOrInterfaceType;
-struct TreeTypeImportOnDemandDeclaration;
-struct TreeIfThenElseStatementNoShortIf;
-struct TreeExpressionStatement;
-struct TreeInterfaceType;
+struct TreeType;
+struct TreeClassTypeList;
+struct TreeLiteral;
+struct TreeInterfaceTypeList;
+struct TreeBooleanLiteral;
+struct TreePrimitiveType;
+struct TreeIdentifier;
+struct TreeStatementWithoutTrailingSubstatement;
+struct TreeGoal;
 struct TreeLeftHandSide;
 struct TreeCompilationUnit;
+struct TreeCharacterLiteral;
+struct TreeInterfaceType;
 struct TreeReferenceType;
 struct TreeImportDeclarations;
 struct TreeFormalParameter;
 struct TreeStatementExpression;
-struct TreeFormalParameterList;
-struct TreeMethodDeclaration;
-struct TreeLiteral;
-struct TreePackageDeclaration;
-struct TreeVariableDeclarator;
-struct TreeDimExpr;
-struct TreeGoal;
+struct TreeConstructorBody;
+struct TreeLocalVariableDeclaration;
+struct TreeClassType;
+struct TreeArrayType;
+struct TreeNumericType;
+struct TreeConstructorDeclarator;
+struct TreeUnaryExpressionNotPlusMinus;
+struct TreeInterfaceBody;
+struct TreePrimaryNoNewArray;
 struct TreeSimpleName;
-struct TreeClassBodyDeclaration;
-struct TreeMethodHeader;
-struct TreeModifiers;
-struct TreeMethodBody;
 struct TreeIntegralType;
-struct TreeTypeDeclaration;
-struct TreePrimitiveType;
+struct TreeMethodBody;
+struct TreeTypeImportOnDemandDeclaration;
+struct TreeExpressionStatement;
+struct TreeIfThenElseStatementNoShortIf;
 struct TreeInterfaceDeclaration;
 struct TreeExtendsInterfaces;
 struct TreeDimExprs;
 struct TreeQualifiedName;
 struct TreeInterfaceMemberDeclarations;
 struct TreeBlockStatement;
+struct TreeStringLiteral;
 struct TreeWhileStatementNoShortIf;
 struct TreeInterfaceMemberDeclaration;
 struct TreePostfixExpression;
@@ -245,39 +257,33 @@ struct TreeAbstractMethodDeclaration;
 struct TreeSuper;
 struct TreeArrayInitializer;
 struct TreeReturnStatement;
-struct TreeAdditiveExpression;
 struct TreeVariableInitializers;
+struct TreeImportDeclaration;
+struct TreeForStatementNoShortIf;
+struct TreeBlock;
 struct TreeTypeDeclarations;
 struct TreeLocalVariableDeclarationStatement;
-struct TreeConstructorBody;
-struct TreeLocalVariableDeclaration;
 struct TreeStaticInitializer;
+struct TreeIntegerLiteral;
 struct TreeStatement;
 struct TreeArrayAccess;
 struct TreeStatementNoShortIf;
-struct TreeStatementWithoutTrailingSubstatement;
 struct TreeEmptyStatement;
 struct TreeForStatement;
 struct TreeIfThenStatement;
 struct TreeVariableDeclaratorId;
+struct TreeNullLiteral;
 struct TreeArgumentList;
 struct TreeIfThenElseStatement;
 struct TreeWhileStatement;
 struct TreePrimary;
-struct TreeImportDeclaration;
-struct TreeBlock;
-struct TreeForStatementNoShortIf;
 struct TreeForInit;
+struct TreeConditionalAndExpression;
+struct TreeForUpdate;
 struct TreeUnaryExpression;
 struct TreeDims;
 struct TreeBlockStatements;
 struct TreeFieldAccess;
 struct TreeMethodInvocation;
-struct TreeClassMemberDeclaration;
-struct TreeCastExpression;
-struct TreeMultiplicativeExpression;
-struct TreeEqualityExpression;
-struct TreeForUpdate;
-struct TreeConditionalAndExpression;
 
 } // namespace Parse 
