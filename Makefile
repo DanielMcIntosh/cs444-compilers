@@ -41,6 +41,9 @@ WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimiza
 
 EXTRA_CXXFLAGS += $(WARNINGS) -D__USE_MINGW_ANSI_STDIO -MMD -MP -std=c++17
 
+fast:
+	$(MAKE) joosc -j12
+
 joosc: $(OBJS_RELEASE)
 	$(CXX) $(OBJS_RELEASE) -o $@ $(LDFLAGS_RELEASE) $(WARNINGS)
 
@@ -55,7 +58,7 @@ $(BUILD_DIR_DEBUG)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
 	$(CXX) $(CXXFLAGS_DEBUG) $(EXTRA_CXXFLAGS)  -c $< -o $@
 
-.PHONY: clean rmhdr a1 marmoset marmoset_direct
+.PHONY: clean header a1 a1Fast marmoset marmoset_direct 
 
 clean:
 	$(RM) -r $(BUILD_DIR_RELEASE)
@@ -63,7 +66,13 @@ clean:
 	$(RM) joosc
 	$(RM) joosc_debug
 
-a1: joosc_debug
+header: joosc_debug
+	export JOOSC_PARSER=1; ./joosc_debug  
+
+a1:
+	$(MAKE) a1Fast -j12
+
+a1Fast: joosc_debug
 	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=1; ./joosc_debug
 
 marmoset_direct: joosc

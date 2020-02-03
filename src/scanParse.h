@@ -2,8 +2,10 @@
 
 #include <vector>
 #include <string>
+#include <mutex>
 
 #include "utility.h"
+#include "parserASTBase.h"
 
 namespace Scan {
 
@@ -16,8 +18,8 @@ struct LexToken {
 
 struct ScanResult {
 	vector<LexToken> tokens;
-	bool valid;
-	s32 errorPosition;
+	bool valid = false;
+	s32 errorPosition = -1;
 	string detailedStep;
 };
   
@@ -26,8 +28,36 @@ struct ScanResult {
 namespace Parse {
 
 struct ParseResult {
-  s32 errorLexTokenIndex;
-  bool valid;    
+  Tree *treeRoot = nullptr;
+  s32 errorLexTokenIndex = -1;
+  bool valid = false;
 };
   
+}
+
+namespace Weeder {
+
+using namespace std;
+
+enum class WeederCategory
+{
+  //An interface method cannot be static, final, or native.
+  InterfaceNoStaticFinalNative,
+  Max
+};
+
+struct WeederViolation {
+  enum WeederCategory category;
+  // name, location, etc
+};
+
+struct WeederResult {
+  bool valid = false;
+
+  // TODO: parallalize weeding process
+  mutex *theMutex;
+  vector<WeederViolation> violations;
+
+};
+
 }

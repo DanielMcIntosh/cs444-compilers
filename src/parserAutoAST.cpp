@@ -5,7 +5,6 @@
 
 #include "parserASTBase.h"
 #include "parserAST.h"
-//#include "parserASTImpl.h"
 #include "parserAutoAST.h"
 
 namespace Parse {
@@ -146,10 +145,57 @@ const string &lexTokenTranslate(const Scan::LexToken &lexToken) {
   return gError;
 }
 
+void treeStackShiftTerminal(vector<Tree *> *stack, const Scan::LexToken &token) {
+  if (token.name == "Identifier") {
+    auto t = new TreeIdentifier;
+    t->value = token.lexeme;
+    stack->push_back(t);
+    return;
+  }
+
+  if (token.name == "IntegerLiteral") {
+    auto t = new TreeIntegerLiteral;
+    t->value = atoi(token.lexeme.c_str());
+    stack->push_back(t);
+    return;
+  }
+
+  if (token.name == "BooleanLiteral") {
+    auto t = new TreeBooleanLiteral;
+    /* TODO */
+    stack->push_back(t);
+    return;
+  }
+
+  if (token.name == "StringLiteral") {
+    auto t = new TreeStringLiteral;
+    t->value = token.lexeme;
+    stack->push_back(t);
+    return;
+  }
+
+  if (token.name == "NullLiteral") {
+    auto t = new TreeNullLiteral;
+    t->value = false;
+    stack->push_back(t);
+    return;
+  }
+
+  if (token.name == "CharacterLiteral") {
+    auto t = new TreeCharacterLiteral;
+    t->value = token.lexeme[0];
+    stack->push_back(t);
+    return;
+  }
+}
+
 ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens) {
   vector<int> state_stack;
   vector<string> token_stack;
+  vector<Tree *> tree_stack;
+
   ParseResult result;
+  result.treeRoot = nullptr;
   result.errorLexTokenIndex = -1;
   result.valid = false;
 
@@ -161,6 +207,7 @@ ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens) {
     while (true) {
       if (parser->joos_dfa.at(state_stack.back()).count(canonicalTokenName) == 0) {
         // invalid token at this state
+        parserASTDeleteStack(&tree_stack);
         result.errorLexTokenIndex = tokenIndex;
         return result;
       }
@@ -170,9 +217,11 @@ ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens) {
         auto next_state = rule_id;
         token_stack.push_back(canonicalTokenName);
         state_stack.push_back(next_state);
+        treeStackShiftTerminal(&tree_stack, token);
         break;
       }
 
+      parserASTDispatcher(&tree_stack, rule_id);
       for (size_t i = 0; i < parser->rules[rule_id].rhs.size(); ++i) {
         token_stack.pop_back();
         state_stack.pop_back();
@@ -180,6 +229,7 @@ ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens) {
       token_stack.push_back(parser->rules[rule_id].lhs);
 
       if (parser->joos_dfa.at(state_stack.back()).count(token_stack.back()) == 0) {
+        parserASTDeleteStack(&tree_stack);
         result.errorLexTokenIndex = tokenIndex;
         return result;
       }
@@ -195,6 +245,7 @@ ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens) {
     ++tokenIndex;
   }
 
+  result.treeRoot = tree_stack.front();
   result.errorLexTokenIndex = -1;
   result.valid = true;
   return result;
@@ -265,23 +316,16 @@ struct AutoAST {
   s32 numRules;
   
   vector<unique_ptr<NonTerminalRule>> ruleList;
-
-  // For runtime only
-  vector<Tree *> treeStack;
-
-  vector<unique_ptr<Tree>> treeList;
 };
 
-void autoASTShiftCapturedTerminal(AutoAST *autoast /* other stuff */) {
-
-}
+struct ExtraFieldInfo {
+  string typeName;
+  string fieldName;
+};
 
 bool isTerminalCapture(const string &originalName);
+const vector<ExtraFieldInfo> &getExtraFieldForTree(const string &name);
 string getAlphabeticalName(const string &terminal);
-
-void autoASTJoosInit(AutoAST *autoast) {
-  
-}
 
 void autoASTReadLR1(AutoAST *autoast, const char *lr1Text) {
   const char *textPtr = lr1Text;
@@ -298,13 +342,6 @@ void autoASTReadLR1(AutoAST *autoast, const char *lr1Text) {
     TerminalInfo *info = &result.first->second;
     info->originalName = name;
     info->alphabeticalName = getAlphabeticalName(name);
-    
-    /*
-      TODO TODO TODO
-      HACK HACK HACK
-      Treat some terminals as non terminals so corresponding tree structures
-      are created
-     */
 
     if (isTerminalCapture(name))
       autoast->nonTerminalMap.insert(make_pair(name, NonTerminalInfo()));          
@@ -326,6 +363,7 @@ void autoASTReadLR1(AutoAST *autoast, const char *lr1Text) {
   lineHelper(line, &textPtr);
 
   int numRules = atoi(line);
+  ASSERT(MaxNumRule >= numRules);
   autoast->numRules = numRules;
   for (int i = 0; i < numRules; ++i) {
     lineHelper(line, &textPtr);
@@ -350,6 +388,9 @@ void autoASTReadLR1(AutoAST *autoast, const char *lr1Text) {
       if (it != autoast->terminalMap.end()) {
         // Terminal symbol
         representation = it->second.alphabeticalName;
+        if (isTerminalCapture(rhs)) {
+          newRule->captureIndices.push_back(index);
+        }
       } else {
         // Non terminal
         representation = rhs;
@@ -483,7 +524,13 @@ void autoASTOutputHeaders(AutoAST *autoast) {
                     "  Tree%s* %s;\n", child.c_str(), memberName.c_str());
         }
 
-        // defualt constructor
+        // For Tree*Literals and Identifiers, emit additional fields for values they hold.
+        const vector<ExtraFieldInfo> &extraFieldInfo = getExtraFieldForTree(name);
+        for (const ExtraFieldInfo &fieldInfo : extraFieldInfo) {
+          strAppend(output, "  %s %s;\n", fieldInfo.typeName.c_str(), fieldInfo.fieldName.c_str());
+        }
+
+        // default constructor
         output->append("\n");
         strAppend(output,
                   "  Tree%s(): Tree(NonTerminalType::%s), variant(NT%sVariants::Max)",
@@ -551,7 +598,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
       // assert(n >= *);  
       strAppend(output, "  assert(n >= %ld);\n", captureSize);
       
-      for (size_t i = 0; i < rule->captureIndices.size(); ++i) {
+      for (size_t i = 0; i < captureSize; ++i) {
         s32 index = rule->captureIndices[i];
         //   assert((*stack)[n - *]->type == NonTerminalType::*);
         strAppend(output, "  assert((*stack)[n - %ld]->type == NonTerminalType::%s);\n",
@@ -560,10 +607,14 @@ void autoASTOutputHeaders(AutoAST *autoast) {
 
       // auto t = new Tree*;
       strAppend(output, "  auto t = new Tree%s;\n", lhsName);
+      // parserASTSetTopParents(stack, *, t);
+      strAppend(output, "  parserASTSetTopParents(stack, %ld, t);\n", captureSize);
 
-      // t->variant = NT*::*;      
+      strAppend(output, "  parserASTPopulateChildrenList(t, *stack, %ld);\n", captureSize);
+
+      // t->variant = NT*::*;
       strAppend(output, "  t->variant = NT%sVariants::%s;\n", lhsName, rule->serial.c_str());
-      for (size_t i = 0; i < rule->captureIndices.size(); ++i) {
+      for (size_t i = 0; i < captureSize; ++i) {
         s32 index = rule->captureIndices[i];
         string memberName = rule->rhs[index];
         // want lower case member name
@@ -576,7 +627,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
         strAppend(output, "  assert(t->%s);\n", memberName.c_str());
       }
 
-      for (size_t i = 0; i < rule->captureIndices.size(); ++i) {
+      for (size_t i = 0; i < captureSize; ++i) {
         // stack->pop_back();
         strAppend(output, "  stack->pop_back();\n");
       }
@@ -588,30 +639,6 @@ void autoASTOutputHeaders(AutoAST *autoast) {
     }
     strFlushFILE(output, parserASTImpl);
   }
-
-/* 
-  int n = stack->size();
-  assert(n >= 3);  
-
-  assert((*stack)[n - 1]->type == NonTerminalType::TypeDeclarations);
-  assert((*stack)[n - 2]->type == NonTerminalType::ImportDeclarations);
-  assert((*stack)[n - 3]->type == NonTerminalType::PackageDeclaration);  
-  
-  auto t = new TreeCompilationUnit;
-  t->variant = NTCompilationUnitVariants::PackageDeclarationImportDeclarationsTypeDeclarations;
-  t->typeDeclarations = dynamic_cast<TreeTypeDeclarations*>((*stack)[n - 1]);
-  assert(t->typeDeclarations);
-  t->importDeclarations = dynamic_cast<TreeImportDeclarations*>((*stack)[n - 2]);
-  assert(t->importDeclarations);
-  t->packageDeclaration = dynamic_cast<TreePackageDeclaration*>((*stack)[n - 3]);
-  assert(t->packageDeclaration);
-
-  stack->pop_back();
-  stack->pop_back();
-  stack->pop_back();
-
-  stack->push_back(t);
- */
 
   { // dispatch table
     string _output, *output = &_output;    
@@ -710,6 +737,21 @@ bool isTerminalCapture(const string &originalName) {
   };
 
   return gCaptureTerminal.count(originalName);
+}
+
+const vector<ExtraFieldInfo> &getExtraFieldForTree(const string &name) {
+  static const unordered_map<string, vector<ExtraFieldInfo>> gExtraFieldMap = {
+          {"CharacterLiteral", {{"char", "value"}}},
+          {"IntegerLiteral", {{"int", "value"}}},
+          {"StringLiteral", {{"string", "value"}}},
+          {"BooleanLiteral", {{"bool", "value"}}},
+          {"NullLiteral", {{"bool", "value"}}},
+          {"Identifier", {{"string", "value"}}},
+  };
+  static const vector<ExtraFieldInfo> gNullExtraField;
+  if (!gExtraFieldMap.count(name))
+    return gNullExtraField;
+  return gExtraFieldMap.find(name)->second;
 }
 
 AutoAST *autoASTCreate() {

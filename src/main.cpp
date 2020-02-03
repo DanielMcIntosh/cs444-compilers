@@ -12,6 +12,7 @@
 #include "parser.h"
 #include "grammar.h"
 #include "parserAutoAST.h"
+#include "weeder.h"
 
 using namespace std;
 
@@ -36,9 +37,9 @@ struct JoosC {
 };
 
 struct CompileResult {
-	s32 numValid;
-	s32 numCorrect;
-	s32 fileProcessed;
+	s32 numValid = 0;
+	s32 numCorrect = 0;
+	s32 fileProcessed = 0;
 };
 
 struct CompileSingleResult {
@@ -50,6 +51,7 @@ struct CompileSingleResult {
 
   Scan::ScanResult scanResult;
   Parse::ParseResult parseResult;
+  Weeder::WeederResult weederResult;
 };
 
 bool isProgramValidFromFileName(const char *name) {
@@ -95,7 +97,6 @@ void compileDumpSingleResult(char *baseOutputPath, const CompileSingleResult &si
 }
 
 CompileSingleResult compileSingle(JoosC *joosc, const char *fileName) {
-
   s32 sourceFileSize;
   std::unique_ptr<char[]> sourceCode = readEntireFile(fileName, &sourceFileSize);
 
@@ -115,6 +116,12 @@ CompileSingleResult compileSingle(JoosC *joosc, const char *fileName) {
   fileResult.parseResult = Parse::parserParse(&joosc->parser, fileResult.scanResult.tokens);
   if (!fileResult.parseResult.valid) {
     fileResult.failedStage = CompileStageType::Parse;
+    return fileResult;
+  }
+
+  fileResult.weederResult = Weeder::weederCheck(fileResult.parseResult.treeRoot);
+  if (!fileResult.weederResult.valid) {
+    fileResult.failedStage = CompileStageType::Weed;
     return fileResult;
   }
 
@@ -148,6 +155,8 @@ CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
 
 		strdecl256(baseOutputPath, "output/%s", file.c_str());
     compileDumpSingleResult(baseOutputPath, fileResult);
+
+    Parse::parserASTDelete(fileResult.parseResult.treeRoot);
 	}
 	return compileResult;
 }
@@ -252,8 +261,6 @@ void checkParser() {
 	const char *mode = getenv("JOOSC_PARSER");
 	if (!mode)
 		return;
-
-  //Parse::parserTest();
 
   s32 size;
   auto file = readEntireFile("joos.lr1", &size);

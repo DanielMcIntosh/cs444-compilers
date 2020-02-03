@@ -12,6 +12,8 @@ void parserASTGoal_BOFCompilationUnitEof(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::CompilationUnit);
   auto t = new TreeGoal;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTGoalVariants::BOFCompilationUnitEof;
   t->compilationUnit = dynamic_cast<TreeCompilationUnit *>((*stack)[n - 1]);
   assert(t->compilationUnit);
@@ -22,45 +24,75 @@ void parserASTGoal_BOFCompilationUnitEof(vector<Tree *> *stack) {
 // Literal -> IntegerLiteral 
 void parserASTLiteral_IntegerLiteral(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 0);
+  assert(n >= 1);
+  assert((*stack)[n - 1]->type == NonTerminalType::IntegerLiteral);
   auto t = new TreeLiteral;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTLiteralVariants::IntegerLiteral;
+  t->integerLiteral = dynamic_cast<TreeIntegerLiteral *>((*stack)[n - 1]);
+  assert(t->integerLiteral);
+  stack->pop_back();
   stack->push_back(t);
 }
 
 // Literal -> BooleanLiteral 
 void parserASTLiteral_BooleanLiteral(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 0);
+  assert(n >= 1);
+  assert((*stack)[n - 1]->type == NonTerminalType::BooleanLiteral);
   auto t = new TreeLiteral;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTLiteralVariants::BooleanLiteral;
+  t->booleanLiteral = dynamic_cast<TreeBooleanLiteral *>((*stack)[n - 1]);
+  assert(t->booleanLiteral);
+  stack->pop_back();
   stack->push_back(t);
 }
 
 // Literal -> CharacterLiteral 
 void parserASTLiteral_CharacterLiteral(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 0);
+  assert(n >= 1);
+  assert((*stack)[n - 1]->type == NonTerminalType::CharacterLiteral);
   auto t = new TreeLiteral;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTLiteralVariants::CharacterLiteral;
+  t->characterLiteral = dynamic_cast<TreeCharacterLiteral *>((*stack)[n - 1]);
+  assert(t->characterLiteral);
+  stack->pop_back();
   stack->push_back(t);
 }
 
 // Literal -> StringLiteral 
 void parserASTLiteral_StringLiteral(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 0);
+  assert(n >= 1);
+  assert((*stack)[n - 1]->type == NonTerminalType::StringLiteral);
   auto t = new TreeLiteral;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTLiteralVariants::StringLiteral;
+  t->stringLiteral = dynamic_cast<TreeStringLiteral *>((*stack)[n - 1]);
+  assert(t->stringLiteral);
+  stack->pop_back();
   stack->push_back(t);
 }
 
 // Literal -> NullLiteral 
 void parserASTLiteral_NullLiteral(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 0);
+  assert(n >= 1);
+  assert((*stack)[n - 1]->type == NonTerminalType::NullLiteral);
   auto t = new TreeLiteral;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTLiteralVariants::NullLiteral;
+  t->nullLiteral = dynamic_cast<TreeNullLiteral *>((*stack)[n - 1]);
+  assert(t->nullLiteral);
+  stack->pop_back();
   stack->push_back(t);
 }
 
@@ -70,6 +102,8 @@ void parserASTType_PrimitiveType(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::PrimitiveType);
   auto t = new TreeType;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTTypeVariants::PrimitiveType;
   t->primitiveType = dynamic_cast<TreePrimitiveType *>((*stack)[n - 1]);
   assert(t->primitiveType);
@@ -83,22 +117,11 @@ void parserASTType_ReferenceType(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ReferenceType);
   auto t = new TreeType;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTTypeVariants::ReferenceType;
   t->referenceType = dynamic_cast<TreeReferenceType *>((*stack)[n - 1]);
   assert(t->referenceType);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// PrimitiveType -> NumericType 
-void parserASTPrimitiveType_NumericType(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::NumericType);
-  auto t = new TreePrimitiveType;
-  t->variant = NTPrimitiveTypeVariants::NumericType;
-  t->numericType = dynamic_cast<TreeNumericType *>((*stack)[n - 1]);
-  assert(t->numericType);
   stack->pop_back();
   stack->push_back(t);
 }
@@ -108,56 +131,53 @@ void parserASTPrimitiveType_boolean(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreePrimitiveType;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTPrimitiveTypeVariants::boolean;
   stack->push_back(t);
 }
 
-// NumericType -> IntegralType 
-void parserASTNumericType_IntegralType(vector<Tree *> *stack) {
+// PrimitiveType -> byte 
+void parserASTPrimitiveType_byte(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::IntegralType);
-  auto t = new TreeNumericType;
-  t->variant = NTNumericTypeVariants::IntegralType;
-  t->integralType = dynamic_cast<TreeIntegralType *>((*stack)[n - 1]);
-  assert(t->integralType);
-  stack->pop_back();
+  assert(n >= 0);
+  auto t = new TreePrimitiveType;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
+  t->variant = NTPrimitiveTypeVariants::byte;
   stack->push_back(t);
 }
 
-// IntegralType -> byte 
-void parserASTIntegralType_byte(vector<Tree *> *stack) {
+// PrimitiveType -> short 
+void parserASTPrimitiveType_Short(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
-  auto t = new TreeIntegralType;
-  t->variant = NTIntegralTypeVariants::byte;
+  auto t = new TreePrimitiveType;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
+  t->variant = NTPrimitiveTypeVariants::Short;
   stack->push_back(t);
 }
 
-// IntegralType -> short 
-void parserASTIntegralType_Short(vector<Tree *> *stack) {
+// PrimitiveType -> int 
+void parserASTPrimitiveType_Int(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
-  auto t = new TreeIntegralType;
-  t->variant = NTIntegralTypeVariants::Short;
+  auto t = new TreePrimitiveType;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
+  t->variant = NTPrimitiveTypeVariants::Int;
   stack->push_back(t);
 }
 
-// IntegralType -> int 
-void parserASTIntegralType_Int(vector<Tree *> *stack) {
+// PrimitiveType -> char 
+void parserASTPrimitiveType_Char(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
-  auto t = new TreeIntegralType;
-  t->variant = NTIntegralTypeVariants::Int;
-  stack->push_back(t);
-}
-
-// IntegralType -> char 
-void parserASTIntegralType_Char(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 0);
-  auto t = new TreeIntegralType;
-  t->variant = NTIntegralTypeVariants::Char;
+  auto t = new TreePrimitiveType;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
+  t->variant = NTPrimitiveTypeVariants::Char;
   stack->push_back(t);
 }
 
@@ -167,6 +187,8 @@ void parserASTReferenceType_ClassOrInterfaceType(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassOrInterfaceType);
   auto t = new TreeReferenceType;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTReferenceTypeVariants::ClassOrInterfaceType;
   t->classOrInterfaceType = dynamic_cast<TreeClassOrInterfaceType *>((*stack)[n - 1]);
   assert(t->classOrInterfaceType);
@@ -180,6 +202,8 @@ void parserASTReferenceType_ArrayType(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ArrayType);
   auto t = new TreeReferenceType;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTReferenceTypeVariants::ArrayType;
   t->arrayType = dynamic_cast<TreeArrayType *>((*stack)[n - 1]);
   assert(t->arrayType);
@@ -193,6 +217,8 @@ void parserASTClassOrInterfaceType_Name(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Name);
   auto t = new TreeClassOrInterfaceType;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTClassOrInterfaceTypeVariants::Name;
   t->name = dynamic_cast<TreeName *>((*stack)[n - 1]);
   assert(t->name);
@@ -206,6 +232,8 @@ void parserASTClassType_ClassOrInterfaceType(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassOrInterfaceType);
   auto t = new TreeClassType;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTClassTypeVariants::ClassOrInterfaceType;
   t->classOrInterfaceType = dynamic_cast<TreeClassOrInterfaceType *>((*stack)[n - 1]);
   assert(t->classOrInterfaceType);
@@ -219,6 +247,8 @@ void parserASTInterfaceType_ClassOrInterfaceType(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassOrInterfaceType);
   auto t = new TreeInterfaceType;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTInterfaceTypeVariants::ClassOrInterfaceType;
   t->classOrInterfaceType = dynamic_cast<TreeClassOrInterfaceType *>((*stack)[n - 1]);
   assert(t->classOrInterfaceType);
@@ -232,6 +262,8 @@ void parserASTArrayType_PrimitiveTypeLSBrRSBr(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::PrimitiveType);
   auto t = new TreeArrayType;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTArrayTypeVariants::PrimitiveTypeLSBrRSBr;
   t->primitiveType = dynamic_cast<TreePrimitiveType *>((*stack)[n - 1]);
   assert(t->primitiveType);
@@ -245,6 +277,8 @@ void parserASTArrayType_NameLSBrRSBr(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Name);
   auto t = new TreeArrayType;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTArrayTypeVariants::NameLSBrRSBr;
   t->name = dynamic_cast<TreeName *>((*stack)[n - 1]);
   assert(t->name);
@@ -258,6 +292,8 @@ void parserASTArrayType_ArrayTypeLSBrRSBr(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ArrayType);
   auto t = new TreeArrayType;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTArrayTypeVariants::ArrayTypeLSBrRSBr;
   t->arrayType = dynamic_cast<TreeArrayType *>((*stack)[n - 1]);
   assert(t->arrayType);
@@ -271,6 +307,8 @@ void parserASTName_SimpleName(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::SimpleName);
   auto t = new TreeName;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTNameVariants::SimpleName;
   t->simpleName = dynamic_cast<TreeSimpleName *>((*stack)[n - 1]);
   assert(t->simpleName);
@@ -278,15 +316,21 @@ void parserASTName_SimpleName(vector<Tree *> *stack) {
   stack->push_back(t);
 }
 
-// Name -> QualifiedName 
-void parserASTName_QualifiedName(vector<Tree *> *stack) {
+// Name -> Name . Identifier 
+void parserASTName_NameDotIdentifier(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::QualifiedName);
+  assert(n >= 2);
+  assert((*stack)[n - 2]->type == NonTerminalType::Name);
+  assert((*stack)[n - 1]->type == NonTerminalType::Identifier);
   auto t = new TreeName;
-  t->variant = NTNameVariants::QualifiedName;
-  t->qualifiedName = dynamic_cast<TreeQualifiedName *>((*stack)[n - 1]);
-  assert(t->qualifiedName);
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
+  t->variant = NTNameVariants::NameDotIdentifier;
+  t->name = dynamic_cast<TreeName *>((*stack)[n - 2]);
+  assert(t->name);
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 1]);
+  assert(t->identifier);
+  stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
 }
@@ -294,21 +338,14 @@ void parserASTName_QualifiedName(vector<Tree *> *stack) {
 // SimpleName -> Identifier 
 void parserASTSimpleName_Identifier(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 0);
-  auto t = new TreeSimpleName;
-  t->variant = NTSimpleNameVariants::Identifier;
-  stack->push_back(t);
-}
-
-// QualifiedName -> Name . Identifier 
-void parserASTQualifiedName_NameDotIdentifier(vector<Tree *> *stack) {
-  int n = stack->size();
   assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::Name);
-  auto t = new TreeQualifiedName;
-  t->variant = NTQualifiedNameVariants::NameDotIdentifier;
-  t->name = dynamic_cast<TreeName *>((*stack)[n - 1]);
-  assert(t->name);
+  assert((*stack)[n - 1]->type == NonTerminalType::Identifier);
+  auto t = new TreeSimpleName;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
+  t->variant = NTSimpleNameVariants::Identifier;
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 1]);
+  assert(t->identifier);
   stack->pop_back();
   stack->push_back(t);
 }
@@ -323,6 +360,8 @@ void parserASTCompilationUnit_PackageDeclaration(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::PackageDeclaration);
   auto t = new TreeCompilationUnit;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTCompilationUnitVariants::PackageDeclaration;
   t->packageDeclaration = dynamic_cast<TreePackageDeclaration *>((*stack)[n - 1]);
   assert(t->packageDeclaration);
@@ -336,6 +375,8 @@ void parserASTCompilationUnit_ImportDeclarations(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ImportDeclarations);
   auto t = new TreeCompilationUnit;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTCompilationUnitVariants::ImportDeclarations;
   t->importDeclarations = dynamic_cast<TreeImportDeclarations *>((*stack)[n - 1]);
   assert(t->importDeclarations);
@@ -350,6 +391,8 @@ void parserASTCompilationUnit_PackageDeclarationImportDeclarations(vector<Tree *
   assert((*stack)[n - 2]->type == NonTerminalType::PackageDeclaration);
   assert((*stack)[n - 1]->type == NonTerminalType::ImportDeclarations);
   auto t = new TreeCompilationUnit;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTCompilationUnitVariants::PackageDeclarationImportDeclarations;
   t->packageDeclaration = dynamic_cast<TreePackageDeclaration *>((*stack)[n - 2]);
   assert(t->packageDeclaration);
@@ -366,6 +409,8 @@ void parserASTCompilationUnit_TypeDeclarations(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::TypeDeclarations);
   auto t = new TreeCompilationUnit;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTCompilationUnitVariants::TypeDeclarations;
   t->typeDeclarations = dynamic_cast<TreeTypeDeclarations *>((*stack)[n - 1]);
   assert(t->typeDeclarations);
@@ -380,6 +425,8 @@ void parserASTCompilationUnit_PackageDeclarationTypeDeclarations(vector<Tree *> 
   assert((*stack)[n - 2]->type == NonTerminalType::PackageDeclaration);
   assert((*stack)[n - 1]->type == NonTerminalType::TypeDeclarations);
   auto t = new TreeCompilationUnit;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTCompilationUnitVariants::PackageDeclarationTypeDeclarations;
   t->packageDeclaration = dynamic_cast<TreePackageDeclaration *>((*stack)[n - 2]);
   assert(t->packageDeclaration);
@@ -397,6 +444,8 @@ void parserASTCompilationUnit_ImportDeclarationsTypeDeclarations(vector<Tree *> 
   assert((*stack)[n - 2]->type == NonTerminalType::ImportDeclarations);
   assert((*stack)[n - 1]->type == NonTerminalType::TypeDeclarations);
   auto t = new TreeCompilationUnit;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTCompilationUnitVariants::ImportDeclarationsTypeDeclarations;
   t->importDeclarations = dynamic_cast<TreeImportDeclarations *>((*stack)[n - 2]);
   assert(t->importDeclarations);
@@ -415,6 +464,8 @@ void parserASTCompilationUnit_PackageDeclarationImportDeclarationsTypeDeclaratio
   assert((*stack)[n - 2]->type == NonTerminalType::ImportDeclarations);
   assert((*stack)[n - 1]->type == NonTerminalType::TypeDeclarations);
   auto t = new TreeCompilationUnit;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTCompilationUnitVariants::PackageDeclarationImportDeclarationsTypeDeclarations;
   t->packageDeclaration = dynamic_cast<TreePackageDeclaration *>((*stack)[n - 3]);
   assert(t->packageDeclaration);
@@ -434,6 +485,8 @@ void parserASTImportDeclarations_ImportDeclaration(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ImportDeclaration);
   auto t = new TreeImportDeclarations;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTImportDeclarationsVariants::ImportDeclaration;
   t->importDeclaration = dynamic_cast<TreeImportDeclaration *>((*stack)[n - 1]);
   assert(t->importDeclaration);
@@ -448,6 +501,8 @@ void parserASTImportDeclarations_ImportDeclarationsImportDeclaration(vector<Tree
   assert((*stack)[n - 2]->type == NonTerminalType::ImportDeclarations);
   assert((*stack)[n - 1]->type == NonTerminalType::ImportDeclaration);
   auto t = new TreeImportDeclarations;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTImportDeclarationsVariants::ImportDeclarationsImportDeclaration;
   t->importDeclarations = dynamic_cast<TreeImportDeclarations *>((*stack)[n - 2]);
   assert(t->importDeclarations);
@@ -464,6 +519,8 @@ void parserASTTypeDeclarations_TypeDeclaration(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::TypeDeclaration);
   auto t = new TreeTypeDeclarations;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTTypeDeclarationsVariants::TypeDeclaration;
   t->typeDeclaration = dynamic_cast<TreeTypeDeclaration *>((*stack)[n - 1]);
   assert(t->typeDeclaration);
@@ -478,6 +535,8 @@ void parserASTTypeDeclarations_TypeDeclarationsTypeDeclaration(vector<Tree *> *s
   assert((*stack)[n - 2]->type == NonTerminalType::TypeDeclarations);
   assert((*stack)[n - 1]->type == NonTerminalType::TypeDeclaration);
   auto t = new TreeTypeDeclarations;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTTypeDeclarationsVariants::TypeDeclarationsTypeDeclaration;
   t->typeDeclarations = dynamic_cast<TreeTypeDeclarations *>((*stack)[n - 2]);
   assert(t->typeDeclarations);
@@ -494,6 +553,8 @@ void parserASTPackageDeclaration_packageNameSCol(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Name);
   auto t = new TreePackageDeclaration;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTPackageDeclarationVariants::packageNameSCol;
   t->name = dynamic_cast<TreeName *>((*stack)[n - 1]);
   assert(t->name);
@@ -507,6 +568,8 @@ void parserASTImportDeclaration_SingleTypeImportDeclaration(vector<Tree *> *stac
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::SingleTypeImportDeclaration);
   auto t = new TreeImportDeclaration;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTImportDeclarationVariants::SingleTypeImportDeclaration;
   t->singleTypeImportDeclaration = dynamic_cast<TreeSingleTypeImportDeclaration *>((*stack)[n - 1]);
   assert(t->singleTypeImportDeclaration);
@@ -520,6 +583,8 @@ void parserASTImportDeclaration_TypeImportOnDemandDeclaration(vector<Tree *> *st
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::TypeImportOnDemandDeclaration);
   auto t = new TreeImportDeclaration;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTImportDeclarationVariants::TypeImportOnDemandDeclaration;
   t->typeImportOnDemandDeclaration = dynamic_cast<TreeTypeImportOnDemandDeclaration *>((*stack)[n - 1]);
   assert(t->typeImportOnDemandDeclaration);
@@ -533,6 +598,8 @@ void parserASTSingleTypeImportDeclaration_importNameSCol(vector<Tree *> *stack) 
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Name);
   auto t = new TreeSingleTypeImportDeclaration;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTSingleTypeImportDeclarationVariants::importNameSCol;
   t->name = dynamic_cast<TreeName *>((*stack)[n - 1]);
   assert(t->name);
@@ -546,6 +613,8 @@ void parserASTTypeImportOnDemandDeclaration_importNameDotStarSCol(vector<Tree *>
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Name);
   auto t = new TreeTypeImportOnDemandDeclaration;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTTypeImportOnDemandDeclarationVariants::importNameDotStarSCol;
   t->name = dynamic_cast<TreeName *>((*stack)[n - 1]);
   assert(t->name);
@@ -559,6 +628,8 @@ void parserASTTypeDeclaration_ClassDeclaration(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassDeclaration);
   auto t = new TreeTypeDeclaration;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTTypeDeclarationVariants::ClassDeclaration;
   t->classDeclaration = dynamic_cast<TreeClassDeclaration *>((*stack)[n - 1]);
   assert(t->classDeclaration);
@@ -572,6 +643,8 @@ void parserASTTypeDeclaration_InterfaceDeclaration(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceDeclaration);
   auto t = new TreeTypeDeclaration;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTTypeDeclarationVariants::InterfaceDeclaration;
   t->interfaceDeclaration = dynamic_cast<TreeInterfaceDeclaration *>((*stack)[n - 1]);
   assert(t->interfaceDeclaration);
@@ -584,6 +657,8 @@ void parserASTTypeDeclaration_SCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreeTypeDeclaration;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTTypeDeclarationVariants::SCol;
   stack->push_back(t);
 }
@@ -594,6 +669,8 @@ void parserASTModifiers_Modifier(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Modifier);
   auto t = new TreeModifiers;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTModifiersVariants::Modifier;
   t->modifier = dynamic_cast<TreeModifier *>((*stack)[n - 1]);
   assert(t->modifier);
@@ -608,6 +685,8 @@ void parserASTModifiers_ModifiersModifier(vector<Tree *> *stack) {
   assert((*stack)[n - 2]->type == NonTerminalType::Modifiers);
   assert((*stack)[n - 1]->type == NonTerminalType::Modifier);
   auto t = new TreeModifiers;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTModifiersVariants::ModifiersModifier;
   t->modifiers = dynamic_cast<TreeModifiers *>((*stack)[n - 2]);
   assert(t->modifiers);
@@ -623,6 +702,8 @@ void parserASTModifier_Public(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreeModifier;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTModifierVariants::Public;
   stack->push_back(t);
 }
@@ -632,6 +713,8 @@ void parserASTModifier_Protected(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreeModifier;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTModifierVariants::Protected;
   stack->push_back(t);
 }
@@ -641,6 +724,8 @@ void parserASTModifier_Static(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreeModifier;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTModifierVariants::Static;
   stack->push_back(t);
 }
@@ -650,6 +735,8 @@ void parserASTModifier_abstract(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreeModifier;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTModifierVariants::abstract;
   stack->push_back(t);
 }
@@ -659,6 +746,8 @@ void parserASTModifier_final(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreeModifier;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTModifierVariants::final;
   stack->push_back(t);
 }
@@ -668,6 +757,8 @@ void parserASTModifier_native(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreeModifier;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTModifierVariants::native;
   stack->push_back(t);
 }
@@ -675,12 +766,18 @@ void parserASTModifier_native(vector<Tree *> *stack) {
 // ClassDeclaration -> class Identifier ClassBody 
 void parserASTClassDeclaration_ClassIdentifierClassBody(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 1);
+  assert(n >= 2);
+  assert((*stack)[n - 2]->type == NonTerminalType::Identifier);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
   auto t = new TreeClassDeclaration;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTClassDeclarationVariants::ClassIdentifierClassBody;
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 2]);
+  assert(t->identifier);
   t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
   assert(t->classBody);
+  stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
 }
@@ -688,50 +785,18 @@ void parserASTClassDeclaration_ClassIdentifierClassBody(vector<Tree *> *stack) {
 // ClassDeclaration -> Modifiers class Identifier ClassBody 
 void parserASTClassDeclaration_ModifiersClassIdentifierClassBody(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::Modifiers);
+  assert(n >= 3);
+  assert((*stack)[n - 3]->type == NonTerminalType::Modifiers);
+  assert((*stack)[n - 2]->type == NonTerminalType::Identifier);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
   auto t = new TreeClassDeclaration;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTClassDeclarationVariants::ModifiersClassIdentifierClassBody;
-  t->modifiers = dynamic_cast<TreeModifiers *>((*stack)[n - 2]);
-  assert(t->modifiers);
-  t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
-  assert(t->classBody);
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ClassDeclaration -> class Identifier Super ClassBody 
-void parserASTClassDeclaration_ClassIdentifierSuperClassBody(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::Super);
-  assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
-  auto t = new TreeClassDeclaration;
-  t->variant = NTClassDeclarationVariants::ClassIdentifierSuperClassBody;
-  t->super = dynamic_cast<TreeSuper *>((*stack)[n - 2]);
-  assert(t->super);
-  t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
-  assert(t->classBody);
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ClassDeclaration -> Modifiers class Identifier Super ClassBody 
-void parserASTClassDeclaration_ModifiersClassIdentifierSuperClassBody(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 3);
-  assert((*stack)[n - 3]->type == NonTerminalType::Modifiers);
-  assert((*stack)[n - 2]->type == NonTerminalType::Super);
-  assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
-  auto t = new TreeClassDeclaration;
-  t->variant = NTClassDeclarationVariants::ModifiersClassIdentifierSuperClassBody;
   t->modifiers = dynamic_cast<TreeModifiers *>((*stack)[n - 3]);
   assert(t->modifiers);
-  t->super = dynamic_cast<TreeSuper *>((*stack)[n - 2]);
-  assert(t->super);
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 2]);
+  assert(t->identifier);
   t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
   assert(t->classBody);
   stack->pop_back();
@@ -740,36 +805,21 @@ void parserASTClassDeclaration_ModifiersClassIdentifierSuperClassBody(vector<Tre
   stack->push_back(t);
 }
 
-// ClassDeclaration -> class Identifier Interfaces ClassBody 
-void parserASTClassDeclaration_ClassIdentifierInterfacesClassBody(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::Interfaces);
-  assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
-  auto t = new TreeClassDeclaration;
-  t->variant = NTClassDeclarationVariants::ClassIdentifierInterfacesClassBody;
-  t->interfaces = dynamic_cast<TreeInterfaces *>((*stack)[n - 2]);
-  assert(t->interfaces);
-  t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
-  assert(t->classBody);
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ClassDeclaration -> Modifiers class Identifier Interfaces ClassBody 
-void parserASTClassDeclaration_ModifiersClassIdentifierInterfacesClassBody(vector<Tree *> *stack) {
+// ClassDeclaration -> class Identifier extends ClassType ClassBody 
+void parserASTClassDeclaration_ClassIdentifierextendsClassTypeClassBody(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
-  assert((*stack)[n - 3]->type == NonTerminalType::Modifiers);
-  assert((*stack)[n - 2]->type == NonTerminalType::Interfaces);
+  assert((*stack)[n - 3]->type == NonTerminalType::Identifier);
+  assert((*stack)[n - 2]->type == NonTerminalType::ClassType);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
   auto t = new TreeClassDeclaration;
-  t->variant = NTClassDeclarationVariants::ModifiersClassIdentifierInterfacesClassBody;
-  t->modifiers = dynamic_cast<TreeModifiers *>((*stack)[n - 3]);
-  assert(t->modifiers);
-  t->interfaces = dynamic_cast<TreeInterfaces *>((*stack)[n - 2]);
-  assert(t->interfaces);
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
+  t->variant = NTClassDeclarationVariants::ClassIdentifierextendsClassTypeClassBody;
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 3]);
+  assert(t->identifier);
+  t->classType = dynamic_cast<TreeClassType *>((*stack)[n - 2]);
+  assert(t->classType);
   t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
   assert(t->classBody);
   stack->pop_back();
@@ -778,43 +828,24 @@ void parserASTClassDeclaration_ModifiersClassIdentifierInterfacesClassBody(vecto
   stack->push_back(t);
 }
 
-// ClassDeclaration -> class Identifier Super Interfaces ClassBody 
-void parserASTClassDeclaration_ClassIdentifierSuperInterfacesClassBody(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 3);
-  assert((*stack)[n - 3]->type == NonTerminalType::Super);
-  assert((*stack)[n - 2]->type == NonTerminalType::Interfaces);
-  assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
-  auto t = new TreeClassDeclaration;
-  t->variant = NTClassDeclarationVariants::ClassIdentifierSuperInterfacesClassBody;
-  t->super = dynamic_cast<TreeSuper *>((*stack)[n - 3]);
-  assert(t->super);
-  t->interfaces = dynamic_cast<TreeInterfaces *>((*stack)[n - 2]);
-  assert(t->interfaces);
-  t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
-  assert(t->classBody);
-  stack->pop_back();
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ClassDeclaration -> Modifiers class Identifier Super Interfaces ClassBody 
-void parserASTClassDeclaration_ModifiersClassIdentifierSuperInterfacesClassBody(vector<Tree *> *stack) {
+// ClassDeclaration -> Modifiers class Identifier extends ClassType ClassBody 
+void parserASTClassDeclaration_ModifiersClassIdentifierextendsClassTypeClassBody(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 4);
   assert((*stack)[n - 4]->type == NonTerminalType::Modifiers);
-  assert((*stack)[n - 3]->type == NonTerminalType::Super);
-  assert((*stack)[n - 2]->type == NonTerminalType::Interfaces);
+  assert((*stack)[n - 3]->type == NonTerminalType::Identifier);
+  assert((*stack)[n - 2]->type == NonTerminalType::ClassType);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
   auto t = new TreeClassDeclaration;
-  t->variant = NTClassDeclarationVariants::ModifiersClassIdentifierSuperInterfacesClassBody;
+  parserASTSetTopParents(stack, 4, t);
+  parserASTPopulateChildrenList(t, *stack, 4);
+  t->variant = NTClassDeclarationVariants::ModifiersClassIdentifierextendsClassTypeClassBody;
   t->modifiers = dynamic_cast<TreeModifiers *>((*stack)[n - 4]);
   assert(t->modifiers);
-  t->super = dynamic_cast<TreeSuper *>((*stack)[n - 3]);
-  assert(t->super);
-  t->interfaces = dynamic_cast<TreeInterfaces *>((*stack)[n - 2]);
-  assert(t->interfaces);
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 3]);
+  assert(t->identifier);
+  t->classType = dynamic_cast<TreeClassType *>((*stack)[n - 2]);
+  assert(t->classType);
   t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
   assert(t->classBody);
   stack->pop_back();
@@ -824,28 +855,110 @@ void parserASTClassDeclaration_ModifiersClassIdentifierSuperInterfacesClassBody(
   stack->push_back(t);
 }
 
-// Super -> extends ClassType 
-void parserASTSuper_extendsClassType(vector<Tree *> *stack) {
+// ClassDeclaration -> class Identifier implements InterfaceTypeList ClassBody 
+void parserASTClassDeclaration_ClassIdentifierimplementsInterfaceTypeListClassBody(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::ClassType);
-  auto t = new TreeSuper;
-  t->variant = NTSuperVariants::extendsClassType;
-  t->classType = dynamic_cast<TreeClassType *>((*stack)[n - 1]);
-  assert(t->classType);
+  assert(n >= 3);
+  assert((*stack)[n - 3]->type == NonTerminalType::Identifier);
+  assert((*stack)[n - 2]->type == NonTerminalType::InterfaceTypeList);
+  assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
+  auto t = new TreeClassDeclaration;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
+  t->variant = NTClassDeclarationVariants::ClassIdentifierimplementsInterfaceTypeListClassBody;
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 3]);
+  assert(t->identifier);
+  t->interfaceTypeList = dynamic_cast<TreeInterfaceTypeList *>((*stack)[n - 2]);
+  assert(t->interfaceTypeList);
+  t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
+  assert(t->classBody);
+  stack->pop_back();
+  stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
 }
 
-// Interfaces -> implements InterfaceTypeList 
-void parserASTInterfaces_implementsInterfaceTypeList(vector<Tree *> *stack) {
+// ClassDeclaration -> Modifiers class Identifier implements InterfaceTypeList ClassBody 
+void parserASTClassDeclaration_ModifiersClassIdentifierimplementsInterfaceTypeListClassBody(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::InterfaceTypeList);
-  auto t = new TreeInterfaces;
-  t->variant = NTInterfacesVariants::implementsInterfaceTypeList;
-  t->interfaceTypeList = dynamic_cast<TreeInterfaceTypeList *>((*stack)[n - 1]);
+  assert(n >= 4);
+  assert((*stack)[n - 4]->type == NonTerminalType::Modifiers);
+  assert((*stack)[n - 3]->type == NonTerminalType::Identifier);
+  assert((*stack)[n - 2]->type == NonTerminalType::InterfaceTypeList);
+  assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
+  auto t = new TreeClassDeclaration;
+  parserASTSetTopParents(stack, 4, t);
+  parserASTPopulateChildrenList(t, *stack, 4);
+  t->variant = NTClassDeclarationVariants::ModifiersClassIdentifierimplementsInterfaceTypeListClassBody;
+  t->modifiers = dynamic_cast<TreeModifiers *>((*stack)[n - 4]);
+  assert(t->modifiers);
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 3]);
+  assert(t->identifier);
+  t->interfaceTypeList = dynamic_cast<TreeInterfaceTypeList *>((*stack)[n - 2]);
   assert(t->interfaceTypeList);
+  t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
+  assert(t->classBody);
+  stack->pop_back();
+  stack->pop_back();
+  stack->pop_back();
+  stack->pop_back();
+  stack->push_back(t);
+}
+
+// ClassDeclaration -> class Identifier extends ClassType implements InterfaceTypeList ClassBody 
+void parserASTClassDeclaration_ClassIdentifierextendsClassTypeimplementsInterfaceTypeListClassBody(vector<Tree *> *stack) {
+  int n = stack->size();
+  assert(n >= 4);
+  assert((*stack)[n - 4]->type == NonTerminalType::Identifier);
+  assert((*stack)[n - 3]->type == NonTerminalType::ClassType);
+  assert((*stack)[n - 2]->type == NonTerminalType::InterfaceTypeList);
+  assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
+  auto t = new TreeClassDeclaration;
+  parserASTSetTopParents(stack, 4, t);
+  parserASTPopulateChildrenList(t, *stack, 4);
+  t->variant = NTClassDeclarationVariants::ClassIdentifierextendsClassTypeimplementsInterfaceTypeListClassBody;
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 4]);
+  assert(t->identifier);
+  t->classType = dynamic_cast<TreeClassType *>((*stack)[n - 3]);
+  assert(t->classType);
+  t->interfaceTypeList = dynamic_cast<TreeInterfaceTypeList *>((*stack)[n - 2]);
+  assert(t->interfaceTypeList);
+  t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
+  assert(t->classBody);
+  stack->pop_back();
+  stack->pop_back();
+  stack->pop_back();
+  stack->pop_back();
+  stack->push_back(t);
+}
+
+// ClassDeclaration -> Modifiers class Identifier extends ClassType implements InterfaceTypeList ClassBody 
+void parserASTClassDeclaration_ModifiersClassIdentifierextendsClassTypeimplementsInterfaceTypeListClassBody(vector<Tree *> *stack) {
+  int n = stack->size();
+  assert(n >= 5);
+  assert((*stack)[n - 5]->type == NonTerminalType::Modifiers);
+  assert((*stack)[n - 4]->type == NonTerminalType::Identifier);
+  assert((*stack)[n - 3]->type == NonTerminalType::ClassType);
+  assert((*stack)[n - 2]->type == NonTerminalType::InterfaceTypeList);
+  assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
+  auto t = new TreeClassDeclaration;
+  parserASTSetTopParents(stack, 5, t);
+  parserASTPopulateChildrenList(t, *stack, 5);
+  t->variant = NTClassDeclarationVariants::ModifiersClassIdentifierextendsClassTypeimplementsInterfaceTypeListClassBody;
+  t->modifiers = dynamic_cast<TreeModifiers *>((*stack)[n - 5]);
+  assert(t->modifiers);
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 4]);
+  assert(t->identifier);
+  t->classType = dynamic_cast<TreeClassType *>((*stack)[n - 3]);
+  assert(t->classType);
+  t->interfaceTypeList = dynamic_cast<TreeInterfaceTypeList *>((*stack)[n - 2]);
+  assert(t->interfaceTypeList);
+  t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
+  assert(t->classBody);
+  stack->pop_back();
+  stack->pop_back();
+  stack->pop_back();
+  stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
 }
@@ -856,6 +969,8 @@ void parserASTInterfaceTypeList_InterfaceType(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceType);
   auto t = new TreeInterfaceTypeList;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTInterfaceTypeListVariants::InterfaceType;
   t->interfaceType = dynamic_cast<TreeInterfaceType *>((*stack)[n - 1]);
   assert(t->interfaceType);
@@ -870,6 +985,8 @@ void parserASTInterfaceTypeList_InterfaceTypeListComInterfaceType(vector<Tree *>
   assert((*stack)[n - 2]->type == NonTerminalType::InterfaceTypeList);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceType);
   auto t = new TreeInterfaceTypeList;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTInterfaceTypeListVariants::InterfaceTypeListComInterfaceType;
   t->interfaceTypeList = dynamic_cast<TreeInterfaceTypeList *>((*stack)[n - 2]);
   assert(t->interfaceTypeList);
@@ -885,86 +1002,70 @@ void parserASTClassBody_LCBrRCBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreeClassBody;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTClassBodyVariants::LCBrRCBr;
   stack->push_back(t);
 }
 
-// ClassBody -> { ClassBodyDeclarations } 
-void parserASTClassBody_LCBrClassBodyDeclarationsRCBr(vector<Tree *> *stack) {
+// ClassBody -> { ClassMemberDeclarations } 
+void parserASTClassBody_LCBrClassMemberDeclarationsRCBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::ClassBodyDeclarations);
+  assert((*stack)[n - 1]->type == NonTerminalType::ClassMemberDeclarations);
   auto t = new TreeClassBody;
-  t->variant = NTClassBodyVariants::LCBrClassBodyDeclarationsRCBr;
-  t->classBodyDeclarations = dynamic_cast<TreeClassBodyDeclarations *>((*stack)[n - 1]);
-  assert(t->classBodyDeclarations);
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
+  t->variant = NTClassBodyVariants::LCBrClassMemberDeclarationsRCBr;
+  t->classMemberDeclarations = dynamic_cast<TreeClassMemberDeclarations *>((*stack)[n - 1]);
+  assert(t->classMemberDeclarations);
   stack->pop_back();
   stack->push_back(t);
 }
 
-// ClassBodyDeclarations -> ClassBodyDeclaration 
-void parserASTClassBodyDeclarations_ClassBodyDeclaration(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::ClassBodyDeclaration);
-  auto t = new TreeClassBodyDeclarations;
-  t->variant = NTClassBodyDeclarationsVariants::ClassBodyDeclaration;
-  t->classBodyDeclaration = dynamic_cast<TreeClassBodyDeclaration *>((*stack)[n - 1]);
-  assert(t->classBodyDeclaration);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ClassBodyDeclarations -> ClassBodyDeclarations ClassBodyDeclaration 
-void parserASTClassBodyDeclarations_ClassBodyDeclarationsClassBodyDeclaration(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::ClassBodyDeclarations);
-  assert((*stack)[n - 1]->type == NonTerminalType::ClassBodyDeclaration);
-  auto t = new TreeClassBodyDeclarations;
-  t->variant = NTClassBodyDeclarationsVariants::ClassBodyDeclarationsClassBodyDeclaration;
-  t->classBodyDeclarations = dynamic_cast<TreeClassBodyDeclarations *>((*stack)[n - 2]);
-  assert(t->classBodyDeclarations);
-  t->classBodyDeclaration = dynamic_cast<TreeClassBodyDeclaration *>((*stack)[n - 1]);
-  assert(t->classBodyDeclaration);
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ClassBodyDeclaration -> ClassMemberDeclaration 
-void parserASTClassBodyDeclaration_ClassMemberDeclaration(vector<Tree *> *stack) {
+// ClassMemberDeclarations -> ClassMemberDeclaration 
+void parserASTClassMemberDeclarations_ClassMemberDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassMemberDeclaration);
-  auto t = new TreeClassBodyDeclaration;
-  t->variant = NTClassBodyDeclarationVariants::ClassMemberDeclaration;
+  auto t = new TreeClassMemberDeclarations;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
+  t->variant = NTClassMemberDeclarationsVariants::ClassMemberDeclaration;
   t->classMemberDeclaration = dynamic_cast<TreeClassMemberDeclaration *>((*stack)[n - 1]);
   assert(t->classMemberDeclaration);
   stack->pop_back();
   stack->push_back(t);
 }
 
-// ClassBodyDeclaration -> StaticInitializer 
-void parserASTClassBodyDeclaration_StaticInitializer(vector<Tree *> *stack) {
+// ClassMemberDeclarations -> ClassMemberDeclarations ClassMemberDeclaration 
+void parserASTClassMemberDeclarations_ClassMemberDeclarationsClassMemberDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::StaticInitializer);
-  auto t = new TreeClassBodyDeclaration;
-  t->variant = NTClassBodyDeclarationVariants::StaticInitializer;
-  t->staticInitializer = dynamic_cast<TreeStaticInitializer *>((*stack)[n - 1]);
-  assert(t->staticInitializer);
+  assert(n >= 2);
+  assert((*stack)[n - 2]->type == NonTerminalType::ClassMemberDeclarations);
+  assert((*stack)[n - 1]->type == NonTerminalType::ClassMemberDeclaration);
+  auto t = new TreeClassMemberDeclarations;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
+  t->variant = NTClassMemberDeclarationsVariants::ClassMemberDeclarationsClassMemberDeclaration;
+  t->classMemberDeclarations = dynamic_cast<TreeClassMemberDeclarations *>((*stack)[n - 2]);
+  assert(t->classMemberDeclarations);
+  t->classMemberDeclaration = dynamic_cast<TreeClassMemberDeclaration *>((*stack)[n - 1]);
+  assert(t->classMemberDeclaration);
+  stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
 }
 
-// ClassBodyDeclaration -> ConstructorDeclaration 
-void parserASTClassBodyDeclaration_ConstructorDeclaration(vector<Tree *> *stack) {
+// ClassMemberDeclaration -> ConstructorDeclaration 
+void parserASTClassMemberDeclaration_ConstructorDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ConstructorDeclaration);
-  auto t = new TreeClassBodyDeclaration;
-  t->variant = NTClassBodyDeclarationVariants::ConstructorDeclaration;
+  auto t = new TreeClassMemberDeclaration;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
+  t->variant = NTClassMemberDeclarationVariants::ConstructorDeclaration;
   t->constructorDeclaration = dynamic_cast<TreeConstructorDeclaration *>((*stack)[n - 1]);
   assert(t->constructorDeclaration);
   stack->pop_back();
@@ -977,6 +1078,8 @@ void parserASTClassMemberDeclaration_FieldDeclaration(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::FieldDeclaration);
   auto t = new TreeClassMemberDeclaration;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTClassMemberDeclarationVariants::FieldDeclaration;
   t->fieldDeclaration = dynamic_cast<TreeFieldDeclaration *>((*stack)[n - 1]);
   assert(t->fieldDeclaration);
@@ -990,6 +1093,8 @@ void parserASTClassMemberDeclaration_MethodDeclaration(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::MethodDeclaration);
   auto t = new TreeClassMemberDeclaration;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTClassMemberDeclarationVariants::MethodDeclaration;
   t->methodDeclaration = dynamic_cast<TreeMethodDeclaration *>((*stack)[n - 1]);
   assert(t->methodDeclaration);
@@ -1004,6 +1109,8 @@ void parserASTFieldDeclaration_TypeVariableDeclaratorSCol(vector<Tree *> *stack)
   assert((*stack)[n - 2]->type == NonTerminalType::Type);
   assert((*stack)[n - 1]->type == NonTerminalType::VariableDeclarator);
   auto t = new TreeFieldDeclaration;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTFieldDeclarationVariants::TypeVariableDeclaratorSCol;
   t->type = dynamic_cast<TreeType *>((*stack)[n - 2]);
   assert(t->type);
@@ -1022,6 +1129,8 @@ void parserASTFieldDeclaration_ModifiersTypeVariableDeclaratorSCol(vector<Tree *
   assert((*stack)[n - 2]->type == NonTerminalType::Type);
   assert((*stack)[n - 1]->type == NonTerminalType::VariableDeclarator);
   auto t = new TreeFieldDeclaration;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTFieldDeclarationVariants::ModifiersTypeVariableDeclaratorSCol;
   t->modifiers = dynamic_cast<TreeModifiers *>((*stack)[n - 3]);
   assert(t->modifiers);
@@ -1035,80 +1144,36 @@ void parserASTFieldDeclaration_ModifiersTypeVariableDeclaratorSCol(vector<Tree *
   stack->push_back(t);
 }
 
-// VariableDeclarator -> VariableDeclaratorId 
-void parserASTVariableDeclarator_VariableDeclaratorId(vector<Tree *> *stack) {
+// VariableDeclarator -> Identifier 
+void parserASTVariableDeclarator_Identifier(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::VariableDeclaratorId);
+  assert((*stack)[n - 1]->type == NonTerminalType::Identifier);
   auto t = new TreeVariableDeclarator;
-  t->variant = NTVariableDeclaratorVariants::VariableDeclaratorId;
-  t->variableDeclaratorId = dynamic_cast<TreeVariableDeclaratorId *>((*stack)[n - 1]);
-  assert(t->variableDeclaratorId);
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
+  t->variant = NTVariableDeclaratorVariants::Identifier;
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 1]);
+  assert(t->identifier);
   stack->pop_back();
   stack->push_back(t);
 }
 
-// VariableDeclarator -> VariableDeclaratorId = VariableInitializer 
-void parserASTVariableDeclarator_VariableDeclaratorIdEqVariableInitializer(vector<Tree *> *stack) {
+// VariableDeclarator -> Identifier = Expression 
+void parserASTVariableDeclarator_IdentifierEqExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::VariableDeclaratorId);
-  assert((*stack)[n - 1]->type == NonTerminalType::VariableInitializer);
-  auto t = new TreeVariableDeclarator;
-  t->variant = NTVariableDeclaratorVariants::VariableDeclaratorIdEqVariableInitializer;
-  t->variableDeclaratorId = dynamic_cast<TreeVariableDeclaratorId *>((*stack)[n - 2]);
-  assert(t->variableDeclaratorId);
-  t->variableInitializer = dynamic_cast<TreeVariableInitializer *>((*stack)[n - 1]);
-  assert(t->variableInitializer);
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// VariableDeclaratorId -> Identifier 
-void parserASTVariableDeclaratorId_Identifier(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 0);
-  auto t = new TreeVariableDeclaratorId;
-  t->variant = NTVariableDeclaratorIdVariants::Identifier;
-  stack->push_back(t);
-}
-
-// VariableDeclaratorId -> VariableDeclaratorId [ ] 
-void parserASTVariableDeclaratorId_VariableDeclaratorIdLSBrRSBr(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::VariableDeclaratorId);
-  auto t = new TreeVariableDeclaratorId;
-  t->variant = NTVariableDeclaratorIdVariants::VariableDeclaratorIdLSBrRSBr;
-  t->variableDeclaratorId = dynamic_cast<TreeVariableDeclaratorId *>((*stack)[n - 1]);
-  assert(t->variableDeclaratorId);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// VariableInitializer -> Expression 
-void parserASTVariableInitializer_Expression(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
+  assert((*stack)[n - 2]->type == NonTerminalType::Identifier);
   assert((*stack)[n - 1]->type == NonTerminalType::Expression);
-  auto t = new TreeVariableInitializer;
-  t->variant = NTVariableInitializerVariants::Expression;
+  auto t = new TreeVariableDeclarator;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
+  t->variant = NTVariableDeclaratorVariants::IdentifierEqExpression;
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 2]);
+  assert(t->identifier);
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 1]);
   assert(t->expression);
   stack->pop_back();
-  stack->push_back(t);
-}
-
-// VariableInitializer -> ArrayInitializer 
-void parserASTVariableInitializer_ArrayInitializer(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::ArrayInitializer);
-  auto t = new TreeVariableInitializer;
-  t->variant = NTVariableInitializerVariants::ArrayInitializer;
-  t->arrayInitializer = dynamic_cast<TreeArrayInitializer *>((*stack)[n - 1]);
-  assert(t->arrayInitializer);
   stack->pop_back();
   stack->push_back(t);
 }
@@ -1120,6 +1185,8 @@ void parserASTMethodDeclaration_MethodHeaderMethodBody(vector<Tree *> *stack) {
   assert((*stack)[n - 2]->type == NonTerminalType::MethodHeader);
   assert((*stack)[n - 1]->type == NonTerminalType::MethodBody);
   auto t = new TreeMethodDeclaration;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTMethodDeclarationVariants::MethodHeaderMethodBody;
   t->methodHeader = dynamic_cast<TreeMethodHeader *>((*stack)[n - 2]);
   assert(t->methodHeader);
@@ -1137,6 +1204,8 @@ void parserASTMethodHeader_TypeMethodDeclarator(vector<Tree *> *stack) {
   assert((*stack)[n - 2]->type == NonTerminalType::Type);
   assert((*stack)[n - 1]->type == NonTerminalType::MethodDeclarator);
   auto t = new TreeMethodHeader;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTMethodHeaderVariants::TypeMethodDeclarator;
   t->type = dynamic_cast<TreeType *>((*stack)[n - 2]);
   assert(t->type);
@@ -1155,6 +1224,8 @@ void parserASTMethodHeader_ModifiersTypeMethodDeclarator(vector<Tree *> *stack) 
   assert((*stack)[n - 2]->type == NonTerminalType::Type);
   assert((*stack)[n - 1]->type == NonTerminalType::MethodDeclarator);
   auto t = new TreeMethodHeader;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTMethodHeaderVariants::ModifiersTypeMethodDeclarator;
   t->modifiers = dynamic_cast<TreeModifiers *>((*stack)[n - 3]);
   assert(t->modifiers);
@@ -1174,6 +1245,8 @@ void parserASTMethodHeader_VoidMethodDeclarator(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::MethodDeclarator);
   auto t = new TreeMethodHeader;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTMethodHeaderVariants::VoidMethodDeclarator;
   t->methodDeclarator = dynamic_cast<TreeMethodDeclarator *>((*stack)[n - 1]);
   assert(t->methodDeclarator);
@@ -1188,6 +1261,8 @@ void parserASTMethodHeader_ModifiersVoidMethodDeclarator(vector<Tree *> *stack) 
   assert((*stack)[n - 2]->type == NonTerminalType::Modifiers);
   assert((*stack)[n - 1]->type == NonTerminalType::MethodDeclarator);
   auto t = new TreeMethodHeader;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTMethodHeaderVariants::ModifiersVoidMethodDeclarator;
   t->modifiers = dynamic_cast<TreeModifiers *>((*stack)[n - 2]);
   assert(t->modifiers);
@@ -1201,34 +1276,33 @@ void parserASTMethodHeader_ModifiersVoidMethodDeclarator(vector<Tree *> *stack) 
 // MethodDeclarator -> Identifier ( ) 
 void parserASTMethodDeclarator_IdentifierLParRPar(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 0);
+  assert(n >= 1);
+  assert((*stack)[n - 1]->type == NonTerminalType::Identifier);
   auto t = new TreeMethodDeclarator;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTMethodDeclaratorVariants::IdentifierLParRPar;
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 1]);
+  assert(t->identifier);
+  stack->pop_back();
   stack->push_back(t);
 }
 
 // MethodDeclarator -> Identifier ( FormalParameterList ) 
 void parserASTMethodDeclarator_IdentifierLParFormalParameterListRPar(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 1);
+  assert(n >= 2);
+  assert((*stack)[n - 2]->type == NonTerminalType::Identifier);
   assert((*stack)[n - 1]->type == NonTerminalType::FormalParameterList);
   auto t = new TreeMethodDeclarator;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTMethodDeclaratorVariants::IdentifierLParFormalParameterListRPar;
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 2]);
+  assert(t->identifier);
   t->formalParameterList = dynamic_cast<TreeFormalParameterList *>((*stack)[n - 1]);
   assert(t->formalParameterList);
   stack->pop_back();
-  stack->push_back(t);
-}
-
-// MethodDeclarator -> MethodDeclarator [ ] 
-void parserASTMethodDeclarator_MethodDeclaratorLSBrRSBr(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::MethodDeclarator);
-  auto t = new TreeMethodDeclarator;
-  t->variant = NTMethodDeclaratorVariants::MethodDeclaratorLSBrRSBr;
-  t->methodDeclarator = dynamic_cast<TreeMethodDeclarator *>((*stack)[n - 1]);
-  assert(t->methodDeclarator);
   stack->pop_back();
   stack->push_back(t);
 }
@@ -1239,6 +1313,8 @@ void parserASTFormalParameterList_FormalParameter(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::FormalParameter);
   auto t = new TreeFormalParameterList;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTFormalParameterListVariants::FormalParameter;
   t->formalParameter = dynamic_cast<TreeFormalParameter *>((*stack)[n - 1]);
   assert(t->formalParameter);
@@ -1253,6 +1329,8 @@ void parserASTFormalParameterList_FormalParameterListComFormalParameter(vector<T
   assert((*stack)[n - 2]->type == NonTerminalType::FormalParameterList);
   assert((*stack)[n - 1]->type == NonTerminalType::FormalParameter);
   auto t = new TreeFormalParameterList;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTFormalParameterListVariants::FormalParameterListComFormalParameter;
   t->formalParameterList = dynamic_cast<TreeFormalParameterList *>((*stack)[n - 2]);
   assert(t->formalParameterList);
@@ -1263,18 +1341,20 @@ void parserASTFormalParameterList_FormalParameterListComFormalParameter(vector<T
   stack->push_back(t);
 }
 
-// FormalParameter -> Type VariableDeclaratorId 
-void parserASTFormalParameter_TypeVariableDeclaratorId(vector<Tree *> *stack) {
+// FormalParameter -> Type Identifier 
+void parserASTFormalParameter_TypeIdentifier(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Type);
-  assert((*stack)[n - 1]->type == NonTerminalType::VariableDeclaratorId);
+  assert((*stack)[n - 1]->type == NonTerminalType::Identifier);
   auto t = new TreeFormalParameter;
-  t->variant = NTFormalParameterVariants::TypeVariableDeclaratorId;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
+  t->variant = NTFormalParameterVariants::TypeIdentifier;
   t->type = dynamic_cast<TreeType *>((*stack)[n - 2]);
   assert(t->type);
-  t->variableDeclaratorId = dynamic_cast<TreeVariableDeclaratorId *>((*stack)[n - 1]);
-  assert(t->variableDeclaratorId);
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 1]);
+  assert(t->identifier);
   stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
@@ -1286,6 +1366,8 @@ void parserASTClassTypeList_ClassType(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassType);
   auto t = new TreeClassTypeList;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTClassTypeListVariants::ClassType;
   t->classType = dynamic_cast<TreeClassType *>((*stack)[n - 1]);
   assert(t->classType);
@@ -1300,6 +1382,8 @@ void parserASTClassTypeList_ClassTypeListComClassType(vector<Tree *> *stack) {
   assert((*stack)[n - 2]->type == NonTerminalType::ClassTypeList);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassType);
   auto t = new TreeClassTypeList;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTClassTypeListVariants::ClassTypeListComClassType;
   t->classTypeList = dynamic_cast<TreeClassTypeList *>((*stack)[n - 2]);
   assert(t->classTypeList);
@@ -1316,6 +1400,8 @@ void parserASTMethodBody_Block(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Block);
   auto t = new TreeMethodBody;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTMethodBodyVariants::Block;
   t->block = dynamic_cast<TreeBlock *>((*stack)[n - 1]);
   assert(t->block);
@@ -1328,20 +1414,9 @@ void parserASTMethodBody_SCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreeMethodBody;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTMethodBodyVariants::SCol;
-  stack->push_back(t);
-}
-
-// StaticInitializer -> static Block 
-void parserASTStaticInitializer_StaticBlock(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::Block);
-  auto t = new TreeStaticInitializer;
-  t->variant = NTStaticInitializerVariants::StaticBlock;
-  t->block = dynamic_cast<TreeBlock *>((*stack)[n - 1]);
-  assert(t->block);
-  stack->pop_back();
   stack->push_back(t);
 }
 
@@ -1352,6 +1427,8 @@ void parserASTConstructorDeclaration_ConstructorDeclaratorConstructorBody(vector
   assert((*stack)[n - 2]->type == NonTerminalType::ConstructorDeclarator);
   assert((*stack)[n - 1]->type == NonTerminalType::ConstructorBody);
   auto t = new TreeConstructorDeclaration;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTConstructorDeclarationVariants::ConstructorDeclaratorConstructorBody;
   t->constructorDeclarator = dynamic_cast<TreeConstructorDeclarator *>((*stack)[n - 2]);
   assert(t->constructorDeclarator);
@@ -1370,6 +1447,8 @@ void parserASTConstructorDeclaration_ModifiersConstructorDeclaratorConstructorBo
   assert((*stack)[n - 2]->type == NonTerminalType::ConstructorDeclarator);
   assert((*stack)[n - 1]->type == NonTerminalType::ConstructorBody);
   auto t = new TreeConstructorDeclaration;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTConstructorDeclarationVariants::ModifiersConstructorDeclaratorConstructorBody;
   t->modifiers = dynamic_cast<TreeModifiers *>((*stack)[n - 3]);
   assert(t->modifiers);
@@ -1389,6 +1468,8 @@ void parserASTConstructorDeclarator_SimpleNameLParRPar(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::SimpleName);
   auto t = new TreeConstructorDeclarator;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTConstructorDeclaratorVariants::SimpleNameLParRPar;
   t->simpleName = dynamic_cast<TreeSimpleName *>((*stack)[n - 1]);
   assert(t->simpleName);
@@ -1403,6 +1484,8 @@ void parserASTConstructorDeclarator_SimpleNameLParFormalParameterListRPar(vector
   assert((*stack)[n - 2]->type == NonTerminalType::SimpleName);
   assert((*stack)[n - 1]->type == NonTerminalType::FormalParameterList);
   auto t = new TreeConstructorDeclarator;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTConstructorDeclaratorVariants::SimpleNameLParFormalParameterListRPar;
   t->simpleName = dynamic_cast<TreeSimpleName *>((*stack)[n - 2]);
   assert(t->simpleName);
@@ -1418,6 +1501,8 @@ void parserASTConstructorBody_LCBrRCBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreeConstructorBody;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTConstructorBodyVariants::LCBrRCBr;
   stack->push_back(t);
 }
@@ -1428,6 +1513,8 @@ void parserASTConstructorBody_LCBrBlockStatementsRCBr(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::BlockStatements);
   auto t = new TreeConstructorBody;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTConstructorBodyVariants::LCBrBlockStatementsRCBr;
   t->blockStatements = dynamic_cast<TreeBlockStatements *>((*stack)[n - 1]);
   assert(t->blockStatements);
@@ -1438,12 +1525,18 @@ void parserASTConstructorBody_LCBrBlockStatementsRCBr(vector<Tree *> *stack) {
 // InterfaceDeclaration -> interface Identifier InterfaceBody 
 void parserASTInterfaceDeclaration_interfaceIdentifierInterfaceBody(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 1);
+  assert(n >= 2);
+  assert((*stack)[n - 2]->type == NonTerminalType::Identifier);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceBody);
   auto t = new TreeInterfaceDeclaration;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTInterfaceDeclarationVariants::interfaceIdentifierInterfaceBody;
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 2]);
+  assert(t->identifier);
   t->interfaceBody = dynamic_cast<TreeInterfaceBody *>((*stack)[n - 1]);
   assert(t->interfaceBody);
+  stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
 }
@@ -1451,15 +1544,21 @@ void parserASTInterfaceDeclaration_interfaceIdentifierInterfaceBody(vector<Tree 
 // InterfaceDeclaration -> Modifiers interface Identifier InterfaceBody 
 void parserASTInterfaceDeclaration_ModifiersinterfaceIdentifierInterfaceBody(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::Modifiers);
+  assert(n >= 3);
+  assert((*stack)[n - 3]->type == NonTerminalType::Modifiers);
+  assert((*stack)[n - 2]->type == NonTerminalType::Identifier);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceBody);
   auto t = new TreeInterfaceDeclaration;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTInterfaceDeclarationVariants::ModifiersinterfaceIdentifierInterfaceBody;
-  t->modifiers = dynamic_cast<TreeModifiers *>((*stack)[n - 2]);
+  t->modifiers = dynamic_cast<TreeModifiers *>((*stack)[n - 3]);
   assert(t->modifiers);
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 2]);
+  assert(t->identifier);
   t->interfaceBody = dynamic_cast<TreeInterfaceBody *>((*stack)[n - 1]);
   assert(t->interfaceBody);
+  stack->pop_back();
   stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
@@ -1468,15 +1567,21 @@ void parserASTInterfaceDeclaration_ModifiersinterfaceIdentifierInterfaceBody(vec
 // InterfaceDeclaration -> interface Identifier ExtendsInterfaces InterfaceBody 
 void parserASTInterfaceDeclaration_interfaceIdentifierExtendsInterfacesInterfaceBody(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 2);
+  assert(n >= 3);
+  assert((*stack)[n - 3]->type == NonTerminalType::Identifier);
   assert((*stack)[n - 2]->type == NonTerminalType::ExtendsInterfaces);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceBody);
   auto t = new TreeInterfaceDeclaration;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTInterfaceDeclarationVariants::interfaceIdentifierExtendsInterfacesInterfaceBody;
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 3]);
+  assert(t->identifier);
   t->extendsInterfaces = dynamic_cast<TreeExtendsInterfaces *>((*stack)[n - 2]);
   assert(t->extendsInterfaces);
   t->interfaceBody = dynamic_cast<TreeInterfaceBody *>((*stack)[n - 1]);
   assert(t->interfaceBody);
+  stack->pop_back();
   stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
@@ -1485,18 +1590,24 @@ void parserASTInterfaceDeclaration_interfaceIdentifierExtendsInterfacesInterface
 // InterfaceDeclaration -> Modifiers interface Identifier ExtendsInterfaces InterfaceBody 
 void parserASTInterfaceDeclaration_ModifiersinterfaceIdentifierExtendsInterfacesInterfaceBody(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 3);
-  assert((*stack)[n - 3]->type == NonTerminalType::Modifiers);
+  assert(n >= 4);
+  assert((*stack)[n - 4]->type == NonTerminalType::Modifiers);
+  assert((*stack)[n - 3]->type == NonTerminalType::Identifier);
   assert((*stack)[n - 2]->type == NonTerminalType::ExtendsInterfaces);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceBody);
   auto t = new TreeInterfaceDeclaration;
+  parserASTSetTopParents(stack, 4, t);
+  parserASTPopulateChildrenList(t, *stack, 4);
   t->variant = NTInterfaceDeclarationVariants::ModifiersinterfaceIdentifierExtendsInterfacesInterfaceBody;
-  t->modifiers = dynamic_cast<TreeModifiers *>((*stack)[n - 3]);
+  t->modifiers = dynamic_cast<TreeModifiers *>((*stack)[n - 4]);
   assert(t->modifiers);
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 3]);
+  assert(t->identifier);
   t->extendsInterfaces = dynamic_cast<TreeExtendsInterfaces *>((*stack)[n - 2]);
   assert(t->extendsInterfaces);
   t->interfaceBody = dynamic_cast<TreeInterfaceBody *>((*stack)[n - 1]);
   assert(t->interfaceBody);
+  stack->pop_back();
   stack->pop_back();
   stack->pop_back();
   stack->pop_back();
@@ -1509,6 +1620,8 @@ void parserASTExtendsInterfaces_extendsInterfaceType(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceType);
   auto t = new TreeExtendsInterfaces;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTExtendsInterfacesVariants::extendsInterfaceType;
   t->interfaceType = dynamic_cast<TreeInterfaceType *>((*stack)[n - 1]);
   assert(t->interfaceType);
@@ -1523,6 +1636,8 @@ void parserASTExtendsInterfaces_ExtendsInterfacesComInterfaceType(vector<Tree *>
   assert((*stack)[n - 2]->type == NonTerminalType::ExtendsInterfaces);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceType);
   auto t = new TreeExtendsInterfaces;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTExtendsInterfacesVariants::ExtendsInterfacesComInterfaceType;
   t->extendsInterfaces = dynamic_cast<TreeExtendsInterfaces *>((*stack)[n - 2]);
   assert(t->extendsInterfaces);
@@ -1538,6 +1653,8 @@ void parserASTInterfaceBody_LCBrRCBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreeInterfaceBody;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTInterfaceBodyVariants::LCBrRCBr;
   stack->push_back(t);
 }
@@ -1548,6 +1665,8 @@ void parserASTInterfaceBody_LCBrInterfaceMemberDeclarationsRCBr(vector<Tree *> *
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceMemberDeclarations);
   auto t = new TreeInterfaceBody;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTInterfaceBodyVariants::LCBrInterfaceMemberDeclarationsRCBr;
   t->interfaceMemberDeclarations = dynamic_cast<TreeInterfaceMemberDeclarations *>((*stack)[n - 1]);
   assert(t->interfaceMemberDeclarations);
@@ -1561,6 +1680,8 @@ void parserASTInterfaceMemberDeclarations_InterfaceMemberDeclaration(vector<Tree
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceMemberDeclaration);
   auto t = new TreeInterfaceMemberDeclarations;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTInterfaceMemberDeclarationsVariants::InterfaceMemberDeclaration;
   t->interfaceMemberDeclaration = dynamic_cast<TreeInterfaceMemberDeclaration *>((*stack)[n - 1]);
   assert(t->interfaceMemberDeclaration);
@@ -1575,6 +1696,8 @@ void parserASTInterfaceMemberDeclarations_InterfaceMemberDeclarationsInterfaceMe
   assert((*stack)[n - 2]->type == NonTerminalType::InterfaceMemberDeclarations);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceMemberDeclaration);
   auto t = new TreeInterfaceMemberDeclarations;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTInterfaceMemberDeclarationsVariants::InterfaceMemberDeclarationsInterfaceMemberDeclaration;
   t->interfaceMemberDeclarations = dynamic_cast<TreeInterfaceMemberDeclarations *>((*stack)[n - 2]);
   assert(t->interfaceMemberDeclarations);
@@ -1585,41 +1708,17 @@ void parserASTInterfaceMemberDeclarations_InterfaceMemberDeclarationsInterfaceMe
   stack->push_back(t);
 }
 
-// InterfaceMemberDeclaration -> ConstantDeclaration 
-void parserASTInterfaceMemberDeclaration_ConstantDeclaration(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::ConstantDeclaration);
-  auto t = new TreeInterfaceMemberDeclaration;
-  t->variant = NTInterfaceMemberDeclarationVariants::ConstantDeclaration;
-  t->constantDeclaration = dynamic_cast<TreeConstantDeclaration *>((*stack)[n - 1]);
-  assert(t->constantDeclaration);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
 // InterfaceMemberDeclaration -> AbstractMethodDeclaration 
 void parserASTInterfaceMemberDeclaration_AbstractMethodDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::AbstractMethodDeclaration);
   auto t = new TreeInterfaceMemberDeclaration;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTInterfaceMemberDeclarationVariants::AbstractMethodDeclaration;
   t->abstractMethodDeclaration = dynamic_cast<TreeAbstractMethodDeclaration *>((*stack)[n - 1]);
   assert(t->abstractMethodDeclaration);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ConstantDeclaration -> FieldDeclaration 
-void parserASTConstantDeclaration_FieldDeclaration(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::FieldDeclaration);
-  auto t = new TreeConstantDeclaration;
-  t->variant = NTConstantDeclarationVariants::FieldDeclaration;
-  t->fieldDeclaration = dynamic_cast<TreeFieldDeclaration *>((*stack)[n - 1]);
-  assert(t->fieldDeclaration);
   stack->pop_back();
   stack->push_back(t);
 }
@@ -1630,83 +1729,11 @@ void parserASTAbstractMethodDeclaration_MethodHeaderSCol(vector<Tree *> *stack) 
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::MethodHeader);
   auto t = new TreeAbstractMethodDeclaration;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTAbstractMethodDeclarationVariants::MethodHeaderSCol;
   t->methodHeader = dynamic_cast<TreeMethodHeader *>((*stack)[n - 1]);
   assert(t->methodHeader);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ArrayInitializer -> { } 
-void parserASTArrayInitializer_LCBrRCBr(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 0);
-  auto t = new TreeArrayInitializer;
-  t->variant = NTArrayInitializerVariants::LCBrRCBr;
-  stack->push_back(t);
-}
-
-// ArrayInitializer -> { VariableInitializers } 
-void parserASTArrayInitializer_LCBrVariableInitializersRCBr(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::VariableInitializers);
-  auto t = new TreeArrayInitializer;
-  t->variant = NTArrayInitializerVariants::LCBrVariableInitializersRCBr;
-  t->variableInitializers = dynamic_cast<TreeVariableInitializers *>((*stack)[n - 1]);
-  assert(t->variableInitializers);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ArrayInitializer -> { , } 
-void parserASTArrayInitializer_LCBrComRCBr(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 0);
-  auto t = new TreeArrayInitializer;
-  t->variant = NTArrayInitializerVariants::LCBrComRCBr;
-  stack->push_back(t);
-}
-
-// ArrayInitializer -> { VariableInitializers , } 
-void parserASTArrayInitializer_LCBrVariableInitializersComRCBr(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::VariableInitializers);
-  auto t = new TreeArrayInitializer;
-  t->variant = NTArrayInitializerVariants::LCBrVariableInitializersComRCBr;
-  t->variableInitializers = dynamic_cast<TreeVariableInitializers *>((*stack)[n - 1]);
-  assert(t->variableInitializers);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// VariableInitializers -> VariableInitializer 
-void parserASTVariableInitializers_VariableInitializer(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::VariableInitializer);
-  auto t = new TreeVariableInitializers;
-  t->variant = NTVariableInitializersVariants::VariableInitializer;
-  t->variableInitializer = dynamic_cast<TreeVariableInitializer *>((*stack)[n - 1]);
-  assert(t->variableInitializer);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// VariableInitializers -> VariableInitializers , VariableInitializer 
-void parserASTVariableInitializers_VariableInitializersComVariableInitializer(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::VariableInitializers);
-  assert((*stack)[n - 1]->type == NonTerminalType::VariableInitializer);
-  auto t = new TreeVariableInitializers;
-  t->variant = NTVariableInitializersVariants::VariableInitializersComVariableInitializer;
-  t->variableInitializers = dynamic_cast<TreeVariableInitializers *>((*stack)[n - 2]);
-  assert(t->variableInitializers);
-  t->variableInitializer = dynamic_cast<TreeVariableInitializer *>((*stack)[n - 1]);
-  assert(t->variableInitializer);
-  stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
 }
@@ -1716,6 +1743,8 @@ void parserASTBlock_LCBrRCBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreeBlock;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTBlockVariants::LCBrRCBr;
   stack->push_back(t);
 }
@@ -1726,6 +1755,8 @@ void parserASTBlock_LCBrBlockStatementsRCBr(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::BlockStatements);
   auto t = new TreeBlock;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTBlockVariants::LCBrBlockStatementsRCBr;
   t->blockStatements = dynamic_cast<TreeBlockStatements *>((*stack)[n - 1]);
   assert(t->blockStatements);
@@ -1739,6 +1770,8 @@ void parserASTBlockStatements_BlockStatement(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::BlockStatement);
   auto t = new TreeBlockStatements;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTBlockStatementsVariants::BlockStatement;
   t->blockStatement = dynamic_cast<TreeBlockStatement *>((*stack)[n - 1]);
   assert(t->blockStatement);
@@ -1753,6 +1786,8 @@ void parserASTBlockStatements_BlockStatementsBlockStatement(vector<Tree *> *stac
   assert((*stack)[n - 2]->type == NonTerminalType::BlockStatements);
   assert((*stack)[n - 1]->type == NonTerminalType::BlockStatement);
   auto t = new TreeBlockStatements;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTBlockStatementsVariants::BlockStatementsBlockStatement;
   t->blockStatements = dynamic_cast<TreeBlockStatements *>((*stack)[n - 2]);
   assert(t->blockStatements);
@@ -1769,6 +1804,8 @@ void parserASTBlockStatement_LocalVariableDeclarationStatement(vector<Tree *> *s
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::LocalVariableDeclarationStatement);
   auto t = new TreeBlockStatement;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTBlockStatementVariants::LocalVariableDeclarationStatement;
   t->localVariableDeclarationStatement = dynamic_cast<TreeLocalVariableDeclarationStatement *>((*stack)[n - 1]);
   assert(t->localVariableDeclarationStatement);
@@ -1782,6 +1819,8 @@ void parserASTBlockStatement_Statement(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Statement);
   auto t = new TreeBlockStatement;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTBlockStatementVariants::Statement;
   t->statement = dynamic_cast<TreeStatement *>((*stack)[n - 1]);
   assert(t->statement);
@@ -1795,6 +1834,8 @@ void parserASTLocalVariableDeclarationStatement_LocalVariableDeclarationSCol(vec
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::LocalVariableDeclaration);
   auto t = new TreeLocalVariableDeclarationStatement;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTLocalVariableDeclarationStatementVariants::LocalVariableDeclarationSCol;
   t->localVariableDeclaration = dynamic_cast<TreeLocalVariableDeclaration *>((*stack)[n - 1]);
   assert(t->localVariableDeclaration);
@@ -1809,6 +1850,8 @@ void parserASTLocalVariableDeclaration_TypeVariableDeclarator(vector<Tree *> *st
   assert((*stack)[n - 2]->type == NonTerminalType::Type);
   assert((*stack)[n - 1]->type == NonTerminalType::VariableDeclarator);
   auto t = new TreeLocalVariableDeclaration;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTLocalVariableDeclarationVariants::TypeVariableDeclarator;
   t->type = dynamic_cast<TreeType *>((*stack)[n - 2]);
   assert(t->type);
@@ -1825,6 +1868,8 @@ void parserASTStatement_StatementWithoutTrailingSubstatement(vector<Tree *> *sta
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementWithoutTrailingSubstatement);
   auto t = new TreeStatement;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementVariants::StatementWithoutTrailingSubstatement;
   t->statementWithoutTrailingSubstatement = dynamic_cast<TreeStatementWithoutTrailingSubstatement *>((*stack)[n - 1]);
   assert(t->statementWithoutTrailingSubstatement);
@@ -1838,6 +1883,8 @@ void parserASTStatement_IfThenStatement(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::IfThenStatement);
   auto t = new TreeStatement;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementVariants::IfThenStatement;
   t->ifThenStatement = dynamic_cast<TreeIfThenStatement *>((*stack)[n - 1]);
   assert(t->ifThenStatement);
@@ -1851,6 +1898,8 @@ void parserASTStatement_IfThenElseStatement(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::IfThenElseStatement);
   auto t = new TreeStatement;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementVariants::IfThenElseStatement;
   t->ifThenElseStatement = dynamic_cast<TreeIfThenElseStatement *>((*stack)[n - 1]);
   assert(t->ifThenElseStatement);
@@ -1864,6 +1913,8 @@ void parserASTStatement_WhileStatement(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::WhileStatement);
   auto t = new TreeStatement;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementVariants::WhileStatement;
   t->whileStatement = dynamic_cast<TreeWhileStatement *>((*stack)[n - 1]);
   assert(t->whileStatement);
@@ -1877,6 +1928,8 @@ void parserASTStatement_ForStatement(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ForStatement);
   auto t = new TreeStatement;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementVariants::ForStatement;
   t->forStatement = dynamic_cast<TreeForStatement *>((*stack)[n - 1]);
   assert(t->forStatement);
@@ -1890,6 +1943,8 @@ void parserASTStatementNoShortIf_StatementWithoutTrailingSubstatement(vector<Tre
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementWithoutTrailingSubstatement);
   auto t = new TreeStatementNoShortIf;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementNoShortIfVariants::StatementWithoutTrailingSubstatement;
   t->statementWithoutTrailingSubstatement = dynamic_cast<TreeStatementWithoutTrailingSubstatement *>((*stack)[n - 1]);
   assert(t->statementWithoutTrailingSubstatement);
@@ -1903,6 +1958,8 @@ void parserASTStatementNoShortIf_IfThenElseStatementNoShortIf(vector<Tree *> *st
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::IfThenElseStatementNoShortIf);
   auto t = new TreeStatementNoShortIf;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementNoShortIfVariants::IfThenElseStatementNoShortIf;
   t->ifThenElseStatementNoShortIf = dynamic_cast<TreeIfThenElseStatementNoShortIf *>((*stack)[n - 1]);
   assert(t->ifThenElseStatementNoShortIf);
@@ -1916,6 +1973,8 @@ void parserASTStatementNoShortIf_WhileStatementNoShortIf(vector<Tree *> *stack) 
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::WhileStatementNoShortIf);
   auto t = new TreeStatementNoShortIf;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementNoShortIfVariants::WhileStatementNoShortIf;
   t->whileStatementNoShortIf = dynamic_cast<TreeWhileStatementNoShortIf *>((*stack)[n - 1]);
   assert(t->whileStatementNoShortIf);
@@ -1929,6 +1988,8 @@ void parserASTStatementNoShortIf_ForStatementNoShortIf(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ForStatementNoShortIf);
   auto t = new TreeStatementNoShortIf;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementNoShortIfVariants::ForStatementNoShortIf;
   t->forStatementNoShortIf = dynamic_cast<TreeForStatementNoShortIf *>((*stack)[n - 1]);
   assert(t->forStatementNoShortIf);
@@ -1942,6 +2003,8 @@ void parserASTStatementWithoutTrailingSubstatement_Block(vector<Tree *> *stack) 
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Block);
   auto t = new TreeStatementWithoutTrailingSubstatement;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementWithoutTrailingSubstatementVariants::Block;
   t->block = dynamic_cast<TreeBlock *>((*stack)[n - 1]);
   assert(t->block);
@@ -1955,6 +2018,8 @@ void parserASTStatementWithoutTrailingSubstatement_EmptyStatement(vector<Tree *>
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::EmptyStatement);
   auto t = new TreeStatementWithoutTrailingSubstatement;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementWithoutTrailingSubstatementVariants::EmptyStatement;
   t->emptyStatement = dynamic_cast<TreeEmptyStatement *>((*stack)[n - 1]);
   assert(t->emptyStatement);
@@ -1968,6 +2033,8 @@ void parserASTStatementWithoutTrailingSubstatement_ExpressionStatement(vector<Tr
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ExpressionStatement);
   auto t = new TreeStatementWithoutTrailingSubstatement;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementWithoutTrailingSubstatementVariants::ExpressionStatement;
   t->expressionStatement = dynamic_cast<TreeExpressionStatement *>((*stack)[n - 1]);
   assert(t->expressionStatement);
@@ -1981,6 +2048,8 @@ void parserASTStatementWithoutTrailingSubstatement_ReturnStatement(vector<Tree *
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ReturnStatement);
   auto t = new TreeStatementWithoutTrailingSubstatement;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementWithoutTrailingSubstatementVariants::ReturnStatement;
   t->returnStatement = dynamic_cast<TreeReturnStatement *>((*stack)[n - 1]);
   assert(t->returnStatement);
@@ -1993,6 +2062,8 @@ void parserASTEmptyStatement_SCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreeEmptyStatement;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTEmptyStatementVariants::SCol;
   stack->push_back(t);
 }
@@ -2003,6 +2074,8 @@ void parserASTExpressionStatement_StatementExpressionSCol(vector<Tree *> *stack)
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementExpression);
   auto t = new TreeExpressionStatement;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTExpressionStatementVariants::StatementExpressionSCol;
   t->statementExpression = dynamic_cast<TreeStatementExpression *>((*stack)[n - 1]);
   assert(t->statementExpression);
@@ -2016,6 +2089,8 @@ void parserASTStatementExpression_Assignment(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Assignment);
   auto t = new TreeStatementExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementExpressionVariants::Assignment;
   t->assignment = dynamic_cast<TreeAssignment *>((*stack)[n - 1]);
   assert(t->assignment);
@@ -2029,6 +2104,8 @@ void parserASTStatementExpression_MethodInvocation(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::MethodInvocation);
   auto t = new TreeStatementExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementExpressionVariants::MethodInvocation;
   t->methodInvocation = dynamic_cast<TreeMethodInvocation *>((*stack)[n - 1]);
   assert(t->methodInvocation);
@@ -2042,6 +2119,8 @@ void parserASTStatementExpression_ClassInstanceCreationExpression(vector<Tree *>
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassInstanceCreationExpression);
   auto t = new TreeStatementExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTStatementExpressionVariants::ClassInstanceCreationExpression;
   t->classInstanceCreationExpression = dynamic_cast<TreeClassInstanceCreationExpression *>((*stack)[n - 1]);
   assert(t->classInstanceCreationExpression);
@@ -2056,6 +2135,8 @@ void parserASTIfThenStatement_IfLParExpressionRParStatement(vector<Tree *> *stac
   assert((*stack)[n - 2]->type == NonTerminalType::Expression);
   assert((*stack)[n - 1]->type == NonTerminalType::Statement);
   auto t = new TreeIfThenStatement;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTIfThenStatementVariants::IfLParExpressionRParStatement;
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 2]);
   assert(t->expression);
@@ -2074,6 +2155,8 @@ void parserASTIfThenElseStatement_IfLParExpressionRParStatementNoShortIfElseStat
   assert((*stack)[n - 2]->type == NonTerminalType::StatementNoShortIf);
   assert((*stack)[n - 1]->type == NonTerminalType::Statement);
   auto t = new TreeIfThenElseStatement;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTIfThenElseStatementVariants::IfLParExpressionRParStatementNoShortIfElseStatement;
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 3]);
   assert(t->expression);
@@ -2095,6 +2178,8 @@ void parserASTIfThenElseStatementNoShortIf_IfLParExpressionRParStatementNoShortI
   assert((*stack)[n - 2]->type == NonTerminalType::StatementNoShortIf);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementNoShortIf);
   auto t = new TreeIfThenElseStatementNoShortIf;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTIfThenElseStatementNoShortIfVariants::IfLParExpressionRParStatementNoShortIfElseStatementNoShortIf;
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 3]);
   assert(t->expression);
@@ -2115,6 +2200,8 @@ void parserASTWhileStatement_WhileLParExpressionRParStatement(vector<Tree *> *st
   assert((*stack)[n - 2]->type == NonTerminalType::Expression);
   assert((*stack)[n - 1]->type == NonTerminalType::Statement);
   auto t = new TreeWhileStatement;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTWhileStatementVariants::WhileLParExpressionRParStatement;
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 2]);
   assert(t->expression);
@@ -2132,6 +2219,8 @@ void parserASTWhileStatementNoShortIf_WhileLParExpressionRParStatementNoShortIf(
   assert((*stack)[n - 2]->type == NonTerminalType::Expression);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementNoShortIf);
   auto t = new TreeWhileStatementNoShortIf;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTWhileStatementNoShortIfVariants::WhileLParExpressionRParStatementNoShortIf;
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 2]);
   assert(t->expression);
@@ -2148,6 +2237,8 @@ void parserASTForStatement_ForLParSColSColRParStatement(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Statement);
   auto t = new TreeForStatement;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTForStatementVariants::ForLParSColSColRParStatement;
   t->statement = dynamic_cast<TreeStatement *>((*stack)[n - 1]);
   assert(t->statement);
@@ -2162,6 +2253,8 @@ void parserASTForStatement_ForLParForInitSColSColRParStatement(vector<Tree *> *s
   assert((*stack)[n - 2]->type == NonTerminalType::ForInit);
   assert((*stack)[n - 1]->type == NonTerminalType::Statement);
   auto t = new TreeForStatement;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTForStatementVariants::ForLParForInitSColSColRParStatement;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 2]);
   assert(t->forInit);
@@ -2179,6 +2272,8 @@ void parserASTForStatement_ForLParSColExpressionSColRParStatement(vector<Tree *>
   assert((*stack)[n - 2]->type == NonTerminalType::Expression);
   assert((*stack)[n - 1]->type == NonTerminalType::Statement);
   auto t = new TreeForStatement;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTForStatementVariants::ForLParSColExpressionSColRParStatement;
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 2]);
   assert(t->expression);
@@ -2197,6 +2292,8 @@ void parserASTForStatement_ForLParForInitSColExpressionSColRParStatement(vector<
   assert((*stack)[n - 2]->type == NonTerminalType::Expression);
   assert((*stack)[n - 1]->type == NonTerminalType::Statement);
   auto t = new TreeForStatement;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTForStatementVariants::ForLParForInitSColExpressionSColRParStatement;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 3]);
   assert(t->forInit);
@@ -2217,6 +2314,8 @@ void parserASTForStatement_ForLParSColSColForUpdateRParStatement(vector<Tree *> 
   assert((*stack)[n - 2]->type == NonTerminalType::ForUpdate);
   assert((*stack)[n - 1]->type == NonTerminalType::Statement);
   auto t = new TreeForStatement;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTForStatementVariants::ForLParSColSColForUpdateRParStatement;
   t->forUpdate = dynamic_cast<TreeForUpdate *>((*stack)[n - 2]);
   assert(t->forUpdate);
@@ -2235,6 +2334,8 @@ void parserASTForStatement_ForLParForInitSColSColForUpdateRParStatement(vector<T
   assert((*stack)[n - 2]->type == NonTerminalType::ForUpdate);
   assert((*stack)[n - 1]->type == NonTerminalType::Statement);
   auto t = new TreeForStatement;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTForStatementVariants::ForLParForInitSColSColForUpdateRParStatement;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 3]);
   assert(t->forInit);
@@ -2256,6 +2357,8 @@ void parserASTForStatement_ForLParSColExpressionSColForUpdateRParStatement(vecto
   assert((*stack)[n - 2]->type == NonTerminalType::ForUpdate);
   assert((*stack)[n - 1]->type == NonTerminalType::Statement);
   auto t = new TreeForStatement;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTForStatementVariants::ForLParSColExpressionSColForUpdateRParStatement;
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 3]);
   assert(t->expression);
@@ -2278,6 +2381,8 @@ void parserASTForStatement_ForLParForInitSColExpressionSColForUpdateRParStatemen
   assert((*stack)[n - 2]->type == NonTerminalType::ForUpdate);
   assert((*stack)[n - 1]->type == NonTerminalType::Statement);
   auto t = new TreeForStatement;
+  parserASTSetTopParents(stack, 4, t);
+  parserASTPopulateChildrenList(t, *stack, 4);
   t->variant = NTForStatementVariants::ForLParForInitSColExpressionSColForUpdateRParStatement;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 4]);
   assert(t->forInit);
@@ -2300,6 +2405,8 @@ void parserASTForStatementNoShortIf_ForLParSColSColRParStatementNoShortIf(vector
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementNoShortIf);
   auto t = new TreeForStatementNoShortIf;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTForStatementNoShortIfVariants::ForLParSColSColRParStatementNoShortIf;
   t->statementNoShortIf = dynamic_cast<TreeStatementNoShortIf *>((*stack)[n - 1]);
   assert(t->statementNoShortIf);
@@ -2314,6 +2421,8 @@ void parserASTForStatementNoShortIf_ForLParForInitSColSColRParStatementNoShortIf
   assert((*stack)[n - 2]->type == NonTerminalType::ForInit);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementNoShortIf);
   auto t = new TreeForStatementNoShortIf;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTForStatementNoShortIfVariants::ForLParForInitSColSColRParStatementNoShortIf;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 2]);
   assert(t->forInit);
@@ -2331,6 +2440,8 @@ void parserASTForStatementNoShortIf_ForLParSColExpressionSColRParStatementNoShor
   assert((*stack)[n - 2]->type == NonTerminalType::Expression);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementNoShortIf);
   auto t = new TreeForStatementNoShortIf;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTForStatementNoShortIfVariants::ForLParSColExpressionSColRParStatementNoShortIf;
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 2]);
   assert(t->expression);
@@ -2349,6 +2460,8 @@ void parserASTForStatementNoShortIf_ForLParForInitSColExpressionSColRParStatemen
   assert((*stack)[n - 2]->type == NonTerminalType::Expression);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementNoShortIf);
   auto t = new TreeForStatementNoShortIf;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTForStatementNoShortIfVariants::ForLParForInitSColExpressionSColRParStatementNoShortIf;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 3]);
   assert(t->forInit);
@@ -2369,6 +2482,8 @@ void parserASTForStatementNoShortIf_ForLParSColSColForUpdateRParStatementNoShort
   assert((*stack)[n - 2]->type == NonTerminalType::ForUpdate);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementNoShortIf);
   auto t = new TreeForStatementNoShortIf;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTForStatementNoShortIfVariants::ForLParSColSColForUpdateRParStatementNoShortIf;
   t->forUpdate = dynamic_cast<TreeForUpdate *>((*stack)[n - 2]);
   assert(t->forUpdate);
@@ -2387,6 +2502,8 @@ void parserASTForStatementNoShortIf_ForLParForInitSColSColForUpdateRParStatement
   assert((*stack)[n - 2]->type == NonTerminalType::ForUpdate);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementNoShortIf);
   auto t = new TreeForStatementNoShortIf;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTForStatementNoShortIfVariants::ForLParForInitSColSColForUpdateRParStatementNoShortIf;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 3]);
   assert(t->forInit);
@@ -2408,6 +2525,8 @@ void parserASTForStatementNoShortIf_ForLParSColExpressionSColForUpdateRParStatem
   assert((*stack)[n - 2]->type == NonTerminalType::ForUpdate);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementNoShortIf);
   auto t = new TreeForStatementNoShortIf;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTForStatementNoShortIfVariants::ForLParSColExpressionSColForUpdateRParStatementNoShortIf;
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 3]);
   assert(t->expression);
@@ -2430,6 +2549,8 @@ void parserASTForStatementNoShortIf_ForLParForInitSColExpressionSColForUpdateRPa
   assert((*stack)[n - 2]->type == NonTerminalType::ForUpdate);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementNoShortIf);
   auto t = new TreeForStatementNoShortIf;
+  parserASTSetTopParents(stack, 4, t);
+  parserASTPopulateChildrenList(t, *stack, 4);
   t->variant = NTForStatementNoShortIfVariants::ForLParForInitSColExpressionSColForUpdateRParStatementNoShortIf;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 4]);
   assert(t->forInit);
@@ -2452,6 +2573,8 @@ void parserASTForInit_StatementExpression(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementExpression);
   auto t = new TreeForInit;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTForInitVariants::StatementExpression;
   t->statementExpression = dynamic_cast<TreeStatementExpression *>((*stack)[n - 1]);
   assert(t->statementExpression);
@@ -2465,6 +2588,8 @@ void parserASTForInit_LocalVariableDeclaration(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::LocalVariableDeclaration);
   auto t = new TreeForInit;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTForInitVariants::LocalVariableDeclaration;
   t->localVariableDeclaration = dynamic_cast<TreeLocalVariableDeclaration *>((*stack)[n - 1]);
   assert(t->localVariableDeclaration);
@@ -2478,6 +2603,8 @@ void parserASTForUpdate_StatementExpression(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementExpression);
   auto t = new TreeForUpdate;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTForUpdateVariants::StatementExpression;
   t->statementExpression = dynamic_cast<TreeStatementExpression *>((*stack)[n - 1]);
   assert(t->statementExpression);
@@ -2490,6 +2617,8 @@ void parserASTReturnStatement_ReturnSCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreeReturnStatement;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTReturnStatementVariants::ReturnSCol;
   stack->push_back(t);
 }
@@ -2500,6 +2629,8 @@ void parserASTReturnStatement_ReturnExpressionSCol(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Expression);
   auto t = new TreeReturnStatement;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTReturnStatementVariants::ReturnExpressionSCol;
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 1]);
   assert(t->expression);
@@ -2513,6 +2644,8 @@ void parserASTPrimary_PrimaryNoNewArray(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::PrimaryNoNewArray);
   auto t = new TreePrimary;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTPrimaryVariants::PrimaryNoNewArray;
   t->primaryNoNewArray = dynamic_cast<TreePrimaryNoNewArray *>((*stack)[n - 1]);
   assert(t->primaryNoNewArray);
@@ -2526,6 +2659,8 @@ void parserASTPrimary_ArrayCreationExpression(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ArrayCreationExpression);
   auto t = new TreePrimary;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTPrimaryVariants::ArrayCreationExpression;
   t->arrayCreationExpression = dynamic_cast<TreeArrayCreationExpression *>((*stack)[n - 1]);
   assert(t->arrayCreationExpression);
@@ -2539,6 +2674,8 @@ void parserASTPrimaryNoNewArray_Literal(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Literal);
   auto t = new TreePrimaryNoNewArray;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTPrimaryNoNewArrayVariants::Literal;
   t->literal = dynamic_cast<TreeLiteral *>((*stack)[n - 1]);
   assert(t->literal);
@@ -2551,6 +2688,8 @@ void parserASTPrimaryNoNewArray_This(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreePrimaryNoNewArray;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTPrimaryNoNewArrayVariants::This;
   stack->push_back(t);
 }
@@ -2561,6 +2700,8 @@ void parserASTPrimaryNoNewArray_LParExpressionRPar(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Expression);
   auto t = new TreePrimaryNoNewArray;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTPrimaryNoNewArrayVariants::LParExpressionRPar;
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 1]);
   assert(t->expression);
@@ -2574,6 +2715,8 @@ void parserASTPrimaryNoNewArray_ClassInstanceCreationExpression(vector<Tree *> *
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassInstanceCreationExpression);
   auto t = new TreePrimaryNoNewArray;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTPrimaryNoNewArrayVariants::ClassInstanceCreationExpression;
   t->classInstanceCreationExpression = dynamic_cast<TreeClassInstanceCreationExpression *>((*stack)[n - 1]);
   assert(t->classInstanceCreationExpression);
@@ -2587,6 +2730,8 @@ void parserASTPrimaryNoNewArray_FieldAccess(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::FieldAccess);
   auto t = new TreePrimaryNoNewArray;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTPrimaryNoNewArrayVariants::FieldAccess;
   t->fieldAccess = dynamic_cast<TreeFieldAccess *>((*stack)[n - 1]);
   assert(t->fieldAccess);
@@ -2600,6 +2745,8 @@ void parserASTPrimaryNoNewArray_MethodInvocation(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::MethodInvocation);
   auto t = new TreePrimaryNoNewArray;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTPrimaryNoNewArrayVariants::MethodInvocation;
   t->methodInvocation = dynamic_cast<TreeMethodInvocation *>((*stack)[n - 1]);
   assert(t->methodInvocation);
@@ -2613,6 +2760,8 @@ void parserASTPrimaryNoNewArray_ArrayAccess(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ArrayAccess);
   auto t = new TreePrimaryNoNewArray;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTPrimaryNoNewArrayVariants::ArrayAccess;
   t->arrayAccess = dynamic_cast<TreeArrayAccess *>((*stack)[n - 1]);
   assert(t->arrayAccess);
@@ -2626,6 +2775,8 @@ void parserASTClassInstanceCreationExpression_NewClassTypeLParRPar(vector<Tree *
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassType);
   auto t = new TreeClassInstanceCreationExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTClassInstanceCreationExpressionVariants::NewClassTypeLParRPar;
   t->classType = dynamic_cast<TreeClassType *>((*stack)[n - 1]);
   assert(t->classType);
@@ -2640,6 +2791,8 @@ void parserASTClassInstanceCreationExpression_NewClassTypeLParArgumentListRPar(v
   assert((*stack)[n - 2]->type == NonTerminalType::ClassType);
   assert((*stack)[n - 1]->type == NonTerminalType::ArgumentList);
   auto t = new TreeClassInstanceCreationExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTClassInstanceCreationExpressionVariants::NewClassTypeLParArgumentListRPar;
   t->classType = dynamic_cast<TreeClassType *>((*stack)[n - 2]);
   assert(t->classType);
@@ -2656,6 +2809,8 @@ void parserASTArgumentList_Expression(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Expression);
   auto t = new TreeArgumentList;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTArgumentListVariants::Expression;
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 1]);
   assert(t->expression);
@@ -2670,6 +2825,8 @@ void parserASTArgumentList_ArgumentListComExpression(vector<Tree *> *stack) {
   assert((*stack)[n - 2]->type == NonTerminalType::ArgumentList);
   assert((*stack)[n - 1]->type == NonTerminalType::Expression);
   auto t = new TreeArgumentList;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTArgumentListVariants::ArgumentListComExpression;
   t->argumentList = dynamic_cast<TreeArgumentList *>((*stack)[n - 2]);
   assert(t->argumentList);
@@ -2687,6 +2844,8 @@ void parserASTArrayCreationExpression_NewPrimitiveTypeDimExprs(vector<Tree *> *s
   assert((*stack)[n - 2]->type == NonTerminalType::PrimitiveType);
   assert((*stack)[n - 1]->type == NonTerminalType::DimExprs);
   auto t = new TreeArrayCreationExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTArrayCreationExpressionVariants::NewPrimitiveTypeDimExprs;
   t->primitiveType = dynamic_cast<TreePrimitiveType *>((*stack)[n - 2]);
   assert(t->primitiveType);
@@ -2705,6 +2864,8 @@ void parserASTArrayCreationExpression_NewPrimitiveTypeDimExprsDims(vector<Tree *
   assert((*stack)[n - 2]->type == NonTerminalType::DimExprs);
   assert((*stack)[n - 1]->type == NonTerminalType::Dims);
   auto t = new TreeArrayCreationExpression;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTArrayCreationExpressionVariants::NewPrimitiveTypeDimExprsDims;
   t->primitiveType = dynamic_cast<TreePrimitiveType *>((*stack)[n - 3]);
   assert(t->primitiveType);
@@ -2725,6 +2886,8 @@ void parserASTArrayCreationExpression_NewClassOrInterfaceTypeDimExprs(vector<Tre
   assert((*stack)[n - 2]->type == NonTerminalType::ClassOrInterfaceType);
   assert((*stack)[n - 1]->type == NonTerminalType::DimExprs);
   auto t = new TreeArrayCreationExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTArrayCreationExpressionVariants::NewClassOrInterfaceTypeDimExprs;
   t->classOrInterfaceType = dynamic_cast<TreeClassOrInterfaceType *>((*stack)[n - 2]);
   assert(t->classOrInterfaceType);
@@ -2743,6 +2906,8 @@ void parserASTArrayCreationExpression_NewClassOrInterfaceTypeDimExprsDims(vector
   assert((*stack)[n - 2]->type == NonTerminalType::DimExprs);
   assert((*stack)[n - 1]->type == NonTerminalType::Dims);
   auto t = new TreeArrayCreationExpression;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTArrayCreationExpressionVariants::NewClassOrInterfaceTypeDimExprsDims;
   t->classOrInterfaceType = dynamic_cast<TreeClassOrInterfaceType *>((*stack)[n - 3]);
   assert(t->classOrInterfaceType);
@@ -2762,6 +2927,8 @@ void parserASTDimExprs_DimExpr(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::DimExpr);
   auto t = new TreeDimExprs;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTDimExprsVariants::DimExpr;
   t->dimExpr = dynamic_cast<TreeDimExpr *>((*stack)[n - 1]);
   assert(t->dimExpr);
@@ -2776,6 +2943,8 @@ void parserASTDimExprs_DimExprsDimExpr(vector<Tree *> *stack) {
   assert((*stack)[n - 2]->type == NonTerminalType::DimExprs);
   assert((*stack)[n - 1]->type == NonTerminalType::DimExpr);
   auto t = new TreeDimExprs;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTDimExprsVariants::DimExprsDimExpr;
   t->dimExprs = dynamic_cast<TreeDimExprs *>((*stack)[n - 2]);
   assert(t->dimExprs);
@@ -2792,6 +2961,8 @@ void parserASTDimExpr_LSBrExpressionRSBr(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Expression);
   auto t = new TreeDimExpr;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTDimExprVariants::LSBrExpressionRSBr;
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 1]);
   assert(t->expression);
@@ -2804,6 +2975,8 @@ void parserASTDims_LSBrRSBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TreeDims;
+  parserASTSetTopParents(stack, 0, t);
+  parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTDimsVariants::LSBrRSBr;
   stack->push_back(t);
 }
@@ -2814,6 +2987,8 @@ void parserASTDims_DimsLSBrRSBr(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Dims);
   auto t = new TreeDims;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTDimsVariants::DimsLSBrRSBr;
   t->dims = dynamic_cast<TreeDims *>((*stack)[n - 1]);
   assert(t->dims);
@@ -2824,12 +2999,18 @@ void parserASTDims_DimsLSBrRSBr(vector<Tree *> *stack) {
 // FieldAccess -> Primary . Identifier 
 void parserASTFieldAccess_PrimaryDotIdentifier(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::Primary);
+  assert(n >= 2);
+  assert((*stack)[n - 2]->type == NonTerminalType::Primary);
+  assert((*stack)[n - 1]->type == NonTerminalType::Identifier);
   auto t = new TreeFieldAccess;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTFieldAccessVariants::PrimaryDotIdentifier;
-  t->primary = dynamic_cast<TreePrimary *>((*stack)[n - 1]);
+  t->primary = dynamic_cast<TreePrimary *>((*stack)[n - 2]);
   assert(t->primary);
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 1]);
+  assert(t->identifier);
+  stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
 }
@@ -2840,6 +3021,8 @@ void parserASTMethodInvocation_NameLParRPar(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Name);
   auto t = new TreeMethodInvocation;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTMethodInvocationVariants::NameLParRPar;
   t->name = dynamic_cast<TreeName *>((*stack)[n - 1]);
   assert(t->name);
@@ -2854,6 +3037,8 @@ void parserASTMethodInvocation_NameLParArgumentListRPar(vector<Tree *> *stack) {
   assert((*stack)[n - 2]->type == NonTerminalType::Name);
   assert((*stack)[n - 1]->type == NonTerminalType::ArgumentList);
   auto t = new TreeMethodInvocation;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTMethodInvocationVariants::NameLParArgumentListRPar;
   t->name = dynamic_cast<TreeName *>((*stack)[n - 2]);
   assert(t->name);
@@ -2867,12 +3052,18 @@ void parserASTMethodInvocation_NameLParArgumentListRPar(vector<Tree *> *stack) {
 // MethodInvocation -> Primary . Identifier ( ) 
 void parserASTMethodInvocation_PrimaryDotIdentifierLParRPar(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::Primary);
+  assert(n >= 2);
+  assert((*stack)[n - 2]->type == NonTerminalType::Primary);
+  assert((*stack)[n - 1]->type == NonTerminalType::Identifier);
   auto t = new TreeMethodInvocation;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTMethodInvocationVariants::PrimaryDotIdentifierLParRPar;
-  t->primary = dynamic_cast<TreePrimary *>((*stack)[n - 1]);
+  t->primary = dynamic_cast<TreePrimary *>((*stack)[n - 2]);
   assert(t->primary);
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 1]);
+  assert(t->identifier);
+  stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
 }
@@ -2880,15 +3071,21 @@ void parserASTMethodInvocation_PrimaryDotIdentifierLParRPar(vector<Tree *> *stac
 // MethodInvocation -> Primary . Identifier ( ArgumentList ) 
 void parserASTMethodInvocation_PrimaryDotIdentifierLParArgumentListRPar(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::Primary);
+  assert(n >= 3);
+  assert((*stack)[n - 3]->type == NonTerminalType::Primary);
+  assert((*stack)[n - 2]->type == NonTerminalType::Identifier);
   assert((*stack)[n - 1]->type == NonTerminalType::ArgumentList);
   auto t = new TreeMethodInvocation;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTMethodInvocationVariants::PrimaryDotIdentifierLParArgumentListRPar;
-  t->primary = dynamic_cast<TreePrimary *>((*stack)[n - 2]);
+  t->primary = dynamic_cast<TreePrimary *>((*stack)[n - 3]);
   assert(t->primary);
+  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 2]);
+  assert(t->identifier);
   t->argumentList = dynamic_cast<TreeArgumentList *>((*stack)[n - 1]);
   assert(t->argumentList);
+  stack->pop_back();
   stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
@@ -2901,6 +3098,8 @@ void parserASTArrayAccess_NameLSBrExpressionRSBr(vector<Tree *> *stack) {
   assert((*stack)[n - 2]->type == NonTerminalType::Name);
   assert((*stack)[n - 1]->type == NonTerminalType::Expression);
   auto t = new TreeArrayAccess;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTArrayAccessVariants::NameLSBrExpressionRSBr;
   t->name = dynamic_cast<TreeName *>((*stack)[n - 2]);
   assert(t->name);
@@ -2918,6 +3117,8 @@ void parserASTArrayAccess_PrimaryNoNewArrayLSBrExpressionRSBr(vector<Tree *> *st
   assert((*stack)[n - 2]->type == NonTerminalType::PrimaryNoNewArray);
   assert((*stack)[n - 1]->type == NonTerminalType::Expression);
   auto t = new TreeArrayAccess;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTArrayAccessVariants::PrimaryNoNewArrayLSBrExpressionRSBr;
   t->primaryNoNewArray = dynamic_cast<TreePrimaryNoNewArray *>((*stack)[n - 2]);
   assert(t->primaryNoNewArray);
@@ -2928,38 +3129,14 @@ void parserASTArrayAccess_PrimaryNoNewArrayLSBrExpressionRSBr(vector<Tree *> *st
   stack->push_back(t);
 }
 
-// PostfixExpression -> Primary 
-void parserASTPostfixExpression_Primary(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::Primary);
-  auto t = new TreePostfixExpression;
-  t->variant = NTPostfixExpressionVariants::Primary;
-  t->primary = dynamic_cast<TreePrimary *>((*stack)[n - 1]);
-  assert(t->primary);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// PostfixExpression -> Name 
-void parserASTPostfixExpression_Name(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::Name);
-  auto t = new TreePostfixExpression;
-  t->variant = NTPostfixExpressionVariants::Name;
-  t->name = dynamic_cast<TreeName *>((*stack)[n - 1]);
-  assert(t->name);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
 // UnaryExpression -> - UnaryExpression 
 void parserASTUnaryExpression_MinusUnaryExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpression);
   auto t = new TreeUnaryExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTUnaryExpressionVariants::MinusUnaryExpression;
   t->unaryExpression = dynamic_cast<TreeUnaryExpression *>((*stack)[n - 1]);
   assert(t->unaryExpression);
@@ -2973,6 +3150,8 @@ void parserASTUnaryExpression_UnaryExpressionNotPlusMinus(vector<Tree *> *stack)
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpressionNotPlusMinus);
   auto t = new TreeUnaryExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTUnaryExpressionVariants::UnaryExpressionNotPlusMinus;
   t->unaryExpressionNotPlusMinus = dynamic_cast<TreeUnaryExpressionNotPlusMinus *>((*stack)[n - 1]);
   assert(t->unaryExpressionNotPlusMinus);
@@ -2980,15 +3159,32 @@ void parserASTUnaryExpression_UnaryExpressionNotPlusMinus(vector<Tree *> *stack)
   stack->push_back(t);
 }
 
-// UnaryExpressionNotPlusMinus -> PostfixExpression 
-void parserASTUnaryExpressionNotPlusMinus_PostfixExpression(vector<Tree *> *stack) {
+// UnaryExpressionNotPlusMinus -> Primary 
+void parserASTUnaryExpressionNotPlusMinus_Primary(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::PostfixExpression);
+  assert((*stack)[n - 1]->type == NonTerminalType::Primary);
   auto t = new TreeUnaryExpressionNotPlusMinus;
-  t->variant = NTUnaryExpressionNotPlusMinusVariants::PostfixExpression;
-  t->postfixExpression = dynamic_cast<TreePostfixExpression *>((*stack)[n - 1]);
-  assert(t->postfixExpression);
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
+  t->variant = NTUnaryExpressionNotPlusMinusVariants::Primary;
+  t->primary = dynamic_cast<TreePrimary *>((*stack)[n - 1]);
+  assert(t->primary);
+  stack->pop_back();
+  stack->push_back(t);
+}
+
+// UnaryExpressionNotPlusMinus -> Name 
+void parserASTUnaryExpressionNotPlusMinus_Name(vector<Tree *> *stack) {
+  int n = stack->size();
+  assert(n >= 1);
+  assert((*stack)[n - 1]->type == NonTerminalType::Name);
+  auto t = new TreeUnaryExpressionNotPlusMinus;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
+  t->variant = NTUnaryExpressionNotPlusMinusVariants::Name;
+  t->name = dynamic_cast<TreeName *>((*stack)[n - 1]);
+  assert(t->name);
   stack->pop_back();
   stack->push_back(t);
 }
@@ -2999,6 +3195,8 @@ void parserASTUnaryExpressionNotPlusMinus_TilUnaryExpression(vector<Tree *> *sta
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpression);
   auto t = new TreeUnaryExpressionNotPlusMinus;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTUnaryExpressionNotPlusMinusVariants::TilUnaryExpression;
   t->unaryExpression = dynamic_cast<TreeUnaryExpression *>((*stack)[n - 1]);
   assert(t->unaryExpression);
@@ -3012,6 +3210,8 @@ void parserASTUnaryExpressionNotPlusMinus_BangUnaryExpression(vector<Tree *> *st
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpression);
   auto t = new TreeUnaryExpressionNotPlusMinus;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTUnaryExpressionNotPlusMinusVariants::BangUnaryExpression;
   t->unaryExpression = dynamic_cast<TreeUnaryExpression *>((*stack)[n - 1]);
   assert(t->unaryExpression);
@@ -3025,6 +3225,8 @@ void parserASTUnaryExpressionNotPlusMinus_CastExpression(vector<Tree *> *stack) 
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::CastExpression);
   auto t = new TreeUnaryExpressionNotPlusMinus;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTUnaryExpressionNotPlusMinusVariants::CastExpression;
   t->castExpression = dynamic_cast<TreeCastExpression *>((*stack)[n - 1]);
   assert(t->castExpression);
@@ -3039,6 +3241,8 @@ void parserASTCastExpression_LParPrimitiveTypeRParUnaryExpression(vector<Tree *>
   assert((*stack)[n - 2]->type == NonTerminalType::PrimitiveType);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpression);
   auto t = new TreeCastExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTCastExpressionVariants::LParPrimitiveTypeRParUnaryExpression;
   t->primitiveType = dynamic_cast<TreePrimitiveType *>((*stack)[n - 2]);
   assert(t->primitiveType);
@@ -3057,6 +3261,8 @@ void parserASTCastExpression_LParPrimitiveTypeDimsRParUnaryExpression(vector<Tre
   assert((*stack)[n - 2]->type == NonTerminalType::Dims);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpression);
   auto t = new TreeCastExpression;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTCastExpressionVariants::LParPrimitiveTypeDimsRParUnaryExpression;
   t->primitiveType = dynamic_cast<TreePrimitiveType *>((*stack)[n - 3]);
   assert(t->primitiveType);
@@ -3077,6 +3283,8 @@ void parserASTCastExpression_LParExpressionRParUnaryExpressionNotPlusMinus(vecto
   assert((*stack)[n - 2]->type == NonTerminalType::Expression);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpressionNotPlusMinus);
   auto t = new TreeCastExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTCastExpressionVariants::LParExpressionRParUnaryExpressionNotPlusMinus;
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 2]);
   assert(t->expression);
@@ -3095,6 +3303,8 @@ void parserASTCastExpression_LParNameDimsRParUnaryExpressionNotPlusMinus(vector<
   assert((*stack)[n - 2]->type == NonTerminalType::Dims);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpressionNotPlusMinus);
   auto t = new TreeCastExpression;
+  parserASTSetTopParents(stack, 3, t);
+  parserASTPopulateChildrenList(t, *stack, 3);
   t->variant = NTCastExpressionVariants::LParNameDimsRParUnaryExpressionNotPlusMinus;
   t->name = dynamic_cast<TreeName *>((*stack)[n - 3]);
   assert(t->name);
@@ -3114,6 +3324,8 @@ void parserASTMultiplicativeExpression_UnaryExpression(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpression);
   auto t = new TreeMultiplicativeExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTMultiplicativeExpressionVariants::UnaryExpression;
   t->unaryExpression = dynamic_cast<TreeUnaryExpression *>((*stack)[n - 1]);
   assert(t->unaryExpression);
@@ -3128,6 +3340,8 @@ void parserASTMultiplicativeExpression_MultiplicativeExpressionStarUnaryExpressi
   assert((*stack)[n - 2]->type == NonTerminalType::MultiplicativeExpression);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpression);
   auto t = new TreeMultiplicativeExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTMultiplicativeExpressionVariants::MultiplicativeExpressionStarUnaryExpression;
   t->multiplicativeExpression = dynamic_cast<TreeMultiplicativeExpression *>((*stack)[n - 2]);
   assert(t->multiplicativeExpression);
@@ -3145,6 +3359,8 @@ void parserASTMultiplicativeExpression_MultiplicativeExpressionRSlashUnaryExpres
   assert((*stack)[n - 2]->type == NonTerminalType::MultiplicativeExpression);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpression);
   auto t = new TreeMultiplicativeExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTMultiplicativeExpressionVariants::MultiplicativeExpressionRSlashUnaryExpression;
   t->multiplicativeExpression = dynamic_cast<TreeMultiplicativeExpression *>((*stack)[n - 2]);
   assert(t->multiplicativeExpression);
@@ -3162,6 +3378,8 @@ void parserASTMultiplicativeExpression_MultiplicativeExpressionPercUnaryExpressi
   assert((*stack)[n - 2]->type == NonTerminalType::MultiplicativeExpression);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpression);
   auto t = new TreeMultiplicativeExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTMultiplicativeExpressionVariants::MultiplicativeExpressionPercUnaryExpression;
   t->multiplicativeExpression = dynamic_cast<TreeMultiplicativeExpression *>((*stack)[n - 2]);
   assert(t->multiplicativeExpression);
@@ -3178,6 +3396,8 @@ void parserASTAdditiveExpression_MultiplicativeExpression(vector<Tree *> *stack)
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::MultiplicativeExpression);
   auto t = new TreeAdditiveExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTAdditiveExpressionVariants::MultiplicativeExpression;
   t->multiplicativeExpression = dynamic_cast<TreeMultiplicativeExpression *>((*stack)[n - 1]);
   assert(t->multiplicativeExpression);
@@ -3192,6 +3412,8 @@ void parserASTAdditiveExpression_AdditiveExpressionPlusMultiplicativeExpression(
   assert((*stack)[n - 2]->type == NonTerminalType::AdditiveExpression);
   assert((*stack)[n - 1]->type == NonTerminalType::MultiplicativeExpression);
   auto t = new TreeAdditiveExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTAdditiveExpressionVariants::AdditiveExpressionPlusMultiplicativeExpression;
   t->additiveExpression = dynamic_cast<TreeAdditiveExpression *>((*stack)[n - 2]);
   assert(t->additiveExpression);
@@ -3209,6 +3431,8 @@ void parserASTAdditiveExpression_AdditiveExpressionMinusMultiplicativeExpression
   assert((*stack)[n - 2]->type == NonTerminalType::AdditiveExpression);
   assert((*stack)[n - 1]->type == NonTerminalType::MultiplicativeExpression);
   auto t = new TreeAdditiveExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTAdditiveExpressionVariants::AdditiveExpressionMinusMultiplicativeExpression;
   t->additiveExpression = dynamic_cast<TreeAdditiveExpression *>((*stack)[n - 2]);
   assert(t->additiveExpression);
@@ -3225,6 +3449,8 @@ void parserASTRelationalExpression_AdditiveExpression(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::AdditiveExpression);
   auto t = new TreeRelationalExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTRelationalExpressionVariants::AdditiveExpression;
   t->additiveExpression = dynamic_cast<TreeAdditiveExpression *>((*stack)[n - 1]);
   assert(t->additiveExpression);
@@ -3239,6 +3465,8 @@ void parserASTRelationalExpression_RelationalExpressionLeAdditiveExpression(vect
   assert((*stack)[n - 2]->type == NonTerminalType::RelationalExpression);
   assert((*stack)[n - 1]->type == NonTerminalType::AdditiveExpression);
   auto t = new TreeRelationalExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTRelationalExpressionVariants::RelationalExpressionLeAdditiveExpression;
   t->relationalExpression = dynamic_cast<TreeRelationalExpression *>((*stack)[n - 2]);
   assert(t->relationalExpression);
@@ -3256,6 +3484,8 @@ void parserASTRelationalExpression_RelationalExpressionGrAdditiveExpression(vect
   assert((*stack)[n - 2]->type == NonTerminalType::RelationalExpression);
   assert((*stack)[n - 1]->type == NonTerminalType::AdditiveExpression);
   auto t = new TreeRelationalExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTRelationalExpressionVariants::RelationalExpressionGrAdditiveExpression;
   t->relationalExpression = dynamic_cast<TreeRelationalExpression *>((*stack)[n - 2]);
   assert(t->relationalExpression);
@@ -3273,6 +3503,8 @@ void parserASTRelationalExpression_RelationalExpressionLeEqAdditiveExpression(ve
   assert((*stack)[n - 2]->type == NonTerminalType::RelationalExpression);
   assert((*stack)[n - 1]->type == NonTerminalType::AdditiveExpression);
   auto t = new TreeRelationalExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTRelationalExpressionVariants::RelationalExpressionLeEqAdditiveExpression;
   t->relationalExpression = dynamic_cast<TreeRelationalExpression *>((*stack)[n - 2]);
   assert(t->relationalExpression);
@@ -3290,6 +3522,8 @@ void parserASTRelationalExpression_RelationalExpressionGrEqAdditiveExpression(ve
   assert((*stack)[n - 2]->type == NonTerminalType::RelationalExpression);
   assert((*stack)[n - 1]->type == NonTerminalType::AdditiveExpression);
   auto t = new TreeRelationalExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTRelationalExpressionVariants::RelationalExpressionGrEqAdditiveExpression;
   t->relationalExpression = dynamic_cast<TreeRelationalExpression *>((*stack)[n - 2]);
   assert(t->relationalExpression);
@@ -3307,6 +3541,8 @@ void parserASTRelationalExpression_RelationalExpressioninstanceofReferenceType(v
   assert((*stack)[n - 2]->type == NonTerminalType::RelationalExpression);
   assert((*stack)[n - 1]->type == NonTerminalType::ReferenceType);
   auto t = new TreeRelationalExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTRelationalExpressionVariants::RelationalExpressioninstanceofReferenceType;
   t->relationalExpression = dynamic_cast<TreeRelationalExpression *>((*stack)[n - 2]);
   assert(t->relationalExpression);
@@ -3323,6 +3559,8 @@ void parserASTEqualityExpression_RelationalExpression(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::RelationalExpression);
   auto t = new TreeEqualityExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTEqualityExpressionVariants::RelationalExpression;
   t->relationalExpression = dynamic_cast<TreeRelationalExpression *>((*stack)[n - 1]);
   assert(t->relationalExpression);
@@ -3337,6 +3575,8 @@ void parserASTEqualityExpression_EqualityExpressionEqEqRelationalExpression(vect
   assert((*stack)[n - 2]->type == NonTerminalType::EqualityExpression);
   assert((*stack)[n - 1]->type == NonTerminalType::RelationalExpression);
   auto t = new TreeEqualityExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTEqualityExpressionVariants::EqualityExpressionEqEqRelationalExpression;
   t->equalityExpression = dynamic_cast<TreeEqualityExpression *>((*stack)[n - 2]);
   assert(t->equalityExpression);
@@ -3354,6 +3594,8 @@ void parserASTEqualityExpression_EqualityExpressionBangEqRelationalExpression(ve
   assert((*stack)[n - 2]->type == NonTerminalType::EqualityExpression);
   assert((*stack)[n - 1]->type == NonTerminalType::RelationalExpression);
   auto t = new TreeEqualityExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTEqualityExpressionVariants::EqualityExpressionBangEqRelationalExpression;
   t->equalityExpression = dynamic_cast<TreeEqualityExpression *>((*stack)[n - 2]);
   assert(t->equalityExpression);
@@ -3370,6 +3612,8 @@ void parserASTConditionalAndExpression_EqualityExpression(vector<Tree *> *stack)
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::EqualityExpression);
   auto t = new TreeConditionalAndExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTConditionalAndExpressionVariants::EqualityExpression;
   t->equalityExpression = dynamic_cast<TreeEqualityExpression *>((*stack)[n - 1]);
   assert(t->equalityExpression);
@@ -3384,6 +3628,8 @@ void parserASTConditionalAndExpression_ConditionalAndExpressionAmpAmpEqualityExp
   assert((*stack)[n - 2]->type == NonTerminalType::ConditionalAndExpression);
   assert((*stack)[n - 1]->type == NonTerminalType::EqualityExpression);
   auto t = new TreeConditionalAndExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTConditionalAndExpressionVariants::ConditionalAndExpressionAmpAmpEqualityExpression;
   t->conditionalAndExpression = dynamic_cast<TreeConditionalAndExpression *>((*stack)[n - 2]);
   assert(t->conditionalAndExpression);
@@ -3400,6 +3646,8 @@ void parserASTConditionalOrExpression_ConditionalAndExpression(vector<Tree *> *s
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ConditionalAndExpression);
   auto t = new TreeConditionalOrExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTConditionalOrExpressionVariants::ConditionalAndExpression;
   t->conditionalAndExpression = dynamic_cast<TreeConditionalAndExpression *>((*stack)[n - 1]);
   assert(t->conditionalAndExpression);
@@ -3414,6 +3662,8 @@ void parserASTConditionalOrExpression_ConditionalOrExpressionOrOrConditionalAndE
   assert((*stack)[n - 2]->type == NonTerminalType::ConditionalOrExpression);
   assert((*stack)[n - 1]->type == NonTerminalType::ConditionalAndExpression);
   auto t = new TreeConditionalOrExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTConditionalOrExpressionVariants::ConditionalOrExpressionOrOrConditionalAndExpression;
   t->conditionalOrExpression = dynamic_cast<TreeConditionalOrExpression *>((*stack)[n - 2]);
   assert(t->conditionalOrExpression);
@@ -3430,6 +3680,8 @@ void parserASTAssignmentExpression_ConditionalOrExpression(vector<Tree *> *stack
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ConditionalOrExpression);
   auto t = new TreeAssignmentExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTAssignmentExpressionVariants::ConditionalOrExpression;
   t->conditionalOrExpression = dynamic_cast<TreeConditionalOrExpression *>((*stack)[n - 1]);
   assert(t->conditionalOrExpression);
@@ -3443,6 +3695,8 @@ void parserASTAssignmentExpression_Assignment(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Assignment);
   auto t = new TreeAssignmentExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTAssignmentExpressionVariants::Assignment;
   t->assignment = dynamic_cast<TreeAssignment *>((*stack)[n - 1]);
   assert(t->assignment);
@@ -3457,6 +3711,8 @@ void parserASTAssignment_LeftHandSideEqAssignmentExpression(vector<Tree *> *stac
   assert((*stack)[n - 2]->type == NonTerminalType::LeftHandSide);
   assert((*stack)[n - 1]->type == NonTerminalType::AssignmentExpression);
   auto t = new TreeAssignment;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
   t->variant = NTAssignmentVariants::LeftHandSideEqAssignmentExpression;
   t->leftHandSide = dynamic_cast<TreeLeftHandSide *>((*stack)[n - 2]);
   assert(t->leftHandSide);
@@ -3473,6 +3729,8 @@ void parserASTLeftHandSide_Name(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Name);
   auto t = new TreeLeftHandSide;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTLeftHandSideVariants::Name;
   t->name = dynamic_cast<TreeName *>((*stack)[n - 1]);
   assert(t->name);
@@ -3486,6 +3744,8 @@ void parserASTLeftHandSide_FieldAccess(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::FieldAccess);
   auto t = new TreeLeftHandSide;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTLeftHandSideVariants::FieldAccess;
   t->fieldAccess = dynamic_cast<TreeFieldAccess *>((*stack)[n - 1]);
   assert(t->fieldAccess);
@@ -3499,6 +3759,8 @@ void parserASTLeftHandSide_ArrayAccess(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ArrayAccess);
   auto t = new TreeLeftHandSide;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTLeftHandSideVariants::ArrayAccess;
   t->arrayAccess = dynamic_cast<TreeArrayAccess *>((*stack)[n - 1]);
   assert(t->arrayAccess);
@@ -3512,22 +3774,11 @@ void parserASTExpression_AssignmentExpression(vector<Tree *> *stack) {
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::AssignmentExpression);
   auto t = new TreeExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
   t->variant = NTExpressionVariants::AssignmentExpression;
   t->assignmentExpression = dynamic_cast<TreeAssignmentExpression *>((*stack)[n - 1]);
   assert(t->assignmentExpression);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ConstantExpression -> Expression 
-void parserASTConstantExpression_Expression(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::Expression);
-  auto t = new TreeConstantExpression;
-  t->variant = NTConstantExpressionVariants::Expression;
-  t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 1]);
-  assert(t->expression);
   stack->pop_back();
   stack->push_back(t);
 }
@@ -3542,13 +3793,11 @@ void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
     parserASTLiteral_NullLiteral, 
     parserASTType_PrimitiveType, 
     parserASTType_ReferenceType, 
-    parserASTPrimitiveType_NumericType, 
     parserASTPrimitiveType_boolean, 
-    parserASTNumericType_IntegralType, 
-    parserASTIntegralType_byte, 
-    parserASTIntegralType_Short, 
-    parserASTIntegralType_Int, 
-    parserASTIntegralType_Char, 
+    parserASTPrimitiveType_byte, 
+    parserASTPrimitiveType_Short, 
+    parserASTPrimitiveType_Int, 
+    parserASTPrimitiveType_Char, 
     parserASTReferenceType_ClassOrInterfaceType, 
     parserASTReferenceType_ArrayType, 
     parserASTClassOrInterfaceType_Name, 
@@ -3558,9 +3807,8 @@ void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
     parserASTArrayType_NameLSBrRSBr, 
     parserASTArrayType_ArrayTypeLSBrRSBr, 
     parserASTName_SimpleName, 
-    parserASTName_QualifiedName, 
+    parserASTName_NameDotIdentifier, 
     parserASTSimpleName_Identifier, 
-    parserASTQualifiedName_NameDotIdentifier, 
     parserASTCompilationUnit_, 
     parserASTCompilationUnit_PackageDeclaration, 
     parserASTCompilationUnit_ImportDeclarations, 
@@ -3591,33 +3839,25 @@ void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
     parserASTModifier_native, 
     parserASTClassDeclaration_ClassIdentifierClassBody, 
     parserASTClassDeclaration_ModifiersClassIdentifierClassBody, 
-    parserASTClassDeclaration_ClassIdentifierSuperClassBody, 
-    parserASTClassDeclaration_ModifiersClassIdentifierSuperClassBody, 
-    parserASTClassDeclaration_ClassIdentifierInterfacesClassBody, 
-    parserASTClassDeclaration_ModifiersClassIdentifierInterfacesClassBody, 
-    parserASTClassDeclaration_ClassIdentifierSuperInterfacesClassBody, 
-    parserASTClassDeclaration_ModifiersClassIdentifierSuperInterfacesClassBody, 
-    parserASTSuper_extendsClassType, 
-    parserASTInterfaces_implementsInterfaceTypeList, 
+    parserASTClassDeclaration_ClassIdentifierextendsClassTypeClassBody, 
+    parserASTClassDeclaration_ModifiersClassIdentifierextendsClassTypeClassBody, 
+    parserASTClassDeclaration_ClassIdentifierimplementsInterfaceTypeListClassBody, 
+    parserASTClassDeclaration_ModifiersClassIdentifierimplementsInterfaceTypeListClassBody, 
+    parserASTClassDeclaration_ClassIdentifierextendsClassTypeimplementsInterfaceTypeListClassBody, 
+    parserASTClassDeclaration_ModifiersClassIdentifierextendsClassTypeimplementsInterfaceTypeListClassBody, 
     parserASTInterfaceTypeList_InterfaceType, 
     parserASTInterfaceTypeList_InterfaceTypeListComInterfaceType, 
     parserASTClassBody_LCBrRCBr, 
-    parserASTClassBody_LCBrClassBodyDeclarationsRCBr, 
-    parserASTClassBodyDeclarations_ClassBodyDeclaration, 
-    parserASTClassBodyDeclarations_ClassBodyDeclarationsClassBodyDeclaration, 
-    parserASTClassBodyDeclaration_ClassMemberDeclaration, 
-    parserASTClassBodyDeclaration_StaticInitializer, 
-    parserASTClassBodyDeclaration_ConstructorDeclaration, 
+    parserASTClassBody_LCBrClassMemberDeclarationsRCBr, 
+    parserASTClassMemberDeclarations_ClassMemberDeclaration, 
+    parserASTClassMemberDeclarations_ClassMemberDeclarationsClassMemberDeclaration, 
+    parserASTClassMemberDeclaration_ConstructorDeclaration, 
     parserASTClassMemberDeclaration_FieldDeclaration, 
     parserASTClassMemberDeclaration_MethodDeclaration, 
     parserASTFieldDeclaration_TypeVariableDeclaratorSCol, 
     parserASTFieldDeclaration_ModifiersTypeVariableDeclaratorSCol, 
-    parserASTVariableDeclarator_VariableDeclaratorId, 
-    parserASTVariableDeclarator_VariableDeclaratorIdEqVariableInitializer, 
-    parserASTVariableDeclaratorId_Identifier, 
-    parserASTVariableDeclaratorId_VariableDeclaratorIdLSBrRSBr, 
-    parserASTVariableInitializer_Expression, 
-    parserASTVariableInitializer_ArrayInitializer, 
+    parserASTVariableDeclarator_Identifier, 
+    parserASTVariableDeclarator_IdentifierEqExpression, 
     parserASTMethodDeclaration_MethodHeaderMethodBody, 
     parserASTMethodHeader_TypeMethodDeclarator, 
     parserASTMethodHeader_ModifiersTypeMethodDeclarator, 
@@ -3625,15 +3865,13 @@ void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
     parserASTMethodHeader_ModifiersVoidMethodDeclarator, 
     parserASTMethodDeclarator_IdentifierLParRPar, 
     parserASTMethodDeclarator_IdentifierLParFormalParameterListRPar, 
-    parserASTMethodDeclarator_MethodDeclaratorLSBrRSBr, 
     parserASTFormalParameterList_FormalParameter, 
     parserASTFormalParameterList_FormalParameterListComFormalParameter, 
-    parserASTFormalParameter_TypeVariableDeclaratorId, 
+    parserASTFormalParameter_TypeIdentifier, 
     parserASTClassTypeList_ClassType, 
     parserASTClassTypeList_ClassTypeListComClassType, 
     parserASTMethodBody_Block, 
     parserASTMethodBody_SCol, 
-    parserASTStaticInitializer_StaticBlock, 
     parserASTConstructorDeclaration_ConstructorDeclaratorConstructorBody, 
     parserASTConstructorDeclaration_ModifiersConstructorDeclaratorConstructorBody, 
     parserASTConstructorDeclarator_SimpleNameLParRPar, 
@@ -3650,16 +3888,8 @@ void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
     parserASTInterfaceBody_LCBrInterfaceMemberDeclarationsRCBr, 
     parserASTInterfaceMemberDeclarations_InterfaceMemberDeclaration, 
     parserASTInterfaceMemberDeclarations_InterfaceMemberDeclarationsInterfaceMemberDeclaration, 
-    parserASTInterfaceMemberDeclaration_ConstantDeclaration, 
     parserASTInterfaceMemberDeclaration_AbstractMethodDeclaration, 
-    parserASTConstantDeclaration_FieldDeclaration, 
     parserASTAbstractMethodDeclaration_MethodHeaderSCol, 
-    parserASTArrayInitializer_LCBrRCBr, 
-    parserASTArrayInitializer_LCBrVariableInitializersRCBr, 
-    parserASTArrayInitializer_LCBrComRCBr, 
-    parserASTArrayInitializer_LCBrVariableInitializersComRCBr, 
-    parserASTVariableInitializers_VariableInitializer, 
-    parserASTVariableInitializers_VariableInitializersComVariableInitializer, 
     parserASTBlock_LCBrRCBr, 
     parserASTBlock_LCBrBlockStatementsRCBr, 
     parserASTBlockStatements_BlockStatement, 
@@ -3741,11 +3971,10 @@ void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
     parserASTMethodInvocation_PrimaryDotIdentifierLParArgumentListRPar, 
     parserASTArrayAccess_NameLSBrExpressionRSBr, 
     parserASTArrayAccess_PrimaryNoNewArrayLSBrExpressionRSBr, 
-    parserASTPostfixExpression_Primary, 
-    parserASTPostfixExpression_Name, 
     parserASTUnaryExpression_MinusUnaryExpression, 
     parserASTUnaryExpression_UnaryExpressionNotPlusMinus, 
-    parserASTUnaryExpressionNotPlusMinus_PostfixExpression, 
+    parserASTUnaryExpressionNotPlusMinus_Primary, 
+    parserASTUnaryExpressionNotPlusMinus_Name, 
     parserASTUnaryExpressionNotPlusMinus_TilUnaryExpression, 
     parserASTUnaryExpressionNotPlusMinus_BangUnaryExpression, 
     parserASTUnaryExpressionNotPlusMinus_CastExpression, 
@@ -3780,7 +4009,6 @@ void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
     parserASTLeftHandSide_FieldAccess, 
     parserASTLeftHandSide_ArrayAccess, 
     parserASTExpression_AssignmentExpression, 
-    parserASTConstantExpression_Expression, 
   };
   table[ruleID](stack);
 }
