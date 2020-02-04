@@ -6,9 +6,19 @@
 
 #include <assert.h>
 
+#ifndef PARSERAST_DISABLED
+
 #include "parserNode.h"
 
+#endif // PARSERAST_DISABLED
+
 namespace Parse {
+
+#ifdef PARSERAST_DISABLED
+  enum class NonTerminalType {
+    Max
+  };
+#endif // PARSERAST_DISABLED
 
 using namespace std;
 
@@ -24,6 +34,21 @@ struct Tree {
           numChildren(0) {}
   virtual ~Tree() {}
 };
+
+template<typename T>
+struct TreeValued : public Tree {
+  T value;
+  TreeValued(): Tree(NonTerminalType::Max) {}
+};
+
+#ifdef PARSERAST_DISABLED
+  using TreeIdentifier = TreeValued<string>;
+  using TreeNullLiteral = TreeValued<bool>;
+  using TreeIntegerLiteral = TreeValued<int>;
+  using TreeCharacterLiteral = TreeValued<char>;
+  using TreeStringLiteral = TreeValued<string>;
+  using TreeBooleanLiteral = TreeValued<bool>;          
+#endif // PARSERAST_DISABLED  
 
 typedef void (*parserASTFunc)(vector<Tree *> *stack);
 

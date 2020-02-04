@@ -1,9 +1,14 @@
 #include "weeder.h"
+
+#ifndef PARSERAST_DISABLED
 #include "parserAST.h"
+#endif
 
 namespace Weeder {
 
 using namespace Parse;
+
+#ifndef PARSERAST_DISABLED
 
 void weederCheckInterfaceNoStaticFinalNative(Tree *root, WeederResult *result) {
   auto interfaces = parserASTFindByType(root, InterfaceDeclaration);
@@ -38,5 +43,14 @@ WeederResult weederCheck(Tree *root) {
   result.theMutex = nullptr;
   return result;
 }
+
+#else
+
+WeederResult weederCheck(Tree *root) {
+  WeederResult result;
+  return result;
+}  
+
+#endif // PARSERAST_DISABLED
 
 } // namespace Weeder

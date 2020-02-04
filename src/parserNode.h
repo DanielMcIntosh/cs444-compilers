@@ -1,4 +1,5 @@
 #pragma once
+#ifndef PARSERAST_DISABLED
 namespace Parse { 
 enum class TerminalType {
   StringLiteral,            // StringLiteral 
@@ -20,7 +21,7 @@ enum class TerminalType {
   Identifier,               // Identifier 
   Perc,                     // % 
   Com,                      // , 
-  This,                     // this 
+  This2,                    // this 
   Eof,                      // EOF 
   RPar,                     // ) 
   RSBr,                     // ] 
@@ -65,6 +66,7 @@ enum class TerminalType {
 
 enum class NonTerminalType {
   LeftHandSide, 
+  AssignmentExpression, 
   ConditionalAndExpression, 
   EqualityExpression, 
   MultiplicativeExpression, 
@@ -72,7 +74,7 @@ enum class NonTerminalType {
   MethodInvocation, 
   ConditionalOrExpression, 
   FieldAccess, 
-  Dims, 
+  ParenthesizedExpression, 
   AdditiveExpression, 
   ReturnStatement, 
   ForUpdate, 
@@ -90,16 +92,9 @@ enum class NonTerminalType {
   LocalVariableDeclarationStatement, 
   BlockStatements, 
   Block, 
-  AbstractMethodDeclaration, 
-  InterfaceMemberDeclaration, 
-  WhileStatementNoShortIf, 
-  BlockStatement, 
-  InterfaceMemberDeclarations, 
+  SingleTypeImportDeclaration, 
   ImportDeclaration, 
   ClassMemberDeclaration, 
-  AssignmentExpression, 
-  TypeDeclarations, 
-  SimpleName, 
   IntegerLiteral, 
   ArrayType, 
   RelationalExpression, 
@@ -108,61 +103,64 @@ enum class NonTerminalType {
   NullLiteral, 
   ExpressionStatement, 
   ClassOrInterfaceType, 
-  DimExprs, 
   ArrayCreationExpression, 
   Name, 
   ClassBody, 
+  BooleanLiteral, 
+  TypeDeclaration, 
+  StatementWithoutTrailingSubstatement, 
+  Identifier, 
+  InterfaceType, 
+  CompilationUnit, 
   ForStatementNoShortIf, 
   CharacterLiteral, 
   ExtendsInterfaces, 
-  InterfaceType, 
-  CompilationUnit, 
   Goal, 
   StatementExpression, 
   ImportDeclarations, 
   ReferenceType, 
-  StatementWithoutTrailingSubstatement, 
-  Identifier, 
   UnaryExpression, 
   StringLiteral, 
   PrimitiveType, 
   MethodHeader, 
   Modifiers, 
-  BooleanLiteral, 
-  DimExpr, 
   PackageDeclaration, 
   MethodDeclaration, 
   Literal, 
   UnaryExpressionNotPlusMinus, 
-  ClassTypeList, 
   Type, 
-  TypeDeclaration, 
-  FieldDeclaration, 
   ConstructorDeclaration, 
   Modifier, 
   ClassInstanceCreationExpression, 
   ClassDeclaration, 
+  This2, 
   InterfaceTypeList, 
   ClassMemberDeclarations, 
   FormalParameter, 
   Assignment, 
   TypeImportOnDemandDeclaration, 
   VariableDeclarator, 
+  InterfaceMemberDeclaration, 
   MethodDeclarator, 
   FormalParameterList, 
   IfThenElseStatementNoShortIf, 
   MethodBody, 
+  FieldDeclaration, 
+  AbstractMethodBody, 
   PrimaryNoNewArray, 
   InterfaceBody, 
   ConstructorDeclarator, 
   ArrayAccess, 
   InterfaceDeclaration, 
-  SingleTypeImportDeclaration, 
-  ConstructorBody, 
+  WhileStatementNoShortIf, 
+  BlockStatement, 
+  InterfaceMemberDeclarations, 
+  AbstractMethodDeclaration, 
   Max,
 };
 
 struct TreeLeftHandSide;
+struct TreeAssignmentExpression;
 struct TreeConditionalAndExpression;
 struct TreeEqualityExpression;
 struct TreeMultiplicativeExpression;
@@ -170,7 +168,7 @@ struct TreeCastExpression;
 struct TreeMethodInvocation;
 struct TreeConditionalOrExpression;
 struct TreeFieldAccess;
-struct TreeDims;
+struct TreeParenthesizedExpression;
 struct TreeAdditiveExpression;
 struct TreeReturnStatement;
 struct TreeForUpdate;
@@ -188,16 +186,9 @@ struct TreeExpression;
 struct TreeLocalVariableDeclarationStatement;
 struct TreeBlockStatements;
 struct TreeBlock;
-struct TreeAbstractMethodDeclaration;
-struct TreeInterfaceMemberDeclaration;
-struct TreeWhileStatementNoShortIf;
-struct TreeBlockStatement;
-struct TreeInterfaceMemberDeclarations;
+struct TreeSingleTypeImportDeclaration;
 struct TreeImportDeclaration;
 struct TreeClassMemberDeclaration;
-struct TreeAssignmentExpression;
-struct TreeTypeDeclarations;
-struct TreeSimpleName;
 struct TreeIntegerLiteral;
 struct TreeArrayType;
 struct TreeRelationalExpression;
@@ -206,56 +197,59 @@ struct TreeLocalVariableDeclaration;
 struct TreeNullLiteral;
 struct TreeExpressionStatement;
 struct TreeClassOrInterfaceType;
-struct TreeDimExprs;
 struct TreeArrayCreationExpression;
 struct TreeName;
 struct TreeClassBody;
+struct TreeBooleanLiteral;
+struct TreeTypeDeclaration;
+struct TreeStatementWithoutTrailingSubstatement;
+struct TreeIdentifier;
+struct TreeInterfaceType;
+struct TreeCompilationUnit;
 struct TreeForStatementNoShortIf;
 struct TreeCharacterLiteral;
 struct TreeExtendsInterfaces;
-struct TreeInterfaceType;
-struct TreeCompilationUnit;
 struct TreeGoal;
 struct TreeStatementExpression;
 struct TreeImportDeclarations;
 struct TreeReferenceType;
-struct TreeStatementWithoutTrailingSubstatement;
-struct TreeIdentifier;
 struct TreeUnaryExpression;
 struct TreeStringLiteral;
 struct TreePrimitiveType;
 struct TreeMethodHeader;
 struct TreeModifiers;
-struct TreeBooleanLiteral;
-struct TreeDimExpr;
 struct TreePackageDeclaration;
 struct TreeMethodDeclaration;
 struct TreeLiteral;
 struct TreeUnaryExpressionNotPlusMinus;
-struct TreeClassTypeList;
 struct TreeType;
-struct TreeTypeDeclaration;
-struct TreeFieldDeclaration;
 struct TreeConstructorDeclaration;
 struct TreeModifier;
 struct TreeClassInstanceCreationExpression;
 struct TreeClassDeclaration;
+struct TreeThis2;
 struct TreeInterfaceTypeList;
 struct TreeClassMemberDeclarations;
 struct TreeFormalParameter;
 struct TreeAssignment;
 struct TreeTypeImportOnDemandDeclaration;
 struct TreeVariableDeclarator;
+struct TreeInterfaceMemberDeclaration;
 struct TreeMethodDeclarator;
 struct TreeFormalParameterList;
 struct TreeIfThenElseStatementNoShortIf;
 struct TreeMethodBody;
+struct TreeFieldDeclaration;
+struct TreeAbstractMethodBody;
 struct TreePrimaryNoNewArray;
 struct TreeInterfaceBody;
 struct TreeConstructorDeclarator;
 struct TreeArrayAccess;
 struct TreeInterfaceDeclaration;
-struct TreeSingleTypeImportDeclaration;
-struct TreeConstructorBody;
+struct TreeWhileStatementNoShortIf;
+struct TreeBlockStatement;
+struct TreeInterfaceMemberDeclarations;
+struct TreeAbstractMethodDeclaration;
 
 } // namespace Parse 
+#endif // PARSERAST_DISABLED

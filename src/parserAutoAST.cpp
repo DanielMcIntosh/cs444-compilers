@@ -3,9 +3,12 @@
 #include <unordered_set>
 #include <unordered_map>
 
-#include "parserASTBase.h"
-#include "parserAST.h"
 #include "parserAutoAST.h"
+#include "parserASTBase.h"
+
+#ifndef PARSERAST_DISABLED
+#include "parserAST.h"
+#endif
 
 namespace Parse {
 
@@ -417,6 +420,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
   { // header
     string _output, *output = &_output;
     output->append("#pragma once\n");
+    output->append("#ifndef PARSERAST_DISABLED\n");
     output->append("namespace Parse { \n");
     strFlushFILE(output, parserNodeHdr);
   }
@@ -460,6 +464,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
   { // footer
     string _output, *output = &_output;
     output->append("} // namespace Parse \n");
+    output->append("#endif // PARSERAST_DISABLED\n");    
     strFlushFILE(output, parserNodeHdr);            
   }
   fclose(parserNodeHdr);
@@ -470,6 +475,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
     string _output, *output = &_output;
     output->append("#pragma once\n");
     output->append("#include \"parserASTBase.h\"\n");
+    output->append("#ifndef PARSERAST_DISABLED\n");    
     output->append("namespace Parse { \n");
     strFlushFILE(output, parserASTHdr);
   }
@@ -558,6 +564,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
   { // footer
     string _output, *output = &_output;
     output->append("} // namespace Parse \n");
+    output->append("#endif // PARSERAST_DISABLED\n");        
     strFlushFILE(output, parserASTHdr);
   }
 
@@ -568,6 +575,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
   { // header
     string _output, *output = &_output;
     output->append("#include \"parserASTBase.h\"\n");
+    output->append("#ifndef PARSERAST_DISABLED\n");    
     output->append("#include \"parserAST.h\"\n");    
     output->append("#include \"parserNode.h\"\n\n");
     output->append("namespace Parse { \n\n");
@@ -657,6 +665,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
   { // footer
     string _output, *output = &_output;
     output->append("} // namespace Parse \n");
+    output->append("#endif // PARSERAST_DISABLED\n");        
     strFlushFILE(output, parserASTImpl);
   }  
 
@@ -690,7 +699,7 @@ string getAlphabeticalName(const string &terminal) {
           {"^", "Up"},
           {"|", "Or"},
           {"while", "While"},
-          {"this", "This"},
+          {"this", "This2"},
           {"void", "Void"},
           {"short", "Short"},
           {"new", "New"},
