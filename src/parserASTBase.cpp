@@ -43,4 +43,10 @@ void parserASTDelete(Tree *root) {
   }
 }
 
+#ifdef PARSERAST_DISABLED
+  void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
+
+  }
+#endif // PARSERAST_DISABLED  
+
 } // namespace Parse

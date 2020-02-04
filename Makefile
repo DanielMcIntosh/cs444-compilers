@@ -37,7 +37,7 @@ WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimiza
   -Wfloat-conversion -Wsuggest-attribute=pure -Wsuggest-attribute=const \
   -Wsuggest-attribute=noreturn -Wsuggest-attribute=format -Wnull-dereference \
   -Wzero-as-null-pointer-constant -Wctor-dtor-privacy -Wnon-virtual-dtor \
-  -Woverloaded-virtual -Wno-unused-parameter
+  -Woverloaded-virtual -Wno-unused-parameter -Wfatal-errors
 
 EXTRA_CXXFLAGS += $(WARNINGS) -D__USE_MINGW_ANSI_STDIO -MMD -MP -std=c++17
 
@@ -58,7 +58,7 @@ $(BUILD_DIR_DEBUG)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
 	$(CXX) $(CXXFLAGS_DEBUG) $(EXTRA_CXXFLAGS)  -c $< -o $@
 
-.PHONY: clean header a1 a1Fast marmoset marmoset_direct 
+.PHONY: clean header a1 a1Fast marmoset
 
 clean:
 	$(RM) -r $(BUILD_DIR_RELEASE)
@@ -74,11 +74,6 @@ a1:
 
 a1Fast: joosc_debug
 	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=1; ./joosc_debug
-
-marmoset_direct: joosc
-	@echo "joosc:" > ./build/Makefile
-	/u/cs_build/bin/marmoset_submit --username=-ddmcinto-q5an-whkuan- \
-	cs444 A1Code joosc ./build/Makefile joos.txt
 
 marmoset:
 	/u/cs_build/bin/marmoset_submit --username=-ddmcinto-q5an-whkuan- \
