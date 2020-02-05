@@ -4,17 +4,9 @@ stages:
   - build
   - test
 
-job cs444-build:
+job cs444-build-and-test:
   stage: build
   tags:
     - main
   script:
-    - make
-
-job cs444-test:
-  stage: test
-  tags:
-    - main
-  script:
-    - make a1
-  
+    - make a1Direct

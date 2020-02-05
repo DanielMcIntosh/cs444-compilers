@@ -2990,21 +2990,6 @@ void parserASTUnaryExpressionNotPlusMinus_Name(vector<Tree *> *stack) {
   stack->push_back(t);
 }
 
-// UnaryExpressionNotPlusMinus -> ~ UnaryExpression 
-void parserASTUnaryExpressionNotPlusMinus_TilUnaryExpression(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpression);
-  auto t = new TreeUnaryExpressionNotPlusMinus;
-  parserASTSetTopParents(stack, 1, t);
-  parserASTPopulateChildrenList(t, *stack, 1);
-  t->variant = NTUnaryExpressionNotPlusMinusVariants::TilUnaryExpression;
-  t->unaryExpression = dynamic_cast<TreeUnaryExpression *>((*stack)[n - 1]);
-  assert(t->unaryExpression);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
 // UnaryExpressionNotPlusMinus -> ! UnaryExpression 
 void parserASTUnaryExpressionNotPlusMinus_BangUnaryExpression(vector<Tree *> *stack) {
   int n = stack->size();
@@ -3399,17 +3384,85 @@ void parserASTEqualityExpression_EqualityExpressionBangEqRelationalExpression(ve
   stack->push_back(t);
 }
 
-// ConditionalAndExpression -> EqualityExpression 
-void parserASTConditionalAndExpression_EqualityExpression(vector<Tree *> *stack) {
+// AndExpression -> EqualityExpression 
+void parserASTAndExpression_EqualityExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::EqualityExpression);
+  auto t = new TreeAndExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
+  t->variant = NTAndExpressionVariants::EqualityExpression;
+  t->equalityExpression = dynamic_cast<TreeEqualityExpression *>((*stack)[n - 1]);
+  assert(t->equalityExpression);
+  stack->pop_back();
+  stack->push_back(t);
+}
+
+// AndExpression -> AndExpression & EqualityExpression 
+void parserASTAndExpression_AndExpressionAmpEqualityExpression(vector<Tree *> *stack) {
+  int n = stack->size();
+  assert(n >= 2);
+  assert((*stack)[n - 2]->type == NonTerminalType::AndExpression);
+  assert((*stack)[n - 1]->type == NonTerminalType::EqualityExpression);
+  auto t = new TreeAndExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
+  t->variant = NTAndExpressionVariants::AndExpressionAmpEqualityExpression;
+  t->andExpression = dynamic_cast<TreeAndExpression *>((*stack)[n - 2]);
+  assert(t->andExpression);
+  t->equalityExpression = dynamic_cast<TreeEqualityExpression *>((*stack)[n - 1]);
+  assert(t->equalityExpression);
+  stack->pop_back();
+  stack->pop_back();
+  stack->push_back(t);
+}
+
+// InclusiveOrExpression -> AndExpression 
+void parserASTInclusiveOrExpression_AndExpression(vector<Tree *> *stack) {
+  int n = stack->size();
+  assert(n >= 1);
+  assert((*stack)[n - 1]->type == NonTerminalType::AndExpression);
+  auto t = new TreeInclusiveOrExpression;
+  parserASTSetTopParents(stack, 1, t);
+  parserASTPopulateChildrenList(t, *stack, 1);
+  t->variant = NTInclusiveOrExpressionVariants::AndExpression;
+  t->andExpression = dynamic_cast<TreeAndExpression *>((*stack)[n - 1]);
+  assert(t->andExpression);
+  stack->pop_back();
+  stack->push_back(t);
+}
+
+// InclusiveOrExpression -> InclusiveOrExpression | ExclusiveOrExpression 
+void parserASTInclusiveOrExpression_InclusiveOrExpressionOrExclusiveOrExpression(vector<Tree *> *stack) {
+  int n = stack->size();
+  assert(n >= 2);
+  assert((*stack)[n - 2]->type == NonTerminalType::InclusiveOrExpression);
+  assert((*stack)[n - 1]->type == NonTerminalType::ExclusiveOrExpression);
+  auto t = new TreeInclusiveOrExpression;
+  parserASTSetTopParents(stack, 2, t);
+  parserASTPopulateChildrenList(t, *stack, 2);
+  t->variant = NTInclusiveOrExpressionVariants::InclusiveOrExpressionOrExclusiveOrExpression;
+  t->inclusiveOrExpression = dynamic_cast<TreeInclusiveOrExpression *>((*stack)[n - 2]);
+  assert(t->inclusiveOrExpression);
+  t->exclusiveOrExpression = dynamic_cast<TreeExclusiveOrExpression *>((*stack)[n - 1]);
+  assert(t->exclusiveOrExpression);
+  stack->pop_back();
+  stack->pop_back();
+  stack->push_back(t);
+}
+
+// ConditionalAndExpression -> InclusiveOrExpression 
+void parserASTConditionalAndExpression_InclusiveOrExpression(vector<Tree *> *stack) {
+  int n = stack->size();
+  assert(n >= 1);
+  assert((*stack)[n - 1]->type == NonTerminalType::InclusiveOrExpression);
   auto t = new TreeConditionalAndExpression;
   parserASTSetTopParents(stack, 1, t);
   parserASTPopulateChildrenList(t, *stack, 1);
-  t->variant = NTConditionalAndExpressionVariants::EqualityExpression;
-  t->equalityExpression = dynamic_cast<TreeEqualityExpression *>((*stack)[n - 1]);
-  assert(t->equalityExpression);
+  t->variant = NTConditionalAndExpressionVariants::InclusiveOrExpression;
+  t->inclusiveOrExpression = dynamic_cast<TreeInclusiveOrExpression *>((*stack)[n - 1]);
+  assert(t->inclusiveOrExpression);
   stack->pop_back();
   stack->push_back(t);
 }
@@ -3756,7 +3809,6 @@ void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
     parserASTUnaryExpression_UnaryExpressionNotPlusMinus, 
     parserASTUnaryExpressionNotPlusMinus_Primary, 
     parserASTUnaryExpressionNotPlusMinus_Name, 
-    parserASTUnaryExpressionNotPlusMinus_TilUnaryExpression, 
     parserASTUnaryExpressionNotPlusMinus_BangUnaryExpression, 
     parserASTUnaryExpressionNotPlusMinus_CastExpression, 
     parserASTCastExpression_LParPrimitiveTypeRParUnaryExpression, 
@@ -3779,7 +3831,11 @@ void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
     parserASTEqualityExpression_RelationalExpression, 
     parserASTEqualityExpression_EqualityExpressionEqEqRelationalExpression, 
     parserASTEqualityExpression_EqualityExpressionBangEqRelationalExpression, 
-    parserASTConditionalAndExpression_EqualityExpression, 
+    parserASTAndExpression_EqualityExpression, 
+    parserASTAndExpression_AndExpressionAmpEqualityExpression, 
+    parserASTInclusiveOrExpression_AndExpression, 
+    parserASTInclusiveOrExpression_InclusiveOrExpressionOrExclusiveOrExpression, 
+    parserASTConditionalAndExpression_InclusiveOrExpression, 
     parserASTConditionalAndExpression_ConditionalAndExpressionAmpAmpEqualityExpression, 
     parserASTConditionalOrExpression_ConditionalAndExpression, 
     parserASTConditionalOrExpression_ConditionalOrExpressionOrOrConditionalAndExpression, 

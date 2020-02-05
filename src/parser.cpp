@@ -31,7 +31,7 @@ void parseTokens(std::vector<Scan::LexToken> const &inputTokens, Grammar const& 
 
 			// pop all the children from the token stack and
 			// change our state back to what it was before we inserted any of the children
-			for (uint i = 0; i < reduction.rhs.size(); ++i)
+			for (size_t i = 0; i < reduction.rhs.size(); ++i)
 			{
 				tokenStack.pop_back();
 				stateStack.pop_back();
