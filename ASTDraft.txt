@@ -1,12 +1,73 @@
+format for grammar based AST description:
+RuleLHS: ClassItProduces(superclass)(other notes)
+	RuleRHS1
+	RuleRHS2
+	...
 
-Type class encompases void?
+In this document, the "parent" class is refering to AST tree parent/child relationships,
+not inheritance. For inheritance, superclass and subclass are used instead.
 
-Build table of equivalent/base symbols?
+A rule is bypassed if the RuleRHS is a single non-terminal node.
+if ClassItProduces is prefixed with a -, it means that none of the rules with this RHS are
+ever used to construct an AST node.
+e.g.
+Type: -Type(subclass of Node)
+	PrimitiveType
+	ReferenceType
 
-TODO: replace list types with a template (1 type, and 2 ints)?
-TODO: change op codes from std::string to enums
-TODO: change from dynmic symbol constants to static symbol constants
+If a ClassItProduces is prefixed with a '.' it means it is not a full-fledged AST node,
+just a pseudoASTNode.
+e.g. Modifiers might get converted to vector<Modifier> instead.
 
+
+Notes/todo's
+maybe change inheritance such that any statements which introduce a new scope share a parent class/inherit from block
+Type class includes void - the grammar prevents void from being used for things other than return type
+replace list types with a template (1 type, and 2 ints)?
+
+===========================AST INHERITANCE===========================
+CompilationUnit: Node
+Expression: Node
+ImportDeclaration: Node
+MemberDeclaration: Node
+Modifier: Node
+Statement: Node
+Type: Node
+TypeDeclaration: Node
+
+PrimitiveType: Type
+
+ConstructorDeclaration: MemberDeclaration
+FieldDeclaration: MemberDeclaration
+MethodDeclaration: MemberDeclaration
+
+Block: Statement
+ExpressionStatement: Statement
+LocalVariableDeclarationStatement: Statement
+ReturnStatement: Statement
+ConditionalStatement: Statement
+
+ForStatement: ConditionalStatement
+IfThenElseStatement: ConditionalStatement
+
+AssignmentExpression: Expression
+BinaryExpression: Expression
+CastExpression: Expression
+LocalVariableDeclaration: Expression
+Name: Expression(convertible to Type?)
+Primary: Expression
+UnaryExpression: Expression
+UnaryExpression: Expression
+
+ArrayAccess: Primary
+ArrayCreationExpression: Primary
+ClassInstanceCreationExpression: Primary
+FieldAccess: Primary
+Literal: Primary
+MethodInvocation: Primary
+This: Primary
+
+====================GRAMMAR BASED AST DESCRIPTION====================
 Goal: DNE
 	CompilationUnit
 
@@ -17,7 +78,7 @@ Literal: Literal?(subclass of Primary)
 	StringLiteral
 	NullLiteral
 
-Type: Type(subclass of Node)
+Type: -Type(subclass of Node)
 	PrimitiveType
 	ReferenceType
 
@@ -28,20 +89,20 @@ PrimitiveType: PrimitiveType?(subclass of Type)
 	</i>int<i>
 	</i>char<i>
 
-ReferenceType: Type(subclass of Node)
+ReferenceType: -Type(subclass of Node)
 	ClassOrInterfaceType
 	ArrayType
 
-ClassOrInterfaceType: Type(subclass of Node)
+ClassOrInterfaceType: -Type(subclass of Node)
 	Name
 
-ClassType: Type(subclass of Node)
+ClassType: -Type(subclass of Node)
 	ClassOrInterfaceType
 
-InterfaceType: Type(subclass of Node)
+InterfaceType: -Type(subclass of Node)
 	ClassOrInterfaceType
 
-ArrayType: Type(subclass of Node)(bool in Type?)
+ArrayType: +ArrayType(subclass of Type)(convert to bool in Type during a second pass?)
 	PrimitiveType </i>[<i> </i>]<i>
 	Name </i>[<i> </i>]<i>
 
@@ -59,14 +120,14 @@ CompilationUnit: CompilationUnit(subclass of Node)
 	ImportDeclarations TypeDeclaration
 	PackageDeclaration ImportDeclarations TypeDeclaration
 
-ImportDeclarations: DNE (vector in parent class)
+ImportDeclarations: .ImportDeclarations(vector in parent class)
 	ImportDeclaration
 	ImportDeclarations ImportDeclaration
 
-PackageDeclaration: PackageDeclaration(subclass of Node)
+PackageDeclaration: +PackageDeclaration(subclass of Node)
 	</i>package<i> Name </i>;<i>
 
-ImportDeclaration: ImportDeclaration(subclass of Node)
+ImportDeclaration: -ImportDeclaration(subclass of Node)
 	SingleTypeImportDeclaration
 	TypeImportOnDemandDeclaration
 
@@ -81,11 +142,11 @@ TypeDeclaration: TypeDeclaration(subclass of Node)
 	InterfaceDeclaration
 	</i>;<i>
 
-Modifiers: DNE (vector in parent class)
+Modifiers: .Modifiers(subclass of Node)(vector in parent class)
 	Modifier
 	Modifiers Modifier
 
-Modifier: Modifier(subclass of Node)
+Modifier: Modifier?(subclass of Node)
 	</i>public<i>
 	</i>protected<i>
 	</i>static<i>
@@ -93,7 +154,7 @@ Modifier: Modifier(subclass of Node)
 	</i>final<i>
 	</i>native<i>
 
-ClassDeclaration: ClassDeclaration(subclass of TypeDeclaration)
+ClassDeclaration: TypeDeclaration(subclass of Node)
 	</i>class<i> Identifier ClassBody
 	Modifiers </i>class<i> Identifier ClassBody
 	</i>class<i> Identifier </i>extends<i> ClassType ClassBody
@@ -103,19 +164,19 @@ ClassDeclaration: ClassDeclaration(subclass of TypeDeclaration)
 	</i>class<i> Identifier </i>extends<i> ClassType </i>implements<i> InterfaceTypeList ClassBody
 	Modifiers </i>class<i> Identifier </i>extends<i> ClassType </i>implements<i> InterfaceTypeList ClassBody
 
-InterfaceTypeList: InterfaceTypeList(dummy)(vector of InterfaceType in parent class)
+InterfaceTypeList: .InterfaceTypeList(vector of InterfaceType in parent class)
 	InterfaceType
 	InterfaceTypeList </i>,<i> InterfaceType
 
-ClassBody: ClassBody(dummy)(vector of MemberDeclaration in parent class)
+ClassBody: .TypeBody(vector of MemberDeclaration in parent class)
 	</i>{<i> </i>}<i>
 	</i>{<i> ClassMemberDeclarations </i>}<i>
 
-ClassMemberDeclarations: MemberDeclarations(dummy)(vector of MemberDeclaration in parent class)
+ClassMemberDeclarations: .MemberDeclarations(vector of MemberDeclaration in parent class)
 	ClassMemberDeclaration
 	ClassMemberDeclarations ClassMemberDeclaration
 
-ClassMemberDeclaration: MemberDeclaration(subclass of Node)
+ClassMemberDeclaration: -MemberDeclaration(subclass of Node)
 	FieldDeclaration
 	MethodDeclaration
 	ConstructorDeclaration
@@ -124,42 +185,42 @@ FieldDeclaration: FieldDeclaration(subclass of MemberDeclaration)
 	Type VariableDeclarator </i>;<i>
 	Modifiers Type VariableDeclarator </i>;<i>
 
-VariableDeclarator: VariableDeclarator(subclass of Node)
+VariableDeclarator: .VariableDeclarator(subclass of Node)(members get moved into parent class)
 	Identifier
 	Identifier </i>=<i> Expression
 
 MethodDeclaration: MethodDeclaration(subclass of MemberDeclaration)
 	MethodHeader MethodBody
 
-MethodHeader: MethodHeader(subclass of Node)
+MethodHeader: .MethodHeader(subclass of Node)(members get moved into parent class)
 	Type MethodDeclarator
 	Modifiers Type MethodDeclarator
 	</i>void<i> MethodDeclarator
 	Modifiers </i>void<i> MethodDeclarator
 
-MethodDeclarator: MethodDeclarator(subclass of Node)
+MethodDeclarator: .MethodDeclarator(subclass of Node)(members get moved into parent class)
 	Identifier </i>(<i> </i>)<i>
 	Identifier </i>(<i> FormalParameterList </i>)<i>
 
-FormalParameterList: DNE (vector of FormalParameter in parent class)
+FormalParameterList: .FormalParameterList(vector of VariableDeclaration in parent class)
 	FormalParameter
 	FormalParameterList </i>,<i> FormalParameter
 
-FormalParameter: FormalParameter(subclass of Node)
+FormalParameter: VariableDeclaration(subclass of Expression)
 	Type Identifier
 
-MethodBody: Statement(subclass of Node)
+MethodBody: -Statement(subclass of Node)
 	Block
 	AbstractMethodBody
 
-AbstractMethodBody: AbstractMethodBody(subclass of Statement)
+AbstractMethodBody: .AbstractMethodBody(subclass of Statement)(just leave method body NULL)
 	</i>;<i>
 
-ConstructorDeclaration: ConstructorDeclaration(subclass of MemberDeclaration)
+ConstructorDeclaration: ConstructorDeclaration?(subclass of MemberDeclaration)(maybe use MethodDeclaration instead?)
 	ConstructorDeclarator Block
 	Modifiers ConstructorDeclarator Block
 
-ConstructorDeclarator: MethodDeclarator(subclass of Node)
+ConstructorDeclarator: .MethodDeclarator(subclass of Node)(members get moved into parent class)
 	Identifier </i>(<i> </i>)<i>
 	Identifier </i>(<i> FormalParameterList </i>)<i>
 
@@ -169,88 +230,88 @@ InterfaceDeclaration: TypeDeclaration(subclass of Node)
 	</i>interface<i> Identifier ExtendsInterfaces InterfaceBody
 	Modifiers </i>interface<i> Identifier ExtendsInterfaces InterfaceBody
 
-ExtendsInterfaces: DNE (vector of InterfaceTypes in parent class)
+ExtendsInterfaces: .ExtendsInterfaces(vector of InterfaceType in parent class)
 	</i>extends<i> InterfaceType
 	ExtendsInterfaces </i>,<i> InterfaceType
 
-InterfaceBody: DNE (InterfaceMemberDeclarations DNE)
+InterfaceBody: .TypeBody(vector of MemberDeclaration in parent class)
 	</i>{<i> </i>}<i>
 	</i>{<i> InterfaceMemberDeclarations </i>}<i>
 
-InterfaceMemberDeclarations: DNE (vector of MemberDeclaration's in parent class)
+InterfaceMemberDeclarations: .InterfaceMemberDeclarations(vector of MemberDeclaration in parent class)
 	InterfaceMemberDeclaration
 	InterfaceMemberDeclarations InterfaceMemberDeclaration
 
-InterfaceMemberDeclaration: MethodDeclaration(subclass of MemberDeclaration)
+InterfaceMemberDeclaration: -MethodDeclaration(subclass of MemberDeclaration)
 	AbstractMethodDeclaration
 
 AbstractMethodDeclaration: MethodDeclaration(subclass of MemberDeclaration)
 	MethodHeader </i>;<i>
 
-Block: Block(subclass of Statement)
+Block: Block(subclass of Statement)(can't always be flatened into parent because it introduces a new scope)
 	</i>{<i> </i>}<i>
 	</i>{<i> BlockStatements </i>}<i>
 
-BlockStatements: DNE (vector of BlockStatement in parent class)
+BlockStatements: .BlockStatements(vector of BlockStatement in parent class)
 	BlockStatement
 	BlockStatements BlockStatement
 
-BlockStatement: Statement(subclass of Node)
+BlockStatement: -Statement(subclass of Node)
 	LocalVariableDeclarationStatement
 	Statement
 
 LocalVariableDeclarationStatement: LocalVariableDeclarationStatement(subclass of Statement)
 	LocalVariableDeclaration </i>;<i>
 
-LocalVariableDeclaration: LocalVariableDeclaration(subclass of Expression)
+LocalVariableDeclaration: VariableDeclaration(subclass of Expression)
 	Type VariableDeclarator
 
-Statement: Statement(subclass of Node)
+Statement: -Statement(subclass of Node)
 	StatementWithoutTrailingSubstatement
 	IfThenStatement
 	IfThenElseStatement
 	WhileStatement
 	ForStatement
 
-StatementNoShortIf: Statement(subclass of Node)
+StatementNoShortIf: -Statement(subclass of Node)
 	StatementWithoutTrailingSubstatement
 	IfThenElseStatementNoShortIf
 	WhileStatementNoShortIf
 	ForStatementNoShortIf
 
-StatementWithoutTrailingSubstatement: Statement(subclass of Node)
+StatementWithoutTrailingSubstatement: -Statement(subclass of Node)
 	Block
 	EmptyStatement
 	ExpressionStatement
 	ReturnStatement
 
-EmptyStatement: ExpressionStatement(subclass of Statement)
+EmptyStatement: ExpressionStatement(subclass of Statement)(leave StatementExpression NULL)
 	</i>;<i>
 
 ExpressionStatement: ExpressionStatement(subclass of Statement)
 	StatementExpression </i>;<i>
 
-StatementExpression: Expression(subclass of Node)
+StatementExpression: -Expression(subclass of Node)
 	Assignment
 	MethodInvocation
 	ClassInstanceCreationExpression
 
-IfThenStatement: ConditionalStatement(subclass of Statement)
+IfThenStatement: ConditionalStatement?(subclass of Statement)
 	</i>if<i> </i>(<i> Expression </i>)<i> Statement
 
-IfThenElseStatement: IfThenElseStatement(subclass of ConditionalStatement)
+IfThenElseStatement: IfThenElseStatement?(subclass of ConditionalStatement)
 	</i>if<i> </i>(<i> Expression </i>)<i> StatementNoShortIf </i>else<i> Statement
 
-IfThenElseStatementNoShortIf: IfThenElseStatement(subclass of ConditionalStatement)
+IfThenElseStatementNoShortIf: IfThenElseStatement?(subclass of ConditionalStatement)
 	</i>if<i> </i>(<i> Expression </i>)<i> StatementNoShortIf </i>else<i> StatementNoShortIf
 
-WhileStatement: ConditionalStatement(subclass of Statement)
+WhileStatement: ConditionalStatement?(subclass of Statement)
 	</i>while<i> </i>(<i> Expression </i>)<i> Statement
 
-WhileStatementNoShortIf: ConditionalStatement(subclass of Statement)
+WhileStatementNoShortIf: ConditionalStatement?(subclass of Statement)
 	</i>while<i> </i>(<i> Expression </i>)<i> StatementNoShortIf
 
-ForStatement: ForStatement(subclass of ConditionalStatement)
+ForStatement: ForStatement?(subclass of ConditionalStatement)
 	</i>for<i> </i>(<i> </i>;<i> </i>;<i> </i>)<i> Statement
 	</i>for<i> </i>(<i> ForInit </i>;<i> </i>;<i> </i>)<i> Statement
 	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> </i>)<i> Statement
@@ -260,7 +321,7 @@ ForStatement: ForStatement(subclass of ConditionalStatement)
 	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> Statement
 	</i>for<i> </i>(<i> ForInit </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> Statement
 
-ForStatementNoShortIf: ForStatement(subclass of ConditionalStatement)
+ForStatementNoShortIf: ForStatement?(subclass of ConditionalStatement)
 	</i>for<i> </i>(<i> </i>;<i> </i>;<i> </i>)<i> StatementNoShortIf
 	</i>for<i> </i>(<i> ForInit </i>;<i> </i>;<i> </i>)<i> StatementNoShortIf
 	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> </i>)<i> StatementNoShortIf
@@ -270,22 +331,22 @@ ForStatementNoShortIf: ForStatement(subclass of ConditionalStatement)
 	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
 	</i>for<i> </i>(<i> ForInit </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
 
-ForInit: Expression(subclass of Node)
+ForInit: -Expression(subclass of Node)
 	StatementExpression
 	LocalVariableDeclaration
 
-ForUpdate: Expression(subclass of Node)
+ForUpdate: -Expression(subclass of Node)
 	StatementExpression
 
 ReturnStatement: ReturnStatement(subclass of Statement)
 	</i>return<i> </i>;<i>
 	</i>return<i> Expression </i>;<i>
 
-Primary: Primary(subclass of Expression)
+Primary: -Primary(subclass of Expression)
 	PrimaryNoNewArray
 	ArrayCreationExpression
 
-PrimaryNoNewArray: Primary(subclass of Expression)
+PrimaryNoNewArray: -Primary(subclass of Expression)
 	Literal
 	This
 	ParethesizedExpression
@@ -297,14 +358,14 @@ PrimaryNoNewArray: Primary(subclass of Expression)
 This: This(subclass of Primary)
 	</i>this<i>
 
-ParenthesizedExpression: ParenthesizedExpression(subclass of Primary)
+ParenthesizedExpression: .ParenthesizedExpression(subclass of Primary)(maybe move expression into parent?)
 	</i>(<i> Expression </i>)<i>
 
 ClassInstanceCreationExpression: ClassInstanceCreationExpression(subclass of Primary)
 	</i>new<i> ClassType </i>(<i> </i>)<i>
 	</i>new<i> ClassType </i>(<i> ArgumentList </i>)<i>
 
-ArgumentList: DNE(replace with vector<Expression> in parent node)
+ArgumentList: .ArgumentList(replace with vector<Expression> in parent node)
 	Expression
 	ArgumentList </i>,<i> Expression
 
@@ -332,7 +393,6 @@ UnaryExpression: UnaryExpression(subclass of Expression)
 UnaryExpressionNotPlusMinus: UnaryExpression(subclass of Expression)
 	Primary
 	Name
-	</i>~<i> UnaryExpression
 	</i>!<i> UnaryExpression
 	CastExpression
 
@@ -366,25 +426,33 @@ EqualityExpression: BinaryExpression(subclass of Expression)
 	EqualityExpression </i>==<i> RelationalExpression
 	EqualityExpression </i>!=<i> RelationalExpression
 
-ConditionalAndExpression: BinaryExpression(subclass of Expression)
+AndExpression: BinaryExpression(subclass of Expression)
 	EqualityExpression
+	AndExpression </i>&amp;<i> EqualityExpression
+
+InclusiveOrExpression: BinaryExpression(subclass of Expression)
+	AndExpression
+	InclusiveOrExpression </i>|<i> ExclusiveOrExpression
+
+ConditionalAndExpression: BinaryExpression(subclass of Expression)
+	InclusiveOrExpression
 	ConditionalAndExpression </i>&amp;&amp;<i> EqualityExpression
 
 ConditionalOrExpression: BinaryExpression(subclass of Expression)
 	ConditionalAndExpression
 	ConditionalOrExpression </i>||<i> ConditionalAndExpression
 
-AssignmentExpression: Expression(subclass of Node)
+AssignmentExpression: -Expression(subclass of Node)
 	ConditionalOrExpression
 	Assignment
 
 Assignment: AssignmentExpression(subclass of Expression)
 	LeftHandSide </i>=<i> AssignmentExpression
 
-LeftHandSide: Expression(subclass of Node)
+LeftHandSide: -Expression(subclass of Node)
 	Name
 	FieldAccess
 	ArrayAccess
 
-Expression: Expression(subclass of Node)
+Expression: -Expression(subclass of Node)
 	AssignmentExpression

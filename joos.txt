@@ -39,8 +39,7 @@ Comment:
   EndOfLineComment
 
 TraditionalComment:
-  char / char * NotStar CommentTail
-  char / char * char * NotStar CommentTail
+  char / char * CommentTail
 
 EndOfLineComment:
   char / char / LineTerminator

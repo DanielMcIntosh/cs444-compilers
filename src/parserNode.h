@@ -4,40 +4,41 @@ namespace Parse {
 enum class TerminalType {
   StringLiteral,            // StringLiteral 
   CharacterLiteral,         // CharacterLiteral 
-  Til,                      // ~ 
+  Or,                       // | 
   LCBr,                     // { 
   IntegerLiteral,           // IntegerLiteral 
   While,                    // while 
-  Gr,                       // > 
-  BOF,                      // BOF 
-  LeEq,                     // <= 
+  This2,                    // this 
   LSBr,                     // [ 
   Minus,                    // - 
   byte,                     // byte 
-  BangEq,                   // != 
-  BooleanLiteral,           // BooleanLiteral 
-  Void,                     // void 
-  Bang,                     // ! 
-  Identifier,               // Identifier 
-  Perc,                     // % 
-  Com,                      // , 
-  This2,                    // this 
-  Eof,                      // EOF 
-  RPar,                     // ) 
-  RSBr,                     // ] 
   Eq,                       // = 
   Short,                    // short 
   SCol,                     // ; 
   interface,                // interface 
   New,                      // new 
+  RPar,                     // ) 
+  RSBr,                     // ] 
+  BangEq,                   // != 
+  Amp,                      // & 
+  BooleanLiteral,           // BooleanLiteral 
+  Void,                     // void 
+  Bang,                     // ! 
+  BOF,                      // BOF 
+  Gr,                       // > 
   OrOr,                     // || 
   abstract,                 // abstract 
-  Dot,                      // . 
   Star,                     // * 
+  Dot,                      // . 
+  Eof,                      // EOF 
+  Identifier,               // Identifier 
+  Perc,                     // % 
+  Com,                      // , 
   EqEq,                     // == 
+  Plus,                     // + 
   GrEq,                     // >= 
   AmpAmp,                   // && 
-  Plus,                     // + 
+  LeEq,                     // <= 
   boolean,                  // boolean 
   Char,                     // char 
   Static,                   // static 
@@ -45,8 +46,8 @@ enum class TerminalType {
   NullLiteral,              // NullLiteral 
   Else,                     // else 
   extends,                  // extends 
-  Le,                       // < 
   LPar,                     // ( 
+  Le,                       // < 
   final,                    // final 
   For,                      // for 
   If,                       // if 
@@ -68,6 +69,7 @@ enum class NonTerminalType {
   LeftHandSide, 
   AssignmentExpression, 
   ConditionalAndExpression, 
+  AndExpression, 
   EqualityExpression, 
   MultiplicativeExpression, 
   CastExpression, 
@@ -106,10 +108,6 @@ enum class NonTerminalType {
   ArrayCreationExpression, 
   Name, 
   ClassBody, 
-  BooleanLiteral, 
-  TypeDeclaration, 
-  StatementWithoutTrailingSubstatement, 
-  Identifier, 
   InterfaceType, 
   CompilationUnit, 
   ForStatementNoShortIf, 
@@ -119,14 +117,20 @@ enum class NonTerminalType {
   StatementExpression, 
   ImportDeclarations, 
   ReferenceType, 
+  TypeDeclaration, 
+  InclusiveOrExpression, 
+  StatementWithoutTrailingSubstatement, 
+  Identifier, 
   UnaryExpression, 
   StringLiteral, 
   PrimitiveType, 
   MethodHeader, 
   Modifiers, 
+  BooleanLiteral, 
   PackageDeclaration, 
   MethodDeclaration, 
   Literal, 
+  ExclusiveOrExpression, 
   UnaryExpressionNotPlusMinus, 
   Type, 
   ConstructorDeclaration, 
@@ -162,6 +166,7 @@ enum class NonTerminalType {
 struct TreeLeftHandSide;
 struct TreeAssignmentExpression;
 struct TreeConditionalAndExpression;
+struct TreeAndExpression;
 struct TreeEqualityExpression;
 struct TreeMultiplicativeExpression;
 struct TreeCastExpression;
@@ -200,10 +205,6 @@ struct TreeClassOrInterfaceType;
 struct TreeArrayCreationExpression;
 struct TreeName;
 struct TreeClassBody;
-struct TreeBooleanLiteral;
-struct TreeTypeDeclaration;
-struct TreeStatementWithoutTrailingSubstatement;
-struct TreeIdentifier;
 struct TreeInterfaceType;
 struct TreeCompilationUnit;
 struct TreeForStatementNoShortIf;
@@ -213,14 +214,20 @@ struct TreeGoal;
 struct TreeStatementExpression;
 struct TreeImportDeclarations;
 struct TreeReferenceType;
+struct TreeTypeDeclaration;
+struct TreeInclusiveOrExpression;
+struct TreeStatementWithoutTrailingSubstatement;
+struct TreeIdentifier;
 struct TreeUnaryExpression;
 struct TreeStringLiteral;
 struct TreePrimitiveType;
 struct TreeMethodHeader;
 struct TreeModifiers;
+struct TreeBooleanLiteral;
 struct TreePackageDeclaration;
 struct TreeMethodDeclaration;
 struct TreeLiteral;
+struct TreeExclusiveOrExpression;
 struct TreeUnaryExpressionNotPlusMinus;
 struct TreeType;
 struct TreeConstructorDeclaration;

@@ -323,7 +323,6 @@ UnaryExpression:
 UnaryExpressionNotPlusMinus:
 	Primary
 	Name
-	</i>~<i> UnaryExpression
 	</i>!<i> UnaryExpression
 	CastExpression
 
@@ -357,8 +356,16 @@ EqualityExpression:
 	EqualityExpression </i>==<i> RelationalExpression
 	EqualityExpression </i>!=<i> RelationalExpression
 
-ConditionalAndExpression:
+AndExpression:
 	EqualityExpression
+	AndExpression </i>&amp;<i> EqualityExpression
+
+InclusiveOrExpression:
+	AndExpression
+	InclusiveOrExpression </i>|<i> ExclusiveOrExpression
+
+ConditionalAndExpression:
+	InclusiveOrExpression
 	ConditionalAndExpression </i>&amp;&amp;<i> EqualityExpression
 
 ConditionalOrExpression:

@@ -39,7 +39,7 @@ WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimiza
   -Wzero-as-null-pointer-constant -Wctor-dtor-privacy -Wnon-virtual-dtor \
   -Woverloaded-virtual -Wno-unused-parameter -Wfatal-errors
 
-EXTRA_CXXFLAGS += $(WARNINGS) -D__USE_MINGW_ANSI_STDIO -MMD -MP -std=c++17
+EXTRA_CXXFLAGS += $(WARNINGS) -D__USE_MINGW_ANSI_STDIO -MMD -MP -std=c++17 -I$(SRC_DIRS)
 
 fast:
 	$(MAKE) joosc -j12
@@ -58,7 +58,7 @@ $(BUILD_DIR_DEBUG)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
 	$(CXX) $(CXXFLAGS_DEBUG) $(EXTRA_CXXFLAGS)  -c $< -o $@
 
-.PHONY: clean header a1 a1Fast marmoset
+.PHONY: clean header a1 a1Direct marmoset
 
 clean:
 	$(RM) -r $(BUILD_DIR_RELEASE)
@@ -70,9 +70,9 @@ header: joosc_debug
 	export JOOSC_PARSER=1; ./joosc_debug  
 
 a1:
-	$(MAKE) a1Fast -j12
+	$(MAKE) a1Direct -j12
 
-a1Fast: joosc_debug
+a1Direct: joosc_debug
 	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=1; ./joosc_debug
 
 marmoset:

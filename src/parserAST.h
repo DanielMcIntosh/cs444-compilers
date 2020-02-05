@@ -37,17 +37,34 @@ struct TreeAssignmentExpression: public Tree {
 };
 
 enum class NTConditionalAndExpressionVariants {
-  EqualityExpression,  // EqualityExpression 
+  InclusiveOrExpression,  // InclusiveOrExpression 
   ConditionalAndExpressionAmpAmpEqualityExpression,  // ConditionalAndExpression && EqualityExpression 
   Max,
 };
 
 struct TreeConditionalAndExpression: public Tree {
   enum NTConditionalAndExpressionVariants variant;
+  TreeEqualityExpression* equalityExpression;
+  TreeInclusiveOrExpression* inclusiveOrExpression;
   TreeConditionalAndExpression* conditionalAndExpression;
+
+  TreeConditionalAndExpression(): Tree(NonTerminalType::ConditionalAndExpression), variant(NTConditionalAndExpressionVariants::Max), equalityExpression(nullptr) , inclusiveOrExpression(nullptr) , conditionalAndExpression(nullptr) {
+
+  }
+};
+
+enum class NTAndExpressionVariants {
+  EqualityExpression,  // EqualityExpression 
+  AndExpressionAmpEqualityExpression,  // AndExpression & EqualityExpression 
+  Max,
+};
+
+struct TreeAndExpression: public Tree {
+  enum NTAndExpressionVariants variant;
+  TreeAndExpression* andExpression;
   TreeEqualityExpression* equalityExpression;
 
-  TreeConditionalAndExpression(): Tree(NonTerminalType::ConditionalAndExpression), variant(NTConditionalAndExpressionVariants::Max), conditionalAndExpression(nullptr) , equalityExpression(nullptr) {
+  TreeAndExpression(): Tree(NonTerminalType::AndExpression), variant(NTAndExpressionVariants::Max), andExpression(nullptr) , equalityExpression(nullptr) {
 
   }
 };
@@ -667,69 +684,6 @@ struct TreeClassBody: public Tree {
   }
 };
 
-enum class NTBooleanLiteralVariants {
-  Max,
-};
-
-struct TreeBooleanLiteral: public Tree {
-  enum NTBooleanLiteralVariants variant;
-  bool value;
-
-  TreeBooleanLiteral(): Tree(NonTerminalType::BooleanLiteral), variant(NTBooleanLiteralVariants::Max){
-
-  }
-};
-
-enum class NTTypeDeclarationVariants {
-  ClassDeclaration,  // ClassDeclaration 
-  InterfaceDeclaration,  // InterfaceDeclaration 
-  SCol,  // ; 
-  Max,
-};
-
-struct TreeTypeDeclaration: public Tree {
-  enum NTTypeDeclarationVariants variant;
-  TreeInterfaceDeclaration* interfaceDeclaration;
-  TreeClassDeclaration* classDeclaration;
-
-  TreeTypeDeclaration(): Tree(NonTerminalType::TypeDeclaration), variant(NTTypeDeclarationVariants::Max), interfaceDeclaration(nullptr) , classDeclaration(nullptr) {
-
-  }
-};
-
-enum class NTStatementWithoutTrailingSubstatementVariants {
-  Block,  // Block 
-  EmptyStatement,  // EmptyStatement 
-  ExpressionStatement,  // ExpressionStatement 
-  ReturnStatement,  // ReturnStatement 
-  Max,
-};
-
-struct TreeStatementWithoutTrailingSubstatement: public Tree {
-  enum NTStatementWithoutTrailingSubstatementVariants variant;
-  TreeExpressionStatement* expressionStatement;
-  TreeBlock* block;
-  TreeReturnStatement* returnStatement;
-  TreeEmptyStatement* emptyStatement;
-
-  TreeStatementWithoutTrailingSubstatement(): Tree(NonTerminalType::StatementWithoutTrailingSubstatement), variant(NTStatementWithoutTrailingSubstatementVariants::Max), expressionStatement(nullptr) , block(nullptr) , returnStatement(nullptr) , emptyStatement(nullptr) {
-
-  }
-};
-
-enum class NTIdentifierVariants {
-  Max,
-};
-
-struct TreeIdentifier: public Tree {
-  enum NTIdentifierVariants variant;
-  string value;
-
-  TreeIdentifier(): Tree(NonTerminalType::Identifier), variant(NTIdentifierVariants::Max){
-
-  }
-};
-
 enum class NTInterfaceTypeVariants {
   ClassOrInterfaceType,  // ClassOrInterfaceType 
   Max,
@@ -883,6 +837,73 @@ struct TreeReferenceType: public Tree {
   }
 };
 
+enum class NTTypeDeclarationVariants {
+  ClassDeclaration,  // ClassDeclaration 
+  InterfaceDeclaration,  // InterfaceDeclaration 
+  SCol,  // ; 
+  Max,
+};
+
+struct TreeTypeDeclaration: public Tree {
+  enum NTTypeDeclarationVariants variant;
+  TreeInterfaceDeclaration* interfaceDeclaration;
+  TreeClassDeclaration* classDeclaration;
+
+  TreeTypeDeclaration(): Tree(NonTerminalType::TypeDeclaration), variant(NTTypeDeclarationVariants::Max), interfaceDeclaration(nullptr) , classDeclaration(nullptr) {
+
+  }
+};
+
+enum class NTInclusiveOrExpressionVariants {
+  AndExpression,  // AndExpression 
+  InclusiveOrExpressionOrExclusiveOrExpression,  // InclusiveOrExpression | ExclusiveOrExpression 
+  Max,
+};
+
+struct TreeInclusiveOrExpression: public Tree {
+  enum NTInclusiveOrExpressionVariants variant;
+  TreeExclusiveOrExpression* exclusiveOrExpression;
+  TreeAndExpression* andExpression;
+  TreeInclusiveOrExpression* inclusiveOrExpression;
+
+  TreeInclusiveOrExpression(): Tree(NonTerminalType::InclusiveOrExpression), variant(NTInclusiveOrExpressionVariants::Max), exclusiveOrExpression(nullptr) , andExpression(nullptr) , inclusiveOrExpression(nullptr) {
+
+  }
+};
+
+enum class NTStatementWithoutTrailingSubstatementVariants {
+  Block,  // Block 
+  EmptyStatement,  // EmptyStatement 
+  ExpressionStatement,  // ExpressionStatement 
+  ReturnStatement,  // ReturnStatement 
+  Max,
+};
+
+struct TreeStatementWithoutTrailingSubstatement: public Tree {
+  enum NTStatementWithoutTrailingSubstatementVariants variant;
+  TreeExpressionStatement* expressionStatement;
+  TreeBlock* block;
+  TreeReturnStatement* returnStatement;
+  TreeEmptyStatement* emptyStatement;
+
+  TreeStatementWithoutTrailingSubstatement(): Tree(NonTerminalType::StatementWithoutTrailingSubstatement), variant(NTStatementWithoutTrailingSubstatementVariants::Max), expressionStatement(nullptr) , block(nullptr) , returnStatement(nullptr) , emptyStatement(nullptr) {
+
+  }
+};
+
+enum class NTIdentifierVariants {
+  Max,
+};
+
+struct TreeIdentifier: public Tree {
+  enum NTIdentifierVariants variant;
+  string value;
+
+  TreeIdentifier(): Tree(NonTerminalType::Identifier), variant(NTIdentifierVariants::Max){
+
+  }
+};
+
 enum class NTUnaryExpressionVariants {
   MinusUnaryExpression,  // - UnaryExpression 
   UnaryExpressionNotPlusMinus,  // UnaryExpressionNotPlusMinus 
@@ -964,6 +985,19 @@ struct TreeModifiers: public Tree {
   }
 };
 
+enum class NTBooleanLiteralVariants {
+  Max,
+};
+
+struct TreeBooleanLiteral: public Tree {
+  enum NTBooleanLiteralVariants variant;
+  bool value;
+
+  TreeBooleanLiteral(): Tree(NonTerminalType::BooleanLiteral), variant(NTBooleanLiteralVariants::Max){
+
+  }
+};
+
 enum class NTPackageDeclarationVariants {
   packageNameSCol,  // package Name ; 
   Max,
@@ -1015,10 +1049,21 @@ struct TreeLiteral: public Tree {
   }
 };
 
+enum class NTExclusiveOrExpressionVariants {
+  Max,
+};
+
+struct TreeExclusiveOrExpression: public Tree {
+  enum NTExclusiveOrExpressionVariants variant;
+
+  TreeExclusiveOrExpression(): Tree(NonTerminalType::ExclusiveOrExpression), variant(NTExclusiveOrExpressionVariants::Max){
+
+  }
+};
+
 enum class NTUnaryExpressionNotPlusMinusVariants {
   Primary,  // Primary 
   Name,  // Name 
-  TilUnaryExpression,  // ~ UnaryExpression 
   BangUnaryExpression,  // ! UnaryExpression 
   CastExpression,  // CastExpression 
   Max,
