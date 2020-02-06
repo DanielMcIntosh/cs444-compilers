@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ast/memberDeclaration.h>
-#include <ast/type.h>
-#include <ast/modifier.h>
+#include "ast/memberDeclaration.h"
+#include "ast/type.h"
+#include "ast/expression.h"
 #include <memory>
 
 namespace AST

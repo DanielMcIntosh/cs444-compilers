@@ -1,13 +1,12 @@
 #pragma once
 
-#include "ast/primary.h"
 #include "ast/expression.h"
 #include <memory>
 
 namespace AST
 {
 
-class ArrayAccess: public Primary
+class ArrayAccess: public Expression
 {
 public:
 	ArrayAccess(std::vector<Parser::ASTToken>& children);

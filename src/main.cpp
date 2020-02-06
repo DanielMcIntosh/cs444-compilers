@@ -9,9 +9,9 @@
 #include "utility.h"
 #include "platform.h"
 #include "scanner.h"
-#include "parser.h"
+#include "pt/parser.h"
 #include "grammar.h"
-#include "parserAutoAST.h"
+#include "pt/parserAutoAST.h"
 #include "weeder.h"
 
 using namespace std;

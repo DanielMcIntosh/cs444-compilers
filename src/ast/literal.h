@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ast/primary.h"
+#include "ast/expression.h"
 
 namespace AST
 {
 
-class Literal: public Primary
+class Literal: public Expression
 {
 public:
 	Literal(std::vector<Parser::ASTToken>& children);

@@ -34,6 +34,7 @@ Modifier: Node
 Statement: Node
 Type: Node
 TypeDeclaration: Node
+VariableDeclaration: Node
 
 PrimitiveType: Type
 
@@ -53,25 +54,21 @@ IfThenElseStatement: ConditionalStatement
 AssignmentExpression: Expression
 BinaryExpression: Expression
 CastExpression: Expression
-LocalVariableDeclaration: Expression
 Name: Expression(convertible to Type?)
-Primary: Expression
 UnaryExpression: Expression
-UnaryExpression: Expression
-
-ArrayAccess: Primary
-ArrayCreationExpression: Primary
-ClassInstanceCreationExpression: Primary
-FieldAccess: Primary
-Literal: Primary
-MethodInvocation: Primary
-This: Primary
+ArrayAccess: Expression
+ArrayCreationExpression: Expression
+ClassInstanceCreationExpression: Expression
+FieldAccess: Expression
+Literal: Expression
+MethodInvocation: Expression
+This: Expression
 
 ====================GRAMMAR BASED AST DESCRIPTION====================
 Goal: DNE
 	CompilationUnit
 
-Literal: Literal?(subclass of Primary)
+Literal: Literal?(subclass of Expression)
 	IntegerLiteral
 	BooleanLiteral
 	CharacterLiteral
@@ -155,13 +152,9 @@ Modifier: Modifier?(subclass of Node)
 	</i>native<i>
 
 ClassDeclaration: TypeDeclaration(subclass of Node)
-	</i>class<i> Identifier ClassBody
 	Modifiers </i>class<i> Identifier ClassBody
-	</i>class<i> Identifier </i>extends<i> ClassType ClassBody
 	Modifiers </i>class<i> Identifier </i>extends<i> ClassType ClassBody
-	</i>class<i> Identifier </i>implements<i> InterfaceTypeList ClassBody
 	Modifiers </i>class<i> Identifier </i>implements<i> InterfaceTypeList ClassBody
-	</i>class<i> Identifier </i>extends<i> ClassType </i>implements<i> InterfaceTypeList ClassBody
 	Modifiers </i>class<i> Identifier </i>extends<i> ClassType </i>implements<i> InterfaceTypeList ClassBody
 
 InterfaceTypeList: .InterfaceTypeList(vector of InterfaceType in parent class)
@@ -182,7 +175,6 @@ ClassMemberDeclaration: -MemberDeclaration(subclass of Node)
 	ConstructorDeclaration
 
 FieldDeclaration: FieldDeclaration(subclass of MemberDeclaration)
-	Type VariableDeclarator </i>;<i>
 	Modifiers Type VariableDeclarator </i>;<i>
 
 VariableDeclarator: .VariableDeclarator(subclass of Node)(members get moved into parent class)
@@ -206,7 +198,7 @@ FormalParameterList: .FormalParameterList(vector of VariableDeclaration in paren
 	FormalParameter
 	FormalParameterList </i>,<i> FormalParameter
 
-FormalParameter: VariableDeclaration(subclass of Expression)
+FormalParameter: VariableDeclaration(subclass of Node)
 	Type Identifier
 
 MethodBody: -Statement(subclass of Node)
@@ -217,7 +209,6 @@ AbstractMethodBody: .AbstractMethodBody(subclass of Statement)(just leave method
 	</i>;<i>
 
 ConstructorDeclaration: ConstructorDeclaration?(subclass of MemberDeclaration)(maybe use MethodDeclaration instead?)
-	ConstructorDeclarator Block
 	Modifiers ConstructorDeclarator Block
 
 ConstructorDeclarator: .MethodDeclarator(subclass of Node)(members get moved into parent class)
@@ -263,7 +254,7 @@ BlockStatement: -Statement(subclass of Node)
 LocalVariableDeclarationStatement: LocalVariableDeclarationStatement(subclass of Statement)
 	LocalVariableDeclaration </i>;<i>
 
-LocalVariableDeclaration: VariableDeclaration(subclass of Expression)
+LocalVariableDeclaration: VariableDeclaration(subclass of Node)
 	Type VariableDeclarator
 
 Statement: -Statement(subclass of Node)
@@ -281,14 +272,11 @@ StatementNoShortIf: -Statement(subclass of Node)
 
 StatementWithoutTrailingSubstatement: -Statement(subclass of Node)
 	Block
-	EmptyStatement
 	ExpressionStatement
 	ReturnStatement
 
-EmptyStatement: ExpressionStatement(subclass of Statement)(leave StatementExpression NULL)
-	</i>;<i>
-
 ExpressionStatement: ExpressionStatement(subclass of Statement)
+	</i>;<i>
 	StatementExpression </i>;<i>
 
 StatementExpression: -Expression(subclass of Node)
@@ -312,28 +300,20 @@ WhileStatementNoShortIf: ConditionalStatement?(subclass of Statement)
 	</i>while<i> </i>(<i> Expression </i>)<i> StatementNoShortIf
 
 ForStatement: ForStatement?(subclass of ConditionalStatement)
-	</i>for<i> </i>(<i> </i>;<i> </i>;<i> </i>)<i> Statement
-	</i>for<i> </i>(<i> ForInit </i>;<i> </i>;<i> </i>)<i> Statement
-	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> </i>)<i> Statement
-	</i>for<i> </i>(<i> ForInit </i>;<i> Expression </i>;<i> </i>)<i> Statement
-	</i>for<i> </i>(<i> </i>;<i> </i>;<i> ForUpdate </i>)<i> Statement
-	</i>for<i> </i>(<i> ForInit </i>;<i> </i>;<i> ForUpdate </i>)<i> Statement
-	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> Statement
-	</i>for<i> </i>(<i> ForInit </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> Statement
+	</i>for<i> </i>(<i> ForInit </i>;<i> </i>)<i> Statement
+	</i>for<i> </i>(<i> ForInit Expression </i>;<i> </i>)<i> Statement
+	</i>for<i> </i>(<i> ForInit </i>;<i> ForUpdate </i>)<i> Statement
+	</i>for<i> </i>(<i> ForInit Expression </i>;<i> ForUpdate </i>)<i> Statement
 
 ForStatementNoShortIf: ForStatement?(subclass of ConditionalStatement)
-	</i>for<i> </i>(<i> </i>;<i> </i>;<i> </i>)<i> StatementNoShortIf
-	</i>for<i> </i>(<i> ForInit </i>;<i> </i>;<i> </i>)<i> StatementNoShortIf
-	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> </i>)<i> StatementNoShortIf
-	</i>for<i> </i>(<i> ForInit </i>;<i> Expression </i>;<i> </i>)<i> StatementNoShortIf
-	</i>for<i> </i>(<i> </i>;<i> </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
-	</i>for<i> </i>(<i> ForInit </i>;<i> </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
-	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
-	</i>for<i> </i>(<i> ForInit </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
+	</i>for<i> </i>(<i> ForInit </i>;<i> </i>)<i> StatementNoShortIf
+	</i>for<i> </i>(<i> ForInit Expression </i>;<i> </i>)<i> StatementNoShortIf
+	</i>for<i> </i>(<i> ForInit </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
+	</i>for<i> </i>(<i> ForInit Expression </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
 
-ForInit: -Expression(subclass of Node)
-	StatementExpression
-	LocalVariableDeclaration
+ForInit: -Statement(subclass of Node)
+	ExpressionStatement
+	LocalVariableDeclarationStatement
 
 ForUpdate: -Expression(subclass of Node)
 	StatementExpression
@@ -342,11 +322,11 @@ ReturnStatement: ReturnStatement(subclass of Statement)
 	</i>return<i> </i>;<i>
 	</i>return<i> Expression </i>;<i>
 
-Primary: -Primary(subclass of Expression)
+Primary: -Expression(subclass of Node)
 	PrimaryNoNewArray
 	ArrayCreationExpression
 
-PrimaryNoNewArray: -Primary(subclass of Expression)
+PrimaryNoNewArray: -Expression(subclass of Node)
 	Literal
 	This
 	ParethesizedExpression
@@ -355,13 +335,13 @@ PrimaryNoNewArray: -Primary(subclass of Expression)
 	MethodInvocation
 	ArrayAccess
 
-This: This(subclass of Primary)
+This: This(subclass of Expression)
 	</i>this<i>
 
-ParenthesizedExpression: .ParenthesizedExpression(subclass of Primary)(maybe move expression into parent?)
+ParenthesizedExpression: .ParenthesizedExpression(subclass of Expression)(maybe move expression into parent?)
 	</i>(<i> Expression </i>)<i>
 
-ClassInstanceCreationExpression: ClassInstanceCreationExpression(subclass of Primary)
+ClassInstanceCreationExpression: ClassInstanceCreationExpression(subclass of Expression)
 	</i>new<i> ClassType </i>(<i> </i>)<i>
 	</i>new<i> ClassType </i>(<i> ArgumentList </i>)<i>
 
@@ -369,20 +349,20 @@ ArgumentList: .ArgumentList(replace with vector<Expression> in parent node)
 	Expression
 	ArgumentList </i>,<i> Expression
 
-ArrayCreationExpression: ArrayCreationExpression(subclass of Primary)
+ArrayCreationExpression: ArrayCreationExpression(subclass of Expression)
 	</i>new<i> PrimitiveType </i>[<i> Expression </i>]<i>
 	</i>new<i> ClassOrInterfaceType </i>[<i> Expression </i>]<i>
 
-FieldAccess: FieldAccess(subclass of Primary)
+FieldAccess: FieldAccess(subclass of Expression)
 	Primary </i>.<i> Identifier
 
-MethodInvocation: MethodInvocation(subclass of Primary)
+MethodInvocation: MethodInvocation(subclass of Expression)
 	Name </i>(<i> </i>)<i>
 	Name </i>(<i> ArgumentList </i>)<i>
 	Primary </i>.<i> Identifier </i>(<i> </i>)<i>
 	Primary </i>.<i> Identifier </i>(<i> ArgumentList </i>)<i>
 
-ArrayAccess: ArrayAccess(subclass of Primary)
+ArrayAccess: ArrayAccess(subclass of Expression)
 	Name </i>[<i> Expression </i>]<i>
 	PrimaryNoNewArray </i>[<i> Expression </i>]<i>
 
@@ -432,7 +412,7 @@ AndExpression: BinaryExpression(subclass of Expression)
 
 InclusiveOrExpression: BinaryExpression(subclass of Expression)
 	AndExpression
-	InclusiveOrExpression </i>|<i> ExclusiveOrExpression
+	InclusiveOrExpression </i>|<i> AndExpression
 
 ConditionalAndExpression: BinaryExpression(subclass of Expression)
 	InclusiveOrExpression
