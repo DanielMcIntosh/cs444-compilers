@@ -2,6 +2,7 @@
 #include <array>
 #include <unordered_set>
 #include <unordered_map>
+#include <string>
 
 #include "parserAutoAST.h"
 #include "parserASTBase.h"
@@ -148,48 +149,56 @@ const string &lexTokenTranslate(const Scan::LexToken &lexToken) {
   return gError;
 }
 
-void treeStackShiftTerminal(vector<Tree *> *stack, const Scan::LexToken &token) {
+bool treeStackShiftTerminal(vector<Tree *> *stack, const Scan::LexToken &token) {
   if (token.name == "Identifier") {
     auto t = new TreeIdentifier;
     t->value = token.lexeme;
     stack->push_back(t);
-    return;
+    return true;
   }
 
   if (token.name == "IntegerLiteral") {
     auto t = new TreeIntegerLiteral;
-    t->value = atoi(token.lexeme.c_str());
+    try {
+      t->value = stoul(token.lexeme);
+    } catch (std::out_of_range) {
+      // push anyway or we will leak t
+      stack->push_back(t);
+      return false;
+    }
     stack->push_back(t);
-    return;
+    // reject values larger than 1<<31, to check if 1<<31 is actually a negated literal in weeder
+    return t->value <= (1u<<31);
   }
 
   if (token.name == "BooleanLiteral") {
     auto t = new TreeBooleanLiteral;
     /* TODO */
     stack->push_back(t);
-    return;
+    return true;
   }
 
   if (token.name == "StringLiteral") {
     auto t = new TreeStringLiteral;
     t->value = token.lexeme;
     stack->push_back(t);
-    return;
+    return true;
   }
 
   if (token.name == "NullLiteral") {
     auto t = new TreeNullLiteral;
     t->value = false;
     stack->push_back(t);
-    return;
+    return true;
   }
 
   if (token.name == "CharacterLiteral") {
     auto t = new TreeCharacterLiteral;
     t->value = token.lexeme[0];
     stack->push_back(t);
-    return;
+    return true;
   }
+  return true;
 }
 
 ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens) {
@@ -220,7 +229,11 @@ ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens) {
         auto next_state = rule_id;
         token_stack.push_back(canonicalTokenName);
         state_stack.push_back(next_state);
-        treeStackShiftTerminal(&tree_stack, token);
+        if (!treeStackShiftTerminal(&tree_stack, token)) {
+          parserASTDeleteStack(&tree_stack);
+          result.errorLexTokenIndex = tokenIndex;
+          return result;
+        }
         break;
       }
 
@@ -303,7 +316,7 @@ struct NonTerminalRule {
   string serial;
   string lhs;
   vector<string> rhs;
-  vector<s32> captureIndices;  
+  vector<s32> captureIndices;
 };
 
 struct NonTerminalInfo {
@@ -317,7 +330,7 @@ struct AutoAST {
   unordered_map<string, NonTerminalInfo> nonTerminalMap;
   array<NonTerminalRule *, MaxNumRule> ruleById;
   s32 numRules;
-  
+
   vector<unique_ptr<NonTerminalRule>> ruleList;
 };
 
@@ -347,7 +360,7 @@ void autoASTReadLR1(AutoAST *autoast, const char *lr1Text) {
     info->alphabeticalName = getAlphabeticalName(name);
 
     if (isTerminalCapture(name))
-      autoast->nonTerminalMap.insert(make_pair(name, NonTerminalInfo()));          
+      autoast->nonTerminalMap.insert(make_pair(name, NonTerminalInfo()));
   }
   lineHelper(line, &textPtr);
 
@@ -446,9 +459,9 @@ void autoASTOutputHeaders(AutoAST *autoast) {
     for (const auto &[name, info]: autoast->nonTerminalMap) {
       strAppend(output, "  %s, \n", name.c_str());
     }
-    
+
     output->append("  Max,\n};\n\n");
-    strFlushFILE(output, parserNodeHdr);    
+    strFlushFILE(output, parserNodeHdr);
   }
 
   { // Forward declarations
@@ -458,14 +471,14 @@ void autoASTOutputHeaders(AutoAST *autoast) {
       strAppend(output, "struct Tree%s;\n", name.c_str());
     }
     output->append("\n");
-    strFlushFILE(output, parserNodeHdr);        
+    strFlushFILE(output, parserNodeHdr);
   }
 
   { // footer
     string _output, *output = &_output;
     output->append("} // namespace Parse \n");
-    output->append("#endif // PARSERAST_DISABLED\n");    
-    strFlushFILE(output, parserNodeHdr);            
+    output->append("#endif // PARSERAST_DISABLED\n");
+    strFlushFILE(output, parserNodeHdr);
   }
   fclose(parserNodeHdr);
 
@@ -475,7 +488,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
     string _output, *output = &_output;
     output->append("#pragma once\n");
     output->append("#include \"parserASTBase.h\"\n");
-    output->append("#ifndef PARSERAST_DISABLED\n");    
+    output->append("#ifndef PARSERAST_DISABLED\n");
     output->append("namespace Parse { \n");
     strFlushFILE(output, parserASTHdr);
   }
@@ -491,7 +504,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
       for (const NonTerminalRule *rule: info.rules) {
         if (rule->serial.empty())
           continue;
-        
+
         strAppend(output, "  %s,  // ", rule->serial.c_str());
 
         for (const string &rhs: rule->rhs) {
@@ -546,7 +559,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
           for (const string &child : capturingChildren) {
             string memberName = child;
             // want lower case member name
-            memberName[0] += 'a' - 'A';            
+            memberName[0] += 'a' - 'A';
             strAppend(output, ", %s(nullptr) ", memberName.c_str());
           }
         }
@@ -564,7 +577,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
   { // footer
     string _output, *output = &_output;
     output->append("} // namespace Parse \n");
-    output->append("#endif // PARSERAST_DISABLED\n");        
+    output->append("#endif // PARSERAST_DISABLED\n");
     strFlushFILE(output, parserASTHdr);
   }
 
@@ -575,16 +588,16 @@ void autoASTOutputHeaders(AutoAST *autoast) {
   { // header
     string _output, *output = &_output;
     output->append("#include \"parserASTBase.h\"\n");
-    output->append("#ifndef PARSERAST_DISABLED\n");    
-    output->append("#include \"parserAST.h\"\n");    
+    output->append("#ifndef PARSERAST_DISABLED\n");
+    output->append("#include \"parserAST.h\"\n");
     output->append("#include \"parserNode.h\"\n\n");
     output->append("namespace Parse { \n\n");
     output->append("using namespace std;\n\n");
     strFlushFILE(output, parserASTImpl);
-  }  
+  }
 
   { // functions
-    string _output, *output = &_output;    
+    string _output, *output = &_output;
     for (const auto &rule : autoast->ruleList) {
       const char *lhsName = rule->lhs.c_str();
       strAppend(output, "// %s -> ", lhsName);
@@ -592,20 +605,20 @@ void autoASTOutputHeaders(AutoAST *autoast) {
         output->append(rhs);
         output->append(" ");
       }
-      output->append("\n");      
+      output->append("\n");
       strAppend(output, "void parserAST%s_%s(%s) {\n", lhsName,
                 rule->serial.c_str(),
                 "vector<Tree *> *stack");
       size_t captureSize = rule->captureIndices.size();
-      
+
       if (rule->rhs.empty())
         goto FuncGenEnd;
 
       // int n = stack->size();
       output->append("  int n = stack->size();\n");
-      // assert(n >= *);  
+      // assert(n >= *);
       strAppend(output, "  assert(n >= %ld);\n", captureSize);
-      
+
       for (size_t i = 0; i < captureSize; ++i) {
         s32 index = rule->captureIndices[i];
         //   assert((*stack)[n - *]->type == NonTerminalType::*);
@@ -649,7 +662,7 @@ void autoASTOutputHeaders(AutoAST *autoast) {
   }
 
   { // dispatch table
-    string _output, *output = &_output;    
+    string _output, *output = &_output;
     output->append("void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {\n");
     output->append("  static const parserASTFunc table[] = {\n");
     for (s32 i = 0; i < autoast->numRules; ++i) {
@@ -665,11 +678,11 @@ void autoASTOutputHeaders(AutoAST *autoast) {
   { // footer
     string _output, *output = &_output;
     output->append("} // namespace Parse \n");
-    output->append("#endif // PARSERAST_DISABLED\n");        
+    output->append("#endif // PARSERAST_DISABLED\n");
     strFlushFILE(output, parserASTImpl);
-  }  
+  }
 
-  fclose(parserASTImpl);  
+  fclose(parserASTImpl);
 }
 
 string getAlphabeticalName(const string &terminal) {
