@@ -81,13 +81,12 @@ enum class NonTerminalType {
   ReturnStatement, 
   ForUpdate, 
   ForInit, 
+  ForStatement, 
   Primary, 
   WhileStatement, 
   IfThenElseStatement, 
   ArgumentList, 
   IfThenStatement, 
-  ForStatement, 
-  EmptyStatement, 
   StatementNoShortIf, 
   Statement, 
   Expression, 
@@ -130,7 +129,6 @@ enum class NonTerminalType {
   PackageDeclaration, 
   MethodDeclaration, 
   Literal, 
-  ExclusiveOrExpression, 
   UnaryExpressionNotPlusMinus, 
   Type, 
   ConstructorDeclaration, 
@@ -178,13 +176,12 @@ struct TreeAdditiveExpression;
 struct TreeReturnStatement;
 struct TreeForUpdate;
 struct TreeForInit;
+struct TreeForStatement;
 struct TreePrimary;
 struct TreeWhileStatement;
 struct TreeIfThenElseStatement;
 struct TreeArgumentList;
 struct TreeIfThenStatement;
-struct TreeForStatement;
-struct TreeEmptyStatement;
 struct TreeStatementNoShortIf;
 struct TreeStatement;
 struct TreeExpression;
@@ -227,7 +224,6 @@ struct TreeBooleanLiteral;
 struct TreePackageDeclaration;
 struct TreeMethodDeclaration;
 struct TreeLiteral;
-struct TreeExclusiveOrExpression;
 struct TreeUnaryExpressionNotPlusMinus;
 struct TreeType;
 struct TreeConstructorDeclaration;

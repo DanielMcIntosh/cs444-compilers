@@ -700,25 +700,6 @@ void parserASTModifier_native(vector<Tree *> *stack) {
   stack->push_back(t);
 }
 
-// ClassDeclaration -> class Identifier ClassBody 
-void parserASTClassDeclaration_ClassIdentifierClassBody(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::Identifier);
-  assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
-  auto t = new TreeClassDeclaration;
-  parserASTSetTopParents(stack, 2, t);
-  parserASTPopulateChildrenList(t, *stack, 2);
-  t->variant = NTClassDeclarationVariants::ClassIdentifierClassBody;
-  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 2]);
-  assert(t->identifier);
-  t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
-  assert(t->classBody);
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
 // ClassDeclaration -> Modifiers class Identifier ClassBody 
 void parserASTClassDeclaration_ModifiersClassIdentifierClassBody(vector<Tree *> *stack) {
   int n = stack->size();
@@ -734,29 +715,6 @@ void parserASTClassDeclaration_ModifiersClassIdentifierClassBody(vector<Tree *> 
   assert(t->modifiers);
   t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 2]);
   assert(t->identifier);
-  t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
-  assert(t->classBody);
-  stack->pop_back();
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ClassDeclaration -> class Identifier extends ClassType ClassBody 
-void parserASTClassDeclaration_ClassIdentifierextendsClassTypeClassBody(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 3);
-  assert((*stack)[n - 3]->type == NonTerminalType::Identifier);
-  assert((*stack)[n - 2]->type == NonTerminalType::ClassType);
-  assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
-  auto t = new TreeClassDeclaration;
-  parserASTSetTopParents(stack, 3, t);
-  parserASTPopulateChildrenList(t, *stack, 3);
-  t->variant = NTClassDeclarationVariants::ClassIdentifierextendsClassTypeClassBody;
-  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 3]);
-  assert(t->identifier);
-  t->classType = dynamic_cast<TreeClassType *>((*stack)[n - 2]);
-  assert(t->classType);
   t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
   assert(t->classBody);
   stack->pop_back();
@@ -792,29 +750,6 @@ void parserASTClassDeclaration_ModifiersClassIdentifierextendsClassTypeClassBody
   stack->push_back(t);
 }
 
-// ClassDeclaration -> class Identifier implements InterfaceTypeList ClassBody 
-void parserASTClassDeclaration_ClassIdentifierimplementsInterfaceTypeListClassBody(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 3);
-  assert((*stack)[n - 3]->type == NonTerminalType::Identifier);
-  assert((*stack)[n - 2]->type == NonTerminalType::InterfaceTypeList);
-  assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
-  auto t = new TreeClassDeclaration;
-  parserASTSetTopParents(stack, 3, t);
-  parserASTPopulateChildrenList(t, *stack, 3);
-  t->variant = NTClassDeclarationVariants::ClassIdentifierimplementsInterfaceTypeListClassBody;
-  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 3]);
-  assert(t->identifier);
-  t->interfaceTypeList = dynamic_cast<TreeInterfaceTypeList *>((*stack)[n - 2]);
-  assert(t->interfaceTypeList);
-  t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
-  assert(t->classBody);
-  stack->pop_back();
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
 // ClassDeclaration -> Modifiers class Identifier implements InterfaceTypeList ClassBody 
 void parserASTClassDeclaration_ModifiersClassIdentifierimplementsInterfaceTypeListClassBody(vector<Tree *> *stack) {
   int n = stack->size();
@@ -831,33 +766,6 @@ void parserASTClassDeclaration_ModifiersClassIdentifierimplementsInterfaceTypeLi
   assert(t->modifiers);
   t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 3]);
   assert(t->identifier);
-  t->interfaceTypeList = dynamic_cast<TreeInterfaceTypeList *>((*stack)[n - 2]);
-  assert(t->interfaceTypeList);
-  t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
-  assert(t->classBody);
-  stack->pop_back();
-  stack->pop_back();
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ClassDeclaration -> class Identifier extends ClassType implements InterfaceTypeList ClassBody 
-void parserASTClassDeclaration_ClassIdentifierextendsClassTypeimplementsInterfaceTypeListClassBody(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 4);
-  assert((*stack)[n - 4]->type == NonTerminalType::Identifier);
-  assert((*stack)[n - 3]->type == NonTerminalType::ClassType);
-  assert((*stack)[n - 2]->type == NonTerminalType::InterfaceTypeList);
-  assert((*stack)[n - 1]->type == NonTerminalType::ClassBody);
-  auto t = new TreeClassDeclaration;
-  parserASTSetTopParents(stack, 4, t);
-  parserASTPopulateChildrenList(t, *stack, 4);
-  t->variant = NTClassDeclarationVariants::ClassIdentifierextendsClassTypeimplementsInterfaceTypeListClassBody;
-  t->identifier = dynamic_cast<TreeIdentifier *>((*stack)[n - 4]);
-  assert(t->identifier);
-  t->classType = dynamic_cast<TreeClassType *>((*stack)[n - 3]);
-  assert(t->classType);
   t->interfaceTypeList = dynamic_cast<TreeInterfaceTypeList *>((*stack)[n - 2]);
   assert(t->interfaceTypeList);
   t->classBody = dynamic_cast<TreeClassBody *>((*stack)[n - 1]);
@@ -1035,25 +943,6 @@ void parserASTClassMemberDeclaration_ConstructorDeclaration(vector<Tree *> *stac
   t->variant = NTClassMemberDeclarationVariants::ConstructorDeclaration;
   t->constructorDeclaration = dynamic_cast<TreeConstructorDeclaration *>((*stack)[n - 1]);
   assert(t->constructorDeclaration);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// FieldDeclaration -> Type VariableDeclarator ; 
-void parserASTFieldDeclaration_TypeVariableDeclaratorSCol(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::Type);
-  assert((*stack)[n - 1]->type == NonTerminalType::VariableDeclarator);
-  auto t = new TreeFieldDeclaration;
-  parserASTSetTopParents(stack, 2, t);
-  parserASTPopulateChildrenList(t, *stack, 2);
-  t->variant = NTFieldDeclarationVariants::TypeVariableDeclaratorSCol;
-  t->type = dynamic_cast<TreeType *>((*stack)[n - 2]);
-  assert(t->type);
-  t->variableDeclarator = dynamic_cast<TreeVariableDeclarator *>((*stack)[n - 1]);
-  assert(t->variableDeclarator);
-  stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
 }
@@ -1335,25 +1224,6 @@ void parserASTAbstractMethodBody_SCol(vector<Tree *> *stack) {
   parserASTSetTopParents(stack, 0, t);
   parserASTPopulateChildrenList(t, *stack, 0);
   t->variant = NTAbstractMethodBodyVariants::SCol;
-  stack->push_back(t);
-}
-
-// ConstructorDeclaration -> ConstructorDeclarator Block 
-void parserASTConstructorDeclaration_ConstructorDeclaratorBlock(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::ConstructorDeclarator);
-  assert((*stack)[n - 1]->type == NonTerminalType::Block);
-  auto t = new TreeConstructorDeclaration;
-  parserASTSetTopParents(stack, 2, t);
-  parserASTPopulateChildrenList(t, *stack, 2);
-  t->variant = NTConstructorDeclarationVariants::ConstructorDeclaratorBlock;
-  t->constructorDeclarator = dynamic_cast<TreeConstructorDeclarator *>((*stack)[n - 2]);
-  assert(t->constructorDeclarator);
-  t->block = dynamic_cast<TreeBlock *>((*stack)[n - 1]);
-  assert(t->block);
-  stack->pop_back();
-  stack->pop_back();
   stack->push_back(t);
 }
 
@@ -1904,21 +1774,6 @@ void parserASTStatementWithoutTrailingSubstatement_Block(vector<Tree *> *stack) 
   stack->push_back(t);
 }
 
-// StatementWithoutTrailingSubstatement -> EmptyStatement 
-void parserASTStatementWithoutTrailingSubstatement_EmptyStatement(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::EmptyStatement);
-  auto t = new TreeStatementWithoutTrailingSubstatement;
-  parserASTSetTopParents(stack, 1, t);
-  parserASTPopulateChildrenList(t, *stack, 1);
-  t->variant = NTStatementWithoutTrailingSubstatementVariants::EmptyStatement;
-  t->emptyStatement = dynamic_cast<TreeEmptyStatement *>((*stack)[n - 1]);
-  assert(t->emptyStatement);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
 // StatementWithoutTrailingSubstatement -> ExpressionStatement 
 void parserASTStatementWithoutTrailingSubstatement_ExpressionStatement(vector<Tree *> *stack) {
   int n = stack->size();
@@ -1949,14 +1804,14 @@ void parserASTStatementWithoutTrailingSubstatement_ReturnStatement(vector<Tree *
   stack->push_back(t);
 }
 
-// EmptyStatement -> ; 
-void parserASTEmptyStatement_SCol(vector<Tree *> *stack) {
+// ExpressionStatement -> ; 
+void parserASTExpressionStatement_SCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
-  auto t = new TreeEmptyStatement;
+  auto t = new TreeExpressionStatement;
   parserASTSetTopParents(stack, 0, t);
   parserASTPopulateChildrenList(t, *stack, 0);
-  t->variant = NTEmptyStatementVariants::SCol;
+  t->variant = NTExpressionStatementVariants::SCol;
   stack->push_back(t);
 }
 
@@ -2123,23 +1978,8 @@ void parserASTWhileStatementNoShortIf_WhileLParExpressionRParStatementNoShortIf(
   stack->push_back(t);
 }
 
-// ForStatement -> for ( ; ; ) Statement 
-void parserASTForStatement_ForLParSColSColRParStatement(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::Statement);
-  auto t = new TreeForStatement;
-  parserASTSetTopParents(stack, 1, t);
-  parserASTPopulateChildrenList(t, *stack, 1);
-  t->variant = NTForStatementVariants::ForLParSColSColRParStatement;
-  t->statement = dynamic_cast<TreeStatement *>((*stack)[n - 1]);
-  assert(t->statement);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ForStatement -> for ( ForInit ; ; ) Statement 
-void parserASTForStatement_ForLParForInitSColSColRParStatement(vector<Tree *> *stack) {
+// ForStatement -> for ( ForInit ; ) Statement 
+void parserASTForStatement_ForLParForInitSColRParStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::ForInit);
@@ -2147,7 +1987,7 @@ void parserASTForStatement_ForLParForInitSColSColRParStatement(vector<Tree *> *s
   auto t = new TreeForStatement;
   parserASTSetTopParents(stack, 2, t);
   parserASTPopulateChildrenList(t, *stack, 2);
-  t->variant = NTForStatementVariants::ForLParForInitSColSColRParStatement;
+  t->variant = NTForStatementVariants::ForLParForInitSColRParStatement;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 2]);
   assert(t->forInit);
   t->statement = dynamic_cast<TreeStatement *>((*stack)[n - 1]);
@@ -2157,27 +1997,8 @@ void parserASTForStatement_ForLParForInitSColSColRParStatement(vector<Tree *> *s
   stack->push_back(t);
 }
 
-// ForStatement -> for ( ; Expression ; ) Statement 
-void parserASTForStatement_ForLParSColExpressionSColRParStatement(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::Expression);
-  assert((*stack)[n - 1]->type == NonTerminalType::Statement);
-  auto t = new TreeForStatement;
-  parserASTSetTopParents(stack, 2, t);
-  parserASTPopulateChildrenList(t, *stack, 2);
-  t->variant = NTForStatementVariants::ForLParSColExpressionSColRParStatement;
-  t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 2]);
-  assert(t->expression);
-  t->statement = dynamic_cast<TreeStatement *>((*stack)[n - 1]);
-  assert(t->statement);
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ForStatement -> for ( ForInit ; Expression ; ) Statement 
-void parserASTForStatement_ForLParForInitSColExpressionSColRParStatement(vector<Tree *> *stack) {
+// ForStatement -> for ( ForInit Expression ; ) Statement 
+void parserASTForStatement_ForLParForInitExpressionSColRParStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::ForInit);
@@ -2186,7 +2007,7 @@ void parserASTForStatement_ForLParForInitSColExpressionSColRParStatement(vector<
   auto t = new TreeForStatement;
   parserASTSetTopParents(stack, 3, t);
   parserASTPopulateChildrenList(t, *stack, 3);
-  t->variant = NTForStatementVariants::ForLParForInitSColExpressionSColRParStatement;
+  t->variant = NTForStatementVariants::ForLParForInitExpressionSColRParStatement;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 3]);
   assert(t->forInit);
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 2]);
@@ -2199,27 +2020,8 @@ void parserASTForStatement_ForLParForInitSColExpressionSColRParStatement(vector<
   stack->push_back(t);
 }
 
-// ForStatement -> for ( ; ; ForUpdate ) Statement 
-void parserASTForStatement_ForLParSColSColForUpdateRParStatement(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::ForUpdate);
-  assert((*stack)[n - 1]->type == NonTerminalType::Statement);
-  auto t = new TreeForStatement;
-  parserASTSetTopParents(stack, 2, t);
-  parserASTPopulateChildrenList(t, *stack, 2);
-  t->variant = NTForStatementVariants::ForLParSColSColForUpdateRParStatement;
-  t->forUpdate = dynamic_cast<TreeForUpdate *>((*stack)[n - 2]);
-  assert(t->forUpdate);
-  t->statement = dynamic_cast<TreeStatement *>((*stack)[n - 1]);
-  assert(t->statement);
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ForStatement -> for ( ForInit ; ; ForUpdate ) Statement 
-void parserASTForStatement_ForLParForInitSColSColForUpdateRParStatement(vector<Tree *> *stack) {
+// ForStatement -> for ( ForInit ; ForUpdate ) Statement 
+void parserASTForStatement_ForLParForInitSColForUpdateRParStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::ForInit);
@@ -2228,7 +2030,7 @@ void parserASTForStatement_ForLParForInitSColSColForUpdateRParStatement(vector<T
   auto t = new TreeForStatement;
   parserASTSetTopParents(stack, 3, t);
   parserASTPopulateChildrenList(t, *stack, 3);
-  t->variant = NTForStatementVariants::ForLParForInitSColSColForUpdateRParStatement;
+  t->variant = NTForStatementVariants::ForLParForInitSColForUpdateRParStatement;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 3]);
   assert(t->forInit);
   t->forUpdate = dynamic_cast<TreeForUpdate *>((*stack)[n - 2]);
@@ -2241,31 +2043,8 @@ void parserASTForStatement_ForLParForInitSColSColForUpdateRParStatement(vector<T
   stack->push_back(t);
 }
 
-// ForStatement -> for ( ; Expression ; ForUpdate ) Statement 
-void parserASTForStatement_ForLParSColExpressionSColForUpdateRParStatement(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 3);
-  assert((*stack)[n - 3]->type == NonTerminalType::Expression);
-  assert((*stack)[n - 2]->type == NonTerminalType::ForUpdate);
-  assert((*stack)[n - 1]->type == NonTerminalType::Statement);
-  auto t = new TreeForStatement;
-  parserASTSetTopParents(stack, 3, t);
-  parserASTPopulateChildrenList(t, *stack, 3);
-  t->variant = NTForStatementVariants::ForLParSColExpressionSColForUpdateRParStatement;
-  t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 3]);
-  assert(t->expression);
-  t->forUpdate = dynamic_cast<TreeForUpdate *>((*stack)[n - 2]);
-  assert(t->forUpdate);
-  t->statement = dynamic_cast<TreeStatement *>((*stack)[n - 1]);
-  assert(t->statement);
-  stack->pop_back();
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ForStatement -> for ( ForInit ; Expression ; ForUpdate ) Statement 
-void parserASTForStatement_ForLParForInitSColExpressionSColForUpdateRParStatement(vector<Tree *> *stack) {
+// ForStatement -> for ( ForInit Expression ; ForUpdate ) Statement 
+void parserASTForStatement_ForLParForInitExpressionSColForUpdateRParStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 4);
   assert((*stack)[n - 4]->type == NonTerminalType::ForInit);
@@ -2275,7 +2054,7 @@ void parserASTForStatement_ForLParForInitSColExpressionSColForUpdateRParStatemen
   auto t = new TreeForStatement;
   parserASTSetTopParents(stack, 4, t);
   parserASTPopulateChildrenList(t, *stack, 4);
-  t->variant = NTForStatementVariants::ForLParForInitSColExpressionSColForUpdateRParStatement;
+  t->variant = NTForStatementVariants::ForLParForInitExpressionSColForUpdateRParStatement;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 4]);
   assert(t->forInit);
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 3]);
@@ -2291,23 +2070,8 @@ void parserASTForStatement_ForLParForInitSColExpressionSColForUpdateRParStatemen
   stack->push_back(t);
 }
 
-// ForStatementNoShortIf -> for ( ; ; ) StatementNoShortIf 
-void parserASTForStatementNoShortIf_ForLParSColSColRParStatementNoShortIf(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::StatementNoShortIf);
-  auto t = new TreeForStatementNoShortIf;
-  parserASTSetTopParents(stack, 1, t);
-  parserASTPopulateChildrenList(t, *stack, 1);
-  t->variant = NTForStatementNoShortIfVariants::ForLParSColSColRParStatementNoShortIf;
-  t->statementNoShortIf = dynamic_cast<TreeStatementNoShortIf *>((*stack)[n - 1]);
-  assert(t->statementNoShortIf);
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ForStatementNoShortIf -> for ( ForInit ; ; ) StatementNoShortIf 
-void parserASTForStatementNoShortIf_ForLParForInitSColSColRParStatementNoShortIf(vector<Tree *> *stack) {
+// ForStatementNoShortIf -> for ( ForInit ; ) StatementNoShortIf 
+void parserASTForStatementNoShortIf_ForLParForInitSColRParStatementNoShortIf(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::ForInit);
@@ -2315,7 +2079,7 @@ void parserASTForStatementNoShortIf_ForLParForInitSColSColRParStatementNoShortIf
   auto t = new TreeForStatementNoShortIf;
   parserASTSetTopParents(stack, 2, t);
   parserASTPopulateChildrenList(t, *stack, 2);
-  t->variant = NTForStatementNoShortIfVariants::ForLParForInitSColSColRParStatementNoShortIf;
+  t->variant = NTForStatementNoShortIfVariants::ForLParForInitSColRParStatementNoShortIf;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 2]);
   assert(t->forInit);
   t->statementNoShortIf = dynamic_cast<TreeStatementNoShortIf *>((*stack)[n - 1]);
@@ -2325,27 +2089,8 @@ void parserASTForStatementNoShortIf_ForLParForInitSColSColRParStatementNoShortIf
   stack->push_back(t);
 }
 
-// ForStatementNoShortIf -> for ( ; Expression ; ) StatementNoShortIf 
-void parserASTForStatementNoShortIf_ForLParSColExpressionSColRParStatementNoShortIf(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::Expression);
-  assert((*stack)[n - 1]->type == NonTerminalType::StatementNoShortIf);
-  auto t = new TreeForStatementNoShortIf;
-  parserASTSetTopParents(stack, 2, t);
-  parserASTPopulateChildrenList(t, *stack, 2);
-  t->variant = NTForStatementNoShortIfVariants::ForLParSColExpressionSColRParStatementNoShortIf;
-  t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 2]);
-  assert(t->expression);
-  t->statementNoShortIf = dynamic_cast<TreeStatementNoShortIf *>((*stack)[n - 1]);
-  assert(t->statementNoShortIf);
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ForStatementNoShortIf -> for ( ForInit ; Expression ; ) StatementNoShortIf 
-void parserASTForStatementNoShortIf_ForLParForInitSColExpressionSColRParStatementNoShortIf(vector<Tree *> *stack) {
+// ForStatementNoShortIf -> for ( ForInit Expression ; ) StatementNoShortIf 
+void parserASTForStatementNoShortIf_ForLParForInitExpressionSColRParStatementNoShortIf(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::ForInit);
@@ -2354,7 +2099,7 @@ void parserASTForStatementNoShortIf_ForLParForInitSColExpressionSColRParStatemen
   auto t = new TreeForStatementNoShortIf;
   parserASTSetTopParents(stack, 3, t);
   parserASTPopulateChildrenList(t, *stack, 3);
-  t->variant = NTForStatementNoShortIfVariants::ForLParForInitSColExpressionSColRParStatementNoShortIf;
+  t->variant = NTForStatementNoShortIfVariants::ForLParForInitExpressionSColRParStatementNoShortIf;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 3]);
   assert(t->forInit);
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 2]);
@@ -2367,27 +2112,8 @@ void parserASTForStatementNoShortIf_ForLParForInitSColExpressionSColRParStatemen
   stack->push_back(t);
 }
 
-// ForStatementNoShortIf -> for ( ; ; ForUpdate ) StatementNoShortIf 
-void parserASTForStatementNoShortIf_ForLParSColSColForUpdateRParStatementNoShortIf(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::ForUpdate);
-  assert((*stack)[n - 1]->type == NonTerminalType::StatementNoShortIf);
-  auto t = new TreeForStatementNoShortIf;
-  parserASTSetTopParents(stack, 2, t);
-  parserASTPopulateChildrenList(t, *stack, 2);
-  t->variant = NTForStatementNoShortIfVariants::ForLParSColSColForUpdateRParStatementNoShortIf;
-  t->forUpdate = dynamic_cast<TreeForUpdate *>((*stack)[n - 2]);
-  assert(t->forUpdate);
-  t->statementNoShortIf = dynamic_cast<TreeStatementNoShortIf *>((*stack)[n - 1]);
-  assert(t->statementNoShortIf);
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ForStatementNoShortIf -> for ( ForInit ; ; ForUpdate ) StatementNoShortIf 
-void parserASTForStatementNoShortIf_ForLParForInitSColSColForUpdateRParStatementNoShortIf(vector<Tree *> *stack) {
+// ForStatementNoShortIf -> for ( ForInit ; ForUpdate ) StatementNoShortIf 
+void parserASTForStatementNoShortIf_ForLParForInitSColForUpdateRParStatementNoShortIf(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::ForInit);
@@ -2396,7 +2122,7 @@ void parserASTForStatementNoShortIf_ForLParForInitSColSColForUpdateRParStatement
   auto t = new TreeForStatementNoShortIf;
   parserASTSetTopParents(stack, 3, t);
   parserASTPopulateChildrenList(t, *stack, 3);
-  t->variant = NTForStatementNoShortIfVariants::ForLParForInitSColSColForUpdateRParStatementNoShortIf;
+  t->variant = NTForStatementNoShortIfVariants::ForLParForInitSColForUpdateRParStatementNoShortIf;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 3]);
   assert(t->forInit);
   t->forUpdate = dynamic_cast<TreeForUpdate *>((*stack)[n - 2]);
@@ -2409,31 +2135,8 @@ void parserASTForStatementNoShortIf_ForLParForInitSColSColForUpdateRParStatement
   stack->push_back(t);
 }
 
-// ForStatementNoShortIf -> for ( ; Expression ; ForUpdate ) StatementNoShortIf 
-void parserASTForStatementNoShortIf_ForLParSColExpressionSColForUpdateRParStatementNoShortIf(vector<Tree *> *stack) {
-  int n = stack->size();
-  assert(n >= 3);
-  assert((*stack)[n - 3]->type == NonTerminalType::Expression);
-  assert((*stack)[n - 2]->type == NonTerminalType::ForUpdate);
-  assert((*stack)[n - 1]->type == NonTerminalType::StatementNoShortIf);
-  auto t = new TreeForStatementNoShortIf;
-  parserASTSetTopParents(stack, 3, t);
-  parserASTPopulateChildrenList(t, *stack, 3);
-  t->variant = NTForStatementNoShortIfVariants::ForLParSColExpressionSColForUpdateRParStatementNoShortIf;
-  t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 3]);
-  assert(t->expression);
-  t->forUpdate = dynamic_cast<TreeForUpdate *>((*stack)[n - 2]);
-  assert(t->forUpdate);
-  t->statementNoShortIf = dynamic_cast<TreeStatementNoShortIf *>((*stack)[n - 1]);
-  assert(t->statementNoShortIf);
-  stack->pop_back();
-  stack->pop_back();
-  stack->pop_back();
-  stack->push_back(t);
-}
-
-// ForStatementNoShortIf -> for ( ForInit ; Expression ; ForUpdate ) StatementNoShortIf 
-void parserASTForStatementNoShortIf_ForLParForInitSColExpressionSColForUpdateRParStatementNoShortIf(vector<Tree *> *stack) {
+// ForStatementNoShortIf -> for ( ForInit Expression ; ForUpdate ) StatementNoShortIf 
+void parserASTForStatementNoShortIf_ForLParForInitExpressionSColForUpdateRParStatementNoShortIf(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 4);
   assert((*stack)[n - 4]->type == NonTerminalType::ForInit);
@@ -2443,7 +2146,7 @@ void parserASTForStatementNoShortIf_ForLParForInitSColExpressionSColForUpdateRPa
   auto t = new TreeForStatementNoShortIf;
   parserASTSetTopParents(stack, 4, t);
   parserASTPopulateChildrenList(t, *stack, 4);
-  t->variant = NTForStatementNoShortIfVariants::ForLParForInitSColExpressionSColForUpdateRParStatementNoShortIf;
+  t->variant = NTForStatementNoShortIfVariants::ForLParForInitExpressionSColForUpdateRParStatementNoShortIf;
   t->forInit = dynamic_cast<TreeForInit *>((*stack)[n - 4]);
   assert(t->forInit);
   t->expression = dynamic_cast<TreeExpression *>((*stack)[n - 3]);
@@ -2459,32 +2162,32 @@ void parserASTForStatementNoShortIf_ForLParForInitSColExpressionSColForUpdateRPa
   stack->push_back(t);
 }
 
-// ForInit -> StatementExpression 
-void parserASTForInit_StatementExpression(vector<Tree *> *stack) {
+// ForInit -> ExpressionStatement 
+void parserASTForInit_ExpressionStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::StatementExpression);
+  assert((*stack)[n - 1]->type == NonTerminalType::ExpressionStatement);
   auto t = new TreeForInit;
   parserASTSetTopParents(stack, 1, t);
   parserASTPopulateChildrenList(t, *stack, 1);
-  t->variant = NTForInitVariants::StatementExpression;
-  t->statementExpression = dynamic_cast<TreeStatementExpression *>((*stack)[n - 1]);
-  assert(t->statementExpression);
+  t->variant = NTForInitVariants::ExpressionStatement;
+  t->expressionStatement = dynamic_cast<TreeExpressionStatement *>((*stack)[n - 1]);
+  assert(t->expressionStatement);
   stack->pop_back();
   stack->push_back(t);
 }
 
-// ForInit -> LocalVariableDeclaration 
-void parserASTForInit_LocalVariableDeclaration(vector<Tree *> *stack) {
+// ForInit -> LocalVariableDeclarationStatement 
+void parserASTForInit_LocalVariableDeclarationStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::LocalVariableDeclaration);
+  assert((*stack)[n - 1]->type == NonTerminalType::LocalVariableDeclarationStatement);
   auto t = new TreeForInit;
   parserASTSetTopParents(stack, 1, t);
   parserASTPopulateChildrenList(t, *stack, 1);
-  t->variant = NTForInitVariants::LocalVariableDeclaration;
-  t->localVariableDeclaration = dynamic_cast<TreeLocalVariableDeclaration *>((*stack)[n - 1]);
-  assert(t->localVariableDeclaration);
+  t->variant = NTForInitVariants::LocalVariableDeclarationStatement;
+  t->localVariableDeclarationStatement = dynamic_cast<TreeLocalVariableDeclarationStatement *>((*stack)[n - 1]);
+  assert(t->localVariableDeclarationStatement);
   stack->pop_back();
   stack->push_back(t);
 }
@@ -3433,20 +3136,20 @@ void parserASTInclusiveOrExpression_AndExpression(vector<Tree *> *stack) {
   stack->push_back(t);
 }
 
-// InclusiveOrExpression -> InclusiveOrExpression | ExclusiveOrExpression 
-void parserASTInclusiveOrExpression_InclusiveOrExpressionOrExclusiveOrExpression(vector<Tree *> *stack) {
+// InclusiveOrExpression -> InclusiveOrExpression | AndExpression 
+void parserASTInclusiveOrExpression_InclusiveOrExpressionOrAndExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::InclusiveOrExpression);
-  assert((*stack)[n - 1]->type == NonTerminalType::ExclusiveOrExpression);
+  assert((*stack)[n - 1]->type == NonTerminalType::AndExpression);
   auto t = new TreeInclusiveOrExpression;
   parserASTSetTopParents(stack, 2, t);
   parserASTPopulateChildrenList(t, *stack, 2);
-  t->variant = NTInclusiveOrExpressionVariants::InclusiveOrExpressionOrExclusiveOrExpression;
+  t->variant = NTInclusiveOrExpressionVariants::InclusiveOrExpressionOrAndExpression;
   t->inclusiveOrExpression = dynamic_cast<TreeInclusiveOrExpression *>((*stack)[n - 2]);
   assert(t->inclusiveOrExpression);
-  t->exclusiveOrExpression = dynamic_cast<TreeExclusiveOrExpression *>((*stack)[n - 1]);
-  assert(t->exclusiveOrExpression);
+  t->andExpression = dynamic_cast<TreeAndExpression *>((*stack)[n - 1]);
+  assert(t->andExpression);
   stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
@@ -3679,13 +3382,9 @@ void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
     parserASTModifier_abstract, 
     parserASTModifier_final, 
     parserASTModifier_native, 
-    parserASTClassDeclaration_ClassIdentifierClassBody, 
     parserASTClassDeclaration_ModifiersClassIdentifierClassBody, 
-    parserASTClassDeclaration_ClassIdentifierextendsClassTypeClassBody, 
     parserASTClassDeclaration_ModifiersClassIdentifierextendsClassTypeClassBody, 
-    parserASTClassDeclaration_ClassIdentifierimplementsInterfaceTypeListClassBody, 
     parserASTClassDeclaration_ModifiersClassIdentifierimplementsInterfaceTypeListClassBody, 
-    parserASTClassDeclaration_ClassIdentifierextendsClassTypeimplementsInterfaceTypeListClassBody, 
     parserASTClassDeclaration_ModifiersClassIdentifierextendsClassTypeimplementsInterfaceTypeListClassBody, 
     parserASTInterfaceTypeList_InterfaceType, 
     parserASTInterfaceTypeList_InterfaceTypeListComInterfaceType, 
@@ -3696,7 +3395,6 @@ void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
     parserASTClassMemberDeclaration_FieldDeclaration, 
     parserASTClassMemberDeclaration_MethodDeclaration, 
     parserASTClassMemberDeclaration_ConstructorDeclaration, 
-    parserASTFieldDeclaration_TypeVariableDeclaratorSCol, 
     parserASTFieldDeclaration_ModifiersTypeVariableDeclaratorSCol, 
     parserASTVariableDeclarator_Identifier, 
     parserASTVariableDeclarator_IdentifierEqExpression, 
@@ -3713,7 +3411,6 @@ void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
     parserASTMethodBody_Block, 
     parserASTMethodBody_AbstractMethodBody, 
     parserASTAbstractMethodBody_SCol, 
-    parserASTConstructorDeclaration_ConstructorDeclaratorBlock, 
     parserASTConstructorDeclaration_ModifiersConstructorDeclaratorBlock, 
     parserASTConstructorDeclarator_IdentifierLParRPar, 
     parserASTConstructorDeclarator_IdentifierLParFormalParameterListRPar, 
@@ -3747,10 +3444,9 @@ void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
     parserASTStatementNoShortIf_WhileStatementNoShortIf, 
     parserASTStatementNoShortIf_ForStatementNoShortIf, 
     parserASTStatementWithoutTrailingSubstatement_Block, 
-    parserASTStatementWithoutTrailingSubstatement_EmptyStatement, 
     parserASTStatementWithoutTrailingSubstatement_ExpressionStatement, 
     parserASTStatementWithoutTrailingSubstatement_ReturnStatement, 
-    parserASTEmptyStatement_SCol, 
+    parserASTExpressionStatement_SCol, 
     parserASTExpressionStatement_StatementExpressionSCol, 
     parserASTStatementExpression_Assignment, 
     parserASTStatementExpression_MethodInvocation, 
@@ -3760,24 +3456,16 @@ void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
     parserASTIfThenElseStatementNoShortIf_IfLParExpressionRParStatementNoShortIfElseStatementNoShortIf, 
     parserASTWhileStatement_WhileLParExpressionRParStatement, 
     parserASTWhileStatementNoShortIf_WhileLParExpressionRParStatementNoShortIf, 
-    parserASTForStatement_ForLParSColSColRParStatement, 
-    parserASTForStatement_ForLParForInitSColSColRParStatement, 
-    parserASTForStatement_ForLParSColExpressionSColRParStatement, 
-    parserASTForStatement_ForLParForInitSColExpressionSColRParStatement, 
-    parserASTForStatement_ForLParSColSColForUpdateRParStatement, 
-    parserASTForStatement_ForLParForInitSColSColForUpdateRParStatement, 
-    parserASTForStatement_ForLParSColExpressionSColForUpdateRParStatement, 
-    parserASTForStatement_ForLParForInitSColExpressionSColForUpdateRParStatement, 
-    parserASTForStatementNoShortIf_ForLParSColSColRParStatementNoShortIf, 
-    parserASTForStatementNoShortIf_ForLParForInitSColSColRParStatementNoShortIf, 
-    parserASTForStatementNoShortIf_ForLParSColExpressionSColRParStatementNoShortIf, 
-    parserASTForStatementNoShortIf_ForLParForInitSColExpressionSColRParStatementNoShortIf, 
-    parserASTForStatementNoShortIf_ForLParSColSColForUpdateRParStatementNoShortIf, 
-    parserASTForStatementNoShortIf_ForLParForInitSColSColForUpdateRParStatementNoShortIf, 
-    parserASTForStatementNoShortIf_ForLParSColExpressionSColForUpdateRParStatementNoShortIf, 
-    parserASTForStatementNoShortIf_ForLParForInitSColExpressionSColForUpdateRParStatementNoShortIf, 
-    parserASTForInit_StatementExpression, 
-    parserASTForInit_LocalVariableDeclaration, 
+    parserASTForStatement_ForLParForInitSColRParStatement, 
+    parserASTForStatement_ForLParForInitExpressionSColRParStatement, 
+    parserASTForStatement_ForLParForInitSColForUpdateRParStatement, 
+    parserASTForStatement_ForLParForInitExpressionSColForUpdateRParStatement, 
+    parserASTForStatementNoShortIf_ForLParForInitSColRParStatementNoShortIf, 
+    parserASTForStatementNoShortIf_ForLParForInitExpressionSColRParStatementNoShortIf, 
+    parserASTForStatementNoShortIf_ForLParForInitSColForUpdateRParStatementNoShortIf, 
+    parserASTForStatementNoShortIf_ForLParForInitExpressionSColForUpdateRParStatementNoShortIf, 
+    parserASTForInit_ExpressionStatement, 
+    parserASTForInit_LocalVariableDeclarationStatement, 
     parserASTForUpdate_StatementExpression, 
     parserASTReturnStatement_ReturnSCol, 
     parserASTReturnStatement_ReturnExpressionSCol, 
@@ -3834,7 +3522,7 @@ void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
     parserASTAndExpression_EqualityExpression, 
     parserASTAndExpression_AndExpressionAmpEqualityExpression, 
     parserASTInclusiveOrExpression_AndExpression, 
-    parserASTInclusiveOrExpression_InclusiveOrExpressionOrExclusiveOrExpression, 
+    parserASTInclusiveOrExpression_InclusiveOrExpressionOrAndExpression, 
     parserASTConditionalAndExpression_InclusiveOrExpression, 
     parserASTConditionalAndExpression_ConditionalAndExpressionAmpAmpEqualityExpression, 
     parserASTConditionalOrExpression_ConditionalAndExpression, 

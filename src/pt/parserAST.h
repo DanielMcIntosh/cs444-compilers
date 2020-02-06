@@ -237,17 +237,37 @@ struct TreeForUpdate: public Tree {
 };
 
 enum class NTForInitVariants {
-  StatementExpression,  // StatementExpression 
-  LocalVariableDeclaration,  // LocalVariableDeclaration 
+  ExpressionStatement,  // ExpressionStatement 
+  LocalVariableDeclarationStatement,  // LocalVariableDeclarationStatement 
   Max,
 };
 
 struct TreeForInit: public Tree {
   enum NTForInitVariants variant;
-  TreeLocalVariableDeclaration* localVariableDeclaration;
-  TreeStatementExpression* statementExpression;
+  TreeLocalVariableDeclarationStatement* localVariableDeclarationStatement;
+  TreeExpressionStatement* expressionStatement;
 
-  TreeForInit(): Tree(NonTerminalType::ForInit), variant(NTForInitVariants::Max), localVariableDeclaration(nullptr) , statementExpression(nullptr) {
+  TreeForInit(): Tree(NonTerminalType::ForInit), variant(NTForInitVariants::Max), localVariableDeclarationStatement(nullptr) , expressionStatement(nullptr) {
+
+  }
+};
+
+enum class NTForStatementVariants {
+  ForLParForInitSColRParStatement,  // for ( ForInit ; ) Statement 
+  ForLParForInitExpressionSColRParStatement,  // for ( ForInit Expression ; ) Statement 
+  ForLParForInitSColForUpdateRParStatement,  // for ( ForInit ; ForUpdate ) Statement 
+  ForLParForInitExpressionSColForUpdateRParStatement,  // for ( ForInit Expression ; ForUpdate ) Statement 
+  Max,
+};
+
+struct TreeForStatement: public Tree {
+  enum NTForStatementVariants variant;
+  TreeForUpdate* forUpdate;
+  TreeExpression* expression;
+  TreeForInit* forInit;
+  TreeStatement* statement;
+
+  TreeForStatement(): Tree(NonTerminalType::ForStatement), variant(NTForStatementVariants::Max), forUpdate(nullptr) , expression(nullptr) , forInit(nullptr) , statement(nullptr) {
 
   }
 };
@@ -326,43 +346,6 @@ struct TreeIfThenStatement: public Tree {
   TreeExpression* expression;
 
   TreeIfThenStatement(): Tree(NonTerminalType::IfThenStatement), variant(NTIfThenStatementVariants::Max), statement(nullptr) , expression(nullptr) {
-
-  }
-};
-
-enum class NTForStatementVariants {
-  ForLParSColSColRParStatement,  // for ( ; ; ) Statement 
-  ForLParForInitSColSColRParStatement,  // for ( ForInit ; ; ) Statement 
-  ForLParSColExpressionSColRParStatement,  // for ( ; Expression ; ) Statement 
-  ForLParForInitSColExpressionSColRParStatement,  // for ( ForInit ; Expression ; ) Statement 
-  ForLParSColSColForUpdateRParStatement,  // for ( ; ; ForUpdate ) Statement 
-  ForLParForInitSColSColForUpdateRParStatement,  // for ( ForInit ; ; ForUpdate ) Statement 
-  ForLParSColExpressionSColForUpdateRParStatement,  // for ( ; Expression ; ForUpdate ) Statement 
-  ForLParForInitSColExpressionSColForUpdateRParStatement,  // for ( ForInit ; Expression ; ForUpdate ) Statement 
-  Max,
-};
-
-struct TreeForStatement: public Tree {
-  enum NTForStatementVariants variant;
-  TreeForUpdate* forUpdate;
-  TreeExpression* expression;
-  TreeStatement* statement;
-  TreeForInit* forInit;
-
-  TreeForStatement(): Tree(NonTerminalType::ForStatement), variant(NTForStatementVariants::Max), forUpdate(nullptr) , expression(nullptr) , statement(nullptr) , forInit(nullptr) {
-
-  }
-};
-
-enum class NTEmptyStatementVariants {
-  SCol,  // ; 
-  Max,
-};
-
-struct TreeEmptyStatement: public Tree {
-  enum NTEmptyStatementVariants variant;
-
-  TreeEmptyStatement(): Tree(NonTerminalType::EmptyStatement), variant(NTEmptyStatementVariants::Max){
 
   }
 };
@@ -522,7 +505,7 @@ enum class NTIntegerLiteralVariants {
 
 struct TreeIntegerLiteral: public Tree {
   enum NTIntegerLiteralVariants variant;
-  unsigned int value;
+  int value;
 
   TreeIntegerLiteral(): Tree(NonTerminalType::IntegerLiteral), variant(NTIntegerLiteralVariants::Max){
 
@@ -609,6 +592,7 @@ struct TreeNullLiteral: public Tree {
 };
 
 enum class NTExpressionStatementVariants {
+  SCol,  // ; 
   StatementExpressionSCol,  // StatementExpression ; 
   Max,
 };
@@ -721,14 +705,10 @@ struct TreeCompilationUnit: public Tree {
 };
 
 enum class NTForStatementNoShortIfVariants {
-  ForLParSColSColRParStatementNoShortIf,  // for ( ; ; ) StatementNoShortIf 
-  ForLParForInitSColSColRParStatementNoShortIf,  // for ( ForInit ; ; ) StatementNoShortIf 
-  ForLParSColExpressionSColRParStatementNoShortIf,  // for ( ; Expression ; ) StatementNoShortIf 
-  ForLParForInitSColExpressionSColRParStatementNoShortIf,  // for ( ForInit ; Expression ; ) StatementNoShortIf 
-  ForLParSColSColForUpdateRParStatementNoShortIf,  // for ( ; ; ForUpdate ) StatementNoShortIf 
-  ForLParForInitSColSColForUpdateRParStatementNoShortIf,  // for ( ForInit ; ; ForUpdate ) StatementNoShortIf 
-  ForLParSColExpressionSColForUpdateRParStatementNoShortIf,  // for ( ; Expression ; ForUpdate ) StatementNoShortIf 
-  ForLParForInitSColExpressionSColForUpdateRParStatementNoShortIf,  // for ( ForInit ; Expression ; ForUpdate ) StatementNoShortIf 
+  ForLParForInitSColRParStatementNoShortIf,  // for ( ForInit ; ) StatementNoShortIf 
+  ForLParForInitExpressionSColRParStatementNoShortIf,  // for ( ForInit Expression ; ) StatementNoShortIf 
+  ForLParForInitSColForUpdateRParStatementNoShortIf,  // for ( ForInit ; ForUpdate ) StatementNoShortIf 
+  ForLParForInitExpressionSColForUpdateRParStatementNoShortIf,  // for ( ForInit Expression ; ForUpdate ) StatementNoShortIf 
   Max,
 };
 
@@ -736,10 +716,10 @@ struct TreeForStatementNoShortIf: public Tree {
   enum NTForStatementNoShortIfVariants variant;
   TreeForUpdate* forUpdate;
   TreeExpression* expression;
-  TreeStatementNoShortIf* statementNoShortIf;
   TreeForInit* forInit;
+  TreeStatementNoShortIf* statementNoShortIf;
 
-  TreeForStatementNoShortIf(): Tree(NonTerminalType::ForStatementNoShortIf), variant(NTForStatementNoShortIfVariants::Max), forUpdate(nullptr) , expression(nullptr) , statementNoShortIf(nullptr) , forInit(nullptr) {
+  TreeForStatementNoShortIf(): Tree(NonTerminalType::ForStatementNoShortIf), variant(NTForStatementNoShortIfVariants::Max), forUpdate(nullptr) , expression(nullptr) , forInit(nullptr) , statementNoShortIf(nullptr) {
 
   }
 };
@@ -856,24 +836,22 @@ struct TreeTypeDeclaration: public Tree {
 
 enum class NTInclusiveOrExpressionVariants {
   AndExpression,  // AndExpression 
-  InclusiveOrExpressionOrExclusiveOrExpression,  // InclusiveOrExpression | ExclusiveOrExpression 
+  InclusiveOrExpressionOrAndExpression,  // InclusiveOrExpression | AndExpression 
   Max,
 };
 
 struct TreeInclusiveOrExpression: public Tree {
   enum NTInclusiveOrExpressionVariants variant;
-  TreeExclusiveOrExpression* exclusiveOrExpression;
-  TreeAndExpression* andExpression;
   TreeInclusiveOrExpression* inclusiveOrExpression;
+  TreeAndExpression* andExpression;
 
-  TreeInclusiveOrExpression(): Tree(NonTerminalType::InclusiveOrExpression), variant(NTInclusiveOrExpressionVariants::Max), exclusiveOrExpression(nullptr) , andExpression(nullptr) , inclusiveOrExpression(nullptr) {
+  TreeInclusiveOrExpression(): Tree(NonTerminalType::InclusiveOrExpression), variant(NTInclusiveOrExpressionVariants::Max), inclusiveOrExpression(nullptr) , andExpression(nullptr) {
 
   }
 };
 
 enum class NTStatementWithoutTrailingSubstatementVariants {
   Block,  // Block 
-  EmptyStatement,  // EmptyStatement 
   ExpressionStatement,  // ExpressionStatement 
   ReturnStatement,  // ReturnStatement 
   Max,
@@ -881,12 +859,11 @@ enum class NTStatementWithoutTrailingSubstatementVariants {
 
 struct TreeStatementWithoutTrailingSubstatement: public Tree {
   enum NTStatementWithoutTrailingSubstatementVariants variant;
-  TreeExpressionStatement* expressionStatement;
-  TreeBlock* block;
   TreeReturnStatement* returnStatement;
-  TreeEmptyStatement* emptyStatement;
+  TreeBlock* block;
+  TreeExpressionStatement* expressionStatement;
 
-  TreeStatementWithoutTrailingSubstatement(): Tree(NonTerminalType::StatementWithoutTrailingSubstatement), variant(NTStatementWithoutTrailingSubstatementVariants::Max), expressionStatement(nullptr) , block(nullptr) , returnStatement(nullptr) , emptyStatement(nullptr) {
+  TreeStatementWithoutTrailingSubstatement(): Tree(NonTerminalType::StatementWithoutTrailingSubstatement), variant(NTStatementWithoutTrailingSubstatementVariants::Max), returnStatement(nullptr) , block(nullptr) , expressionStatement(nullptr) {
 
   }
 };
@@ -1049,18 +1026,6 @@ struct TreeLiteral: public Tree {
   }
 };
 
-enum class NTExclusiveOrExpressionVariants {
-  Max,
-};
-
-struct TreeExclusiveOrExpression: public Tree {
-  enum NTExclusiveOrExpressionVariants variant;
-
-  TreeExclusiveOrExpression(): Tree(NonTerminalType::ExclusiveOrExpression), variant(NTExclusiveOrExpressionVariants::Max){
-
-  }
-};
-
 enum class NTUnaryExpressionNotPlusMinusVariants {
   Primary,  // Primary 
   Name,  // Name 
@@ -1098,18 +1063,17 @@ struct TreeType: public Tree {
 };
 
 enum class NTConstructorDeclarationVariants {
-  ConstructorDeclaratorBlock,  // ConstructorDeclarator Block 
   ModifiersConstructorDeclaratorBlock,  // Modifiers ConstructorDeclarator Block 
   Max,
 };
 
 struct TreeConstructorDeclaration: public Tree {
   enum NTConstructorDeclarationVariants variant;
+  TreeBlock* block;
   TreeModifiers* modifiers;
   TreeConstructorDeclarator* constructorDeclarator;
-  TreeBlock* block;
 
-  TreeConstructorDeclaration(): Tree(NonTerminalType::ConstructorDeclaration), variant(NTConstructorDeclarationVariants::Max), modifiers(nullptr) , constructorDeclarator(nullptr) , block(nullptr) {
+  TreeConstructorDeclaration(): Tree(NonTerminalType::ConstructorDeclaration), variant(NTConstructorDeclarationVariants::Max), block(nullptr) , modifiers(nullptr) , constructorDeclarator(nullptr) {
 
   }
 };
@@ -1149,13 +1113,9 @@ struct TreeClassInstanceCreationExpression: public Tree {
 };
 
 enum class NTClassDeclarationVariants {
-  ClassIdentifierClassBody,  // class Identifier ClassBody 
   ModifiersClassIdentifierClassBody,  // Modifiers class Identifier ClassBody 
-  ClassIdentifierextendsClassTypeClassBody,  // class Identifier extends ClassType ClassBody 
   ModifiersClassIdentifierextendsClassTypeClassBody,  // Modifiers class Identifier extends ClassType ClassBody 
-  ClassIdentifierimplementsInterfaceTypeListClassBody,  // class Identifier implements InterfaceTypeList ClassBody 
   ModifiersClassIdentifierimplementsInterfaceTypeListClassBody,  // Modifiers class Identifier implements InterfaceTypeList ClassBody 
-  ClassIdentifierextendsClassTypeimplementsInterfaceTypeListClassBody,  // class Identifier extends ClassType implements InterfaceTypeList ClassBody 
   ModifiersClassIdentifierextendsClassTypeimplementsInterfaceTypeListClassBody,  // Modifiers class Identifier extends ClassType implements InterfaceTypeList ClassBody 
   Max,
 };
@@ -1163,12 +1123,12 @@ enum class NTClassDeclarationVariants {
 struct TreeClassDeclaration: public Tree {
   enum NTClassDeclarationVariants variant;
   TreeClassType* classType;
+  TreeClassBody* classBody;
   TreeModifiers* modifiers;
   TreeInterfaceTypeList* interfaceTypeList;
   TreeIdentifier* identifier;
-  TreeClassBody* classBody;
 
-  TreeClassDeclaration(): Tree(NonTerminalType::ClassDeclaration), variant(NTClassDeclarationVariants::Max), classType(nullptr) , modifiers(nullptr) , interfaceTypeList(nullptr) , identifier(nullptr) , classBody(nullptr) {
+  TreeClassDeclaration(): Tree(NonTerminalType::ClassDeclaration), variant(NTClassDeclarationVariants::Max), classType(nullptr) , classBody(nullptr) , modifiers(nullptr) , interfaceTypeList(nullptr) , identifier(nullptr) {
 
   }
 };
@@ -1356,18 +1316,17 @@ struct TreeMethodBody: public Tree {
 };
 
 enum class NTFieldDeclarationVariants {
-  TypeVariableDeclaratorSCol,  // Type VariableDeclarator ; 
   ModifiersTypeVariableDeclaratorSCol,  // Modifiers Type VariableDeclarator ; 
   Max,
 };
 
 struct TreeFieldDeclaration: public Tree {
   enum NTFieldDeclarationVariants variant;
-  TreeType* type;
-  TreeModifiers* modifiers;
   TreeVariableDeclarator* variableDeclarator;
+  TreeModifiers* modifiers;
+  TreeType* type;
 
-  TreeFieldDeclaration(): Tree(NonTerminalType::FieldDeclaration), variant(NTFieldDeclarationVariants::Max), type(nullptr) , modifiers(nullptr) , variableDeclarator(nullptr) {
+  TreeFieldDeclaration(): Tree(NonTerminalType::FieldDeclaration), variant(NTFieldDeclarationVariants::Max), variableDeclarator(nullptr) , modifiers(nullptr) , type(nullptr) {
 
   }
 };

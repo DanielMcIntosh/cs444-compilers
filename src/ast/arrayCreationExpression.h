@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ast/primary.h"
 #include "ast/type.h"
 #include "ast/expression.h"
 #include <memory>
@@ -8,7 +7,7 @@
 namespace AST
 {
 
-class ArrayCreationExpression: public Primary
+class ArrayCreationExpression: public Expression
 {
 public:
 	ArrayCreationExpression(std::vector<Parser::ASTToken>& children);

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ast/primary.h"
 #include "ast/type.h"
 #include "ast/expression.h"
 #include <vector>
@@ -9,7 +8,7 @@
 namespace AST
 {
 
-class ClassInstanceCreationExpression: public Primary
+class ClassInstanceCreationExpression: public Expression
 {
 public:
 	ClassInstanceCreationExpression(std::vector<Parser::ASTToken>& children);

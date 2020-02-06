@@ -1,4 +1,4 @@
-#include "parserASTBase.h"
+#include "pt/parserASTBase.h"
 
 #include "utility.h"
 
@@ -47,6 +47,6 @@ void parserASTDelete(Tree *root) {
   void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
 
   }
-#endif // PARSERAST_DISABLED  
+#endif // PARSERAST_DISABLED
 
 } // namespace Parse

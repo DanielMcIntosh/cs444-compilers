@@ -42,11 +42,11 @@ WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimiza
 
 EXTRA_CXXFLAGS += $(WARNINGS) -D__USE_MINGW_ANSI_STDIO -MMD -MP -std=c++17 -I$(SRC_DIRS)
 
-fast:
-	$(MAKE) joosc -j12
-
 joosc: $(OBJS_RELEASE)
 	$(CXX) $(OBJS_RELEASE) -o $@ $(LDFLAGS) $(LDFLAGS_RELEASE) $(WARNINGS)
+
+fast:
+	$(MAKE) joosc -j12
 
 joosc_debug: $(OBJS_DEBUG)
 	$(CXX) $(OBJS_DEBUG) -o $@ $(LDFLAGS) $(LDFLAGS_DEBUG) $(WARNINGS)

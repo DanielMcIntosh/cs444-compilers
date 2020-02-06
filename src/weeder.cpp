@@ -1,7 +1,7 @@
 #include "weeder.h"
 
 #ifndef PARSERAST_DISABLED
-#include "parserAST.h"
+#include "pt/parserAST.h"
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
 #endif

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <ast/memberDeclaration.h>
-//#include <ast/methodHeader.h>
-#include <ast/statement.h>
+#include "ast/memberDeclaration.h"
+#include "ast/type.h"
+#include "ast/variableDeclaration.h"
+#include "ast/block.h"
 #include <memory>
 
 namespace AST
@@ -14,7 +15,7 @@ public:
 	MethodDeclaration(std::vector<Parser::ASTToken>& children);
 
 	std::shared_ptr<Type> returnType;
-	//std::vector<std::shared_ptr<FormalParameter>> parameters;
+	std::vector<std::shared_ptr<VariableDeclaration>> parameters;
 	// nullable
 	std::shared_ptr<Block> body;
 };

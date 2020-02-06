@@ -41,7 +41,7 @@ Name:
 	Name </i>.<i> Identifier
 
 CompilationUnit:
-
+	
 	PackageDeclaration
 	ImportDeclarations
 	PackageDeclaration ImportDeclarations
@@ -85,13 +85,9 @@ Modifier:
 	</i>native<i>
 
 ClassDeclaration:
-	</i>class<i> Identifier ClassBody
 	Modifiers </i>class<i> Identifier ClassBody
-	</i>class<i> Identifier </i>extends<i> ClassType ClassBody
 	Modifiers </i>class<i> Identifier </i>extends<i> ClassType ClassBody
-	</i>class<i> Identifier </i>implements<i> InterfaceTypeList ClassBody
 	Modifiers </i>class<i> Identifier </i>implements<i> InterfaceTypeList ClassBody
-	</i>class<i> Identifier </i>extends<i> ClassType </i>implements<i> InterfaceTypeList ClassBody
 	Modifiers </i>class<i> Identifier </i>extends<i> ClassType </i>implements<i> InterfaceTypeList ClassBody
 
 InterfaceTypeList:
@@ -112,7 +108,6 @@ ClassMemberDeclaration:
 	ConstructorDeclaration
 
 FieldDeclaration:
-	Type VariableDeclarator </i>;<i>
 	Modifiers Type VariableDeclarator </i>;<i>
 
 VariableDeclarator:
@@ -147,7 +142,6 @@ AbstractMethodBody:
 	</i>;<i>
 
 ConstructorDeclaration:
-	ConstructorDeclarator Block
 	Modifiers ConstructorDeclarator Block
 
 ConstructorDeclarator:
@@ -211,14 +205,11 @@ StatementNoShortIf:
 
 StatementWithoutTrailingSubstatement:
 	Block
-	EmptyStatement
 	ExpressionStatement
 	ReturnStatement
 
-EmptyStatement:
-	</i>;<i>
-
 ExpressionStatement:
+	</i>;<i>
 	StatementExpression </i>;<i>
 
 StatementExpression:
@@ -242,28 +233,20 @@ WhileStatementNoShortIf:
 	</i>while<i> </i>(<i> Expression </i>)<i> StatementNoShortIf
 
 ForStatement:
-	</i>for<i> </i>(<i> </i>;<i> </i>;<i> </i>)<i> Statement
-	</i>for<i> </i>(<i> ForInit </i>;<i> </i>;<i> </i>)<i> Statement
-	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> </i>)<i> Statement
-	</i>for<i> </i>(<i> ForInit </i>;<i> Expression </i>;<i> </i>)<i> Statement
-	</i>for<i> </i>(<i> </i>;<i> </i>;<i> ForUpdate </i>)<i> Statement
-	</i>for<i> </i>(<i> ForInit </i>;<i> </i>;<i> ForUpdate </i>)<i> Statement
-	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> Statement
-	</i>for<i> </i>(<i> ForInit </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> Statement
+	</i>for<i> </i>(<i> ForInit </i>;<i> </i>)<i> Statement
+	</i>for<i> </i>(<i> ForInit Expression </i>;<i> </i>)<i> Statement
+	</i>for<i> </i>(<i> ForInit </i>;<i> ForUpdate </i>)<i> Statement
+	</i>for<i> </i>(<i> ForInit Expression </i>;<i> ForUpdate </i>)<i> Statement
 
 ForStatementNoShortIf:
-	</i>for<i> </i>(<i> </i>;<i> </i>;<i> </i>)<i> StatementNoShortIf
-	</i>for<i> </i>(<i> ForInit </i>;<i> </i>;<i> </i>)<i> StatementNoShortIf
-	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> </i>)<i> StatementNoShortIf
-	</i>for<i> </i>(<i> ForInit </i>;<i> Expression </i>;<i> </i>)<i> StatementNoShortIf
-	</i>for<i> </i>(<i> </i>;<i> </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
-	</i>for<i> </i>(<i> ForInit </i>;<i> </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
-	</i>for<i> </i>(<i> </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
-	</i>for<i> </i>(<i> ForInit </i>;<i> Expression </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
+	</i>for<i> </i>(<i> ForInit </i>;<i> </i>)<i> StatementNoShortIf
+	</i>for<i> </i>(<i> ForInit Expression </i>;<i> </i>)<i> StatementNoShortIf
+	</i>for<i> </i>(<i> ForInit </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
+	</i>for<i> </i>(<i> ForInit Expression </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
 
 ForInit:
-	StatementExpression
-	LocalVariableDeclaration
+	ExpressionStatement
+	LocalVariableDeclarationStatement
 
 ForUpdate:
 	StatementExpression
@@ -362,7 +345,7 @@ AndExpression:
 
 InclusiveOrExpression:
 	AndExpression
-	InclusiveOrExpression </i>|<i> ExclusiveOrExpression
+	InclusiveOrExpression </i>|<i> AndExpression
 
 ConditionalAndExpression:
 	InclusiveOrExpression
