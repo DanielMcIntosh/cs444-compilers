@@ -119,7 +119,7 @@ CompileSingleResult compileSingle(JoosC *joosc, const char *fileName) {
     return fileResult;
   }
 
-  fileResult.weederResult = Weeder::weederCheck(fileResult.parseResult.treeRoot);
+  fileResult.weederResult = Weeder::weederCheck(fileResult.parseResult.treeRoot, fileName);
   if (!fileResult.weederResult.valid) {
     fileResult.failedStage = CompileStageType::Weed;
     return fileResult;

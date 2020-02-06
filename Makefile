@@ -3,6 +3,7 @@ CXXFLAGS_DEBUG := -g
 
 LDFLAGS_RELEASE := -O3 -flto -s 
 LDFLAGS_DEBUG := -g
+LDFLAGS := -lstdc++fs
 
 ifneq ($(OS),Windows_NT)
 CXXFLAGS_DEBUG += -fsanitize=address
@@ -45,10 +46,10 @@ fast:
 	$(MAKE) joosc -j12
 
 joosc: $(OBJS_RELEASE)
-	$(CXX) $(OBJS_RELEASE) -o $@ $(LDFLAGS_RELEASE) $(WARNINGS)
+	$(CXX) $(OBJS_RELEASE) -o $@ $(LDFLAGS) $(LDFLAGS_RELEASE) $(WARNINGS)
 
 joosc_debug: $(OBJS_DEBUG)
-	$(CXX) $(OBJS_DEBUG) -o $@ $(LDFLAGS_DEBUG) $(WARNINGS)
+	$(CXX) $(OBJS_DEBUG) -o $@ $(LDFLAGS) $(LDFLAGS_DEBUG) $(WARNINGS)
 
 $(BUILD_DIR_RELEASE)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
