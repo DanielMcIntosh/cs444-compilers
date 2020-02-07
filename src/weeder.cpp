@@ -167,6 +167,93 @@ void weederCheckFileNameMatchClass(Tree *root, const char *fullPath, WeederResul
   }
 }
 
+// TODO: refactor
+void weederCheckAccessModifiers(Tree *root, WeederResult *result) {
+  for (auto *declaration: parserASTFindByType(root, ClassDeclaration)) {
+    int class_access_modifiers = 0;
+    // class declaration
+    for (auto *modifier: parserASTFindByType(declaration->modifiers, Modifier)) {
+      if (modifier->variant == NTModifierVariants::Public ||
+          modifier->variant == NTModifierVariants::Protected) {
+        ++class_access_modifiers;
+      }
+    }
+    if (class_access_modifiers != 1) {
+      scoped_lock lock(*result->theMutex);
+      result->violations.push_back({WeederCategory::AccessModifiers});
+      return;
+    }
+    // class method declaration
+    for (auto *method: parserASTFindByType(declaration, MethodDeclaration)) {
+      int method_access_modifiers = 0;
+      for (auto *modifier: parserASTFindByType(method, Modifier)) {
+        if (modifier->variant == NTModifierVariants::Public ||
+            modifier->variant == NTModifierVariants::Protected) {
+          ++method_access_modifiers;
+        }
+      }
+      if (method_access_modifiers != 1) {
+        scoped_lock lock(*result->theMutex);
+        result->violations.push_back({WeederCategory::AccessModifiers});
+        return;
+      }
+    }
+    // class field declaration
+    for (auto *method: parserASTFindByType(declaration, FieldDeclaration)) {
+      int field_access_modifiers = 0;
+      for (auto *modifier: parserASTFindByType(method, Modifier)) {
+        if (modifier->variant == NTModifierVariants::Public ||
+            modifier->variant == NTModifierVariants::Protected) {
+          ++field_access_modifiers;
+        }
+      }
+      if (field_access_modifiers != 1) {
+        scoped_lock lock(*result->theMutex);
+        result->violations.push_back({WeederCategory::AccessModifiers});
+        return;
+      }
+    }
+  }
+}
+
+// Reject illegal expressions in casts 
+void weederCheckCast(Tree *root, WeederResult *result) {
+  bool fail = false;
+  for (auto *cast: parserASTFindByType(root, CastExpression)) {
+    if (cast->variant == NTCastExpressionVariants::LParExpressionRParUnaryExpressionNotPlusMinus) {
+      fail = true;
+      auto expression = cast->expression;
+      if (expression->assignmentExpression->variant != NTAssignmentExpressionVariants::ConditionalOrExpression) break;
+      auto assignmentExpression = expression->assignmentExpression;
+      if (assignmentExpression->conditionalOrExpression->variant != NTConditionalOrExpressionVariants::ConditionalAndExpression) break;
+      auto conditionalOrExpression = assignmentExpression->conditionalOrExpression;
+      if (conditionalOrExpression->conditionalAndExpression->variant != NTConditionalAndExpressionVariants::InclusiveOrExpression) break;
+      auto conditionalAndExpression = conditionalOrExpression->conditionalAndExpression;
+      if (conditionalAndExpression->inclusiveOrExpression->variant != NTInclusiveOrExpressionVariants::AndExpression) break;
+      auto inclusiveOrExpression = conditionalAndExpression->inclusiveOrExpression;
+      if (inclusiveOrExpression->andExpression->variant != NTAndExpressionVariants::EqualityExpression) break;
+      auto andExpression = inclusiveOrExpression->andExpression;
+      if (andExpression->equalityExpression->variant != NTEqualityExpressionVariants::RelationalExpression) break;
+      auto equalityExpression = andExpression->equalityExpression;
+      if (equalityExpression->relationalExpression->variant != NTRelationalExpressionVariants::AdditiveExpression) break;
+      auto relationalExpression = equalityExpression->relationalExpression;
+      if (relationalExpression->additiveExpression->variant != NTAdditiveExpressionVariants::MultiplicativeExpression) break;
+      auto additiveExpression = relationalExpression->additiveExpression;
+      if (additiveExpression->multiplicativeExpression->variant != NTMultiplicativeExpressionVariants::UnaryExpression) break;
+      auto multiplicativeExpression = additiveExpression->multiplicativeExpression;
+      if (multiplicativeExpression->unaryExpression->variant != NTUnaryExpressionVariants::UnaryExpressionNotPlusMinus) break;
+      auto unaryExpression = multiplicativeExpression->unaryExpression;
+      if (unaryExpression->unaryExpressionNotPlusMinus->variant != NTUnaryExpressionNotPlusMinusVariants::Name) break;
+    }
+    fail = false;
+  }
+  if (fail) {
+    scoped_lock lock(*result->theMutex);
+    result->violations.push_back({WeederCategory::Cast});
+    return;
+  }
+}
+
 WeederResult weederCheck(Tree *root, const char *fileName) {
   WeederResult result;
   result.theMutex = new mutex;
@@ -177,6 +264,8 @@ WeederResult weederCheck(Tree *root, const char *fileName) {
   weederCheckFieldNotFinal(root, &result);
   weederCheckNoOverflow(root, &result);
   weederCheckFileNameMatchClass(root, fileName, &result);
+  weederCheckAccessModifiers(root, &result);
+  weederCheckCast(root, &result);
 
   {
     scoped_lock lock(*result.theMutex);

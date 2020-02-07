@@ -63,6 +63,10 @@ enum class WeederCategory
   NoOverflow,
   // A class/interface must be declared in a .java file with the same base name as the class/interface.
   FileNameMatchClass,
+  // A class, class method or field must have exactly one access modifier
+  AccessModifiers,
+  // Reject illegal expressions in casts 
+  Cast,
   Max
 };
 

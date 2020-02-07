@@ -764,7 +764,7 @@ bool isTerminalCapture(const string &originalName) {
 const vector<ExtraFieldInfo> &getExtraFieldForTree(const string &name) {
   static const unordered_map<string, vector<ExtraFieldInfo>> gExtraFieldMap = {
           {"CharacterLiteral", {{"char", "value"}}},
-          {"IntegerLiteral", {{"int", "value"}}},
+          {"IntegerLiteral", {{"unsigned int", "value"}}}, // nmed to be able to store 1<<31
           {"StringLiteral", {{"string", "value"}}},
           {"BooleanLiteral", {{"bool", "value"}}},
           {"NullLiteral", {{"bool", "value"}}},
