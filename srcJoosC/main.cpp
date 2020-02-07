@@ -6,12 +6,11 @@
 #include <vector>
 #include <string>
 
+#include "parse/parser.h"
 #include "utility.h"
 #include "platform.h"
 #include "scanner.h"
-#include "pt/parser.h"
 #include "grammar.h"
-#include "pt/parserAutoAST.h"
 #include "weeder.h"
 
 using namespace std;
@@ -156,7 +155,7 @@ CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
 		strdecl256(baseOutputPath, "output/%s", file.c_str());
     compileDumpSingleResult(baseOutputPath, fileResult);
 
-    Parse::parserASTDelete(fileResult.parseResult.treeRoot);
+    Parse::ptDelete(fileResult.parseResult.treeRoot);
 	}
 	return compileResult;
 }
@@ -257,21 +256,6 @@ void checkScanner() {
 	}
 }
 
-void checkParser() {
-	const char *mode = getenv("JOOSC_PARSER");
-	if (!mode)
-		return;
-
-  s32 size;
-  auto file = readEntireFile("joos.lr1", &size);
-
-  using namespace Parse::AutoAST;
-  AutoAST *ast = autoASTCreate();
-  autoASTReadLR1(ast, file.get());
-  autoASTOutputHeaders(ast);
-  autoASTDestory(ast);
-}
-
 int main(int argc, const char ** argv) {
 	vector<string> fileList;
 	for (int i = 1; i < argc; ++i) {
@@ -281,8 +265,6 @@ int main(int argc, const char ** argv) {
 	globalInit();
 
 	checkScanner();
-
-  checkParser();
 
 	JoosC joosc;
 	scannerLoadJoosRule(&joosc.scanner);

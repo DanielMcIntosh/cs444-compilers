@@ -5,7 +5,7 @@
 #include <istream>
 #include <memory>
 
-#include "scanParse.h"
+#include "frontend.h"
 
 namespace Parser {
 

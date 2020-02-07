@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "scanParse.h"
+#include "../frontend.h"
 
 namespace Parse {
 
@@ -42,14 +42,12 @@ void parserTest();
 ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens);
 void parserDumpDebugInfo(const ParseResult& result, const char *baseOutputPath);
 
-namespace AutoAST {
-
-struct AutoAST;
-AutoAST *autoASTCreate();
-void autoASTDestory(AutoAST *);
-void autoASTReadLR1(AutoAST *autoast, const char *lr1Text);
-void autoASTOutputHeaders(AutoAST *autoast);
-
-} // namespace AutoAST
-
 } // namespace Parse
+
+namespace Parser
+{
+struct Grammar;
+
+void parseTokens(std::vector<Scan::LexToken> const& tokens, Grammar const& grammar);
+
+} //namespace Parser

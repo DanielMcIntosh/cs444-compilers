@@ -1,7 +1,7 @@
 #pragma once
 
-#include "pt/parserASTBase.h"
-#include "scanParse.h"
+#include "parse/parseTreeBase.h"
+#include "frontend.h"
 
 namespace Weeder {
 

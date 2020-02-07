@@ -9,7 +9,7 @@
 #include <memory>
 
 #include "utility.h"
-#include "scanParse.h"
+#include "frontend.h"
 
 namespace Scan {
 
