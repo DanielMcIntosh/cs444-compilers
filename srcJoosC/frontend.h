@@ -5,7 +5,7 @@
 #include <mutex>
 
 #include "utility.h"
-#include "pt/parserASTBase.h"
+#include "parse/parseTreeBase.h"
 
 namespace Scan {
 

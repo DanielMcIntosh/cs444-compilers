@@ -1,10 +1,10 @@
-#include "pt/parserASTBase.h"
+#include "parseTreeBase.h"
 
-#include "utility.h"
+#include "../utility.h"
 
 namespace Parse {
 
-void parserASTSetTopParents(vector<Tree *> *stack, int topN, Tree *parent) {
+void ptSetTopParents(vector<Tree *> *stack, int topN, Tree *parent) {
   const int n = stack->size();
   assert(topN <= n);
   for (int i = 0; i < topN; ++i) {
@@ -13,7 +13,7 @@ void parserASTSetTopParents(vector<Tree *> *stack, int topN, Tree *parent) {
   }
 }
 
-void parserASTPopulateChildrenList(Tree *tree, const vector<Tree *> &stack, int n) {
+void ptPopulateChildrenList(Tree *tree, const vector<Tree *> &stack, int n) {
   tree->numChildren = n;
   const int stackN = stack.size();
   assert(stackN >= n);
@@ -22,13 +22,13 @@ void parserASTPopulateChildrenList(Tree *tree, const vector<Tree *> &stack, int 
   }
 }
 
-void parserASTDeleteStack(vector<Tree *> *stack) {
+void ptDeleteStack(vector<Tree *> *stack) {
   for (const auto tree : *stack) {
-    parserASTDelete(tree);
+    ptDelete(tree);
   }
 }
 
-void parserASTDelete(Tree *root) {
+void ptDelete(Tree *root) {
   if (!root)
     return;
   vector<Tree *> stack;
@@ -42,11 +42,5 @@ void parserASTDelete(Tree *root) {
     delete node;
   }
 }
-
-#ifdef PARSERAST_DISABLED
-  void parserASTDispatcher(vector<Tree *> *stack, int ruleID) {
-
-  }
-#endif // PARSERAST_DISABLED
 
 } // namespace Parse

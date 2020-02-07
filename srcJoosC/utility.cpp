@@ -100,7 +100,7 @@ std::unique_ptr<char[]> readEntireFile(const char *path, s32 *size) {
 	filePtr[fileSize] = '\0';
 
 	*size = fileSize;
-	return std::move(filePtr);
+	return filePtr;
 }
 
 char *getPrintableChar(char c) {

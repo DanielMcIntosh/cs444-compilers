@@ -1,24 +1,20 @@
 #include "weeder.h"
 
-#ifndef PARSERAST_DISABLED
-#include "pt/parserAST.h"
+#include "parse/parseTree.h"
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
-#endif
 
 namespace Weeder {
 
 using namespace Parse;
 
-#ifndef PARSERAST_DISABLED
-
 void weederCheckClassNotAbstractAndFinal(Tree *root, WeederResult *result) {
-  for (auto *cls: parserASTFindByType(root, ClassDeclaration)) {
+  for (auto *cls: ptFindByType(root, ClassDeclaration)) {
     bool is_abstract = false;
     bool is_final = false;
-    for (auto *modifier: parserASTFindByType(cls, Modifier)) {
-      is_abstract |= modifier->variant == NTModifierVariants::abstract;
-      is_final |= modifier->variant == NTModifierVariants::final;
+    for (auto *modifier: ptFindByType(cls, Modifier)) {
+      is_abstract |= modifier->v == TModifierV::abstract;
+      is_final |= modifier->v == TModifierV::final;
     }
     // A class cannot be both abstract and final.
     if (is_abstract && is_final) {
@@ -30,17 +26,17 @@ void weederCheckClassNotAbstractAndFinal(Tree *root, WeederResult *result) {
 }
 
 void weederCheckMethodModifiers(Tree *root, WeederResult *result) {
-  for (auto *method: parserASTFindByType(root, MethodDeclaration)) {
-    bool has_body = method->methodBody->variant == NTMethodBodyVariants::Block;
+  for (auto *method: ptFindByType(root, MethodDeclaration)) {
+    bool has_body = method->methodBody->v == TMethodBodyV::Block;
     bool is_abstract = false;
     bool is_static = false;
     bool is_final = false;
     bool is_native = false;
-    for (auto *modifier: parserASTFindByType(method, Modifier)) {
-      is_abstract |= modifier->variant == NTModifierVariants::abstract;
-      is_static |= modifier->variant == NTModifierVariants::Static;
-      is_final |= modifier->variant == NTModifierVariants::final;
-      is_native |= modifier->variant == NTModifierVariants::native;
+    for (auto *modifier: ptFindByType(method, Modifier)) {
+      is_abstract |= modifier->v == TModifierV::abstract;
+      is_static |= modifier->v == TModifierV::Static;
+      is_final |= modifier->v == TModifierV::final;
+      is_native |= modifier->v == TModifierV::native;
     }
     // A method has a body if and only if it is neither abstract nor native.
     // https://www.wolframalpha.com/input/?i=%21%28a+%3C%3D%3E+%28%21b+%26+%21c%29%29
@@ -72,13 +68,13 @@ void weederCheckMethodModifiers(Tree *root, WeederResult *result) {
 }
 
 void weederCheckInterfaceNotStaticFinalNative(Tree *root, WeederResult *result) {
-  for (auto *interface: parserASTFindByType(root, InterfaceDeclaration)) {
-    for (auto *method: parserASTFindByType(interface, AbstractMethodDeclaration)) {
-      for (auto *modifier: parserASTFindByType(method, Modifier)) {
+  for (auto *interface: ptFindByType(root, InterfaceDeclaration)) {
+    for (auto *method: ptFindByType(interface, AbstractMethodDeclaration)) {
+      for (auto *modifier: ptFindByType(method, Modifier)) {
         // An interface method cannot be static, final, or native.
-        if (modifier->variant == NTModifierVariants::Static ||
-            modifier->variant == NTModifierVariants::final ||
-            modifier->variant == NTModifierVariants::native) {
+        if (modifier->v == TModifierV::Static ||
+            modifier->v == TModifierV::final ||
+            modifier->v == TModifierV::native) {
           scoped_lock lock(*result->theMutex);
           result->violations.push_back({WeederCategory::InterfaceNotStaticFinalNative});
           return;
@@ -89,9 +85,9 @@ void weederCheckInterfaceNotStaticFinalNative(Tree *root, WeederResult *result) 
 }
 
 void weederCheckClassHasConstructor(Tree *root, WeederResult *result) {
-  for (auto *cls: parserASTFindByType(root, ClassDeclaration)) {
+  for (auto *cls: ptFindByType(root, ClassDeclaration)) {
     // Every class must contain at least one explicit constructor.
-    if (parserASTFindByType(cls, ConstructorDeclaration).size() == 0) {
+    if (ptFindByType(cls, ConstructorDeclaration).size() == 0) {
       scoped_lock lock(*result->theMutex);
       result->violations.push_back({WeederCategory::ClassHasConstructor});
       return;
@@ -100,10 +96,10 @@ void weederCheckClassHasConstructor(Tree *root, WeederResult *result) {
 }
 
 void weederCheckFieldNotFinal(Tree *root, WeederResult *result) {
-  for (auto *field: parserASTFindByType(root, FieldDeclaration)) {
-    for (auto *modifier: parserASTFindByType(field, Modifier)) {
+  for (auto *field: ptFindByType(root, FieldDeclaration)) {
+    for (auto *modifier: ptFindByType(field, Modifier)) {
       // No field can be final.
-      if (modifier->variant == NTModifierVariants::final) {
+      if (modifier->v == TModifierV::final) {
         scoped_lock lock(*result->theMutex);
         result->violations.push_back({WeederCategory::FieldNotFinal});
         return;
@@ -116,17 +112,17 @@ void weederCheckFieldNotFinal(Tree *root, WeederResult *result) {
 // TODO: refactor
 void weederCheckNoOverflow(Tree *root, WeederResult *result) {
   int overflow_count = 0;
-  for (auto *literal: parserASTFindByType(root, IntegerLiteral)) {
+  for (auto *literal: ptFindByType(root, IntegerLiteral)) {
     if (literal->value == (1u<<31)) ++overflow_count;
   }
-  for (auto *expr: parserASTFindByType(root, UnaryExpression)) {
-    if (expr->variant == NTUnaryExpressionVariants::MinusUnaryExpression) {
-      if (expr->unaryExpression->variant == NTUnaryExpressionVariants::UnaryExpressionNotPlusMinus) {
+  for (auto *expr: ptFindByType(root, UnaryExpression)) {
+    if (expr->v == TUnaryExpressionV::MinusUnaryExpression) {
+      if (expr->unaryExpression->v == TUnaryExpressionV::UnaryExpressionNotPlusMinus) {
         auto inner_expr = expr->unaryExpression->unaryExpressionNotPlusMinus;
-        if (inner_expr->variant == NTUnaryExpressionNotPlusMinusVariants::Primary &&
-            inner_expr->primary->variant == NTPrimaryVariants::PrimaryNoNewArray &&
-            inner_expr->primary->primaryNoNewArray->variant == NTPrimaryNoNewArrayVariants::Literal &&
-            inner_expr->primary->primaryNoNewArray->literal->variant == NTLiteralVariants::IntegerLiteral) {
+        if (inner_expr->v == TUnaryExpressionNotPlusMinusV::Primary &&
+            inner_expr->primary->v == TPrimaryV::PrimaryNoNewArray &&
+            inner_expr->primary->primaryNoNewArray->v == TPrimaryNoNewArrayV::Literal &&
+            inner_expr->primary->primaryNoNewArray->literal->v == TLiteralV::IntegerLiteral) {
           auto literal = inner_expr->primary->primaryNoNewArray->literal->integerLiteral;
           if (literal->value == (1u<<31)) --overflow_count;
         }
@@ -146,13 +142,13 @@ void weederCheckFileNameMatchClass(Tree *root, const char *fullPath, WeederResul
   if (p.extension() != ".java") {
     valid = false;
   } else {
-    for (auto *cls: parserASTFindByType(root, ClassDeclaration)) {
+    for (auto *cls: ptFindByType(root, ClassDeclaration)) {
       if (cls->identifier->value != p.stem()) {
         valid = false;
         break;
       }
     }
-    for (auto *interface: parserASTFindByType(root, InterfaceDeclaration)) {
+    for (auto *interface: ptFindByType(root, InterfaceDeclaration)) {
       if (interface->identifier->value != p.stem()) {
         valid = false;
         break;
@@ -169,12 +165,12 @@ void weederCheckFileNameMatchClass(Tree *root, const char *fullPath, WeederResul
 
 // TODO: refactor
 void weederCheckAccessModifiers(Tree *root, WeederResult *result) {
-  for (auto *declaration: parserASTFindByType(root, ClassDeclaration)) {
+  for (auto *declaration: ptFindByType(root, ClassDeclaration)) {
     int class_access_modifiers = 0;
     // class declaration
-    for (auto *modifier: parserASTFindByType(declaration->modifiers, Modifier)) {
-      if (modifier->variant == NTModifierVariants::Public ||
-          modifier->variant == NTModifierVariants::Protected) {
+    for (auto *modifier: ptFindByType(declaration->modifiers, Modifier)) {
+      if (modifier->v == TModifierV::Public ||
+          modifier->v == TModifierV::Protected) {
         ++class_access_modifiers;
       }
     }
@@ -184,11 +180,11 @@ void weederCheckAccessModifiers(Tree *root, WeederResult *result) {
       return;
     }
     // class method declaration
-    for (auto *method: parserASTFindByType(declaration, MethodDeclaration)) {
+    for (auto *method: ptFindByType(declaration, MethodDeclaration)) {
       int method_access_modifiers = 0;
-      for (auto *modifier: parserASTFindByType(method, Modifier)) {
-        if (modifier->variant == NTModifierVariants::Public ||
-            modifier->variant == NTModifierVariants::Protected) {
+      for (auto *modifier: ptFindByType(method, Modifier)) {
+        if (modifier->v == TModifierV::Public ||
+            modifier->v == TModifierV::Protected) {
           ++method_access_modifiers;
         }
       }
@@ -199,11 +195,11 @@ void weederCheckAccessModifiers(Tree *root, WeederResult *result) {
       }
     }
     // class field declaration
-    for (auto *method: parserASTFindByType(declaration, FieldDeclaration)) {
+    for (auto *method: ptFindByType(declaration, FieldDeclaration)) {
       int field_access_modifiers = 0;
-      for (auto *modifier: parserASTFindByType(method, Modifier)) {
-        if (modifier->variant == NTModifierVariants::Public ||
-            modifier->variant == NTModifierVariants::Protected) {
+      for (auto *modifier: ptFindByType(method, Modifier)) {
+        if (modifier->v == TModifierV::Public ||
+            modifier->v == TModifierV::Protected) {
           ++field_access_modifiers;
         }
       }
@@ -219,31 +215,31 @@ void weederCheckAccessModifiers(Tree *root, WeederResult *result) {
 // Reject illegal expressions in casts 
 void weederCheckCast(Tree *root, WeederResult *result) {
   bool fail = false;
-  for (auto *cast: parserASTFindByType(root, CastExpression)) {
-    if (cast->variant == NTCastExpressionVariants::LParExpressionRParUnaryExpressionNotPlusMinus) {
+  for (auto *cast: ptFindByType(root, CastExpression)) {
+    if (cast->v == TCastExpressionV::LParExpressionRParUnaryExpressionNotPlusMinus) {
       fail = true;
       auto expression = cast->expression;
-      if (expression->assignmentExpression->variant != NTAssignmentExpressionVariants::ConditionalOrExpression) break;
+      if (expression->assignmentExpression->v != TAssignmentExpressionV::ConditionalOrExpression) break;
       auto assignmentExpression = expression->assignmentExpression;
-      if (assignmentExpression->conditionalOrExpression->variant != NTConditionalOrExpressionVariants::ConditionalAndExpression) break;
+      if (assignmentExpression->conditionalOrExpression->v != TConditionalOrExpressionV::ConditionalAndExpression) break;
       auto conditionalOrExpression = assignmentExpression->conditionalOrExpression;
-      if (conditionalOrExpression->conditionalAndExpression->variant != NTConditionalAndExpressionVariants::InclusiveOrExpression) break;
+      if (conditionalOrExpression->conditionalAndExpression->v != TConditionalAndExpressionV::InclusiveOrExpression) break;
       auto conditionalAndExpression = conditionalOrExpression->conditionalAndExpression;
-      if (conditionalAndExpression->inclusiveOrExpression->variant != NTInclusiveOrExpressionVariants::AndExpression) break;
+      if (conditionalAndExpression->inclusiveOrExpression->v != TInclusiveOrExpressionV::AndExpression) break;
       auto inclusiveOrExpression = conditionalAndExpression->inclusiveOrExpression;
-      if (inclusiveOrExpression->andExpression->variant != NTAndExpressionVariants::EqualityExpression) break;
+      if (inclusiveOrExpression->andExpression->v != TAndExpressionV::EqualityExpression) break;
       auto andExpression = inclusiveOrExpression->andExpression;
-      if (andExpression->equalityExpression->variant != NTEqualityExpressionVariants::RelationalExpression) break;
+      if (andExpression->equalityExpression->v != TEqualityExpressionV::RelationalExpression) break;
       auto equalityExpression = andExpression->equalityExpression;
-      if (equalityExpression->relationalExpression->variant != NTRelationalExpressionVariants::AdditiveExpression) break;
+      if (equalityExpression->relationalExpression->v != TRelationalExpressionV::AdditiveExpression) break;
       auto relationalExpression = equalityExpression->relationalExpression;
-      if (relationalExpression->additiveExpression->variant != NTAdditiveExpressionVariants::MultiplicativeExpression) break;
+      if (relationalExpression->additiveExpression->v != TAdditiveExpressionV::MultiplicativeExpression) break;
       auto additiveExpression = relationalExpression->additiveExpression;
-      if (additiveExpression->multiplicativeExpression->variant != NTMultiplicativeExpressionVariants::UnaryExpression) break;
+      if (additiveExpression->multiplicativeExpression->v != TMultiplicativeExpressionV::UnaryExpression) break;
       auto multiplicativeExpression = additiveExpression->multiplicativeExpression;
-      if (multiplicativeExpression->unaryExpression->variant != NTUnaryExpressionVariants::UnaryExpressionNotPlusMinus) break;
+      if (multiplicativeExpression->unaryExpression->v != TUnaryExpressionV::UnaryExpressionNotPlusMinus) break;
       auto unaryExpression = multiplicativeExpression->unaryExpression;
-      if (unaryExpression->unaryExpressionNotPlusMinus->variant != NTUnaryExpressionNotPlusMinusVariants::Name) break;
+      if (unaryExpression->unaryExpressionNotPlusMinus->v != TUnaryExpressionNotPlusMinusV::Name) break;
     }
     fail = false;
   }
@@ -276,14 +272,5 @@ WeederResult weederCheck(Tree *root, const char *fileName) {
   result.theMutex = nullptr;
   return result;
 }
-
-#else
-
-WeederResult weederCheck(Tree *root, const char *fileName) {
-  WeederResult result;
-  return result;
-}
-
-#endif // PARSERAST_DISABLED
 
 } // namespace Weeder
