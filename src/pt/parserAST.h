@@ -505,7 +505,7 @@ enum class NTIntegerLiteralVariants {
 
 struct TreeIntegerLiteral: public Tree {
   enum NTIntegerLiteralVariants variant;
-  int value;
+  unsigned int value;
 
   TreeIntegerLiteral(): Tree(NonTerminalType::IntegerLiteral), variant(NTIntegerLiteralVariants::Max){
 
