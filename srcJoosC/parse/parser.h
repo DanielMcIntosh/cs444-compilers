@@ -28,7 +28,7 @@ using DFA = unordered_map<int, unordered_map<string, Transition>>;
 
 struct Rule {
   string lhs;
-  vector<string> rhs;
+  int rhsSize;
 };
 
 struct Parser {

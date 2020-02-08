@@ -3,6 +3,7 @@
 
 #include "utility.h"
 #include "platform.h"
+#include "profiler.h"
 
 using namespace std;
 
@@ -84,6 +85,7 @@ void globalFini() {
 }
 
 std::unique_ptr<char[]> readEntireFile(const char *path, s32 *size) {
+  profileSection("read entire file");
 	*size = 0;
 
 	FILE *file = fopen(path, "rb");

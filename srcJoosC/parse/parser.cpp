@@ -10,6 +10,7 @@
 
 #include "../grammar.h"
 #include "../astToken.h"
+#include "../profiler.h"
 
 namespace Parse {
 
@@ -35,7 +36,7 @@ bool can_parse(const vector<string>& input, const vector<Rule>& rules, const DFA
         break;
       }
 
-      for (size_t i = 0; i < rules[rule_id].rhs.size(); ++i) {
+      for (int i = 0; i < rules[rule_id].rhsSize; ++i) {
         token_stack.pop_back();
         state_stack.pop_back();
       }
@@ -57,62 +58,78 @@ bool can_parse(const vector<string>& input, const vector<Rule>& rules, const DFA
 }
 
 void lineHelper(char *buffer, const char **textPtr) {
+  profileSection("line helper");
   int len = strcspn(*textPtr, newLines);
   snprintf(buffer, len + 1, "%s", *textPtr);
   *textPtr += len;
   *textPtr += strspn(*textPtr, newLines);
 }
 
+void lineHelperFast(char **textPtr, char **state) {
+  profileSection("line helper fast");
+
+  *textPtr = *state;
+
+  char *n = *state;
+  while (*n != '\n')
+    ++n;
+
+  *n = 0;
+  *state = n + 1;
+}
+
 void parserReadLR1(Parser *parser, const char *text) {
-  const char *textPtr = text;
+  char *textPtr = const_cast<char *>(text);
+  char *state = textPtr;
 
-  char line[256];
-  lineHelper(line, &textPtr);
-  int numTerminal = atoi(line);
+  lineHelperFast(&textPtr, &state);
+  
+  int numTerminal = atoi(textPtr);
   for (int i = 0; i < numTerminal; ++i) {
-    lineHelper(line, &textPtr);
+    lineHelperFast(&textPtr, &state);
   }
 
-  lineHelper(line, &textPtr);
+  lineHelperFast(&textPtr, &state);
 
-  int numNonTerminal = atoi(line);
+  int numNonTerminal = atoi(textPtr);
   for (int i = 0; i < numNonTerminal; ++i) {
-    lineHelper(line, &textPtr);
+    lineHelperFast(&textPtr, &state);
   }
-  lineHelper(line, &textPtr);
-
-  string startingSymbol(line);
-
-  lineHelper(line, &textPtr);
-
-  int numRules = atoi(line);
-  for (int i = 0; i < numRules; ++i) {
-    lineHelper(line, &textPtr);
-    char *token = strtok(line, Spaces);
-    string lhs(token);
-    vector<string> rhses;
-    while ((token = strtok(nullptr, Spaces))) {
-      string rhs(token);
-      rhses.push_back(rhs);
+  lineHelperFast(&textPtr, &state);
+  string startingSymbol(textPtr);
+  lineHelperFast(&textPtr, &state);
+  {
+    profileSection("load rules");
+    int numRules = atoi(textPtr);
+    for (int i = 0; i < numRules; ++i) {
+      lineHelperFast(&textPtr, &state);
+      char *token = strtok(textPtr, Spaces);
+      string lhs(token);
+      int rhsSize = 0;
+      while ((token = strtok(nullptr, Spaces))) {
+        ++rhsSize;
+      }
+      parser->rules.push_back({lhs, rhsSize});
     }
-    parser->rules.push_back({lhs, rhses});
+    lineHelperFast(&textPtr, &state);    
   }
-  lineHelper(line, &textPtr);
 
-  int numDFAStates = atoi(line);
+  int numDFAStates = atoi(textPtr);
   (void)numDFAStates;
 
-  lineHelper(line, &textPtr);
-  int numTransitions = atoi(line);
-  for (int i = 0; i < numTransitions; ++i) {
-    lineHelper(line, &textPtr);
-    int stateNum = atoi(strtok(line, Spaces));
-    string symbol(strtok(nullptr, Spaces));
-    string action(strtok(nullptr, Spaces));
-    int stateOrRuleNumber = atoi(strtok(nullptr, Spaces));
-    parser->joos_dfa[stateNum][symbol] = {action == "shift" ? SHIFT : REDUCE, stateOrRuleNumber};
+  {
+    profileSection("load transitions");
+    lineHelperFast(&textPtr, &state);
+    int numTransitions = atoi(textPtr);
+    for (int i = 0; i < numTransitions; ++i) {
+      lineHelperFast(&textPtr, &state);
+      int stateNum = atoi(strtok(textPtr, Spaces));
+      string symbol(strtok(nullptr, Spaces));
+      string action(strtok(nullptr, Spaces));
+      int stateOrRuleNumber = atoi(strtok(nullptr, Spaces));
+      parser->joos_dfa[stateNum][symbol] = {action == "shift" ? SHIFT : REDUCE, stateOrRuleNumber};
+    }
   }
-
 }
 
 void parserReadJoosLR1(Parser *parser) {
@@ -238,7 +255,7 @@ ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens) {
       }
 
       ptDispatcher(&tree_stack, rule_id);
-      for (size_t i = 0; i < parser->rules[rule_id].rhs.size(); ++i) {
+      for (int i = 0; i < parser->rules[rule_id].rhsSize; ++i) {
         token_stack.pop_back();
         state_stack.pop_back();
       }

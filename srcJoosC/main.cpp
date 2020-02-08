@@ -10,8 +10,8 @@
 #include "utility.h"
 #include "platform.h"
 #include "scanner.h"
-#include "grammar.h"
 #include "weeder.h"
+#include "profiler.h"
 
 using namespace std;
 
@@ -29,10 +29,6 @@ const char *gCompileStageTypeName[] = {
 struct JoosC {
 	Scan::Scanner scanner;
 	Parse::Parser parser;
-
-  Parser::Grammar grammar;
-
-  JoosC(): grammar(Parser::readLR1File("joos.lr1")) {}
 };
 
 struct CompileResult {
@@ -87,15 +83,14 @@ void compileDumpSingleResult(char *baseOutputPath, const CompileSingleResult &si
     FILE *originalFile = fopen(baseOutputPath, "wb");
     fwrite(singleResult.fileContent.get(), singleResult.fileSize, 1, originalFile);
     fclose(originalFile);
+
+    Scan::scannerDumpDebugInfo(singleResult.scanResult, baseOutputPath);
+    Parse::parserDumpDebugInfo(singleResult.parseResult, baseOutputPath);    
   }
-
-  Scan::scannerDumpDebugInfo(singleResult.scanResult, baseOutputPath);
-  Parse::parserDumpDebugInfo(singleResult.parseResult, baseOutputPath);
-
-  compileReportSingleFile(singleResult);
 }
 
 CompileSingleResult compileSingle(JoosC *joosc, const char *fileName) {
+  profileSection("compile single");
   s32 sourceFileSize;
   std::unique_ptr<char[]> sourceCode = readEntireFile(fileName, &sourceFileSize);
 
@@ -104,31 +99,40 @@ CompileSingleResult compileSingle(JoosC *joosc, const char *fileName) {
   fileResult.fileSize = sourceFileSize;
   fileResult.fileContent = move(sourceCode);
 
-  fileResult.scanResult = Scan::scannerProcessText(&joosc->scanner,
-          fileResult.fileContent.get());
-
-  if (!fileResult.scanResult.valid) {
-    fileResult.failedStage = CompileStageType::Scan;
-    return fileResult;
+  {
+    profileSection("scan");
+    fileResult.scanResult = Scan::scannerProcessText(&joosc->scanner,
+                                                   fileResult.fileContent.get());
+    if (!fileResult.scanResult.valid) {
+      fileResult.failedStage = CompileStageType::Scan;
+      return fileResult;
+    }    
   }
 
-  fileResult.parseResult = Parse::parserParse(&joosc->parser, fileResult.scanResult.tokens);
-  if (!fileResult.parseResult.valid) {
-    fileResult.failedStage = CompileStageType::Parse;
-    return fileResult;
+  {
+    profileSection("parse");
+    fileResult.parseResult = Parse::parserParse(&joosc->parser, fileResult.scanResult.tokens);
+    if (!fileResult.parseResult.valid) {
+      fileResult.failedStage = CompileStageType::Parse;
+      return fileResult;
+    }    
   }
 
-  fileResult.weederResult = Weeder::weederCheck(fileResult.parseResult.treeRoot, fileName);
-  if (!fileResult.weederResult.valid) {
-    fileResult.failedStage = CompileStageType::Weed;
-    return fileResult;
+  {
+    profileSection("weeder");
+    fileResult.weederResult = Weeder::weederCheck(fileResult.parseResult.treeRoot, fileName);  
+    if (!fileResult.weederResult.valid) {
+      fileResult.failedStage = CompileStageType::Weed;
+      return fileResult;
+    }          
   }
-
+  
   fileResult.failedStage = CompileStageType::Pass;
   return fileResult;
 }
 
 CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
+  profileSection("compile main");
 	CompileResult compileResult;
 	compileResult.numCorrect = 0;
 	compileResult.numValid = 0;
@@ -153,7 +157,8 @@ CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
 		}
 
 		strdecl256(baseOutputPath, "output/%s", file.c_str());
-    compileDumpSingleResult(baseOutputPath, fileResult);
+    //compileDumpSingleResult(baseOutputPath, fileResult);
+    compileReportSingleFile(fileResult);    
 
     Parse::ptDelete(fileResult.parseResult.treeRoot);
 	}
@@ -162,6 +167,7 @@ CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
 
 void batchTesting(JoosC *joosc, const string &baseDir,
 									const vector<string> &stdlib) {
+  profileSection("batch testing");
 	DIR *dir = opendir(baseDir.c_str());
 	if (!dir)
 		return;
@@ -210,6 +216,7 @@ void batchTesting(JoosC *joosc, const string &baseDir,
 }
 
 void checkTestMode(JoosC *joosc) {
+  profileSection("check test mode");
 	const char *mode = getenv("JOOSC_TEST");
 	if (!mode)
 		return;
@@ -257,6 +264,8 @@ void checkScanner() {
 }
 
 int main(int argc, const char ** argv) {
+  profileSection("main app");
+  
 	vector<string> fileList;
 	for (int i = 1; i < argc; ++i) {
 		fileList.push_back(string(argv[i]));
@@ -267,14 +276,21 @@ int main(int argc, const char ** argv) {
 	checkScanner();
 
 	JoosC joosc;
-	scannerLoadJoosRule(&joosc.scanner);
-  parserReadJoosLR1(&joosc.parser);
+  {
+    profileSection("scanner load rule");
+    scannerLoadJoosRule(&joosc.scanner);    
+  }
+  {
+    profileSection("parser load rule");
+    parserReadJoosLR1(&joosc.parser);    
+  }
+  
+  checkTestMode(&joosc);
 
-	checkTestMode(&joosc);
-
-	CompileResult result = compileMain(&joosc, fileList);
-
-	globalFini();
-
-  return result.fileProcessed == result.numValid ? 0 : 42;
+  {
+    profileSection("compile main");
+    CompileResult result = compileMain(&joosc, fileList);
+    globalFini();
+    return result.fileProcessed == result.numValid ? 0 : 42;    
+  }
 }
