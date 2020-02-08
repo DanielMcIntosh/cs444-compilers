@@ -1,6 +1,7 @@
 #include "parseTreeBase.h"
 
 #include "../utility.h"
+#include "../profiler.h"
 
 namespace Parse {
 
@@ -29,6 +30,7 @@ void ptDeleteStack(vector<Tree *> *stack) {
 }
 
 void ptDelete(Tree *root) {
+  profileSection("pt delete");
   if (!root)
     return;
   vector<Tree *> stack;

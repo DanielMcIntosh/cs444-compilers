@@ -3,6 +3,7 @@
 
 #include "utility.h"
 #include "scanner.h"
+#include "profiler.h"
 
 namespace Scan {
 
@@ -43,6 +44,7 @@ Token *scannerFindOrCreateToken(Scanner *scanner, const string &tokenS) {
 }
 
 void scannerRegularLanguageToNFA(Scanner *scanner, const char *text) {
+  profileSection("reg to NFA");
 	const char *textPtr = text;
 
 	Token *curMajorToken = nullptr;
@@ -365,6 +367,7 @@ DState *scannerFindDStateFromNState(Scanner *scanner, const NStateBitField &nsta
 }
 
 void scannerNFAtoDFA(Scanner *scanner) {
+  profileSection("NFA to DFA");
 	ASSERT(scanner->nstates.size() <= NStateFieldLen * 64);
 
 	scanner->epsilonClosureCache = vector<NStateBitField>(scanner->nstates.size(), {0});
@@ -451,6 +454,7 @@ void scannerDumpDFA(const Scanner *scanner) {
 }
 
 ScanResult scannerProcessText(const Scanner *scanner, const char *text) {
+  profileSection("process text");
 	DState *startState = scanner->dstates[0].get();
 	ScanResult result;
 	result.valid = false;

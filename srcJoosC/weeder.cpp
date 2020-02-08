@@ -1,7 +1,9 @@
-#include "weeder.h"
-
-#include "parse/parseTree.h"
+#include <thread>
 #include <experimental/filesystem>
+
+#include "weeder.h"
+#include "parse/parseTree.h"
+
 namespace fs = std::experimental::filesystem;
 
 namespace Weeder {
