@@ -20,6 +20,7 @@ namespace Profiler {
     int invocations;
     time_point<high_resolution_clock> startTime;
     duration<long long int, nano> totalTime;
+    duration<long long int, nano> overhead;
 
     unordered_map<string, Node *> children;
     vector<Node *> childrenVec;
@@ -105,9 +106,11 @@ ProfileScopeImpl* profileSectionFunc(const char *file, int line, const char *nam
 
   ++child->invocations;
   manager->curNode = child;
+  
   auto blockEnd = high_resolution_clock::now();
-  manager->overhead += blockEnd - blockBegin;
-  manager->curNode->startTime = blockEnd;
+  manager->overhead += blockEnd - blockBegin;  
+  child->overhead += blockEnd - blockBegin;  
+  child->startTime = blockEnd;
   return reinterpret_cast<ProfileScopeImpl *>(child);
 }
 
@@ -115,6 +118,8 @@ void profileSectionEndFunc(ProfileScopeImpl *node) {
   auto endTime = high_resolution_clock::now();
   Manager *manager = Manager::Get();
   Node *curNode = reinterpret_cast<Node *>(node);
-  curNode->totalTime += static_cast<duration<long long int, nano>>(endTime - curNode->startTime);
+  curNode->totalTime += endTime - curNode->startTime - curNode->overhead;  
+  curNode->parent->overhead += curNode->overhead;
+  curNode->overhead = duration<long long int, nano>::zero();
   manager->curNode = curNode->parent;
 }
