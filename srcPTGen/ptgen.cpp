@@ -35,6 +35,7 @@ struct NonTerminalRule {
   string lhs;
   vector<string> rhs;
   vector<int> captureIndices;
+  bool singleNonTermChild;
 };
 
 struct NonTerminalInfo {
@@ -131,11 +132,15 @@ void ptgenReadLR1(PTGen *ptgen, const char *lr1Text) {
 
         newRule->captureIndices.push_back(index);
       }
-
       newRule->serial.append(representation);
       newRule->rhs.push_back(rhs);
 
       ++index;
+    }
+    if (newRule->rhs.size() == 1 && newRule->captureIndices.size() == 1) {
+      newRule->singleNonTermChild = true;
+    } else {
+      newRule->singleNonTermChild = false;
     }
     info->rules.push_back(newRule.get());
     ptgen->ruleById[i] = newRule.get();
@@ -146,7 +151,7 @@ void ptgenReadLR1(PTGen *ptgen, const char *lr1Text) {
 void ptgenOutputHeaders(PTGen *ptgen) {
   // Output begin
 
-  FILE *parserNodeHdr = fopen("srcJoosC/pt/parseTreeNode.h", "w");
+  FILE *parserNodeHdr = fopen("srcJoosC/parse/parseTreeNode.h", "w");
 
   { // header
     string _output, *output = &_output;
@@ -198,7 +203,7 @@ void ptgenOutputHeaders(PTGen *ptgen) {
   }
   fclose(parserNodeHdr);
 
-  FILE *parserASTHdr = fopen("srcJoosC/pt/parseTree.h", "w");
+  FILE *parserASTHdr = fopen("srcJoosC/parse/parseTree.h", "w");
 
   { // header
     string _output, *output = &_output;
@@ -297,7 +302,7 @@ void ptgenOutputHeaders(PTGen *ptgen) {
 
   fclose(parserASTHdr);
 
-  FILE *parserASTImpl = fopen("srcJoosC/pt/parseTreeImpl.cpp", "w");
+  FILE *parserASTImpl = fopen("srcJoosC/parse/parseTreeImpl.cpp", "w");
 
   { // header
     string _output, *output = &_output;
@@ -343,11 +348,14 @@ void ptgenOutputHeaders(PTGen *ptgen) {
       strAppend(output, "  auto t = new T%s;\n", lhsName);
       // parserASTSetTopParents(stack, *, t);
       strAppend(output, "  ptSetTopParents(stack, %ld, t);\n", captureSize);
-
+      // ptPopulateChildrenList(t, stack, *);
       strAppend(output, "  ptPopulateChildrenList(t, *stack, %ld);\n", captureSize);
 
       // t->variant = NT*::*;
       strAppend(output, "  t->v = T%sV::%s;\n", lhsName, rule->serial.c_str());
+      // t->oneNt = *;
+      strAppend(output, "  t->oneNt = %s;\n",
+                rule->singleNonTermChild ? "true" : "false");
       for (size_t i = 0; i < captureSize; ++i) {
         int index = rule->captureIndices[i];
         string memberName = rule->rhs[index];

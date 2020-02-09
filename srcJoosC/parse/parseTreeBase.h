@@ -19,9 +19,12 @@ struct Tree {
   Tree *parent;
   int numChildren;
   array<Tree *, TreeMaxChild> children;
+  // tree node is derived from a rule that has a single non-temrinal on right hand side  
+  bool oneNt;
+  
 
   Tree(enum NonTerminalType type_): type(type_), parent(nullptr),
-                                    numChildren(0), children({}) {}
+                                    numChildren(0), children({}), oneNt(false) {}
   virtual ~Tree() {}
 };
 

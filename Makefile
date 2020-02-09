@@ -80,7 +80,7 @@ $(BUILD_DIR_DEBUG)/%.cpp.o: %.cpp
 
 # Pseudo target
 
-.PHONY: clean header a1 a1Direct marmoset
+.PHONY: clean a1 a1Direct marmoset
 
 clean:
 	$(RM) -r $(BUILD_DIR_RELEASE)
