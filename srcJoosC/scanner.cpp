@@ -325,6 +325,7 @@ void epsilonClosureFast(const NState *nstate, NStateBitField* bitfield) {
 
 DState *scannerCreateDStateFromNState(Scanner *scanner,
 																			const NStateBitField &nstates) {
+  profileSection("create dstate from nstate");
 	scanner->dstates.push_back(make_unique<DState>());
 
 	DState *dstate = scanner->dstates.back().get();
@@ -351,6 +352,7 @@ DState *scannerCreateDStateFromNState(Scanner *scanner,
 }
 
 DState *scannerFindDStateFromNState(Scanner *scanner, const NStateBitField &nstates) {
+  profileSection("find dstate from nstate");
 	u64 hashValue = arrayHash(nstates);
 	auto itPair = scanner->dstateMap.equal_range(hashValue);
 	s64 compares = 0;
@@ -382,6 +384,7 @@ void scannerNFAtoDFA(Scanner *scanner) {
 
 	for (size_t curDStateIndex = 0; curDStateIndex < scanner->dstates.size();
 			 ++curDStateIndex) {
+    profileSection("dstate expand");
 		DState *curDState = scanner->dstates[curDStateIndex].get();
 		for (s32 letter = 0; letter < NumLetters; ++letter) {
 			NStateBitField nextNStates{0};
@@ -408,7 +411,7 @@ void scannerNFAtoDFA(Scanner *scanner) {
 				nextDState = scannerCreateDStateFromNState(scanner, nextNStates);
 			}
 
-			curDState->transition.push_back({(char)letter, nextDState});
+      curDState->transition[letter] = nextDState;
 		}
 	}
 }
@@ -418,9 +421,9 @@ void scannerDumpDFA(const Scanner *scanner) {
 	for (const auto &dstate : scanner->dstates) {
 		vector<vector<bool>> transitionMap(scanner->dstates.size(),
 																			 vector<bool>(NumLetters));
-		for (const Edge<DState> &edge : dstate->transition) {
-			transitionMap[edge.state->index][edge.letter] = true;
-		}
+		//for (const Edge<DState> &edge : dstate->transition) {
+    //transitionMap[edge.state->index][edge.letter] = true;
+    //}
 
 		fprintf(file, "\nState %d: ", dstate->index);
 		//for (auto val = arrayBitFieldBegin(dstate->nstatesField); *val != -1; ++val)
@@ -466,10 +469,8 @@ ScanResult scannerProcessText(const Scanner *scanner, const char *text) {
 	string curLexeme;
 	const char *textPtr = text;
 	for (char c = *textPtr; ; c = *++textPtr) {
-		const vector<Edge<DState>> &transitionArray = curState->transition;
-		auto it = lower_bound(transitionArray.begin(), transitionArray.end(),
-						Edge<DState>{c, nullptr});
-		bool isInvalid = it == transitionArray.end() || it->letter != c;
+    auto it = curState->transition.find(c);
+    bool isInvalid = it == curState->transition.end();
 		Token *theToken = curState->tokenEmission;
 		if (isInvalid) { // invalid Transition
 			bool doEmit = theToken &&
@@ -488,11 +489,11 @@ ScanResult scannerProcessText(const Scanner *scanner, const char *text) {
 			curState = startState;
 			curLexeme.clear();
 		} else {
-			curState = it->state;
+      curState = it->second;
 			curLexeme.push_back(c);
 		}
 
-		if (true) { // debug output
+		if (false) { // debug output
 			strdecl32(theChar, "%c", c);
 			if (c <= ' ')
 				snprintf(theChar, 32, "\\x%x", c);

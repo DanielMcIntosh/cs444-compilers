@@ -57,13 +57,13 @@ struct Token {
 
 struct DState;
 
-const s32 NStateFieldLen = 16;
+const s32 NStateFieldLen = 9;
 
 typedef array<u64, NStateFieldLen> NStateBitField;
 
 struct DState {
 	NStateBitField nstatesField;
-	vector<Edge<DState>> transition;
+  unordered_map<int, DState *> transition;
 
 	s32 index;
 	Token *tokenEmission;
