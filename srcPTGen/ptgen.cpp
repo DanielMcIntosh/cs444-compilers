@@ -137,7 +137,8 @@ void ptgenReadLR1(PTGen *ptgen, const char *lr1Text) {
 
       ++index;
     }
-    if (newRule->rhs.size() == 1 && newRule->captureIndices.size() == 1) {
+    if (newRule->rhs.size() == 1 && newRule->captureIndices.size() == 1 &&
+        !isTerminalCapture(newRule->rhs[0])) {
       newRule->singleNonTermChild = true;
     } else {
       newRule->singleNonTermChild = false;

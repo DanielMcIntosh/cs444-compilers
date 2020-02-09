@@ -31,7 +31,7 @@ void ptLiteral_IntegerLiteral(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TLiteralV::IntegerLiteral;
-  t->oneNt = true;
+  t->oneNt = false;
   t->integerLiteral = dynamic_cast<TIntegerLiteral *>((*stack)[n - 1]);
   assert(t->integerLiteral);
   stack->pop_back();
@@ -47,7 +47,7 @@ void ptLiteral_BooleanLiteral(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TLiteralV::BooleanLiteral;
-  t->oneNt = true;
+  t->oneNt = false;
   t->booleanLiteral = dynamic_cast<TBooleanLiteral *>((*stack)[n - 1]);
   assert(t->booleanLiteral);
   stack->pop_back();
@@ -63,7 +63,7 @@ void ptLiteral_CharacterLiteral(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TLiteralV::CharacterLiteral;
-  t->oneNt = true;
+  t->oneNt = false;
   t->characterLiteral = dynamic_cast<TCharacterLiteral *>((*stack)[n - 1]);
   assert(t->characterLiteral);
   stack->pop_back();
@@ -79,7 +79,7 @@ void ptLiteral_StringLiteral(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TLiteralV::StringLiteral;
-  t->oneNt = true;
+  t->oneNt = false;
   t->stringLiteral = dynamic_cast<TStringLiteral *>((*stack)[n - 1]);
   assert(t->stringLiteral);
   stack->pop_back();
@@ -95,7 +95,7 @@ void ptLiteral_NullLiteral(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TLiteralV::NullLiteral;
-  t->oneNt = true;
+  t->oneNt = false;
   t->nullLiteral = dynamic_cast<TNullLiteral *>((*stack)[n - 1]);
   assert(t->nullLiteral);
   stack->pop_back();
@@ -315,7 +315,7 @@ void ptName_Identifier(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TNameV::Identifier;
-  t->oneNt = true;
+  t->oneNt = false;
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 1]);
   assert(t->identifier);
   stack->pop_back();
@@ -1039,7 +1039,7 @@ void ptVariableDeclarator_Identifier(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TVariableDeclaratorV::Identifier;
-  t->oneNt = true;
+  t->oneNt = false;
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 1]);
   assert(t->identifier);
   stack->pop_back();
