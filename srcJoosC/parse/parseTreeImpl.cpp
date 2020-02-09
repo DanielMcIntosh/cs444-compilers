@@ -15,6 +15,7 @@ void ptGoal_BOFCompilationUnitEof(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TGoalV::BOFCompilationUnitEof;
+  t->oneNt = false;
   t->compilationUnit = dynamic_cast<TCompilationUnit *>((*stack)[n - 1]);
   assert(t->compilationUnit);
   stack->pop_back();
@@ -30,6 +31,7 @@ void ptLiteral_IntegerLiteral(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TLiteralV::IntegerLiteral;
+  t->oneNt = true;
   t->integerLiteral = dynamic_cast<TIntegerLiteral *>((*stack)[n - 1]);
   assert(t->integerLiteral);
   stack->pop_back();
@@ -45,6 +47,7 @@ void ptLiteral_BooleanLiteral(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TLiteralV::BooleanLiteral;
+  t->oneNt = true;
   t->booleanLiteral = dynamic_cast<TBooleanLiteral *>((*stack)[n - 1]);
   assert(t->booleanLiteral);
   stack->pop_back();
@@ -60,6 +63,7 @@ void ptLiteral_CharacterLiteral(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TLiteralV::CharacterLiteral;
+  t->oneNt = true;
   t->characterLiteral = dynamic_cast<TCharacterLiteral *>((*stack)[n - 1]);
   assert(t->characterLiteral);
   stack->pop_back();
@@ -75,6 +79,7 @@ void ptLiteral_StringLiteral(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TLiteralV::StringLiteral;
+  t->oneNt = true;
   t->stringLiteral = dynamic_cast<TStringLiteral *>((*stack)[n - 1]);
   assert(t->stringLiteral);
   stack->pop_back();
@@ -90,6 +95,7 @@ void ptLiteral_NullLiteral(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TLiteralV::NullLiteral;
+  t->oneNt = true;
   t->nullLiteral = dynamic_cast<TNullLiteral *>((*stack)[n - 1]);
   assert(t->nullLiteral);
   stack->pop_back();
@@ -105,6 +111,7 @@ void ptType_PrimitiveType(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TTypeV::PrimitiveType;
+  t->oneNt = true;
   t->primitiveType = dynamic_cast<TPrimitiveType *>((*stack)[n - 1]);
   assert(t->primitiveType);
   stack->pop_back();
@@ -120,6 +127,7 @@ void ptType_ReferenceType(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TTypeV::ReferenceType;
+  t->oneNt = true;
   t->referenceType = dynamic_cast<TReferenceType *>((*stack)[n - 1]);
   assert(t->referenceType);
   stack->pop_back();
@@ -134,6 +142,7 @@ void ptPrimitiveType_boolean(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TPrimitiveTypeV::boolean;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -145,6 +154,7 @@ void ptPrimitiveType_byte(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TPrimitiveTypeV::byte;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -156,6 +166,7 @@ void ptPrimitiveType_Short(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TPrimitiveTypeV::Short;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -167,6 +178,7 @@ void ptPrimitiveType_Int(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TPrimitiveTypeV::Int;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -178,6 +190,7 @@ void ptPrimitiveType_Char(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TPrimitiveTypeV::Char;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -190,6 +203,7 @@ void ptReferenceType_ClassOrInterfaceType(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TReferenceTypeV::ClassOrInterfaceType;
+  t->oneNt = true;
   t->classOrInterfaceType = dynamic_cast<TClassOrInterfaceType *>((*stack)[n - 1]);
   assert(t->classOrInterfaceType);
   stack->pop_back();
@@ -205,6 +219,7 @@ void ptReferenceType_ArrayType(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TReferenceTypeV::ArrayType;
+  t->oneNt = true;
   t->arrayType = dynamic_cast<TArrayType *>((*stack)[n - 1]);
   assert(t->arrayType);
   stack->pop_back();
@@ -220,6 +235,7 @@ void ptClassOrInterfaceType_Name(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TClassOrInterfaceTypeV::Name;
+  t->oneNt = true;
   t->name = dynamic_cast<TName *>((*stack)[n - 1]);
   assert(t->name);
   stack->pop_back();
@@ -235,6 +251,7 @@ void ptClassType_ClassOrInterfaceType(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TClassTypeV::ClassOrInterfaceType;
+  t->oneNt = true;
   t->classOrInterfaceType = dynamic_cast<TClassOrInterfaceType *>((*stack)[n - 1]);
   assert(t->classOrInterfaceType);
   stack->pop_back();
@@ -250,6 +267,7 @@ void ptInterfaceType_ClassOrInterfaceType(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TInterfaceTypeV::ClassOrInterfaceType;
+  t->oneNt = true;
   t->classOrInterfaceType = dynamic_cast<TClassOrInterfaceType *>((*stack)[n - 1]);
   assert(t->classOrInterfaceType);
   stack->pop_back();
@@ -265,6 +283,7 @@ void ptArrayType_PrimitiveTypeLSBrRSBr(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TArrayTypeV::PrimitiveTypeLSBrRSBr;
+  t->oneNt = false;
   t->primitiveType = dynamic_cast<TPrimitiveType *>((*stack)[n - 1]);
   assert(t->primitiveType);
   stack->pop_back();
@@ -280,6 +299,7 @@ void ptArrayType_NameLSBrRSBr(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TArrayTypeV::NameLSBrRSBr;
+  t->oneNt = false;
   t->name = dynamic_cast<TName *>((*stack)[n - 1]);
   assert(t->name);
   stack->pop_back();
@@ -295,6 +315,7 @@ void ptName_Identifier(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TNameV::Identifier;
+  t->oneNt = true;
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 1]);
   assert(t->identifier);
   stack->pop_back();
@@ -311,6 +332,7 @@ void ptName_NameDotIdentifier(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TNameV::NameDotIdentifier;
+  t->oneNt = false;
   t->name = dynamic_cast<TName *>((*stack)[n - 2]);
   assert(t->name);
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 1]);
@@ -333,6 +355,7 @@ void ptCompilationUnit_PackageDeclaration(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TCompilationUnitV::PackageDeclaration;
+  t->oneNt = true;
   t->packageDeclaration = dynamic_cast<TPackageDeclaration *>((*stack)[n - 1]);
   assert(t->packageDeclaration);
   stack->pop_back();
@@ -348,6 +371,7 @@ void ptCompilationUnit_ImportDeclarations(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TCompilationUnitV::ImportDeclarations;
+  t->oneNt = true;
   t->importDeclarations = dynamic_cast<TImportDeclarations *>((*stack)[n - 1]);
   assert(t->importDeclarations);
   stack->pop_back();
@@ -364,6 +388,7 @@ void ptCompilationUnit_PackageDeclarationImportDeclarations(vector<Tree *> *stac
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TCompilationUnitV::PackageDeclarationImportDeclarations;
+  t->oneNt = false;
   t->packageDeclaration = dynamic_cast<TPackageDeclaration *>((*stack)[n - 2]);
   assert(t->packageDeclaration);
   t->importDeclarations = dynamic_cast<TImportDeclarations *>((*stack)[n - 1]);
@@ -382,6 +407,7 @@ void ptCompilationUnit_TypeDeclaration(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TCompilationUnitV::TypeDeclaration;
+  t->oneNt = true;
   t->typeDeclaration = dynamic_cast<TTypeDeclaration *>((*stack)[n - 1]);
   assert(t->typeDeclaration);
   stack->pop_back();
@@ -398,6 +424,7 @@ void ptCompilationUnit_PackageDeclarationTypeDeclaration(vector<Tree *> *stack) 
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TCompilationUnitV::PackageDeclarationTypeDeclaration;
+  t->oneNt = false;
   t->packageDeclaration = dynamic_cast<TPackageDeclaration *>((*stack)[n - 2]);
   assert(t->packageDeclaration);
   t->typeDeclaration = dynamic_cast<TTypeDeclaration *>((*stack)[n - 1]);
@@ -417,6 +444,7 @@ void ptCompilationUnit_ImportDeclarationsTypeDeclaration(vector<Tree *> *stack) 
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TCompilationUnitV::ImportDeclarationsTypeDeclaration;
+  t->oneNt = false;
   t->importDeclarations = dynamic_cast<TImportDeclarations *>((*stack)[n - 2]);
   assert(t->importDeclarations);
   t->typeDeclaration = dynamic_cast<TTypeDeclaration *>((*stack)[n - 1]);
@@ -437,6 +465,7 @@ void ptCompilationUnit_PackageDeclarationImportDeclarationsTypeDeclaration(vecto
   ptSetTopParents(stack, 3, t);
   ptPopulateChildrenList(t, *stack, 3);
   t->v = TCompilationUnitV::PackageDeclarationImportDeclarationsTypeDeclaration;
+  t->oneNt = false;
   t->packageDeclaration = dynamic_cast<TPackageDeclaration *>((*stack)[n - 3]);
   assert(t->packageDeclaration);
   t->importDeclarations = dynamic_cast<TImportDeclarations *>((*stack)[n - 2]);
@@ -458,6 +487,7 @@ void ptImportDeclarations_ImportDeclaration(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TImportDeclarationsV::ImportDeclaration;
+  t->oneNt = true;
   t->importDeclaration = dynamic_cast<TImportDeclaration *>((*stack)[n - 1]);
   assert(t->importDeclaration);
   stack->pop_back();
@@ -474,6 +504,7 @@ void ptImportDeclarations_ImportDeclarationsImportDeclaration(vector<Tree *> *st
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TImportDeclarationsV::ImportDeclarationsImportDeclaration;
+  t->oneNt = false;
   t->importDeclarations = dynamic_cast<TImportDeclarations *>((*stack)[n - 2]);
   assert(t->importDeclarations);
   t->importDeclaration = dynamic_cast<TImportDeclaration *>((*stack)[n - 1]);
@@ -492,6 +523,7 @@ void ptPackageDeclaration_packageNameSCol(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TPackageDeclarationV::packageNameSCol;
+  t->oneNt = false;
   t->name = dynamic_cast<TName *>((*stack)[n - 1]);
   assert(t->name);
   stack->pop_back();
@@ -507,6 +539,7 @@ void ptImportDeclaration_SingleTypeImportDeclaration(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TImportDeclarationV::SingleTypeImportDeclaration;
+  t->oneNt = true;
   t->singleTypeImportDeclaration = dynamic_cast<TSingleTypeImportDeclaration *>((*stack)[n - 1]);
   assert(t->singleTypeImportDeclaration);
   stack->pop_back();
@@ -522,6 +555,7 @@ void ptImportDeclaration_TypeImportOnDemandDeclaration(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TImportDeclarationV::TypeImportOnDemandDeclaration;
+  t->oneNt = true;
   t->typeImportOnDemandDeclaration = dynamic_cast<TTypeImportOnDemandDeclaration *>((*stack)[n - 1]);
   assert(t->typeImportOnDemandDeclaration);
   stack->pop_back();
@@ -537,6 +571,7 @@ void ptSingleTypeImportDeclaration_importNameSCol(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TSingleTypeImportDeclarationV::importNameSCol;
+  t->oneNt = false;
   t->name = dynamic_cast<TName *>((*stack)[n - 1]);
   assert(t->name);
   stack->pop_back();
@@ -552,6 +587,7 @@ void ptTypeImportOnDemandDeclaration_importNameDotStarSCol(vector<Tree *> *stack
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TTypeImportOnDemandDeclarationV::importNameDotStarSCol;
+  t->oneNt = false;
   t->name = dynamic_cast<TName *>((*stack)[n - 1]);
   assert(t->name);
   stack->pop_back();
@@ -567,6 +603,7 @@ void ptTypeDeclaration_ClassDeclaration(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TTypeDeclarationV::ClassDeclaration;
+  t->oneNt = true;
   t->classDeclaration = dynamic_cast<TClassDeclaration *>((*stack)[n - 1]);
   assert(t->classDeclaration);
   stack->pop_back();
@@ -582,6 +619,7 @@ void ptTypeDeclaration_InterfaceDeclaration(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TTypeDeclarationV::InterfaceDeclaration;
+  t->oneNt = true;
   t->interfaceDeclaration = dynamic_cast<TInterfaceDeclaration *>((*stack)[n - 1]);
   assert(t->interfaceDeclaration);
   stack->pop_back();
@@ -596,6 +634,7 @@ void ptTypeDeclaration_SCol(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TTypeDeclarationV::SCol;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -608,6 +647,7 @@ void ptModifiers_Modifier(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TModifiersV::Modifier;
+  t->oneNt = true;
   t->modifier = dynamic_cast<TModifier *>((*stack)[n - 1]);
   assert(t->modifier);
   stack->pop_back();
@@ -624,6 +664,7 @@ void ptModifiers_ModifiersModifier(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TModifiersV::ModifiersModifier;
+  t->oneNt = false;
   t->modifiers = dynamic_cast<TModifiers *>((*stack)[n - 2]);
   assert(t->modifiers);
   t->modifier = dynamic_cast<TModifier *>((*stack)[n - 1]);
@@ -641,6 +682,7 @@ void ptModifier_Public(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TModifierV::Public;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -652,6 +694,7 @@ void ptModifier_Protected(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TModifierV::Protected;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -663,6 +706,7 @@ void ptModifier_Static(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TModifierV::Static;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -674,6 +718,7 @@ void ptModifier_abstract(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TModifierV::abstract;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -685,6 +730,7 @@ void ptModifier_final(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TModifierV::final;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -696,6 +742,7 @@ void ptModifier_native(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TModifierV::native;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -710,6 +757,7 @@ void ptClassDeclaration_ModifiersClassIdentifierClassBody(vector<Tree *> *stack)
   ptSetTopParents(stack, 3, t);
   ptPopulateChildrenList(t, *stack, 3);
   t->v = TClassDeclarationV::ModifiersClassIdentifierClassBody;
+  t->oneNt = false;
   t->modifiers = dynamic_cast<TModifiers *>((*stack)[n - 3]);
   assert(t->modifiers);
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 2]);
@@ -734,6 +782,7 @@ void ptClassDeclaration_ModifiersClassIdentifierextendsClassTypeClassBody(vector
   ptSetTopParents(stack, 4, t);
   ptPopulateChildrenList(t, *stack, 4);
   t->v = TClassDeclarationV::ModifiersClassIdentifierextendsClassTypeClassBody;
+  t->oneNt = false;
   t->modifiers = dynamic_cast<TModifiers *>((*stack)[n - 4]);
   assert(t->modifiers);
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 3]);
@@ -761,6 +810,7 @@ void ptClassDeclaration_ModifiersClassIdentifierimplementsInterfaceTypeListClass
   ptSetTopParents(stack, 4, t);
   ptPopulateChildrenList(t, *stack, 4);
   t->v = TClassDeclarationV::ModifiersClassIdentifierimplementsInterfaceTypeListClassBody;
+  t->oneNt = false;
   t->modifiers = dynamic_cast<TModifiers *>((*stack)[n - 4]);
   assert(t->modifiers);
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 3]);
@@ -789,6 +839,7 @@ void ptClassDeclaration_ModifiersClassIdentifierextendsClassTypeimplementsInterf
   ptSetTopParents(stack, 5, t);
   ptPopulateChildrenList(t, *stack, 5);
   t->v = TClassDeclarationV::ModifiersClassIdentifierextendsClassTypeimplementsInterfaceTypeListClassBody;
+  t->oneNt = false;
   t->modifiers = dynamic_cast<TModifiers *>((*stack)[n - 5]);
   assert(t->modifiers);
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 4]);
@@ -816,6 +867,7 @@ void ptInterfaceTypeList_InterfaceType(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TInterfaceTypeListV::InterfaceType;
+  t->oneNt = true;
   t->interfaceType = dynamic_cast<TInterfaceType *>((*stack)[n - 1]);
   assert(t->interfaceType);
   stack->pop_back();
@@ -832,6 +884,7 @@ void ptInterfaceTypeList_InterfaceTypeListComInterfaceType(vector<Tree *> *stack
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TInterfaceTypeListV::InterfaceTypeListComInterfaceType;
+  t->oneNt = false;
   t->interfaceTypeList = dynamic_cast<TInterfaceTypeList *>((*stack)[n - 2]);
   assert(t->interfaceTypeList);
   t->interfaceType = dynamic_cast<TInterfaceType *>((*stack)[n - 1]);
@@ -849,6 +902,7 @@ void ptClassBody_LCBrRCBr(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TClassBodyV::LCBrRCBr;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -861,6 +915,7 @@ void ptClassBody_LCBrClassMemberDeclarationsRCBr(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TClassBodyV::LCBrClassMemberDeclarationsRCBr;
+  t->oneNt = false;
   t->classMemberDeclarations = dynamic_cast<TClassMemberDeclarations *>((*stack)[n - 1]);
   assert(t->classMemberDeclarations);
   stack->pop_back();
@@ -876,6 +931,7 @@ void ptClassMemberDeclarations_ClassMemberDeclaration(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TClassMemberDeclarationsV::ClassMemberDeclaration;
+  t->oneNt = true;
   t->classMemberDeclaration = dynamic_cast<TClassMemberDeclaration *>((*stack)[n - 1]);
   assert(t->classMemberDeclaration);
   stack->pop_back();
@@ -892,6 +948,7 @@ void ptClassMemberDeclarations_ClassMemberDeclarationsClassMemberDeclaration(vec
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TClassMemberDeclarationsV::ClassMemberDeclarationsClassMemberDeclaration;
+  t->oneNt = false;
   t->classMemberDeclarations = dynamic_cast<TClassMemberDeclarations *>((*stack)[n - 2]);
   assert(t->classMemberDeclarations);
   t->classMemberDeclaration = dynamic_cast<TClassMemberDeclaration *>((*stack)[n - 1]);
@@ -910,6 +967,7 @@ void ptClassMemberDeclaration_FieldDeclaration(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TClassMemberDeclarationV::FieldDeclaration;
+  t->oneNt = true;
   t->fieldDeclaration = dynamic_cast<TFieldDeclaration *>((*stack)[n - 1]);
   assert(t->fieldDeclaration);
   stack->pop_back();
@@ -925,6 +983,7 @@ void ptClassMemberDeclaration_MethodDeclaration(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TClassMemberDeclarationV::MethodDeclaration;
+  t->oneNt = true;
   t->methodDeclaration = dynamic_cast<TMethodDeclaration *>((*stack)[n - 1]);
   assert(t->methodDeclaration);
   stack->pop_back();
@@ -940,6 +999,7 @@ void ptClassMemberDeclaration_ConstructorDeclaration(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TClassMemberDeclarationV::ConstructorDeclaration;
+  t->oneNt = true;
   t->constructorDeclaration = dynamic_cast<TConstructorDeclaration *>((*stack)[n - 1]);
   assert(t->constructorDeclaration);
   stack->pop_back();
@@ -957,6 +1017,7 @@ void ptFieldDeclaration_ModifiersTypeVariableDeclaratorSCol(vector<Tree *> *stac
   ptSetTopParents(stack, 3, t);
   ptPopulateChildrenList(t, *stack, 3);
   t->v = TFieldDeclarationV::ModifiersTypeVariableDeclaratorSCol;
+  t->oneNt = false;
   t->modifiers = dynamic_cast<TModifiers *>((*stack)[n - 3]);
   assert(t->modifiers);
   t->type = dynamic_cast<TType *>((*stack)[n - 2]);
@@ -978,6 +1039,7 @@ void ptVariableDeclarator_Identifier(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TVariableDeclaratorV::Identifier;
+  t->oneNt = true;
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 1]);
   assert(t->identifier);
   stack->pop_back();
@@ -994,6 +1056,7 @@ void ptVariableDeclarator_IdentifierEqExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TVariableDeclaratorV::IdentifierEqExpression;
+  t->oneNt = false;
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 2]);
   assert(t->identifier);
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 1]);
@@ -1013,6 +1076,7 @@ void ptMethodDeclaration_MethodHeaderMethodBody(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TMethodDeclarationV::MethodHeaderMethodBody;
+  t->oneNt = false;
   t->methodHeader = dynamic_cast<TMethodHeader *>((*stack)[n - 2]);
   assert(t->methodHeader);
   t->methodBody = dynamic_cast<TMethodBody *>((*stack)[n - 1]);
@@ -1032,6 +1096,7 @@ void ptMethodHeader_TypeMethodDeclarator(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TMethodHeaderV::TypeMethodDeclarator;
+  t->oneNt = false;
   t->type = dynamic_cast<TType *>((*stack)[n - 2]);
   assert(t->type);
   t->methodDeclarator = dynamic_cast<TMethodDeclarator *>((*stack)[n - 1]);
@@ -1052,6 +1117,7 @@ void ptMethodHeader_ModifiersTypeMethodDeclarator(vector<Tree *> *stack) {
   ptSetTopParents(stack, 3, t);
   ptPopulateChildrenList(t, *stack, 3);
   t->v = TMethodHeaderV::ModifiersTypeMethodDeclarator;
+  t->oneNt = false;
   t->modifiers = dynamic_cast<TModifiers *>((*stack)[n - 3]);
   assert(t->modifiers);
   t->type = dynamic_cast<TType *>((*stack)[n - 2]);
@@ -1073,6 +1139,7 @@ void ptMethodHeader_VoidMethodDeclarator(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TMethodHeaderV::VoidMethodDeclarator;
+  t->oneNt = false;
   t->methodDeclarator = dynamic_cast<TMethodDeclarator *>((*stack)[n - 1]);
   assert(t->methodDeclarator);
   stack->pop_back();
@@ -1089,6 +1156,7 @@ void ptMethodHeader_ModifiersVoidMethodDeclarator(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TMethodHeaderV::ModifiersVoidMethodDeclarator;
+  t->oneNt = false;
   t->modifiers = dynamic_cast<TModifiers *>((*stack)[n - 2]);
   assert(t->modifiers);
   t->methodDeclarator = dynamic_cast<TMethodDeclarator *>((*stack)[n - 1]);
@@ -1107,6 +1175,7 @@ void ptMethodDeclarator_IdentifierLParRPar(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TMethodDeclaratorV::IdentifierLParRPar;
+  t->oneNt = false;
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 1]);
   assert(t->identifier);
   stack->pop_back();
@@ -1123,6 +1192,7 @@ void ptMethodDeclarator_IdentifierLParFormalParameterListRPar(vector<Tree *> *st
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TMethodDeclaratorV::IdentifierLParFormalParameterListRPar;
+  t->oneNt = false;
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 2]);
   assert(t->identifier);
   t->formalParameterList = dynamic_cast<TFormalParameterList *>((*stack)[n - 1]);
@@ -1141,6 +1211,7 @@ void ptFormalParameterList_FormalParameter(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TFormalParameterListV::FormalParameter;
+  t->oneNt = true;
   t->formalParameter = dynamic_cast<TFormalParameter *>((*stack)[n - 1]);
   assert(t->formalParameter);
   stack->pop_back();
@@ -1157,6 +1228,7 @@ void ptFormalParameterList_FormalParameterListComFormalParameter(vector<Tree *> 
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TFormalParameterListV::FormalParameterListComFormalParameter;
+  t->oneNt = false;
   t->formalParameterList = dynamic_cast<TFormalParameterList *>((*stack)[n - 2]);
   assert(t->formalParameterList);
   t->formalParameter = dynamic_cast<TFormalParameter *>((*stack)[n - 1]);
@@ -1176,6 +1248,7 @@ void ptFormalParameter_TypeIdentifier(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TFormalParameterV::TypeIdentifier;
+  t->oneNt = false;
   t->type = dynamic_cast<TType *>((*stack)[n - 2]);
   assert(t->type);
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 1]);
@@ -1194,6 +1267,7 @@ void ptMethodBody_Block(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TMethodBodyV::Block;
+  t->oneNt = true;
   t->block = dynamic_cast<TBlock *>((*stack)[n - 1]);
   assert(t->block);
   stack->pop_back();
@@ -1209,6 +1283,7 @@ void ptMethodBody_AbstractMethodBody(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TMethodBodyV::AbstractMethodBody;
+  t->oneNt = true;
   t->abstractMethodBody = dynamic_cast<TAbstractMethodBody *>((*stack)[n - 1]);
   assert(t->abstractMethodBody);
   stack->pop_back();
@@ -1223,6 +1298,7 @@ void ptAbstractMethodBody_SCol(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TAbstractMethodBodyV::SCol;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -1237,6 +1313,7 @@ void ptConstructorDeclaration_ModifiersConstructorDeclaratorBlock(vector<Tree *>
   ptSetTopParents(stack, 3, t);
   ptPopulateChildrenList(t, *stack, 3);
   t->v = TConstructorDeclarationV::ModifiersConstructorDeclaratorBlock;
+  t->oneNt = false;
   t->modifiers = dynamic_cast<TModifiers *>((*stack)[n - 3]);
   assert(t->modifiers);
   t->constructorDeclarator = dynamic_cast<TConstructorDeclarator *>((*stack)[n - 2]);
@@ -1258,6 +1335,7 @@ void ptConstructorDeclarator_IdentifierLParRPar(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TConstructorDeclaratorV::IdentifierLParRPar;
+  t->oneNt = false;
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 1]);
   assert(t->identifier);
   stack->pop_back();
@@ -1274,6 +1352,7 @@ void ptConstructorDeclarator_IdentifierLParFormalParameterListRPar(vector<Tree *
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TConstructorDeclaratorV::IdentifierLParFormalParameterListRPar;
+  t->oneNt = false;
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 2]);
   assert(t->identifier);
   t->formalParameterList = dynamic_cast<TFormalParameterList *>((*stack)[n - 1]);
@@ -1293,6 +1372,7 @@ void ptInterfaceDeclaration_interfaceIdentifierInterfaceBody(vector<Tree *> *sta
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TInterfaceDeclarationV::interfaceIdentifierInterfaceBody;
+  t->oneNt = false;
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 2]);
   assert(t->identifier);
   t->interfaceBody = dynamic_cast<TInterfaceBody *>((*stack)[n - 1]);
@@ -1313,6 +1393,7 @@ void ptInterfaceDeclaration_ModifiersinterfaceIdentifierInterfaceBody(vector<Tre
   ptSetTopParents(stack, 3, t);
   ptPopulateChildrenList(t, *stack, 3);
   t->v = TInterfaceDeclarationV::ModifiersinterfaceIdentifierInterfaceBody;
+  t->oneNt = false;
   t->modifiers = dynamic_cast<TModifiers *>((*stack)[n - 3]);
   assert(t->modifiers);
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 2]);
@@ -1336,6 +1417,7 @@ void ptInterfaceDeclaration_interfaceIdentifierExtendsInterfacesInterfaceBody(ve
   ptSetTopParents(stack, 3, t);
   ptPopulateChildrenList(t, *stack, 3);
   t->v = TInterfaceDeclarationV::interfaceIdentifierExtendsInterfacesInterfaceBody;
+  t->oneNt = false;
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 3]);
   assert(t->identifier);
   t->extendsInterfaces = dynamic_cast<TExtendsInterfaces *>((*stack)[n - 2]);
@@ -1360,6 +1442,7 @@ void ptInterfaceDeclaration_ModifiersinterfaceIdentifierExtendsInterfacesInterfa
   ptSetTopParents(stack, 4, t);
   ptPopulateChildrenList(t, *stack, 4);
   t->v = TInterfaceDeclarationV::ModifiersinterfaceIdentifierExtendsInterfacesInterfaceBody;
+  t->oneNt = false;
   t->modifiers = dynamic_cast<TModifiers *>((*stack)[n - 4]);
   assert(t->modifiers);
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 3]);
@@ -1384,6 +1467,7 @@ void ptExtendsInterfaces_extendsInterfaceType(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TExtendsInterfacesV::extendsInterfaceType;
+  t->oneNt = false;
   t->interfaceType = dynamic_cast<TInterfaceType *>((*stack)[n - 1]);
   assert(t->interfaceType);
   stack->pop_back();
@@ -1400,6 +1484,7 @@ void ptExtendsInterfaces_ExtendsInterfacesComInterfaceType(vector<Tree *> *stack
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TExtendsInterfacesV::ExtendsInterfacesComInterfaceType;
+  t->oneNt = false;
   t->extendsInterfaces = dynamic_cast<TExtendsInterfaces *>((*stack)[n - 2]);
   assert(t->extendsInterfaces);
   t->interfaceType = dynamic_cast<TInterfaceType *>((*stack)[n - 1]);
@@ -1417,6 +1502,7 @@ void ptInterfaceBody_LCBrRCBr(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TInterfaceBodyV::LCBrRCBr;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -1429,6 +1515,7 @@ void ptInterfaceBody_LCBrInterfaceMemberDeclarationsRCBr(vector<Tree *> *stack) 
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TInterfaceBodyV::LCBrInterfaceMemberDeclarationsRCBr;
+  t->oneNt = false;
   t->interfaceMemberDeclarations = dynamic_cast<TInterfaceMemberDeclarations *>((*stack)[n - 1]);
   assert(t->interfaceMemberDeclarations);
   stack->pop_back();
@@ -1444,6 +1531,7 @@ void ptInterfaceMemberDeclarations_InterfaceMemberDeclaration(vector<Tree *> *st
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TInterfaceMemberDeclarationsV::InterfaceMemberDeclaration;
+  t->oneNt = true;
   t->interfaceMemberDeclaration = dynamic_cast<TInterfaceMemberDeclaration *>((*stack)[n - 1]);
   assert(t->interfaceMemberDeclaration);
   stack->pop_back();
@@ -1460,6 +1548,7 @@ void ptInterfaceMemberDeclarations_InterfaceMemberDeclarationsInterfaceMemberDec
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TInterfaceMemberDeclarationsV::InterfaceMemberDeclarationsInterfaceMemberDeclaration;
+  t->oneNt = false;
   t->interfaceMemberDeclarations = dynamic_cast<TInterfaceMemberDeclarations *>((*stack)[n - 2]);
   assert(t->interfaceMemberDeclarations);
   t->interfaceMemberDeclaration = dynamic_cast<TInterfaceMemberDeclaration *>((*stack)[n - 1]);
@@ -1478,6 +1567,7 @@ void ptInterfaceMemberDeclaration_AbstractMethodDeclaration(vector<Tree *> *stac
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TInterfaceMemberDeclarationV::AbstractMethodDeclaration;
+  t->oneNt = true;
   t->abstractMethodDeclaration = dynamic_cast<TAbstractMethodDeclaration *>((*stack)[n - 1]);
   assert(t->abstractMethodDeclaration);
   stack->pop_back();
@@ -1493,6 +1583,7 @@ void ptAbstractMethodDeclaration_MethodHeaderSCol(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TAbstractMethodDeclarationV::MethodHeaderSCol;
+  t->oneNt = false;
   t->methodHeader = dynamic_cast<TMethodHeader *>((*stack)[n - 1]);
   assert(t->methodHeader);
   stack->pop_back();
@@ -1507,6 +1598,7 @@ void ptBlock_LCBrRCBr(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TBlockV::LCBrRCBr;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -1519,6 +1611,7 @@ void ptBlock_LCBrBlockStatementsRCBr(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TBlockV::LCBrBlockStatementsRCBr;
+  t->oneNt = false;
   t->blockStatements = dynamic_cast<TBlockStatements *>((*stack)[n - 1]);
   assert(t->blockStatements);
   stack->pop_back();
@@ -1534,6 +1627,7 @@ void ptBlockStatements_BlockStatement(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TBlockStatementsV::BlockStatement;
+  t->oneNt = true;
   t->blockStatement = dynamic_cast<TBlockStatement *>((*stack)[n - 1]);
   assert(t->blockStatement);
   stack->pop_back();
@@ -1550,6 +1644,7 @@ void ptBlockStatements_BlockStatementsBlockStatement(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TBlockStatementsV::BlockStatementsBlockStatement;
+  t->oneNt = false;
   t->blockStatements = dynamic_cast<TBlockStatements *>((*stack)[n - 2]);
   assert(t->blockStatements);
   t->blockStatement = dynamic_cast<TBlockStatement *>((*stack)[n - 1]);
@@ -1568,6 +1663,7 @@ void ptBlockStatement_LocalVariableDeclarationStatement(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TBlockStatementV::LocalVariableDeclarationStatement;
+  t->oneNt = true;
   t->localVariableDeclarationStatement = dynamic_cast<TLocalVariableDeclarationStatement *>((*stack)[n - 1]);
   assert(t->localVariableDeclarationStatement);
   stack->pop_back();
@@ -1583,6 +1679,7 @@ void ptBlockStatement_Statement(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TBlockStatementV::Statement;
+  t->oneNt = true;
   t->statement = dynamic_cast<TStatement *>((*stack)[n - 1]);
   assert(t->statement);
   stack->pop_back();
@@ -1598,6 +1695,7 @@ void ptLocalVariableDeclarationStatement_LocalVariableDeclarationSCol(vector<Tre
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TLocalVariableDeclarationStatementV::LocalVariableDeclarationSCol;
+  t->oneNt = false;
   t->localVariableDeclaration = dynamic_cast<TLocalVariableDeclaration *>((*stack)[n - 1]);
   assert(t->localVariableDeclaration);
   stack->pop_back();
@@ -1614,6 +1712,7 @@ void ptLocalVariableDeclaration_TypeVariableDeclarator(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TLocalVariableDeclarationV::TypeVariableDeclarator;
+  t->oneNt = false;
   t->type = dynamic_cast<TType *>((*stack)[n - 2]);
   assert(t->type);
   t->variableDeclarator = dynamic_cast<TVariableDeclarator *>((*stack)[n - 1]);
@@ -1632,6 +1731,7 @@ void ptStatement_StatementWithoutTrailingSubstatement(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TStatementV::StatementWithoutTrailingSubstatement;
+  t->oneNt = true;
   t->statementWithoutTrailingSubstatement = dynamic_cast<TStatementWithoutTrailingSubstatement *>((*stack)[n - 1]);
   assert(t->statementWithoutTrailingSubstatement);
   stack->pop_back();
@@ -1647,6 +1747,7 @@ void ptStatement_IfThenStatement(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TStatementV::IfThenStatement;
+  t->oneNt = true;
   t->ifThenStatement = dynamic_cast<TIfThenStatement *>((*stack)[n - 1]);
   assert(t->ifThenStatement);
   stack->pop_back();
@@ -1662,6 +1763,7 @@ void ptStatement_IfThenElseStatement(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TStatementV::IfThenElseStatement;
+  t->oneNt = true;
   t->ifThenElseStatement = dynamic_cast<TIfThenElseStatement *>((*stack)[n - 1]);
   assert(t->ifThenElseStatement);
   stack->pop_back();
@@ -1677,6 +1779,7 @@ void ptStatement_WhileStatement(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TStatementV::WhileStatement;
+  t->oneNt = true;
   t->whileStatement = dynamic_cast<TWhileStatement *>((*stack)[n - 1]);
   assert(t->whileStatement);
   stack->pop_back();
@@ -1692,6 +1795,7 @@ void ptStatement_ForStatement(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TStatementV::ForStatement;
+  t->oneNt = true;
   t->forStatement = dynamic_cast<TForStatement *>((*stack)[n - 1]);
   assert(t->forStatement);
   stack->pop_back();
@@ -1707,6 +1811,7 @@ void ptStatementNoShortIf_StatementWithoutTrailingSubstatement(vector<Tree *> *s
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TStatementNoShortIfV::StatementWithoutTrailingSubstatement;
+  t->oneNt = true;
   t->statementWithoutTrailingSubstatement = dynamic_cast<TStatementWithoutTrailingSubstatement *>((*stack)[n - 1]);
   assert(t->statementWithoutTrailingSubstatement);
   stack->pop_back();
@@ -1722,6 +1827,7 @@ void ptStatementNoShortIf_IfThenElseStatementNoShortIf(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TStatementNoShortIfV::IfThenElseStatementNoShortIf;
+  t->oneNt = true;
   t->ifThenElseStatementNoShortIf = dynamic_cast<TIfThenElseStatementNoShortIf *>((*stack)[n - 1]);
   assert(t->ifThenElseStatementNoShortIf);
   stack->pop_back();
@@ -1737,6 +1843,7 @@ void ptStatementNoShortIf_WhileStatementNoShortIf(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TStatementNoShortIfV::WhileStatementNoShortIf;
+  t->oneNt = true;
   t->whileStatementNoShortIf = dynamic_cast<TWhileStatementNoShortIf *>((*stack)[n - 1]);
   assert(t->whileStatementNoShortIf);
   stack->pop_back();
@@ -1752,6 +1859,7 @@ void ptStatementNoShortIf_ForStatementNoShortIf(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TStatementNoShortIfV::ForStatementNoShortIf;
+  t->oneNt = true;
   t->forStatementNoShortIf = dynamic_cast<TForStatementNoShortIf *>((*stack)[n - 1]);
   assert(t->forStatementNoShortIf);
   stack->pop_back();
@@ -1767,6 +1875,7 @@ void ptStatementWithoutTrailingSubstatement_Block(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TStatementWithoutTrailingSubstatementV::Block;
+  t->oneNt = true;
   t->block = dynamic_cast<TBlock *>((*stack)[n - 1]);
   assert(t->block);
   stack->pop_back();
@@ -1782,6 +1891,7 @@ void ptStatementWithoutTrailingSubstatement_ExpressionStatement(vector<Tree *> *
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TStatementWithoutTrailingSubstatementV::ExpressionStatement;
+  t->oneNt = true;
   t->expressionStatement = dynamic_cast<TExpressionStatement *>((*stack)[n - 1]);
   assert(t->expressionStatement);
   stack->pop_back();
@@ -1797,6 +1907,7 @@ void ptStatementWithoutTrailingSubstatement_ReturnStatement(vector<Tree *> *stac
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TStatementWithoutTrailingSubstatementV::ReturnStatement;
+  t->oneNt = true;
   t->returnStatement = dynamic_cast<TReturnStatement *>((*stack)[n - 1]);
   assert(t->returnStatement);
   stack->pop_back();
@@ -1811,6 +1922,7 @@ void ptExpressionStatement_SCol(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TExpressionStatementV::SCol;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -1823,6 +1935,7 @@ void ptExpressionStatement_StatementExpressionSCol(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TExpressionStatementV::StatementExpressionSCol;
+  t->oneNt = false;
   t->statementExpression = dynamic_cast<TStatementExpression *>((*stack)[n - 1]);
   assert(t->statementExpression);
   stack->pop_back();
@@ -1838,6 +1951,7 @@ void ptStatementExpression_Assignment(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TStatementExpressionV::Assignment;
+  t->oneNt = true;
   t->assignment = dynamic_cast<TAssignment *>((*stack)[n - 1]);
   assert(t->assignment);
   stack->pop_back();
@@ -1853,6 +1967,7 @@ void ptStatementExpression_MethodInvocation(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TStatementExpressionV::MethodInvocation;
+  t->oneNt = true;
   t->methodInvocation = dynamic_cast<TMethodInvocation *>((*stack)[n - 1]);
   assert(t->methodInvocation);
   stack->pop_back();
@@ -1868,6 +1983,7 @@ void ptStatementExpression_ClassInstanceCreationExpression(vector<Tree *> *stack
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TStatementExpressionV::ClassInstanceCreationExpression;
+  t->oneNt = true;
   t->classInstanceCreationExpression = dynamic_cast<TClassInstanceCreationExpression *>((*stack)[n - 1]);
   assert(t->classInstanceCreationExpression);
   stack->pop_back();
@@ -1884,6 +2000,7 @@ void ptIfThenStatement_IfLParExpressionRParStatement(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TIfThenStatementV::IfLParExpressionRParStatement;
+  t->oneNt = false;
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 2]);
   assert(t->expression);
   t->statement = dynamic_cast<TStatement *>((*stack)[n - 1]);
@@ -1904,6 +2021,7 @@ void ptIfThenElseStatement_IfLParExpressionRParStatementNoShortIfElseStatement(v
   ptSetTopParents(stack, 3, t);
   ptPopulateChildrenList(t, *stack, 3);
   t->v = TIfThenElseStatementV::IfLParExpressionRParStatementNoShortIfElseStatement;
+  t->oneNt = false;
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 3]);
   assert(t->expression);
   t->statementNoShortIf = dynamic_cast<TStatementNoShortIf *>((*stack)[n - 2]);
@@ -1927,6 +2045,7 @@ void ptIfThenElseStatementNoShortIf_IfLParExpressionRParStatementNoShortIfElseSt
   ptSetTopParents(stack, 3, t);
   ptPopulateChildrenList(t, *stack, 3);
   t->v = TIfThenElseStatementNoShortIfV::IfLParExpressionRParStatementNoShortIfElseStatementNoShortIf;
+  t->oneNt = false;
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 3]);
   assert(t->expression);
   t->statementNoShortIf = dynamic_cast<TStatementNoShortIf *>((*stack)[n - 2]);
@@ -1949,6 +2068,7 @@ void ptWhileStatement_WhileLParExpressionRParStatement(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TWhileStatementV::WhileLParExpressionRParStatement;
+  t->oneNt = false;
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 2]);
   assert(t->expression);
   t->statement = dynamic_cast<TStatement *>((*stack)[n - 1]);
@@ -1968,6 +2088,7 @@ void ptWhileStatementNoShortIf_WhileLParExpressionRParStatementNoShortIf(vector<
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TWhileStatementNoShortIfV::WhileLParExpressionRParStatementNoShortIf;
+  t->oneNt = false;
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 2]);
   assert(t->expression);
   t->statementNoShortIf = dynamic_cast<TStatementNoShortIf *>((*stack)[n - 1]);
@@ -1987,6 +2108,7 @@ void ptForStatement_ForLParForInitSColRParStatement(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TForStatementV::ForLParForInitSColRParStatement;
+  t->oneNt = false;
   t->forInit = dynamic_cast<TForInit *>((*stack)[n - 2]);
   assert(t->forInit);
   t->statement = dynamic_cast<TStatement *>((*stack)[n - 1]);
@@ -2007,6 +2129,7 @@ void ptForStatement_ForLParForInitExpressionSColRParStatement(vector<Tree *> *st
   ptSetTopParents(stack, 3, t);
   ptPopulateChildrenList(t, *stack, 3);
   t->v = TForStatementV::ForLParForInitExpressionSColRParStatement;
+  t->oneNt = false;
   t->forInit = dynamic_cast<TForInit *>((*stack)[n - 3]);
   assert(t->forInit);
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 2]);
@@ -2030,6 +2153,7 @@ void ptForStatement_ForLParForInitSColForUpdateRParStatement(vector<Tree *> *sta
   ptSetTopParents(stack, 3, t);
   ptPopulateChildrenList(t, *stack, 3);
   t->v = TForStatementV::ForLParForInitSColForUpdateRParStatement;
+  t->oneNt = false;
   t->forInit = dynamic_cast<TForInit *>((*stack)[n - 3]);
   assert(t->forInit);
   t->forUpdate = dynamic_cast<TForUpdate *>((*stack)[n - 2]);
@@ -2054,6 +2178,7 @@ void ptForStatement_ForLParForInitExpressionSColForUpdateRParStatement(vector<Tr
   ptSetTopParents(stack, 4, t);
   ptPopulateChildrenList(t, *stack, 4);
   t->v = TForStatementV::ForLParForInitExpressionSColForUpdateRParStatement;
+  t->oneNt = false;
   t->forInit = dynamic_cast<TForInit *>((*stack)[n - 4]);
   assert(t->forInit);
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 3]);
@@ -2079,6 +2204,7 @@ void ptForStatementNoShortIf_ForLParForInitSColRParStatementNoShortIf(vector<Tre
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TForStatementNoShortIfV::ForLParForInitSColRParStatementNoShortIf;
+  t->oneNt = false;
   t->forInit = dynamic_cast<TForInit *>((*stack)[n - 2]);
   assert(t->forInit);
   t->statementNoShortIf = dynamic_cast<TStatementNoShortIf *>((*stack)[n - 1]);
@@ -2099,6 +2225,7 @@ void ptForStatementNoShortIf_ForLParForInitExpressionSColRParStatementNoShortIf(
   ptSetTopParents(stack, 3, t);
   ptPopulateChildrenList(t, *stack, 3);
   t->v = TForStatementNoShortIfV::ForLParForInitExpressionSColRParStatementNoShortIf;
+  t->oneNt = false;
   t->forInit = dynamic_cast<TForInit *>((*stack)[n - 3]);
   assert(t->forInit);
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 2]);
@@ -2122,6 +2249,7 @@ void ptForStatementNoShortIf_ForLParForInitSColForUpdateRParStatementNoShortIf(v
   ptSetTopParents(stack, 3, t);
   ptPopulateChildrenList(t, *stack, 3);
   t->v = TForStatementNoShortIfV::ForLParForInitSColForUpdateRParStatementNoShortIf;
+  t->oneNt = false;
   t->forInit = dynamic_cast<TForInit *>((*stack)[n - 3]);
   assert(t->forInit);
   t->forUpdate = dynamic_cast<TForUpdate *>((*stack)[n - 2]);
@@ -2146,6 +2274,7 @@ void ptForStatementNoShortIf_ForLParForInitExpressionSColForUpdateRParStatementN
   ptSetTopParents(stack, 4, t);
   ptPopulateChildrenList(t, *stack, 4);
   t->v = TForStatementNoShortIfV::ForLParForInitExpressionSColForUpdateRParStatementNoShortIf;
+  t->oneNt = false;
   t->forInit = dynamic_cast<TForInit *>((*stack)[n - 4]);
   assert(t->forInit);
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 3]);
@@ -2170,6 +2299,7 @@ void ptForInit_ExpressionStatement(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TForInitV::ExpressionStatement;
+  t->oneNt = true;
   t->expressionStatement = dynamic_cast<TExpressionStatement *>((*stack)[n - 1]);
   assert(t->expressionStatement);
   stack->pop_back();
@@ -2185,6 +2315,7 @@ void ptForInit_LocalVariableDeclarationStatement(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TForInitV::LocalVariableDeclarationStatement;
+  t->oneNt = true;
   t->localVariableDeclarationStatement = dynamic_cast<TLocalVariableDeclarationStatement *>((*stack)[n - 1]);
   assert(t->localVariableDeclarationStatement);
   stack->pop_back();
@@ -2200,6 +2331,7 @@ void ptForUpdate_StatementExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TForUpdateV::StatementExpression;
+  t->oneNt = true;
   t->statementExpression = dynamic_cast<TStatementExpression *>((*stack)[n - 1]);
   assert(t->statementExpression);
   stack->pop_back();
@@ -2214,6 +2346,7 @@ void ptReturnStatement_ReturnSCol(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TReturnStatementV::ReturnSCol;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -2226,6 +2359,7 @@ void ptReturnStatement_ReturnExpressionSCol(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TReturnStatementV::ReturnExpressionSCol;
+  t->oneNt = false;
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 1]);
   assert(t->expression);
   stack->pop_back();
@@ -2241,6 +2375,7 @@ void ptPrimary_PrimaryNoNewArray(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TPrimaryV::PrimaryNoNewArray;
+  t->oneNt = true;
   t->primaryNoNewArray = dynamic_cast<TPrimaryNoNewArray *>((*stack)[n - 1]);
   assert(t->primaryNoNewArray);
   stack->pop_back();
@@ -2256,6 +2391,7 @@ void ptPrimary_ArrayCreationExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TPrimaryV::ArrayCreationExpression;
+  t->oneNt = true;
   t->arrayCreationExpression = dynamic_cast<TArrayCreationExpression *>((*stack)[n - 1]);
   assert(t->arrayCreationExpression);
   stack->pop_back();
@@ -2271,6 +2407,7 @@ void ptPrimaryNoNewArray_Literal(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TPrimaryNoNewArrayV::Literal;
+  t->oneNt = true;
   t->literal = dynamic_cast<TLiteral *>((*stack)[n - 1]);
   assert(t->literal);
   stack->pop_back();
@@ -2286,6 +2423,7 @@ void ptPrimaryNoNewArray_This2(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TPrimaryNoNewArrayV::This2;
+  t->oneNt = true;
   t->this2 = dynamic_cast<TThis2 *>((*stack)[n - 1]);
   assert(t->this2);
   stack->pop_back();
@@ -2301,6 +2439,7 @@ void ptPrimaryNoNewArray_ParenthesizedExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TPrimaryNoNewArrayV::ParenthesizedExpression;
+  t->oneNt = true;
   t->parenthesizedExpression = dynamic_cast<TParenthesizedExpression *>((*stack)[n - 1]);
   assert(t->parenthesizedExpression);
   stack->pop_back();
@@ -2316,6 +2455,7 @@ void ptPrimaryNoNewArray_ClassInstanceCreationExpression(vector<Tree *> *stack) 
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TPrimaryNoNewArrayV::ClassInstanceCreationExpression;
+  t->oneNt = true;
   t->classInstanceCreationExpression = dynamic_cast<TClassInstanceCreationExpression *>((*stack)[n - 1]);
   assert(t->classInstanceCreationExpression);
   stack->pop_back();
@@ -2331,6 +2471,7 @@ void ptPrimaryNoNewArray_FieldAccess(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TPrimaryNoNewArrayV::FieldAccess;
+  t->oneNt = true;
   t->fieldAccess = dynamic_cast<TFieldAccess *>((*stack)[n - 1]);
   assert(t->fieldAccess);
   stack->pop_back();
@@ -2346,6 +2487,7 @@ void ptPrimaryNoNewArray_MethodInvocation(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TPrimaryNoNewArrayV::MethodInvocation;
+  t->oneNt = true;
   t->methodInvocation = dynamic_cast<TMethodInvocation *>((*stack)[n - 1]);
   assert(t->methodInvocation);
   stack->pop_back();
@@ -2361,6 +2503,7 @@ void ptPrimaryNoNewArray_ArrayAccess(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TPrimaryNoNewArrayV::ArrayAccess;
+  t->oneNt = true;
   t->arrayAccess = dynamic_cast<TArrayAccess *>((*stack)[n - 1]);
   assert(t->arrayAccess);
   stack->pop_back();
@@ -2375,6 +2518,7 @@ void ptThis2_This2(vector<Tree *> *stack) {
   ptSetTopParents(stack, 0, t);
   ptPopulateChildrenList(t, *stack, 0);
   t->v = TThis2V::This2;
+  t->oneNt = false;
   stack->push_back(t);
 }
 
@@ -2387,6 +2531,7 @@ void ptParenthesizedExpression_LParExpressionRPar(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TParenthesizedExpressionV::LParExpressionRPar;
+  t->oneNt = false;
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 1]);
   assert(t->expression);
   stack->pop_back();
@@ -2402,6 +2547,7 @@ void ptClassInstanceCreationExpression_NewClassTypeLParRPar(vector<Tree *> *stac
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TClassInstanceCreationExpressionV::NewClassTypeLParRPar;
+  t->oneNt = false;
   t->classType = dynamic_cast<TClassType *>((*stack)[n - 1]);
   assert(t->classType);
   stack->pop_back();
@@ -2418,6 +2564,7 @@ void ptClassInstanceCreationExpression_NewClassTypeLParArgumentListRPar(vector<T
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TClassInstanceCreationExpressionV::NewClassTypeLParArgumentListRPar;
+  t->oneNt = false;
   t->classType = dynamic_cast<TClassType *>((*stack)[n - 2]);
   assert(t->classType);
   t->argumentList = dynamic_cast<TArgumentList *>((*stack)[n - 1]);
@@ -2436,6 +2583,7 @@ void ptArgumentList_Expression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TArgumentListV::Expression;
+  t->oneNt = true;
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 1]);
   assert(t->expression);
   stack->pop_back();
@@ -2452,6 +2600,7 @@ void ptArgumentList_ArgumentListComExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TArgumentListV::ArgumentListComExpression;
+  t->oneNt = false;
   t->argumentList = dynamic_cast<TArgumentList *>((*stack)[n - 2]);
   assert(t->argumentList);
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 1]);
@@ -2471,6 +2620,7 @@ void ptArrayCreationExpression_NewPrimitiveTypeLSBrExpressionRSBr(vector<Tree *>
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TArrayCreationExpressionV::NewPrimitiveTypeLSBrExpressionRSBr;
+  t->oneNt = false;
   t->primitiveType = dynamic_cast<TPrimitiveType *>((*stack)[n - 2]);
   assert(t->primitiveType);
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 1]);
@@ -2490,6 +2640,7 @@ void ptArrayCreationExpression_NewClassOrInterfaceTypeLSBrExpressionRSBr(vector<
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TArrayCreationExpressionV::NewClassOrInterfaceTypeLSBrExpressionRSBr;
+  t->oneNt = false;
   t->classOrInterfaceType = dynamic_cast<TClassOrInterfaceType *>((*stack)[n - 2]);
   assert(t->classOrInterfaceType);
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 1]);
@@ -2509,6 +2660,7 @@ void ptFieldAccess_PrimaryDotIdentifier(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TFieldAccessV::PrimaryDotIdentifier;
+  t->oneNt = false;
   t->primary = dynamic_cast<TPrimary *>((*stack)[n - 2]);
   assert(t->primary);
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 1]);
@@ -2527,6 +2679,7 @@ void ptMethodInvocation_NameLParRPar(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TMethodInvocationV::NameLParRPar;
+  t->oneNt = false;
   t->name = dynamic_cast<TName *>((*stack)[n - 1]);
   assert(t->name);
   stack->pop_back();
@@ -2543,6 +2696,7 @@ void ptMethodInvocation_NameLParArgumentListRPar(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TMethodInvocationV::NameLParArgumentListRPar;
+  t->oneNt = false;
   t->name = dynamic_cast<TName *>((*stack)[n - 2]);
   assert(t->name);
   t->argumentList = dynamic_cast<TArgumentList *>((*stack)[n - 1]);
@@ -2562,6 +2716,7 @@ void ptMethodInvocation_PrimaryDotIdentifierLParRPar(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TMethodInvocationV::PrimaryDotIdentifierLParRPar;
+  t->oneNt = false;
   t->primary = dynamic_cast<TPrimary *>((*stack)[n - 2]);
   assert(t->primary);
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 1]);
@@ -2582,6 +2737,7 @@ void ptMethodInvocation_PrimaryDotIdentifierLParArgumentListRPar(vector<Tree *> 
   ptSetTopParents(stack, 3, t);
   ptPopulateChildrenList(t, *stack, 3);
   t->v = TMethodInvocationV::PrimaryDotIdentifierLParArgumentListRPar;
+  t->oneNt = false;
   t->primary = dynamic_cast<TPrimary *>((*stack)[n - 3]);
   assert(t->primary);
   t->identifier = dynamic_cast<TIdentifier *>((*stack)[n - 2]);
@@ -2604,6 +2760,7 @@ void ptArrayAccess_NameLSBrExpressionRSBr(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TArrayAccessV::NameLSBrExpressionRSBr;
+  t->oneNt = false;
   t->name = dynamic_cast<TName *>((*stack)[n - 2]);
   assert(t->name);
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 1]);
@@ -2623,6 +2780,7 @@ void ptArrayAccess_PrimaryNoNewArrayLSBrExpressionRSBr(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TArrayAccessV::PrimaryNoNewArrayLSBrExpressionRSBr;
+  t->oneNt = false;
   t->primaryNoNewArray = dynamic_cast<TPrimaryNoNewArray *>((*stack)[n - 2]);
   assert(t->primaryNoNewArray);
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 1]);
@@ -2641,6 +2799,7 @@ void ptUnaryExpression_MinusUnaryExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TUnaryExpressionV::MinusUnaryExpression;
+  t->oneNt = false;
   t->unaryExpression = dynamic_cast<TUnaryExpression *>((*stack)[n - 1]);
   assert(t->unaryExpression);
   stack->pop_back();
@@ -2656,6 +2815,7 @@ void ptUnaryExpression_UnaryExpressionNotPlusMinus(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TUnaryExpressionV::UnaryExpressionNotPlusMinus;
+  t->oneNt = true;
   t->unaryExpressionNotPlusMinus = dynamic_cast<TUnaryExpressionNotPlusMinus *>((*stack)[n - 1]);
   assert(t->unaryExpressionNotPlusMinus);
   stack->pop_back();
@@ -2671,6 +2831,7 @@ void ptUnaryExpressionNotPlusMinus_Primary(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TUnaryExpressionNotPlusMinusV::Primary;
+  t->oneNt = true;
   t->primary = dynamic_cast<TPrimary *>((*stack)[n - 1]);
   assert(t->primary);
   stack->pop_back();
@@ -2686,6 +2847,7 @@ void ptUnaryExpressionNotPlusMinus_Name(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TUnaryExpressionNotPlusMinusV::Name;
+  t->oneNt = true;
   t->name = dynamic_cast<TName *>((*stack)[n - 1]);
   assert(t->name);
   stack->pop_back();
@@ -2701,6 +2863,7 @@ void ptUnaryExpressionNotPlusMinus_BangUnaryExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TUnaryExpressionNotPlusMinusV::BangUnaryExpression;
+  t->oneNt = false;
   t->unaryExpression = dynamic_cast<TUnaryExpression *>((*stack)[n - 1]);
   assert(t->unaryExpression);
   stack->pop_back();
@@ -2716,6 +2879,7 @@ void ptUnaryExpressionNotPlusMinus_CastExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TUnaryExpressionNotPlusMinusV::CastExpression;
+  t->oneNt = true;
   t->castExpression = dynamic_cast<TCastExpression *>((*stack)[n - 1]);
   assert(t->castExpression);
   stack->pop_back();
@@ -2732,6 +2896,7 @@ void ptCastExpression_LParPrimitiveTypeRParUnaryExpression(vector<Tree *> *stack
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TCastExpressionV::LParPrimitiveTypeRParUnaryExpression;
+  t->oneNt = false;
   t->primitiveType = dynamic_cast<TPrimitiveType *>((*stack)[n - 2]);
   assert(t->primitiveType);
   t->unaryExpression = dynamic_cast<TUnaryExpression *>((*stack)[n - 1]);
@@ -2751,6 +2916,7 @@ void ptCastExpression_LParPrimitiveTypeLSBrRSBrRParUnaryExpression(vector<Tree *
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TCastExpressionV::LParPrimitiveTypeLSBrRSBrRParUnaryExpression;
+  t->oneNt = false;
   t->primitiveType = dynamic_cast<TPrimitiveType *>((*stack)[n - 2]);
   assert(t->primitiveType);
   t->unaryExpression = dynamic_cast<TUnaryExpression *>((*stack)[n - 1]);
@@ -2770,6 +2936,7 @@ void ptCastExpression_LParExpressionRParUnaryExpressionNotPlusMinus(vector<Tree 
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TCastExpressionV::LParExpressionRParUnaryExpressionNotPlusMinus;
+  t->oneNt = false;
   t->expression = dynamic_cast<TExpression *>((*stack)[n - 2]);
   assert(t->expression);
   t->unaryExpressionNotPlusMinus = dynamic_cast<TUnaryExpressionNotPlusMinus *>((*stack)[n - 1]);
@@ -2789,6 +2956,7 @@ void ptCastExpression_LParNameLSBrRSBrRParUnaryExpressionNotPlusMinus(vector<Tre
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TCastExpressionV::LParNameLSBrRSBrRParUnaryExpressionNotPlusMinus;
+  t->oneNt = false;
   t->name = dynamic_cast<TName *>((*stack)[n - 2]);
   assert(t->name);
   t->unaryExpressionNotPlusMinus = dynamic_cast<TUnaryExpressionNotPlusMinus *>((*stack)[n - 1]);
@@ -2807,6 +2975,7 @@ void ptMultiplicativeExpression_UnaryExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TMultiplicativeExpressionV::UnaryExpression;
+  t->oneNt = true;
   t->unaryExpression = dynamic_cast<TUnaryExpression *>((*stack)[n - 1]);
   assert(t->unaryExpression);
   stack->pop_back();
@@ -2823,6 +2992,7 @@ void ptMultiplicativeExpression_MultiplicativeExpressionStarUnaryExpression(vect
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TMultiplicativeExpressionV::MultiplicativeExpressionStarUnaryExpression;
+  t->oneNt = false;
   t->multiplicativeExpression = dynamic_cast<TMultiplicativeExpression *>((*stack)[n - 2]);
   assert(t->multiplicativeExpression);
   t->unaryExpression = dynamic_cast<TUnaryExpression *>((*stack)[n - 1]);
@@ -2842,6 +3012,7 @@ void ptMultiplicativeExpression_MultiplicativeExpressionRSlashUnaryExpression(ve
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TMultiplicativeExpressionV::MultiplicativeExpressionRSlashUnaryExpression;
+  t->oneNt = false;
   t->multiplicativeExpression = dynamic_cast<TMultiplicativeExpression *>((*stack)[n - 2]);
   assert(t->multiplicativeExpression);
   t->unaryExpression = dynamic_cast<TUnaryExpression *>((*stack)[n - 1]);
@@ -2861,6 +3032,7 @@ void ptMultiplicativeExpression_MultiplicativeExpressionPercUnaryExpression(vect
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TMultiplicativeExpressionV::MultiplicativeExpressionPercUnaryExpression;
+  t->oneNt = false;
   t->multiplicativeExpression = dynamic_cast<TMultiplicativeExpression *>((*stack)[n - 2]);
   assert(t->multiplicativeExpression);
   t->unaryExpression = dynamic_cast<TUnaryExpression *>((*stack)[n - 1]);
@@ -2879,6 +3051,7 @@ void ptAdditiveExpression_MultiplicativeExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TAdditiveExpressionV::MultiplicativeExpression;
+  t->oneNt = true;
   t->multiplicativeExpression = dynamic_cast<TMultiplicativeExpression *>((*stack)[n - 1]);
   assert(t->multiplicativeExpression);
   stack->pop_back();
@@ -2895,6 +3068,7 @@ void ptAdditiveExpression_AdditiveExpressionPlusMultiplicativeExpression(vector<
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TAdditiveExpressionV::AdditiveExpressionPlusMultiplicativeExpression;
+  t->oneNt = false;
   t->additiveExpression = dynamic_cast<TAdditiveExpression *>((*stack)[n - 2]);
   assert(t->additiveExpression);
   t->multiplicativeExpression = dynamic_cast<TMultiplicativeExpression *>((*stack)[n - 1]);
@@ -2914,6 +3088,7 @@ void ptAdditiveExpression_AdditiveExpressionMinusMultiplicativeExpression(vector
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TAdditiveExpressionV::AdditiveExpressionMinusMultiplicativeExpression;
+  t->oneNt = false;
   t->additiveExpression = dynamic_cast<TAdditiveExpression *>((*stack)[n - 2]);
   assert(t->additiveExpression);
   t->multiplicativeExpression = dynamic_cast<TMultiplicativeExpression *>((*stack)[n - 1]);
@@ -2932,6 +3107,7 @@ void ptRelationalExpression_AdditiveExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TRelationalExpressionV::AdditiveExpression;
+  t->oneNt = true;
   t->additiveExpression = dynamic_cast<TAdditiveExpression *>((*stack)[n - 1]);
   assert(t->additiveExpression);
   stack->pop_back();
@@ -2948,6 +3124,7 @@ void ptRelationalExpression_RelationalExpressionLeAdditiveExpression(vector<Tree
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TRelationalExpressionV::RelationalExpressionLeAdditiveExpression;
+  t->oneNt = false;
   t->relationalExpression = dynamic_cast<TRelationalExpression *>((*stack)[n - 2]);
   assert(t->relationalExpression);
   t->additiveExpression = dynamic_cast<TAdditiveExpression *>((*stack)[n - 1]);
@@ -2967,6 +3144,7 @@ void ptRelationalExpression_RelationalExpressionGrAdditiveExpression(vector<Tree
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TRelationalExpressionV::RelationalExpressionGrAdditiveExpression;
+  t->oneNt = false;
   t->relationalExpression = dynamic_cast<TRelationalExpression *>((*stack)[n - 2]);
   assert(t->relationalExpression);
   t->additiveExpression = dynamic_cast<TAdditiveExpression *>((*stack)[n - 1]);
@@ -2986,6 +3164,7 @@ void ptRelationalExpression_RelationalExpressionLeEqAdditiveExpression(vector<Tr
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TRelationalExpressionV::RelationalExpressionLeEqAdditiveExpression;
+  t->oneNt = false;
   t->relationalExpression = dynamic_cast<TRelationalExpression *>((*stack)[n - 2]);
   assert(t->relationalExpression);
   t->additiveExpression = dynamic_cast<TAdditiveExpression *>((*stack)[n - 1]);
@@ -3005,6 +3184,7 @@ void ptRelationalExpression_RelationalExpressionGrEqAdditiveExpression(vector<Tr
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TRelationalExpressionV::RelationalExpressionGrEqAdditiveExpression;
+  t->oneNt = false;
   t->relationalExpression = dynamic_cast<TRelationalExpression *>((*stack)[n - 2]);
   assert(t->relationalExpression);
   t->additiveExpression = dynamic_cast<TAdditiveExpression *>((*stack)[n - 1]);
@@ -3024,6 +3204,7 @@ void ptRelationalExpression_RelationalExpressioninstanceofReferenceType(vector<T
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TRelationalExpressionV::RelationalExpressioninstanceofReferenceType;
+  t->oneNt = false;
   t->relationalExpression = dynamic_cast<TRelationalExpression *>((*stack)[n - 2]);
   assert(t->relationalExpression);
   t->referenceType = dynamic_cast<TReferenceType *>((*stack)[n - 1]);
@@ -3042,6 +3223,7 @@ void ptEqualityExpression_RelationalExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TEqualityExpressionV::RelationalExpression;
+  t->oneNt = true;
   t->relationalExpression = dynamic_cast<TRelationalExpression *>((*stack)[n - 1]);
   assert(t->relationalExpression);
   stack->pop_back();
@@ -3058,6 +3240,7 @@ void ptEqualityExpression_EqualityExpressionEqEqRelationalExpression(vector<Tree
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TEqualityExpressionV::EqualityExpressionEqEqRelationalExpression;
+  t->oneNt = false;
   t->equalityExpression = dynamic_cast<TEqualityExpression *>((*stack)[n - 2]);
   assert(t->equalityExpression);
   t->relationalExpression = dynamic_cast<TRelationalExpression *>((*stack)[n - 1]);
@@ -3077,6 +3260,7 @@ void ptEqualityExpression_EqualityExpressionBangEqRelationalExpression(vector<Tr
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TEqualityExpressionV::EqualityExpressionBangEqRelationalExpression;
+  t->oneNt = false;
   t->equalityExpression = dynamic_cast<TEqualityExpression *>((*stack)[n - 2]);
   assert(t->equalityExpression);
   t->relationalExpression = dynamic_cast<TRelationalExpression *>((*stack)[n - 1]);
@@ -3095,6 +3279,7 @@ void ptAndExpression_EqualityExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TAndExpressionV::EqualityExpression;
+  t->oneNt = true;
   t->equalityExpression = dynamic_cast<TEqualityExpression *>((*stack)[n - 1]);
   assert(t->equalityExpression);
   stack->pop_back();
@@ -3111,6 +3296,7 @@ void ptAndExpression_AndExpressionAmpEqualityExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TAndExpressionV::AndExpressionAmpEqualityExpression;
+  t->oneNt = false;
   t->andExpression = dynamic_cast<TAndExpression *>((*stack)[n - 2]);
   assert(t->andExpression);
   t->equalityExpression = dynamic_cast<TEqualityExpression *>((*stack)[n - 1]);
@@ -3129,6 +3315,7 @@ void ptInclusiveOrExpression_AndExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TInclusiveOrExpressionV::AndExpression;
+  t->oneNt = true;
   t->andExpression = dynamic_cast<TAndExpression *>((*stack)[n - 1]);
   assert(t->andExpression);
   stack->pop_back();
@@ -3145,6 +3332,7 @@ void ptInclusiveOrExpression_InclusiveOrExpressionOrAndExpression(vector<Tree *>
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TInclusiveOrExpressionV::InclusiveOrExpressionOrAndExpression;
+  t->oneNt = false;
   t->inclusiveOrExpression = dynamic_cast<TInclusiveOrExpression *>((*stack)[n - 2]);
   assert(t->inclusiveOrExpression);
   t->andExpression = dynamic_cast<TAndExpression *>((*stack)[n - 1]);
@@ -3163,6 +3351,7 @@ void ptConditionalAndExpression_InclusiveOrExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TConditionalAndExpressionV::InclusiveOrExpression;
+  t->oneNt = true;
   t->inclusiveOrExpression = dynamic_cast<TInclusiveOrExpression *>((*stack)[n - 1]);
   assert(t->inclusiveOrExpression);
   stack->pop_back();
@@ -3179,6 +3368,7 @@ void ptConditionalAndExpression_ConditionalAndExpressionAmpAmpEqualityExpression
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TConditionalAndExpressionV::ConditionalAndExpressionAmpAmpEqualityExpression;
+  t->oneNt = false;
   t->conditionalAndExpression = dynamic_cast<TConditionalAndExpression *>((*stack)[n - 2]);
   assert(t->conditionalAndExpression);
   t->equalityExpression = dynamic_cast<TEqualityExpression *>((*stack)[n - 1]);
@@ -3197,6 +3387,7 @@ void ptConditionalOrExpression_ConditionalAndExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TConditionalOrExpressionV::ConditionalAndExpression;
+  t->oneNt = true;
   t->conditionalAndExpression = dynamic_cast<TConditionalAndExpression *>((*stack)[n - 1]);
   assert(t->conditionalAndExpression);
   stack->pop_back();
@@ -3213,6 +3404,7 @@ void ptConditionalOrExpression_ConditionalOrExpressionOrOrConditionalAndExpressi
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TConditionalOrExpressionV::ConditionalOrExpressionOrOrConditionalAndExpression;
+  t->oneNt = false;
   t->conditionalOrExpression = dynamic_cast<TConditionalOrExpression *>((*stack)[n - 2]);
   assert(t->conditionalOrExpression);
   t->conditionalAndExpression = dynamic_cast<TConditionalAndExpression *>((*stack)[n - 1]);
@@ -3231,6 +3423,7 @@ void ptAssignmentExpression_ConditionalOrExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TAssignmentExpressionV::ConditionalOrExpression;
+  t->oneNt = true;
   t->conditionalOrExpression = dynamic_cast<TConditionalOrExpression *>((*stack)[n - 1]);
   assert(t->conditionalOrExpression);
   stack->pop_back();
@@ -3246,6 +3439,7 @@ void ptAssignmentExpression_Assignment(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TAssignmentExpressionV::Assignment;
+  t->oneNt = true;
   t->assignment = dynamic_cast<TAssignment *>((*stack)[n - 1]);
   assert(t->assignment);
   stack->pop_back();
@@ -3262,6 +3456,7 @@ void ptAssignment_LeftHandSideEqAssignmentExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
   t->v = TAssignmentV::LeftHandSideEqAssignmentExpression;
+  t->oneNt = false;
   t->leftHandSide = dynamic_cast<TLeftHandSide *>((*stack)[n - 2]);
   assert(t->leftHandSide);
   t->assignmentExpression = dynamic_cast<TAssignmentExpression *>((*stack)[n - 1]);
@@ -3280,6 +3475,7 @@ void ptLeftHandSide_Name(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TLeftHandSideV::Name;
+  t->oneNt = true;
   t->name = dynamic_cast<TName *>((*stack)[n - 1]);
   assert(t->name);
   stack->pop_back();
@@ -3295,6 +3491,7 @@ void ptLeftHandSide_FieldAccess(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TLeftHandSideV::FieldAccess;
+  t->oneNt = true;
   t->fieldAccess = dynamic_cast<TFieldAccess *>((*stack)[n - 1]);
   assert(t->fieldAccess);
   stack->pop_back();
@@ -3310,6 +3507,7 @@ void ptLeftHandSide_ArrayAccess(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TLeftHandSideV::ArrayAccess;
+  t->oneNt = true;
   t->arrayAccess = dynamic_cast<TArrayAccess *>((*stack)[n - 1]);
   assert(t->arrayAccess);
   stack->pop_back();
@@ -3325,6 +3523,7 @@ void ptExpression_AssignmentExpression(vector<Tree *> *stack) {
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
   t->v = TExpressionV::AssignmentExpression;
+  t->oneNt = true;
   t->assignmentExpression = dynamic_cast<TAssignmentExpression *>((*stack)[n - 1]);
   assert(t->assignmentExpression);
   stack->pop_back();
