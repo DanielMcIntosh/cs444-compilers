@@ -69,8 +69,13 @@ void createDirectoryChain(const char *path) {
 
 #ifdef _WIN32
 
+#include <windows.h>
 #include <fileapi.h>
-#include <dirent.h>
+
+#include <filesystem>
+#include <string>
+
+namespace fs = std::filesystem;
 
 void getCivicTime(CivicTimeInfo *) {
 }
@@ -99,15 +104,7 @@ s64 getFileSize(const char *path) {
 }
 
 void createDirectoryChain(const char *path) {
-	DIR *dir = opendir(path);
-	if (dir)
-		return;
-	strdecl256(commandBuffer, "mkdir %s", path);
-	for (char *ptr = commandBuffer; *ptr; ++ptr) {
-			if (*ptr == '/')
-					*ptr = '\\';
-	}
-	system(commandBuffer);
+  fs::create_directories(fs::path(std::string(path)));
 }
 
 #endif // _WIN32

@@ -17,6 +17,7 @@ DFA.txt
 .idea
 .vs
 cmake-build-debug
+CMakeLists.txt
 cmake-build-release
 output
 

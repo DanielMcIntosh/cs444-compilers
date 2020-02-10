@@ -1,10 +1,10 @@
 #include <stdio.h>
-#include <dirent.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <vector>
 #include <string>
+#include <filesystem>
 
 #include "parse/parser.h"
 #include "utility.h"
@@ -12,17 +12,12 @@
 #include "scanner.h"
 #include "weeder.h"
 #include "profiler.h"
+#include "middleend.h"
 
 using namespace std;
+namespace fs = std::filesystem;
 
-enum class CompileStageType {
-  Scan,
-  Parse,
-  Weed,
-  Pass
-};
-
-const char *gCompileStageTypeName[] = {
+const char *gFrontendStageName[] = {
   "Scan", "Parse", "Weed", "(Pass)"
 };
 
@@ -31,57 +26,22 @@ struct JoosC {
 	Parse::Parser parser;
 };
 
-struct CompileResult {
-	s32 numValid = 0;
-	s32 numCorrect = 0;
-	s32 fileProcessed = 0;
-};
-
-struct CompileSingleResult {
-  string fileName;
-  s32 fileSize;
-  unique_ptr<char[]> fileContent;
-
-  CompileStageType failedStage;
-
-  Scan::ScanResult scanResult;
-  Parse::ParseResult parseResult;
-  Weeder::WeederResult weederResult;
-};
-
 bool isProgramValidFromFileName(const char *name) {
-  const char *lastSlash = strrchr(name, '/');
-  return (lastSlash[2] != 'e');
+  auto path = fs::path(string(name));
+  const string stem = path.stem().string();
+  return stem[1] != 'e';
 }
 
-void compileReportSingleFile(const CompileSingleResult &result) {
-  const char *colorHead, *colorTail = "\033[0m";
-  // determine the validity of the program from file name, if possible
-  bool sourceValidity, ourVerdict;
-  sourceValidity = isProgramValidFromFileName(result.fileName.c_str());
-  ourVerdict = result.failedStage == CompileStageType::Pass;
-  if (ourVerdict != sourceValidity) {
-    colorHead = "\033[0;31m"; // red
-  } else {
-    colorHead = "\033[0;32m"; // green
-  }
-
-  if (ourVerdict != sourceValidity)
-    LOGR("%s%s (Failed stage: %s) %s", colorHead, result.fileName.c_str(), gCompileStageTypeName[static_cast<s32>(result.failedStage)], colorTail);
-}
-
-void compileDumpSingleResult(char *baseOutputPath, const CompileSingleResult &singleResult) {
+void compileDumpSingleResult(char *baseOutputPath, const FrontendResult &singleResult) {
   { // create descending directories
-    char *lastSlash = strrchr(baseOutputPath, '/');
-    *lastSlash = '\0';
-    createDirectoryChain(baseOutputPath);
-    *lastSlash = '/';
+    auto p = fs::path(string(baseOutputPath));
+    fs::create_directories(p.parent_path());
   }
 
   { // copy the original source code file so that it appears in the same directory
     // as debug output files
     FILE *originalFile = fopen(baseOutputPath, "wb");
-    fwrite(singleResult.fileContent.get(), singleResult.fileSize, 1, originalFile);
+    fwrite(singleResult.fileContent, singleResult.fileSize, 1, originalFile);
     fclose(originalFile);
 
     Scan::scannerDumpDebugInfo(singleResult.scanResult, baseOutputPath);
@@ -89,22 +49,22 @@ void compileDumpSingleResult(char *baseOutputPath, const CompileSingleResult &si
   }
 }
 
-CompileSingleResult compileSingle(JoosC *joosc, const char *fileName) {
+FrontendResult doFrontEndSingle(JoosC *joosc, const char *fileName) {
   profileSection("compile single");
   s32 sourceFileSize;
   std::unique_ptr<char[]> sourceCode = readEntireFile(fileName, &sourceFileSize);
 
-  CompileSingleResult fileResult;
+  FrontendResult fileResult;
   fileResult.fileName = string(fileName);
   fileResult.fileSize = sourceFileSize;
-  fileResult.fileContent = move(sourceCode);
+  fileResult.fileContent = sourceCode.release();
 
   {
     profileSection("scan");
     fileResult.scanResult = Scan::scannerProcessText(&joosc->scanner,
-                                                   fileResult.fileContent.get());
+                                                   fileResult.fileContent);
     if (!fileResult.scanResult.valid) {
-      fileResult.failedStage = CompileStageType::Scan;
+      fileResult.failedStage = FrontendStageType::Scan;
       return fileResult;
     }    
   }
@@ -113,7 +73,7 @@ CompileSingleResult compileSingle(JoosC *joosc, const char *fileName) {
     profileSection("parse");
     fileResult.parseResult = Parse::parserParse(&joosc->parser, fileResult.scanResult.tokens);
     if (!fileResult.parseResult.valid) {
-      fileResult.failedStage = CompileStageType::Parse;
+      fileResult.failedStage = FrontendStageType::Parse;
       return fileResult;
     }    
   }
@@ -122,97 +82,152 @@ CompileSingleResult compileSingle(JoosC *joosc, const char *fileName) {
     profileSection("weeder");
     fileResult.weederResult = Weeder::weederCheck(fileResult.parseResult.treeRoot, fileName);  
     if (!fileResult.weederResult.valid) {
-      fileResult.failedStage = CompileStageType::Weed;
+      fileResult.failedStage = FrontendStageType::Weed;
       return fileResult;
     }          
   }
   
-  fileResult.failedStage = CompileStageType::Pass;
+  fileResult.failedStage = FrontendStageType::Pass;
   return fileResult;
 }
 
-CompileResult compileMain(JoosC *joosc, const vector<string> &fileList) {
-  profileSection("compile main");
-	CompileResult compileResult;
-	compileResult.numCorrect = 0;
-	compileResult.numValid = 0;
-	compileResult.fileProcessed = 0;
+MiddleendResult doMiddleend(JoosC* joosc, const vector<FrontendResult> &frontendResults) {
+  MiddleendResult result;
+  // ...
+  return result;
+}
 
+int compileMain(JoosC *joosc, const vector<string> &fileList) {
+  vector<FrontendResult> frontendResult;
+  MiddleendResult middleend;
+  int retVal = 0;
 	for (const string &file: fileList) {
-		const char *sourceFileName = file.c_str();
-		const s64 size = getFileSize(sourceFileName);
-		if (size < 0) {
-			LOGR("%s is not accessible", sourceFileName);
-			continue;
-		}
+    frontendResult.emplace_back(doFrontEndSingle(joosc, file.c_str()));
+    if (frontendResult.back().failedStage == FrontendStageType::Pass)
+      continue;
 
-		++compileResult.fileProcessed;
-
-		CompileSingleResult fileResult = compileSingle(joosc, sourceFileName);
-		if (fileResult.failedStage == CompileStageType::Pass)
-		  ++compileResult.numValid;
-		if (isProgramValidFromFileName(sourceFileName) ==
-            (fileResult.failedStage == CompileStageType::Pass)) {
-		  ++compileResult.numCorrect;
-		}
-
-		strdecl256(baseOutputPath, "output/%s", file.c_str());
-    //compileDumpSingleResult(baseOutputPath, fileResult);
-    compileReportSingleFile(fileResult);    
-
-    Parse::ptDelete(fileResult.parseResult.treeRoot);
+    retVal = 42;
+    LOGR("%s failed", file.c_str());
+    goto cleanup;
 	}
-	return compileResult;
+
+	middleend = doMiddleend(joosc, frontendResult);
+  if (middleend.failedStage != MiddleendStageType::Pass) {
+    retVal = 42;
+    goto cleanup;
+  }
+
+	cleanup:
+  { // clean ups
+    for (FrontendResult &singleResult : frontendResult) {
+      frontendResultDelete(&singleResult);
+    }
+  }
+
+	return retVal;
 }
 
 void batchTesting(JoosC *joosc, const string &baseDir,
 									const vector<string> &stdlib) {
   profileSection("batch testing");
-	DIR *dir = opendir(baseDir.c_str());
-	if (!dir)
-		return;
 
-	auto fileList = stdlib;
-	const s32 numLib = stdlib.size();
+  // perform frontend compilation on stdlib only once to speed things up
+  vector<FrontendResult> stdlibFrontendResult;
+  {
+    profileSection("stdlib frontend");
+    for (const auto &libName: stdlib) {
+      stdlibFrontendResult.emplace_back(doFrontEndSingle(joosc, libName.c_str()));
+    }
+
+    for (auto &frontendResult : stdlibFrontendResult) {
+      // stdlibs are always correct
+      assert(frontendResult.failedStage == FrontendStageType::Pass);
+      // prevent copying list of tokens
+      frontendResult.scanResult.tokens.clear();
+    }
+  }
+
+  vector<string> topLevelFileList;
+
+  { // sort file lists as on linux they are not sorted
+    auto it = fs::directory_iterator(baseDir);
+    for (const auto &e: it) {
+      fs::path path = e;
+      path.make_preferred();
+      topLevelFileList.push_back(path.string());
+    }
+    sort(topLevelFileList.begin(), topLevelFileList.end());
+  }
+
 	s32 numTests = 0;
 	s32 numPassed = 0;
-	LOGR("Batch test starting...");
-	while (true) {
-		struct dirent *ent = readdir(dir);
-		if (!ent)
-			break;
+	for (const string &topLevelName : topLevelFileList) {
+	  fs::path dupPath = fs::path(topLevelName);
+	  bool valid = true;
 
-		if (!strcmp(".", ent->d_name))
-			continue;
+	  // stdlib frontend result is reused each time, so don't free them
+	  vector<FrontendResult> frontendResults = stdlibFrontendResult;
+	  MiddleendResult middleend;
 
-		if (!strcmp("..", ent->d_name))
-			continue;
-
-		string name(ent->d_name);
-		string fullPath = baseDir + name;
-
-		CompileResult result;
-
-		if (getFileType(fullPath.c_str()) == FileTypeRegular) {
-			fileList.push_back(fullPath);
-			result = compileMain(joosc, fileList);
-			fileList.pop_back();
-		} else if (getFileType(fullPath.c_str()) == FileTypeDirectory) {
+		if (fs::is_regular_file(dupPath)) {
+			frontendResults.emplace_back(doFrontEndSingle(joosc, topLevelName.c_str()));
+		} else if (fs::is_directory(dupPath)) {
 			vector<string> fileBundle;
-			getJavaFilesRecursive(fileBundle, fullPath + "/");
-			fileList.insert(fileList.end(), fileBundle.begin(), fileBundle.end());
-			result = compileMain(joosc, fileList);
-			fileList.resize(numLib);
+			getJavaFilesRecursive(fileBundle, topLevelName);
+      for (const string &file: fileBundle) {
+        frontendResults.emplace_back(doFrontEndSingle(joosc, file.c_str()));
+      }
 		} else {
 			continue;
 		}
 
-		if (result.numCorrect == result.fileProcessed)
-			++numPassed;
-		++numTests;
+    ++numTests;
+
+    { // if there are any errors in frontend stage, find and report them
+      for (auto it = frontendResults.begin() + stdlibFrontendResult.size();
+           it != frontendResults.end(); ++it) {
+        if (it->failedStage == FrontendStageType::Pass)
+          continue;
+
+        valid = false;
+        goto cleanup;
+      }
+    }
+
+    {
+      profileSection("middleend");
+      // middle end
+      middleend = doMiddleend(joosc, frontendResults);
+      if (middleend.failedStage != MiddleendStageType::Pass) {
+        valid = false;
+        goto cleanup;
+      }
+    }
+
+    cleanup:
+	  if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
+	    LOGR("\033[0;31m%s: failed\033[0m", topLevelName.c_str());
+	  } else {
+	    ++numPassed;
+	  }
+
+    {
+      // free frontend result except stdlib
+      for (auto it = frontendResults.begin() + stdlibFrontendResult.size();
+           it != frontendResults.end(); ++it) {
+        frontendResultDelete(&(*it));
+      }
+    }
 	}
+
 	LOGR("%d/%d tests passed.", numPassed, numTests);
-	closedir(dir);
+
+  {
+    // free stdlib frontend result separately
+    for (auto &r: stdlibFrontendResult) {
+      frontendResultDelete(&r);
+    }
+  }
 }
 
 void checkTestMode(JoosC *joosc) {
@@ -265,13 +280,14 @@ void checkScanner() {
 
 int main(int argc, const char ** argv) {
   profileSection("main app");
+
+  globalInit();
+  atexit(globalFini);
   
 	vector<string> fileList;
 	for (int i = 1; i < argc; ++i) {
 		fileList.push_back(string(argv[i]));
 	}
-
-	globalInit();
 
 	checkScanner();
 
@@ -289,8 +305,8 @@ int main(int argc, const char ** argv) {
 
   {
     profileSection("compile main");
-    CompileResult result = compileMain(&joosc, fileList);
-    globalFini();
-    return result.fileProcessed == result.numValid ? 0 : 42;    
+    if (fileList.empty())
+      return 0;
+    return compileMain(&joosc, fileList);
   }
 }

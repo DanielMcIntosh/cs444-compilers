@@ -1,11 +1,13 @@
+#include <filesystem>
+
 #include <time.h>
-#include <dirent.h>
 
 #include "utility.h"
 #include "platform.h"
 #include "profiler.h"
 
 using namespace std;
+namespace fs = std::filesystem;
 
 void assertImpl(bool value, const char *str, ...) {
 	if (!value) {
@@ -81,7 +83,7 @@ void globalInit() {
 }
 
 void globalFini() {
-
+  
 }
 
 std::unique_ptr<char[]> readEntireFile(const char *path, s32 *size) {
@@ -114,31 +116,20 @@ char *getPrintableChar(char c) {
 	return buffer;
 }
 
-void getJavaFilesRecursive(vector<string> &fileList, const string &folder) {
-  DIR *dir = opendir(folder.c_str());
-  if (!dir)
-    return;
+void getJavaFilesRecursive(vector<string>& fileList, const string& folder) {
+	auto it = fs::directory_iterator(folder);
+	for (const auto& e : it) {
+		if (fs::is_directory(e)) {
+			getJavaFilesRecursive(fileList, e.path().string());
+			continue;
+		}
 
-  while (true) {
-    struct dirent *ent = readdir(dir);
-    if (!ent)
-      break;
-
-    if (!strcmp(".", ent->d_name))
-      continue;
-
-    if (!strcmp("..", ent->d_name))
-      continue;
-
-    string name(ent->d_name);
-    string fullPath = folder + name;
-
-    if (getFileType(fullPath.c_str()) == FileTypeRegular &&
-        strstr(ent->d_name, ".java")) {
-      fileList.push_back(fullPath);
-    } else if (getFileType(fullPath.c_str()) == FileTypeDirectory) {
-      getJavaFilesRecursive(fileList, fullPath + string("/"));
-    }
-  }
-  closedir(dir);
+		if (fs::is_regular_file(e)) {
+			if (e.path().extension().string() == ".java") {
+			  fs::path dup = e.path();
+				fileList.push_back(dup.make_preferred().string());
+			}
+			continue;
+		}
+	}
 }

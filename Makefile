@@ -5,7 +5,6 @@ CXXFLAGS_DEBUG := -g
 
 LDFLAGS_RELEASE := -O3 -flto -s 
 LDFLAGS_DEBUG := -g
-LDFLAGS := -lstdc++fs
 
 ifneq ($(OS),Windows_NT)
 CXXFLAGS_DEBUG += -fsanitize=address
@@ -80,7 +79,7 @@ $(BUILD_DIR_DEBUG)/%.cpp.o: %.cpp
 
 # Pseudo target
 
-.PHONY: clean a1 a1Direct marmoset
+.PHONY: clean a1 a1Direct a2 a2Direct marmoset
 
 clean:
 	$(RM) -r $(BUILD_DIR_RELEASE)
@@ -90,10 +89,16 @@ clean:
 	$(RM) ptgen
 
 a1:
-	$(MAKE) a1Direct -j12
+	$(MAKE) a1Direct -j4
 
 a1Direct: joosc_debug
 	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=1; ./joosc_debug
+
+a2:
+	$(MAKE) a2Direct -j4
+
+a2Direct: joosc_debug
+	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=2; ./joosc_debug
 
 marmoset:
 	/u/cs_build/bin/marmoset_submit --username=-ddmcinto-q5an-whkuan- \

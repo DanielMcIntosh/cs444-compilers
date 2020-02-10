@@ -48,7 +48,7 @@ namespace Profiler {
 
         long long int nano = node->totalTime.count();
         double ftime = (double)nano / 1e6;
-        if (ftime < 10)
+        if (ftime < 100)
           continue;
 
         for (int i = 0; i < level; ++i) {

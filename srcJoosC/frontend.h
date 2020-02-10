@@ -23,7 +23,7 @@ struct ScanResult {
 	string detailedStep;
 };
 
-}
+} // namespace Scan
 
 namespace Parse {
 
@@ -33,7 +33,7 @@ struct ParseResult {
   bool valid = false;
 };
 
-}
+} // namespace Parse
 
 namespace Weeder {
 
@@ -84,4 +84,26 @@ struct WeederResult {
 
 };
 
-}
+} // namespace Weeder
+
+
+enum class FrontendStageType {
+  Scan,
+  Parse,
+  Weed,
+  Pass
+};
+
+struct FrontendResult {
+  std::string fileName;
+  s32 fileSize;
+  char *fileContent;
+
+  FrontendStageType failedStage;
+
+  Scan::ScanResult scanResult;
+  Parse::ParseResult parseResult;
+  Weeder::WeederResult weederResult;
+};
+
+void frontendResultDelete(FrontendResult *result);

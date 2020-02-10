@@ -62,7 +62,7 @@ typedef int16_t s16;
 	LOGR("%*s" _fmt, _level, "", ##__VA_ARGS__)
 
 #define UNIMPLEMENTED unimplementedImpl
-void unimplementedImpl();
+[[noreturn]] void unimplementedImpl();
 
 //
 // Log and asserts

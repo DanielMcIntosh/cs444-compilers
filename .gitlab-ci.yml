@@ -2,11 +2,10 @@ image: gcc:9
 
 stages:
   - build
-  - test
 
 job cs444-build-and-test:
   stage: build
   tags:
     - main
   script:
-    - make a1Direct
+    - make a2
