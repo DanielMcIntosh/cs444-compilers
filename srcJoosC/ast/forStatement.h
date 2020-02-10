@@ -10,10 +10,14 @@ namespace AST
 class ForStatement: public ConditionalStatement
 {
 public:
-	ForStatement(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<ForStatement> create(const Parse::Tree *ptNode);
+	ForStatement(const Parse::TForStatementNoShortIf *ptNode);
+	ForStatement(const Parse::TForStatement *ptNode);
 
 	std::shared_ptr<Expression> init;
 	std::shared_ptr<Expression> increment;
+
+	std::string toCode() override { return "[ForStatement]"; }
 };
 
 } //namespace AST

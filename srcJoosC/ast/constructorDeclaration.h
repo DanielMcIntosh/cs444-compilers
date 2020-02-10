@@ -11,14 +11,13 @@ namespace AST
 class ConstructorDeclaration: public MemberDeclaration
 {
 public:
-	ConstructorDeclaration(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<ConstructorDeclaration> create(const Parse::Tree *ptNode);
+	ConstructorDeclaration(const Parse::TConstructorDeclaration *ptNode);
 
-<<<<<<< HEAD
-	//std::vector<std::shared_ptr<FormalParameter>> parameters;
-=======
-	std::vector<std::shared_ptr<FormalParameter>> parameters;
->>>>>>> added AST classes
+	std::vector<std::shared_ptr<VariableDeclaration>> parameters;
 	std::shared_ptr<Block> body;
+
+	std::string toCode() override { return "[ConstructorDeclaration]"; }
 };
 
 } //namespace AST

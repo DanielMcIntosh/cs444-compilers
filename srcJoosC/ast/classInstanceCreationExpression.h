@@ -11,10 +11,13 @@ namespace AST
 class ClassInstanceCreationExpression: public Expression
 {
 public:
-	ClassInstanceCreationExpression(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<ClassInstanceCreationExpression> create(const Parse::Tree *ptNode);
+	ClassInstanceCreationExpression(const Parse::TClassInstanceCreationExpression *ptNode);
 
 	std::shared_ptr<Type> type;
 	std::vector<std::shared_ptr<Expression>> args;
+
+	std::string toCode() override { return "[ClassInstanceCreationExpression]"; }
 };
 
 } //namespace AST

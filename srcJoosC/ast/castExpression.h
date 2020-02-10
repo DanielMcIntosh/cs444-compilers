@@ -12,10 +12,13 @@ namespace AST
 class CastExpression: public Expression
 {
 public:
-	CastExpression(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<CastExpression> create(const Parse::Tree *ptNode);
+	CastExpression(const Parse::TCastExpression *ptNode);
 
 	std::shared_ptr<Type> type;
 	std::shared_ptr<UnaryExpression> rhs;
+
+	std::string toCode() override { return "[CastExpression]"; }
 };
 
 } //namespace AST

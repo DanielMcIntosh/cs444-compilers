@@ -12,14 +12,35 @@ namespace AST
 class Name: public Node
 {
 public:
-	Name(std::vector<Parser::ASTToken>& children);
-	// TODO: define NameExpression class, which inherits from Expression?
-	operator Expression();
-	// TODO: define NameType class, which inherits from Type?
-	operator Type();
+	static std::unique_ptr<Name> create(const Parse::Tree *ptNode);
+	Name(const Parse::TName *ptNode);
 
 	std::vector<std::string> prefix;
 	std::string id;
+
+	std::string toCode() override { return "[Name]"; }
+};
+
+class NameType: public Type
+{
+public:
+	std::vector<std::string> prefix;
+	std::string id;
+
+	NameType(Name&& other);
+
+	std::string toCode() override { return "[NameType]"; }
+};
+
+class NameExpression: public Expression
+{
+public:
+	std::vector<std::string> prefix;
+	std::string id;
+
+	NameExpression(Name&& other);
+
+	std::string toCode() override { return "[NameExpression]"; }
 };
 
 } //namespace AST

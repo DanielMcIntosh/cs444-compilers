@@ -65,7 +65,7 @@ enum class WeederCategory
   FileNameMatchClass,
   // A class, class method or field must have exactly one access modifier
   AccessModifiers,
-  // Reject illegal expressions in casts 
+  // Reject illegal expressions in casts
   Cast,
   Max
 };
@@ -86,6 +86,15 @@ struct WeederResult {
 
 } // namespace Weeder
 
+namespace AST {
+
+class Node;
+
+struct ASTResult {
+  std::shared_ptr<Node> ast;
+};
+
+} // namespace AST
 
 enum class FrontendStageType {
   Scan,
@@ -104,6 +113,7 @@ struct FrontendResult {
   Scan::ScanResult scanResult;
   Parse::ParseResult parseResult;
   Weeder::WeederResult weederResult;
+  AST::ASTResult astResult;
 };
 
 void frontendResultDelete(FrontendResult *result);

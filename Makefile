@@ -71,11 +71,11 @@ ptgen: $(PTGEN_OBJS)
 
 $(BUILD_DIR_RELEASE)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
-	$(CXX) $(CXXFLAGS_RELEASE) $(EXTRA_CXXFLAGS)  -c $< -o $@
+	$(CXX) $(CXXFLAGS_RELEASE) $(EXTRA_CXXFLAGS) -I$(JOOSC_SRC_DIRS) -c $< -o $@
 
 $(BUILD_DIR_DEBUG)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
-	$(CXX) $(CXXFLAGS_DEBUG) $(EXTRA_CXXFLAGS)  -c $< -o $@
+	$(CXX) $(CXXFLAGS_DEBUG) $(EXTRA_CXXFLAGS) -I$(JOOSC_SRC_DIRS) -c $< -o $@
 
 # Pseudo target
 

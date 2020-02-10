@@ -9,8 +9,10 @@ namespace AST
 class This: public Expression
 {
 public:
-	This(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<This> create(const Parse::Tree *ptNode);
+	This(const Parse::TThis2 *ptNode);
 
+	std::string toCode() override { return "[This]"; }
 };
 
 } //namespace AST

@@ -11,11 +11,14 @@ namespace AST
 class FieldDeclaration: public MemberDeclaration
 {
 public:
-	FieldDeclaration(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<FieldDeclaration> create(const Parse::Tree *ptNode);
+	FieldDeclaration(const Parse::TFieldDeclaration *ptNode);
 
 	std::shared_ptr<Type> type;
 	// nullable
 	std::shared_ptr<Expression> initializer;
+
+	std::string toCode() override { return "[FieldDeclaration]"; }
 };
 
 } //namespace AST

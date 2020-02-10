@@ -12,12 +12,16 @@ namespace AST
 class MethodDeclaration: public MemberDeclaration
 {
 public:
-	MethodDeclaration(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<MethodDeclaration> create(const Parse::Tree *ptNode);
+	MethodDeclaration(const Parse::TMethodDeclaration *ptNode);
+	MethodDeclaration(const Parse::TAbstractMethodDeclaration *ptNode);
 
 	std::shared_ptr<Type> returnType;
 	std::vector<std::shared_ptr<VariableDeclaration>> parameters;
 	// nullable
 	std::shared_ptr<Block> body;
+
+	std::string toCode() override { return "[MethodDeclaration]"; }
 };
 
 } //namespace AST

@@ -13,13 +13,16 @@ namespace AST
 class CompilationUnit: public Node
 {
 public:
-	CompilationUnit(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<CompilationUnit> create(const Parse::Tree *ptNode);
+	CompilationUnit(const Parse::TCompilationUnit *ptNode);
 
 	// nullable
-	std::shared_ptr<Name> package;
-	std::vector<std::shared_ptr<ImportDeclaration>> imports;
+	std::unique_ptr<Name> package;
+	std::vector<std::unique_ptr<ImportDeclaration>> imports;
 	// nullable
-	std::shared_ptr<TypeDeclaration> typeDeclaration;
+	std::unique_ptr<TypeDeclaration> typeDeclaration;
+
+	std::string toCode() override;
 };
 
 } //namespace AST

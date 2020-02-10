@@ -9,10 +9,13 @@ namespace AST
 class AssignmentExpression: public Expression
 {
 public:
-	AssignmentExpression(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<AssignmentExpression> create(const Parse::Tree *ptNode);
+	AssignmentExpression(const Parse::TAssignment *ptNode);
 
 	std::shared_ptr<Expression> lhs;
 	std::shared_ptr<Expression> rhs;
+
+	std::string toCode() override { return "[AssignmentExpression]"; }
 };
 
 } //namespace AST

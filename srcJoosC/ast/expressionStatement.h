@@ -10,10 +10,13 @@ namespace AST
 class ExpressionStatement: public Statement
 {
 public:
-	ExpressionStatement(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<ExpressionStatement> create(const Parse::Tree *ptNode);
+	ExpressionStatement(const Parse::TExpressionStatement *ptNode);
 
 	// nullable
 	std::shared_ptr<Expression> expression;
+
+	std::string toCode() override { return "[ExpressionStatement]"; }
 };
 
 } //namespace AST

@@ -10,10 +10,14 @@ namespace AST
 class ImportDeclaration: public Node
 {
 public:
-	ImportDeclaration(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<ImportDeclaration> create(const Parse::Tree *ptNode);
+	ImportDeclaration(const Parse::TSingleTypeImportDeclaration *ptNode);
+	ImportDeclaration(const Parse::TTypeImportOnDemandDeclaration *ptNode);
 
 	std::shared_ptr<Name> importName;
 	bool multiImport;
+
+	std::string toCode() override { return "[ImportDeclaration]"; }
 };
 
 } //namespace AST

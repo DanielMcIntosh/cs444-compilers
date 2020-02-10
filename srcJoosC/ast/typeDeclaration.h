@@ -17,16 +17,21 @@ namespace AST
 class TypeDeclaration: public Node
 {
 public:
-	TypeDeclaration(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<TypeDeclaration> create(const Parse::Tree *ptNode);
+	TypeDeclaration(const Parse::TTypeDeclaration *ptNode);
+	TypeDeclaration(const Parse::TClassDeclaration *ptNode);
+	TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode);
 
 	bool isInterface;
-	std::vector<std::shared_ptr<Modifier>> modifiers;
+	std::vector<std::unique_ptr<Modifier>> modifiers;
 	std::string name;
 	// null for interfaces
-	std::shared_ptr<Type> superClass;
+	std::unique_ptr<Type> superClass;
 	// implements if we're a class, extends if we're an interface
-	std::vector<std::shared_ptr<Type>> interfaces;
-	std::vector<std::shared_ptr<MemberDeclaration>> members;
+	std::vector<std::unique_ptr<Type>> interfaces;
+	std::vector<std::unique_ptr<MemberDeclaration>> members;
+
+	std::string toCode() override;
 };
 
 } //namespace AST

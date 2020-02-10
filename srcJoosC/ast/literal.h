@@ -8,7 +8,8 @@ namespace AST
 class Literal: public Expression
 {
 public:
-	Literal(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<Literal> create(const Parse::Tree *ptNode);
+	Literal(const Parse::TLiteral *ptNode);
 
 	enum class Value {
 		IntegerLiteral,
@@ -18,6 +19,8 @@ public:
 		NullLiteral,
 	};
 	Value literalType;
+
+	std::string toCode() override { return "[Literal]"; }
 };
 
 } //namespace AST

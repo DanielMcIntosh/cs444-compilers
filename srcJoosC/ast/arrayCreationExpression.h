@@ -10,11 +10,14 @@ namespace AST
 class ArrayCreationExpression: public Expression
 {
 public:
-	ArrayCreationExpression(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<ArrayCreationExpression> create(const Parse::Tree *ptNode);
+	ArrayCreationExpression(const Parse::TArrayCreationExpression *ptNode);
 
 	// IMPORTANT: during construction, we have to change type->isArray to true
 	std::shared_ptr<Type> type;
 	std::shared_ptr<Expression> size;
+
+	std::string toCode() override { return "[ArrayCreationExpression]"; }
 };
 
 } //namespace AST

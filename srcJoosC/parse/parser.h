@@ -43,11 +43,3 @@ ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens);
 void parserDumpDebugInfo(const ParseResult& result, const char *baseOutputPath);
 
 } // namespace Parse
-
-namespace Parser
-{
-struct Grammar;
-
-void parseTokens(std::vector<Scan::LexToken> const& tokens, Grammar const& grammar);
-
-} //namespace Parser

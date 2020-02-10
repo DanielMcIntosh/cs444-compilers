@@ -10,9 +10,12 @@ namespace AST
 class LocalVariableDeclarationStatement: public Statement
 {
 public:
-	LocalVariableDeclarationStatement(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<LocalVariableDeclarationStatement> create(const Parse::Tree *ptNode);
+	LocalVariableDeclarationStatement(const Parse::TLocalVariableDeclarationStatement *ptNode);
 
 	std::shared_ptr<VariableDeclaration> declaration;
+
+	std::string toCode() override { return "[LocalVariableDeclarationStatement]"; }
 };
 
 } //namespace AST

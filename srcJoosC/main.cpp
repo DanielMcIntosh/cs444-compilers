@@ -13,6 +13,8 @@
 #include "weeder.h"
 #include "profiler.h"
 #include "middleend.h"
+#include "ast/ast.h"
+#include "ast/node.h"
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -44,8 +46,9 @@ void compileDumpSingleResult(char *baseOutputPath, const FrontendResult &singleR
     fwrite(singleResult.fileContent, singleResult.fileSize, 1, originalFile);
     fclose(originalFile);
 
-    Scan::scannerDumpDebugInfo(singleResult.scanResult, baseOutputPath);
-    Parse::parserDumpDebugInfo(singleResult.parseResult, baseOutputPath);    
+    //Scan::scannerDumpDebugInfo(singleResult.scanResult, baseOutputPath);
+    Parse::parserDumpDebugInfo(singleResult.parseResult, baseOutputPath);
+    AST::astDumpDebugInfo(singleResult.astResult, baseOutputPath);
   }
 }
 
@@ -66,7 +69,7 @@ FrontendResult doFrontEndSingle(JoosC *joosc, const char *fileName) {
     if (!fileResult.scanResult.valid) {
       fileResult.failedStage = FrontendStageType::Scan;
       return fileResult;
-    }    
+    }
   }
 
   {
@@ -75,18 +78,23 @@ FrontendResult doFrontEndSingle(JoosC *joosc, const char *fileName) {
     if (!fileResult.parseResult.valid) {
       fileResult.failedStage = FrontendStageType::Parse;
       return fileResult;
-    }    
+    }
   }
 
   {
     profileSection("weeder");
-    fileResult.weederResult = Weeder::weederCheck(fileResult.parseResult.treeRoot, fileName);  
+    fileResult.weederResult = Weeder::weederCheck(fileResult.parseResult.treeRoot, fileName);
     if (!fileResult.weederResult.valid) {
       fileResult.failedStage = FrontendStageType::Weed;
       return fileResult;
-    }          
+    }
   }
-  
+
+  {
+    profileSection("ast");
+    fileResult.astResult = AST::buildAST(fileResult.parseResult.treeRoot);
+  }
+
   fileResult.failedStage = FrontendStageType::Pass;
   return fileResult;
 }
@@ -103,12 +111,16 @@ int compileMain(JoosC *joosc, const vector<string> &fileList) {
   int retVal = 0;
   for (const string &file: fileList) {
     frontendResult.emplace_back(doFrontEndSingle(joosc, file.c_str()));
-    if (frontendResult.back().failedStage == FrontendStageType::Pass)
-      continue;
 
-    retVal = 42;
-    LOGR("%s failed", file.c_str());
-    goto cleanup;
+    strdecl256(baseOutputPath, "output/%s", file.c_str());
+    compileDumpSingleResult(baseOutputPath, frontendResult.back());
+
+    if (frontendResult.back().failedStage != FrontendStageType::Pass)
+    {
+      retVal = 42;
+      LOGR("%s failed", file.c_str());
+      goto cleanup;
+    }
   }
 
   middleend = doMiddleend(joosc, frontendResult);
@@ -283,7 +295,7 @@ int main(int argc, const char ** argv) {
 
   globalInit();
   atexit(globalFini);
-  
+
   vector<string> fileList;
   for (int i = 1; i < argc; ++i) {
     fileList.push_back(string(argv[i]));
@@ -294,13 +306,13 @@ int main(int argc, const char ** argv) {
   JoosC joosc;
   {
     profileSection("scanner load rule");
-    scannerLoadJoosRule(&joosc.scanner);    
+    scannerLoadJoosRule(&joosc.scanner);
   }
   {
     profileSection("parser load rule");
-    parserReadJoosLR1(&joosc.parser);    
+    parserReadJoosLR1(&joosc.parser);
   }
-  
+
   checkTestMode(&joosc);
 
   {

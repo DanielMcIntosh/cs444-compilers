@@ -9,9 +9,10 @@ namespace AST
 class PrimitiveType: public Type
 {
 public:
-	PrimitiveType(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<PrimitiveType> create(const Parse::Tree *ptNode);
+	PrimitiveType(const Parse::TPrimitiveType *ptNode);
 
-	enum class Value
+	enum class Variant
 	{
 		Boolean,
 		Byte,
@@ -20,9 +21,11 @@ public:
 		Char,
 	};
 
-	Value val;
+	Variant val;
+private:
+	static const std::map<std::string, Variant> valueLookup;
 
-	static const std::map<std::string, Value> valueLookup;
+	std::string toCode() override { return "[PrimitiveType]"; }
 };
 
 

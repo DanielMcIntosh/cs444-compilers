@@ -9,7 +9,8 @@ namespace AST
 class Modifier: public Node
 {
 public:
-	Modifier(std::vector<Parser::ASTToken>& children);
+	static std::unique_ptr<Modifier> create(const Parse::Tree *ptNode);
+	Modifier(const Parse::TModifier *ptNode);
 
 	enum class Value
 	{
@@ -25,6 +26,7 @@ public:
 
 	static const std::map<std::string, Value> modTypeLookup;
 
+	std::string toCode() override { return "[Modifier]"; }
 };
 
 } //namespace AST
