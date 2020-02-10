@@ -22,8 +22,8 @@ const char *gFrontendStageName[] = {
 };
 
 struct JoosC {
-	Scan::Scanner scanner;
-	Parse::Parser parser;
+  Scan::Scanner scanner;
+  Parse::Parser parser;
 };
 
 bool isProgramValidFromFileName(const char *name) {
@@ -62,7 +62,7 @@ FrontendResult doFrontEndSingle(JoosC *joosc, const char *fileName) {
   {
     profileSection("scan");
     fileResult.scanResult = Scan::scannerProcessText(&joosc->scanner,
-                                                   fileResult.fileContent);
+                                                     fileResult.fileContent);
     if (!fileResult.scanResult.valid) {
       fileResult.failedStage = FrontendStageType::Scan;
       return fileResult;
@@ -101,7 +101,7 @@ int compileMain(JoosC *joosc, const vector<string> &fileList) {
   vector<FrontendResult> frontendResult;
   MiddleendResult middleend;
   int retVal = 0;
-	for (const string &file: fileList) {
+  for (const string &file: fileList) {
     frontendResult.emplace_back(doFrontEndSingle(joosc, file.c_str()));
     if (frontendResult.back().failedStage == FrontendStageType::Pass)
       continue;
@@ -109,26 +109,26 @@ int compileMain(JoosC *joosc, const vector<string> &fileList) {
     retVal = 42;
     LOGR("%s failed", file.c_str());
     goto cleanup;
-	}
+  }
 
-	middleend = doMiddleend(joosc, frontendResult);
+  middleend = doMiddleend(joosc, frontendResult);
   if (middleend.failedStage != MiddleendStageType::Pass) {
     retVal = 42;
     goto cleanup;
   }
 
-	cleanup:
+ cleanup:
   { // clean ups
     for (FrontendResult &singleResult : frontendResult) {
       frontendResultDelete(&singleResult);
     }
   }
 
-	return retVal;
+  return retVal;
 }
 
 void batchTesting(JoosC *joosc, const string &baseDir,
-									const vector<string> &stdlib) {
+                  const vector<string> &stdlib) {
   profileSection("batch testing");
 
   // perform frontend compilation on stdlib only once to speed things up
@@ -159,27 +159,27 @@ void batchTesting(JoosC *joosc, const string &baseDir,
     sort(topLevelFileList.begin(), topLevelFileList.end());
   }
 
-	s32 numTests = 0;
-	s32 numPassed = 0;
-	for (const string &topLevelName : topLevelFileList) {
-	  fs::path dupPath = fs::path(topLevelName);
-	  bool valid = true;
+  s32 numTests = 0;
+  s32 numPassed = 0;
+  for (const string &topLevelName : topLevelFileList) {
+    fs::path dupPath = fs::path(topLevelName);
+    bool valid = true;
 
-	  // stdlib frontend result is reused each time, so don't free them
-	  vector<FrontendResult> frontendResults = stdlibFrontendResult;
-	  MiddleendResult middleend;
+    // stdlib frontend result is reused each time, so don't free them
+    vector<FrontendResult> frontendResults = stdlibFrontendResult;
+    MiddleendResult middleend;
 
-		if (fs::is_regular_file(dupPath)) {
-			frontendResults.emplace_back(doFrontEndSingle(joosc, topLevelName.c_str()));
-		} else if (fs::is_directory(dupPath)) {
-			vector<string> fileBundle;
-			getJavaFilesRecursive(fileBundle, topLevelName);
+    if (fs::is_regular_file(dupPath)) {
+      frontendResults.emplace_back(doFrontEndSingle(joosc, topLevelName.c_str()));
+    } else if (fs::is_directory(dupPath)) {
+      vector<string> fileBundle;
+      getJavaFilesRecursive(fileBundle, topLevelName);
       for (const string &file: fileBundle) {
         frontendResults.emplace_back(doFrontEndSingle(joosc, file.c_str()));
       }
-		} else {
-			continue;
-		}
+    } else {
+      continue;
+    }
 
     ++numTests;
 
@@ -204,12 +204,12 @@ void batchTesting(JoosC *joosc, const string &baseDir,
       }
     }
 
-    cleanup:
-	  if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
-	    LOGR("\033[0;31m%s: failed\033[0m", topLevelName.c_str());
-	  } else {
-	    ++numPassed;
-	  }
+  cleanup:
+    if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
+      LOGR("\033[0;31m%s: failed\033[0m", topLevelName.c_str());
+    } else {
+      ++numPassed;
+    }
 
     {
       // free frontend result except stdlib
@@ -218,9 +218,9 @@ void batchTesting(JoosC *joosc, const string &baseDir,
         frontendResultDelete(&(*it));
       }
     }
-	}
+  }
 
-	LOGR("%d/%d tests passed.", numPassed, numTests);
+  LOGR("%d/%d tests passed.", numPassed, numTests);
 
   {
     // free stdlib frontend result separately
@@ -232,50 +232,50 @@ void batchTesting(JoosC *joosc, const string &baseDir,
 
 void checkTestMode(JoosC *joosc) {
   profileSection("check test mode");
-	const char *mode = getenv("JOOSC_TEST");
-	if (!mode)
-		return;
-	const char *assnNum = getenv("JOOSC_TEST_ASSN");
-	if (!assnNum)
-		return;
+  const char *mode = getenv("JOOSC_TEST");
+  if (!mode)
+    return;
+  const char *assnNum = getenv("JOOSC_TEST_ASSN");
+  if (!assnNum)
+    return;
 
-	s32 num = atoi(assnNum);
-	const char *assnBase = "tests/assignment_testcases";
-	strdecl256(progFolder, "%s/a%d/", assnBase, num);
+  s32 num = atoi(assnNum);
+  const char *assnBase = "tests/assignment_testcases";
+  strdecl256(progFolder, "%s/a%d/", assnBase, num);
 
-	vector<string> stdlib;
-	if (num >= 2) {
-		const char *libBase = "tests/stdlib";
-		strdecl256(libFolder, "%s/%d.0/", libBase, num);
-		getJavaFilesRecursive(stdlib, string(libFolder));
-	}
-	batchTesting(joosc, string(progFolder), stdlib);
+  vector<string> stdlib;
+  if (num >= 2) {
+    const char *libBase = "tests/stdlib";
+    strdecl256(libFolder, "%s/%d.0/", libBase, num);
+    getJavaFilesRecursive(stdlib, string(libFolder));
+  }
+  batchTesting(joosc, string(progFolder), stdlib);
 }
 
 void checkScanner() {
-	const char *mode = getenv("JOOSC_SCANNER");
-	if (!mode)
-		return;
+  const char *mode = getenv("JOOSC_SCANNER");
+  if (!mode)
+    return;
 
-	const char *file = getenv("JOOSC_SCANNER_FILE");
-	if (!file)
-		return;
+  const char *file = getenv("JOOSC_SCANNER_FILE");
+  if (!file)
+    return;
 
-	{
-		using namespace Scan;
+  {
+    using namespace Scan;
 
-		s32 fileSize;
-		std::unique_ptr<char[]> fileContents = readEntireFile(file, &fileSize);
-		if (!fileContents)
-			return;
+    s32 fileSize;
+    std::unique_ptr<char[]> fileContents = readEntireFile(file, &fileSize);
+    if (!fileContents)
+      return;
 
-		Scanner scanner;
-		scannerRegularLanguageToNFA(&scanner, fileContents.get());
-		scannerNFAtoDFA(&scanner);
-		scannerDumpDFA(&scanner);
-		LOGR("%lu tokens, %lu nstates, %lu dstates", scanner.tokens.size(),
-				 scanner.nstates.size(), scanner.dstates.size());
-	}
+    Scanner scanner;
+    scannerRegularLanguageToNFA(&scanner, fileContents.get());
+    scannerNFAtoDFA(&scanner);
+    scannerDumpDFA(&scanner);
+    LOGR("%lu tokens, %lu nstates, %lu dstates", scanner.tokens.size(),
+         scanner.nstates.size(), scanner.dstates.size());
+  }
 }
 
 int main(int argc, const char ** argv) {
@@ -284,14 +284,14 @@ int main(int argc, const char ** argv) {
   globalInit();
   atexit(globalFini);
   
-	vector<string> fileList;
-	for (int i = 1; i < argc; ++i) {
-		fileList.push_back(string(argv[i]));
-	}
+  vector<string> fileList;
+  for (int i = 1; i < argc; ++i) {
+    fileList.push_back(string(argv[i]));
+  }
 
-	checkScanner();
+  checkScanner();
 
-	JoosC joosc;
+  JoosC joosc;
   {
     profileSection("scanner load rule");
     scannerLoadJoosRule(&joosc.scanner);    

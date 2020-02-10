@@ -20,3 +20,5 @@ struct ProfileScope {
 
 #define profileSection(_name) \
   ProfileScope CONCAT2(_profileScope_, __COUNTER__)(__FILE__, __LINE__, _name)
+
+void profileReport();

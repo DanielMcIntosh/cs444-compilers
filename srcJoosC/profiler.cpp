@@ -26,42 +26,12 @@ namespace Profiler {
     vector<Node *> childrenVec;
   };
 
-#define LevelMarker (reinterpret_cast<Node *>(0x7fffffff))
-
   struct Manager {
     Node *curNode;
     duration<long long int, nano> overhead;
     vector<unique_ptr<Node>> nodeList;
     
     ~Manager() {
-      printf("(Overhead: %.1fms)\n", (double)overhead.count()/1e6);
-      vector<Node *> stack;
-      stack.push_back(curNode->childrenVec[0]);
-      int level = 0;
-      while (!stack.empty()) {
-        Node *node = stack.back();
-        stack.pop_back();
-        if (node == LevelMarker) {
-          level -= 4;
-          continue;
-        }
-
-        long long int nano = node->totalTime.count();
-        double ftime = (double)nano / 1e6;
-        if (ftime < 100)
-          continue;
-
-        for (int i = 0; i < level; ++i) {
-          putc(' ', stdout);
-        }
-        
-        printf("\033[0;95m%.1fms\033[0m \033[0;92m(%d times)\033[0m \033[0;96m%s\033[0m (%s)\n", ftime, node->invocations, node->name.c_str(), node->id.c_str());
-        level += 4; 
-        stack.push_back(LevelMarker);
-        for (auto it = node->childrenVec.rbegin(); it != node->childrenVec.rend(); ++it) {
-          stack.push_back(*it);
-        }
-      }
     }    
     static Manager *Get() {
       static Manager m;
@@ -79,6 +49,45 @@ namespace Profiler {
 } // namespace Profiler
 
 using namespace Profiler;
+
+#define LevelMarker (reinterpret_cast<Node *>(0x7fffffff))
+
+void profileReport() {
+  Manager *manager = Manager::Get();
+  printf("(Overhead: %.1fms)\n", (double)manager->overhead.count() / 1e6);
+  vector<Node *> stack;
+  stack.push_back(manager->curNode->childrenVec[0]);
+  int level = 0;
+  while (!stack.empty()) {
+    Node *node = stack.back();
+    stack.pop_back();
+    if (node == LevelMarker) {
+      level -= 4;
+      continue;
+    }
+
+    long long int nano = node->totalTime.count();
+    double ftime = (double)nano / 1e6;
+    if (ftime < 100)
+      continue;
+
+    for (int i = 0; i < level; ++i) {
+      putc(' ', stdout);
+    }
+#ifdef _MSC_VER
+    printf("%.1fms (%d times) %s (%s)\n",
+           ftime, node->invocations, node->name.c_str(), node->id.c_str());
+#else
+    printf("\033[0;95m%.1fms\033[0m \033[0;92m(%d times)\033[0m \033[0;96m%s\033[0m (%s)\n", 
+           ftime, node->invocations, node->name.c_str(), node->id.c_str());
+#endif
+    level += 4;
+    stack.push_back(LevelMarker);
+    for (auto it = node->childrenVec.rbegin(); it != node->childrenVec.rend(); ++it) {
+      stack.push_back(*it);
+    }
+  }
+}
 
 ProfileScopeImpl* profileSectionFunc(const char *file, int line, const char *name) {
   auto blockBegin = high_resolution_clock::now();

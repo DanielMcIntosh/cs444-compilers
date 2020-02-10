@@ -12,15 +12,15 @@ namespace Scan {
 using namespace std;
 
 struct LexToken {
-	string name;
-	string lexeme;
+  string name;
+  string lexeme;
 };
 
 struct ScanResult {
-	vector<LexToken> tokens;
-	bool valid = false;
-	s32 errorPosition = -1;
-	string detailedStep;
+  vector<LexToken> tokens;
+  bool valid = false;
+  s32 errorPosition = -1;
+  string detailedStep;
 };
 
 } // namespace Scan
