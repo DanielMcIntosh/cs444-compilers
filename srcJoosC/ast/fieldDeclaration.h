@@ -14,9 +14,9 @@ public:
 	static std::unique_ptr<FieldDeclaration> create(const Parse::Tree *ptNode);
 	FieldDeclaration(const Parse::TFieldDeclaration *ptNode);
 
-	std::shared_ptr<Type> type;
+	std::unique_ptr<Type> type;
 	// nullable
-	std::shared_ptr<Expression> initializer;
+	std::unique_ptr<Expression> initializer;
 
 	std::string toCode() override { return "[FieldDeclaration]"; }
 };

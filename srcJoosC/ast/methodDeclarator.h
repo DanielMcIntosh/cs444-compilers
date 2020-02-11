@@ -18,7 +18,7 @@ public:
 	MethodDeclarator(const Parse::TMethodDeclarator *ptNode);
 
 	std::string id;
-	std::vector<std::shared_ptr<VariableDeclaration>> parameterList;
+	std::vector<std::unique_ptr<VariableDeclaration>> parameterList;
 
 	std::string toCode() override { return "[MethodDeclarator]"; }
 };

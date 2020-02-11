@@ -14,7 +14,7 @@ public:
 	ImportDeclaration(const Parse::TSingleTypeImportDeclaration *ptNode);
 	ImportDeclaration(const Parse::TTypeImportOnDemandDeclaration *ptNode);
 
-	std::shared_ptr<Name> importName;
+	std::unique_ptr<Name> importName;
 	bool multiImport;
 
 	std::string toCode() override { return "[ImportDeclaration]"; }

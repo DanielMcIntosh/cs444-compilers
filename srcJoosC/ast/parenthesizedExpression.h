@@ -12,7 +12,7 @@ public:
 	static std::unique_ptr<ParenthesizedExpression> create(const Parse::Tree *ptNode);
 	ParenthesizedExpression(const Parse::TParenthesizedExpression *ptNode);
 
-	std::shared_ptr<Expression> expr;
+	std::unique_ptr<Expression> expr;
 
 	std::string toCode() override { return "[ParenthesizedExpression]"; }
 };

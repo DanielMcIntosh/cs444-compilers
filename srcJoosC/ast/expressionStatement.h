@@ -14,7 +14,7 @@ public:
 	ExpressionStatement(const Parse::TExpressionStatement *ptNode);
 
 	// nullable
-	std::shared_ptr<Expression> expression;
+	std::unique_ptr<Expression> expression;
 
 	std::string toCode() override { return "[ExpressionStatement]"; }
 };

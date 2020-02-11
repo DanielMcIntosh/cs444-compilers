@@ -14,7 +14,7 @@ class MemberDeclaration: public Node
 public:
 	static std::unique_ptr<MemberDeclaration> create(const Parse::Tree *ptNode);
 
-	std::vector<std::shared_ptr<Modifier>> modifiers;
+	std::vector<std::unique_ptr<Modifier>> modifiers;
 	std::string identifier;
 };
 

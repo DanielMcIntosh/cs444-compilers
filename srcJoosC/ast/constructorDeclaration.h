@@ -14,8 +14,8 @@ public:
 	static std::unique_ptr<ConstructorDeclaration> create(const Parse::Tree *ptNode);
 	ConstructorDeclaration(const Parse::TConstructorDeclaration *ptNode);
 
-	std::vector<std::shared_ptr<VariableDeclaration>> parameters;
-	std::shared_ptr<Block> body;
+	std::vector<std::unique_ptr<VariableDeclaration>> parameters;
+	std::unique_ptr<Block> body;
 
 	std::string toCode() override { return "[ConstructorDeclaration]"; }
 };

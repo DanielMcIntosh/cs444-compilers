@@ -12,8 +12,8 @@ public:
 	static std::unique_ptr<AssignmentExpression> create(const Parse::Tree *ptNode);
 	AssignmentExpression(const Parse::TAssignment *ptNode);
 
-	std::shared_ptr<Expression> lhs;
-	std::shared_ptr<Expression> rhs;
+	std::unique_ptr<Expression> lhs;
+	std::unique_ptr<Expression> rhs;
 
 	std::string toCode() override { return "[AssignmentExpression]"; }
 };

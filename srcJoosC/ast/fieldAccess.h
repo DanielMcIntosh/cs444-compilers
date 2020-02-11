@@ -13,7 +13,7 @@ public:
 	static std::unique_ptr<FieldAccess> create(const Parse::Tree *ptNode);
 	FieldAccess(const Parse::TFieldAccess *ptNode);
 
-	std::shared_ptr<Expression> object;
+	std::unique_ptr<Expression> object;
 	std::string member;
 
 	std::string toCode() override { return "[FieldAccess]"; }

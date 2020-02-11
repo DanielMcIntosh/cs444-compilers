@@ -14,8 +14,8 @@ public:
 	ForStatement(const Parse::TForStatementNoShortIf *ptNode);
 	ForStatement(const Parse::TForStatement *ptNode);
 
-	std::shared_ptr<Expression> init;
-	std::shared_ptr<Expression> increment;
+	std::unique_ptr<Expression> init;
+	std::unique_ptr<Expression> increment;
 
 	std::string toCode() override { return "[ForStatement]"; }
 };

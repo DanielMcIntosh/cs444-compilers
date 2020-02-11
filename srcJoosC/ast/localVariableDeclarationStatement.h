@@ -13,7 +13,7 @@ public:
 	static std::unique_ptr<LocalVariableDeclarationStatement> create(const Parse::Tree *ptNode);
 	LocalVariableDeclarationStatement(const Parse::TLocalVariableDeclarationStatement *ptNode);
 
-	std::shared_ptr<VariableDeclaration> declaration;
+	std::unique_ptr<VariableDeclaration> declaration;
 
 	std::string toCode() override { return "[LocalVariableDeclarationStatement]"; }
 };

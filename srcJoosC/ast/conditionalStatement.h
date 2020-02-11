@@ -25,8 +25,8 @@ public:
 
 	ConditionType condType;
 	// nullable (empty for-loop condition)
-	std::shared_ptr<Expression> condition;
-	std::shared_ptr<Statement> body;
+	std::unique_ptr<Expression> condition;
+	std::unique_ptr<Statement> body;
 protected:
 	ConditionalStatement(ConditionType cond);
 

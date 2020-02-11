@@ -16,10 +16,10 @@ public:
 	MethodDeclaration(const Parse::TMethodDeclaration *ptNode);
 	MethodDeclaration(const Parse::TAbstractMethodDeclaration *ptNode);
 
-	std::shared_ptr<Type> returnType;
-	std::vector<std::shared_ptr<VariableDeclaration>> parameters;
+	std::unique_ptr<Type> returnType;
+	std::vector<std::unique_ptr<VariableDeclaration>> parameters;
 	// nullable
-	std::shared_ptr<Block> body;
+	std::unique_ptr<Block> body;
 
 	std::string toCode() override { return "[MethodDeclaration]"; }
 };

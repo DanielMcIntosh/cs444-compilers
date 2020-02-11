@@ -15,7 +15,7 @@ public:
 	VariableDeclarator(const Parse::TVariableDeclarator *ptNode);
 
 	std::string id;
-	std::shared_ptr<Expression> initializer;
+	std::unique_ptr<Expression> initializer;
 
 	std::string toCode() override { return "[VariableDeclarator]"; }
 };

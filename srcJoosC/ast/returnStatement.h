@@ -14,7 +14,7 @@ public:
 	ReturnStatement(const Parse::TReturnStatement *ptNode);
 
 	// nullable
-	std::shared_ptr<Expression> returnValue;
+	std::unique_ptr<Expression> returnValue;
 
 	std::string toCode() override { return "[ReturnStatement]"; }
 };

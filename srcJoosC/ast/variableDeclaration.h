@@ -15,10 +15,10 @@ public:
 	VariableDeclaration(const Parse::TFormalParameter *ptNode);
 	VariableDeclaration(const Parse::TLocalVariableDeclaration *ptNode);
 
-	std::shared_ptr<Type> type;
+	std::unique_ptr<Type> type;
 	std::string identifier;
 	// nullable
-	std::shared_ptr<Expression> initializer;
+	std::unique_ptr<Expression> initializer;
 
 	std::string toCode() override { return "[VariableDeclaration]"; }
 };

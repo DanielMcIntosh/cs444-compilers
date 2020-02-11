@@ -26,9 +26,9 @@ public:
 	BinaryExpression(const Parse::TRelationalExpression *ptNode);
 
 	std::string op;
-	std::shared_ptr<Expression> lhs;
+	std::unique_ptr<Expression> lhs;
 	// instanceof has a rhs that's a ReferenceType instead of an Expression
-	std::shared_ptr<std::variant<Expression, Type>> rhs;
+	std::variant<std::unique_ptr<Expression>, std::unique_ptr<Type>> rhs;
 
 	std::string toCode() override { return "[BinaryExpression]"; }
 };

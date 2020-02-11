@@ -13,7 +13,7 @@ public:
 	static std::unique_ptr<PackageDeclaration> create(const Parse::Tree *ptNode);
 	PackageDeclaration(const Parse::TPackageDeclaration *ptNode);
 
-	std::shared_ptr<Name> packageName;
+	std::unique_ptr<Name> packageName;
 
 	std::string toCode() override { return "[PackageDeclaration]"; }
 };

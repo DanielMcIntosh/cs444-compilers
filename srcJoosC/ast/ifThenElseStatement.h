@@ -14,7 +14,7 @@ public:
 	IfThenElseStatement(const Parse::TIfThenElseStatement *ptNode);
 	IfThenElseStatement(const Parse::TIfThenElseStatementNoShortIf *ptNode);
 
-	std::shared_ptr<Statement> elseBody;
+	std::unique_ptr<Statement> elseBody;
 
 	std::string toCode() override { return "[IfThenElseStatement]"; }
 };

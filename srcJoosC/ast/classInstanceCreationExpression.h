@@ -14,8 +14,8 @@ public:
 	static std::unique_ptr<ClassInstanceCreationExpression> create(const Parse::Tree *ptNode);
 	ClassInstanceCreationExpression(const Parse::TClassInstanceCreationExpression *ptNode);
 
-	std::shared_ptr<Type> type;
-	std::vector<std::shared_ptr<Expression>> args;
+	std::unique_ptr<Type> type;
+	std::vector<std::unique_ptr<Expression>> args;
 
 	std::string toCode() override { return "[ClassInstanceCreationExpression]"; }
 };

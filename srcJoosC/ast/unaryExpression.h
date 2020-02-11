@@ -15,7 +15,7 @@ public:
 	UnaryExpression(const Parse::TUnaryExpressionNotPlusMinus *ptNode);
 
 	std::string op;
-	std::shared_ptr<UnaryExpression> expr;
+	std::unique_ptr<UnaryExpression> expr;
 
 	std::string toCode() override { return "[UnaryExpression]"; }
 };

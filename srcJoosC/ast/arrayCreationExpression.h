@@ -14,8 +14,8 @@ public:
 	ArrayCreationExpression(const Parse::TArrayCreationExpression *ptNode);
 
 	// IMPORTANT: during construction, we have to change type->isArray to true
-	std::shared_ptr<Type> type;
-	std::shared_ptr<Expression> size;
+	std::unique_ptr<Type> type;
+	std::unique_ptr<Expression> size;
 
 	std::string toCode() override { return "[ArrayCreationExpression]"; }
 };
