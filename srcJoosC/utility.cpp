@@ -83,7 +83,7 @@ void globalInit() {
 }
 
 void globalFini() {
-  profileReport();
+  //profileReport();
 #ifdef _MSC_VER
   fprintf(stderr, "Press enter to exit...\n");
   getchar();

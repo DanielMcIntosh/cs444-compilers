@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <vector>
-#include "parse/parserForwardDecl.h"
+#include "parse/parseTreeBase.h"
 
 namespace AST
 {
