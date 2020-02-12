@@ -17,7 +17,7 @@ public:
 	std::unique_ptr<Type> type;
 	std::unique_ptr<Expression> size;
 
-	std::string toCode() override { return "[ArrayCreationExpression]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST

@@ -25,7 +25,17 @@ std::unique_ptr<ArrayCreationExpression> ArrayCreationExpression::create(const P
 	}
 }
 ArrayCreationExpression::ArrayCreationExpression(const Parse::TArrayCreationExpression *ptNode)
+  : type(Type::create((ptNode->v == Parse::TArrayCreationExpressionV::NewPrimitiveTypeLSBrExpressionRSBr)
+                         ? (const Parse::Tree *)ptNode->primitiveType
+                         : (const Parse::Tree *)ptNode->classOrInterfaceType)),
+	size(Expression::create(ptNode->expression))
 {
+	type->isArray = true;
+}
+
+std::string ArrayCreationExpression::toCode()
+{
+	return "new " + type->toCode() + '[' + size->toCode() + ']';
 }
 
 } //namespace AST

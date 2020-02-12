@@ -12,7 +12,7 @@ public:
 	static std::unique_ptr<Modifier> create(const Parse::Tree *ptNode);
 	Modifier(const Parse::TModifier *ptNode);
 
-	enum class Value
+	enum class Variant
 	{
 		Public,
 		Protected,
@@ -20,13 +20,14 @@ public:
 		Abstract,
 		Final,
 		Native,
-	};
+		Max
+	} type;
 
-	Value modType;
-
-	static const std::map<std::string, Value> modTypeLookup;
-
-	std::string toCode() override { return "[Modifier]"; }
+	std::string toCode() override;
 };
+
+std::string operator+(std::string str, Modifier::Variant type);
+std::string operator+=(std::string& str, Modifier::Variant type);
+std::ostream& operator<<(std::ostream& os, Modifier::Variant type);
 
 } //namespace AST

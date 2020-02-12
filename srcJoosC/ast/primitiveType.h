@@ -19,14 +19,14 @@ public:
 		Short,
 		Int,
 		Char,
-	};
+		Max
+	} type;
 
-	Variant val;
-private:
-	static const std::map<std::string, Variant> valueLookup;
-
-	std::string toCode() override { return "[PrimitiveType]"; }
+	std::string toCode() override;
 };
 
+std::string operator+(std::string str, PrimitiveType::Variant type);
+std::string operator+=(std::string& str, PrimitiveType::Variant type);
+std::ostream& operator<<(std::ostream& os, PrimitiveType::Variant type);
 
 } //namespace AST

@@ -10,10 +10,6 @@ std::unique_ptr<This> This::create(const Parse::Tree *ptNode)
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return This::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::This2:
 		return std::make_unique<This>(static_cast<const Parse::TThis2*>(ptNode));
@@ -24,6 +20,11 @@ std::unique_ptr<This> This::create(const Parse::Tree *ptNode)
 // mostly a dummy class - the equivalent of the Literal class, but for a "this" expression
 This::This(const Parse::TThis2 *ptNode)
 {
+}
+
+std::string This::toCode()
+{
+	return "this";
 }
 
 } //namespace AST

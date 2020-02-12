@@ -17,10 +17,6 @@ std::unique_ptr<CompilationUnit> CompilationUnit::create(const Parse::Tree *ptNo
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return CompilationUnit::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::CompilationUnit:
 		return std::make_unique<CompilationUnit>(static_cast<const Parse::TCompilationUnit*>(ptNode));
@@ -37,9 +33,6 @@ CompilationUnit::CompilationUnit(const Parse::TCompilationUnit *ptNode)
 
 std::string CompilationUnit::toCode()
 {
-	//*
-	return "test2\n";
-	/*/
 	std::string str;
 	if (package)
 	{
@@ -53,7 +46,6 @@ std::string CompilationUnit::toCode()
 	str += typeDeclaration->toCode();
 
 	return str;
-	//*/
 }
 
 } //namespace AST
