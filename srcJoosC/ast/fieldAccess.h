@@ -16,7 +16,7 @@ public:
 	std::unique_ptr<Expression> object;
 	std::string member;
 
-	std::string toCode() override { return "[FieldAccess]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST

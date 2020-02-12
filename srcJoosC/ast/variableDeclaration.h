@@ -8,7 +8,7 @@
 namespace AST
 {
 
-class VariableDeclaration: public Expression
+class VariableDeclaration: public Node
 {
 public:
 	static std::unique_ptr<VariableDeclaration> create(const Parse::Tree *ptNode);

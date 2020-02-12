@@ -7,6 +7,7 @@
 
 namespace AST
 {
+class MethodDeclarator;
 
 class ConstructorDeclaration: public MemberDeclaration
 {
@@ -17,7 +18,11 @@ public:
 	std::vector<std::unique_ptr<VariableDeclaration>> parameters;
 	std::unique_ptr<Block> body;
 
-	std::string toCode() override { return "[ConstructorDeclaration]"; }
+	std::string toCode() override;
+
+private:
+	// not convinced this is the best way of dealing with needing 2 members from declarator
+	ConstructorDeclaration(const Parse::TModifiers *ptModifiers, MethodDeclarator &&declarator, const Parse::TBlock *block);
 };
 
 } //namespace AST

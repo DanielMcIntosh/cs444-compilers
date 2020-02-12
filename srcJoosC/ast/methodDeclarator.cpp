@@ -1,4 +1,5 @@
 #include "ast/methodDeclarator.h"
+#include "ast/nodeList.h"
 #include "parse/parseTree.h"
 #include <memory>
 #include <vector>
@@ -12,10 +13,6 @@ std::unique_ptr<MethodDeclarator> MethodDeclarator::create(const Parse::Tree *pt
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return MethodDeclarator::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::ConstructorDeclarator:
 		return std::make_unique<MethodDeclarator>(static_cast<const Parse::TConstructorDeclarator*>(ptNode));
@@ -26,10 +23,28 @@ std::unique_ptr<MethodDeclarator> MethodDeclarator::create(const Parse::Tree *pt
 	}
 }
 MethodDeclarator::MethodDeclarator(const Parse::TConstructorDeclarator *ptNode)
+  : id(ptNode->identifier->value),
+	parameterList(std::move(NodeList<VariableDeclaration>(ptNode->formalParameterList).list))
 {
 }
 MethodDeclarator::MethodDeclarator(const Parse::TMethodDeclarator *ptNode)
+  : id(ptNode->identifier->value),
+	parameterList(std::move(NodeList<VariableDeclaration>(ptNode->formalParameterList).list))
 {
+}
+
+std::string MethodDeclarator::toCode()
+{
+	// we're a PseudoAST node, so this shouldn't be called
+	// therefore, we'll print something which is useful for debugging, but doesn't look like actual code
+	std::string str = "[MethodDeclarator: id=" + id + " parameterList=";
+	for (auto &param : parameterList)
+	{
+		str += param->toCode();
+		str += ",";
+	}
+	str += "]";
+	return str;
 }
 
 } //namespace AST

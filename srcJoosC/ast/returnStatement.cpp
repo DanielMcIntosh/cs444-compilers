@@ -13,10 +13,6 @@ std::unique_ptr<ReturnStatement> ReturnStatement::create(const Parse::Tree *ptNo
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return ReturnStatement::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::ReturnStatement:
 		return std::make_unique<ReturnStatement>(static_cast<const Parse::TReturnStatement*>(ptNode));

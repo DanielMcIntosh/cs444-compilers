@@ -11,10 +11,6 @@ std::unique_ptr<AbstractMethodBody> AbstractMethodBody::create(const Parse::Tree
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return AbstractMethodBody::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::AbstractMethodBody:
 		return std::make_unique<AbstractMethodBody>(static_cast<const Parse::TAbstractMethodBody*>(ptNode));

@@ -17,7 +17,7 @@ public:
 	std::unique_ptr<Type> type;
 	std::vector<std::unique_ptr<Expression>> args;
 
-	std::string toCode() override { return "[ClassInstanceCreationExpression]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST

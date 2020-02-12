@@ -15,10 +15,6 @@ std::unique_ptr<MethodHeader> MethodHeader::create(const Parse::Tree *ptNode)
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return MethodHeader::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::MethodHeader:
 		return std::make_unique<MethodHeader>(static_cast<const Parse::TMethodHeader*>(ptNode));

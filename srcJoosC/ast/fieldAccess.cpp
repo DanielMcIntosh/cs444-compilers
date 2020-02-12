@@ -11,10 +11,6 @@ std::unique_ptr<FieldAccess> FieldAccess::create(const Parse::Tree *ptNode)
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return FieldAccess::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::FieldAccess:
 		return std::make_unique<FieldAccess>(static_cast<const Parse::TFieldAccess*>(ptNode));
@@ -23,7 +19,14 @@ std::unique_ptr<FieldAccess> FieldAccess::create(const Parse::Tree *ptNode)
 	}
 }
 FieldAccess::FieldAccess(const Parse::TFieldAccess *ptNode)
+  : object(Expression::create(ptNode->primary)),
+	member(ptNode->identifier->value)
 {
+}
+
+std::string FieldAccess::toCode()
+{
+	return object->toCode() + "." + member;
 }
 
 } //namespace AST

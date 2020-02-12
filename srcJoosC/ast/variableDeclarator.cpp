@@ -13,10 +13,6 @@ std::unique_ptr<VariableDeclarator> VariableDeclarator::create(const Parse::Tree
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return VariableDeclarator::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::VariableDeclarator:
 		return std::make_unique<VariableDeclarator>(static_cast<const Parse::TVariableDeclarator*>(ptNode));

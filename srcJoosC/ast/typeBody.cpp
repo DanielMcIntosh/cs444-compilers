@@ -11,10 +11,6 @@ std::unique_ptr<TypeBody> TypeBody::create(const Parse::Tree *ptNode)
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return TypeBody::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::ClassBody:
 		return std::make_unique<TypeBody>(static_cast<const Parse::TClassBody*>(ptNode));

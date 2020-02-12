@@ -12,10 +12,6 @@ std::unique_ptr<Block> Block::create(const Parse::Tree *ptNode)
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return Block::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::Block:
 		return std::make_unique<Block>(static_cast<const Parse::TBlock*>(ptNode));

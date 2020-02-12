@@ -12,10 +12,6 @@ std::unique_ptr<ExpressionStatement> ExpressionStatement::create(const Parse::Tr
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return ExpressionStatement::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::ExpressionStatement:
 		return std::make_unique<ExpressionStatement>(static_cast<const Parse::TExpressionStatement*>(ptNode));

@@ -13,10 +13,6 @@ std::unique_ptr<IfThenElseStatement> IfThenElseStatement::create(const Parse::Tr
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return IfThenElseStatement::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::IfThenElseStatement:
 		return std::make_unique<IfThenElseStatement>(static_cast<const Parse::TIfThenElseStatement*>(ptNode));

@@ -13,10 +13,6 @@ std::unique_ptr<ConditionalStatement> ConditionalStatement::create(const Parse::
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return ConditionalStatement::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::IfThenStatement:
 		return std::make_unique<ConditionalStatement>(static_cast<const Parse::TIfThenStatement*>(ptNode));

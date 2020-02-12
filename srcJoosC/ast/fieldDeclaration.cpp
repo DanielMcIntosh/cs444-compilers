@@ -15,10 +15,6 @@ std::unique_ptr<FieldDeclaration> FieldDeclaration::create(const Parse::Tree *pt
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return FieldDeclaration::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::FieldDeclaration:
 		return std::make_unique<FieldDeclaration>(static_cast<const Parse::TFieldDeclaration*>(ptNode));
@@ -27,6 +23,7 @@ std::unique_ptr<FieldDeclaration> FieldDeclaration::create(const Parse::Tree *pt
 	}
 }
 FieldDeclaration::FieldDeclaration(const Parse::TFieldDeclaration *ptNode)
+  : MemberDeclaration(ptNode->modifiers, "")
 {
 }
 

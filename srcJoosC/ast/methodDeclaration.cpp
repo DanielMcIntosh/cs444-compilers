@@ -28,9 +28,11 @@ std::unique_ptr<MethodDeclaration> MethodDeclaration::create(const Parse::Tree *
 	}
 }
 MethodDeclaration::MethodDeclaration(const Parse::TAbstractMethodDeclaration *ptNode)
+  : MemberDeclaration(ptNode->methodHeader->modifiers, "")
 {
 }
 MethodDeclaration::MethodDeclaration(const Parse::TMethodDeclaration *ptNode)
+  : MemberDeclaration(ptNode->methodHeader->modifiers, "")
 {
 }
 

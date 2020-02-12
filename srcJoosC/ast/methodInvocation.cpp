@@ -15,10 +15,6 @@ std::unique_ptr<MethodInvocation> MethodInvocation::create(const Parse::Tree *pt
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return MethodInvocation::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::MethodInvocation:
 		return std::make_unique<MethodInvocation>(static_cast<const Parse::TMethodInvocation*>(ptNode));

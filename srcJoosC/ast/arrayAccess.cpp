@@ -12,10 +12,6 @@ std::unique_ptr<ArrayAccess> ArrayAccess::create(const Parse::Tree *ptNode)
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return ArrayAccess::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::ArrayAccess:
 		return std::make_unique<ArrayAccess>(static_cast<const Parse::TArrayAccess*>(ptNode));

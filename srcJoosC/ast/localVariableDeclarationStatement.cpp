@@ -12,10 +12,6 @@ std::unique_ptr<LocalVariableDeclarationStatement> LocalVariableDeclarationState
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return LocalVariableDeclarationStatement::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::LocalVariableDeclarationStatement:
 		return std::make_unique<LocalVariableDeclarationStatement>(static_cast<const Parse::TLocalVariableDeclarationStatement*>(ptNode));

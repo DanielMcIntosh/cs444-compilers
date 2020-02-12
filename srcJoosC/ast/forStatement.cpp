@@ -14,10 +14,6 @@ std::unique_ptr<ForStatement> ForStatement::create(const Parse::Tree *ptNode)
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return ForStatement::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::ForStatement:
 		return std::make_unique<ForStatement>(static_cast<const Parse::TForStatement*>(ptNode));

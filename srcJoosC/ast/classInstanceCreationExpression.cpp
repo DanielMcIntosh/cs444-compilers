@@ -15,10 +15,6 @@ std::unique_ptr<ClassInstanceCreationExpression> ClassInstanceCreationExpression
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return ClassInstanceCreationExpression::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::ClassInstanceCreationExpression:
 		return std::make_unique<ClassInstanceCreationExpression>(static_cast<const Parse::TClassInstanceCreationExpression*>(ptNode));
@@ -27,14 +23,28 @@ std::unique_ptr<ClassInstanceCreationExpression> ClassInstanceCreationExpression
 	}
 }
 ClassInstanceCreationExpression::ClassInstanceCreationExpression(const Parse::TClassInstanceCreationExpression *ptNode)
+  : type(Type::create(ptNode->classType)),
+	args(std::move(NodeList<Expression>(ptNode->argumentList).list))
 {
-	/*
-	int cur = 0;
-	++cur; // new
-	type = std::dynamic_pointer_cast<Type>(children[cur++].astNode);
-	auto argList = std::dynamic_pointer_cast<ArgumentList>(children[cur++].astNode);
-	args = argList->list;
-	*/
 }
+
+std::string ClassInstanceCreationExpression::toCode()
+{
+	std::string str = "new " + type->toCode() + "(";
+	for (auto &arg : args)
+	{
+		str += arg->toCode();
+		str += ", ";
+	}
+	// remove the extra ", "
+	if (!args.empty())
+	{
+		str.pop_back();
+		str.pop_back();
+	}
+	str += ")";
+	return str;
+}
+
 
 } //namespace AST

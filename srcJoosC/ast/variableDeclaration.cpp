@@ -14,10 +14,6 @@ std::unique_ptr<VariableDeclaration> VariableDeclaration::create(const Parse::Tr
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return VariableDeclaration::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::FormalParameter:
 		return std::make_unique<VariableDeclaration>(static_cast<const Parse::TFormalParameter*>(ptNode));

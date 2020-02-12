@@ -14,10 +14,6 @@ std::unique_ptr<CastExpression> CastExpression::create(const Parse::Tree *ptNode
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return CastExpression::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::CastExpression:
 		return std::make_unique<CastExpression>(static_cast<const Parse::TCastExpression*>(ptNode));

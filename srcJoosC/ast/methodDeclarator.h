@@ -20,7 +20,7 @@ public:
 	std::string id;
 	std::vector<std::unique_ptr<VariableDeclaration>> parameterList;
 
-	std::string toCode() override { return "[MethodDeclarator]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST
