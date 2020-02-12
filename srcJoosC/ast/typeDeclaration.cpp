@@ -49,8 +49,11 @@ TypeDeclaration::TypeDeclaration(const Parse::TClassDeclaration *ptNode)
 	superClass(Type::create(ptNode->classType)),
 	// similar to modifiers
 	interfaces(std::move(NodeList<Type>(ptNode->interfaceTypeList).list)),
-	// TypeBody is only a PseudoAST class, so we need to extract the relevant contents
-	members(std::move(TypeBody::create(ptNode->classBody)->members))
+	// Since nothing sub-classes TypeBody, and none of the rules for TypeBody are oneNT rules,
+	// we can directly call the constructor, giving us a little bit more type safety.
+	// Also note, since TypeBody is only a PseudoAST class, we won't store the
+	// TypeBody itself. Instead we need to extract the relevant contents.
+	members(std::move(TypeBody(ptNode->classBody).members))
 {
 }
 
@@ -62,7 +65,7 @@ TypeDeclaration::TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode)
 	// this line is optional, but having it here means we have an explicit initialization for all members
 	superClass(nullptr),
 	interfaces(std::move(NodeList<Type>(ptNode->extendsInterfaces).list)),
-	members(std::move(TypeBody::create(ptNode->interfaceBody)->members))
+	members(std::move(TypeBody(ptNode->interfaceBody).members))
 {
 }
 
