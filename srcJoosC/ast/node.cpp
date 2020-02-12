@@ -12,7 +12,7 @@ std::unique_ptr<Node> Node::create(const Parse::Tree *ptNode)
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt && !isListType(ptNode))
+	if ((ptNode->oneNt && !isListType(ptNode)) || ptNode->type == Parse::NonTerminalType::ParenthesizedExpression)
 	{
 		return Node::create(ptNode->children[0]);
 	}
@@ -109,8 +109,6 @@ std::unique_ptr<Node> Node::create(const Parse::Tree *ptNode)
 			return ReturnStatement                  	::create(static_cast<const Parse::TReturnStatement*>(ptNode));
 		case Parse::NonTerminalType::This2:
 			return This                             	::create(static_cast<const Parse::TThis2*>(ptNode));
-		case Parse::NonTerminalType::ParenthesizedExpression:
-			return ParenthesizedExpression          	::create(static_cast<const Parse::TParenthesizedExpression*>(ptNode));
 		case Parse::NonTerminalType::ClassInstanceCreationExpression:
 			return ClassInstanceCreationExpression  	::create(static_cast<const Parse::TClassInstanceCreationExpression*>(ptNode));
 		case Parse::NonTerminalType::ArgumentList:

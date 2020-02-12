@@ -13,10 +13,6 @@ std::unique_ptr<ArrayCreationExpression> ArrayCreationExpression::create(const P
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
-	{
-		return ArrayCreationExpression::create(ptNode->children[0]);
-	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::ArrayCreationExpression:
 		return std::make_unique<ArrayCreationExpression>(static_cast<const Parse::TArrayCreationExpression*>(ptNode));
