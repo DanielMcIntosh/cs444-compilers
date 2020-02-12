@@ -245,23 +245,32 @@ void ptgenOutputHeaders(PTGen *ptgen) {
 
       { // Figure out all non terminal children as well as terminals that
         // need capturing, and emit fields for them.
-        unordered_set<string> capturingChildren;
+        unordered_map<string, int> captureOccr;
         for (const NonTerminalRule *rule: info.rules) {
+          unordered_map<string, int> ruleOccr;
           for (const string &rhs: rule->rhs) {
-            if (ptgen->nonTerminalMap.count(rhs)) {
-              // always emit field for non terminals
-              capturingChildren.insert(rhs);
-            }
+            if (!ptgen->nonTerminalMap.count(rhs))
+              continue;
+            ruleOccr[rhs]++;
+          }
+          for (const auto &[name, occr]: ruleOccr) {
+            captureOccr[name] = max(captureOccr[name], ruleOccr[name]);
           }
         }
-        maxChildren = max(capturingChildren.size(), maxChildren);
+        maxChildren = max(captureOccr.size(), maxChildren);
 
-        for (const string &child: capturingChildren) {
-          string memberName = child;
+        for (const auto &[name, times]: captureOccr) {
+          string memberName = name;
           // want lower case member name
           memberName[0] += 'a' - 'A';
-          strAppend(output,
-                    "  T%s* %s;\n", child.c_str(), memberName.c_str());
+          string timeStr;
+          for (int i = 0; i < times; ++i) {
+            if (i >= 1)
+              timeStr = to_string(i + 1);
+            strAppend(output,
+                      "  T%s* %s%s;\n", name.c_str(), memberName.c_str(),
+                      timeStr.c_str());            
+          }
         }
 
         // For Tree*Literals and Identifiers, emit additional fields for values they hold.
@@ -275,13 +284,19 @@ void ptgenOutputHeaders(PTGen *ptgen) {
         strAppend(output,
                   "  T%s(): Tree(NonTerminalType::%s), v(T%sV::Max)",
                   name.c_str(), name.c_str(), name.c_str());
-        if (!capturingChildren.empty()) {
+        if (!captureOccr.empty()) {
           // generate initializer list for members
-          for (const string &child : capturingChildren) {
-            string memberName = child;
+          for (const auto &[name, times] : captureOccr) {
+            string memberName = name;
             // want lower case member name
             memberName[0] += 'a' - 'A';
-            strAppend(output, ", %s(nullptr) ", memberName.c_str());
+            string timeStr;
+            for (int i = 0; i < times; ++i) {
+              if (i >= 1)
+                timeStr = to_string(i + 1);
+              strAppend(output,
+                        ", %s%s(nullptr)", memberName.c_str(), timeStr.c_str());
+            }            
           }
         }
         output->append("{\n\n  }\n");
@@ -329,7 +344,7 @@ void ptgenOutputHeaders(PTGen *ptgen) {
                 rule->serial.c_str(),
                 "vector<Tree *> *stack");
       size_t captureSize = rule->captureIndices.size();
-
+      unordered_map<string, int> captureOccr;
       if (rule->rhs.empty())
         goto FuncGenEnd;
 
@@ -357,15 +372,21 @@ void ptgenOutputHeaders(PTGen *ptgen) {
       // t->oneNt = *;
       strAppend(output, "  t->oneNt = %s;\n",
                 rule->singleNonTermChild ? "true" : "false");
+      
       for (size_t i = 0; i < captureSize; ++i) {
         int index = rule->captureIndices[i];
         string memberName = rule->rhs[index];
+        int numOccr = ++captureOccr[memberName];
+        string timeStr;
+        if (numOccr >= 2)
+          timeStr = to_string(numOccr);
         // want lower case member name
         memberName[0] += 'a' - 'A';
         // t->* = dynamic_cast<Tree* *>((*stack)[n - *]);
         strAppend(output,
-                  "  t->%s = dynamic_cast<T%s *>((*stack)[n - %ld]);\n",
-                  memberName.c_str(), rule->rhs[index].c_str(), captureSize - i);
+                  "  t->%s%s = dynamic_cast<T%s *>((*stack)[n - %ld]);\n",
+                  memberName.c_str(), timeStr.c_str(), rule->rhs[index].c_str(),
+                  captureSize - i);
         // assert(t->*);
         strAppend(output, "  assert(t->%s);\n", memberName.c_str());
       }

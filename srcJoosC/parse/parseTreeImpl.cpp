@@ -2050,7 +2050,7 @@ void ptIfThenElseStatementNoShortIf_IfLParExpressionRParStatementNoShortIfElseSt
   assert(t->expression);
   t->statementNoShortIf = dynamic_cast<TStatementNoShortIf *>((*stack)[n - 2]);
   assert(t->statementNoShortIf);
-  t->statementNoShortIf = dynamic_cast<TStatementNoShortIf *>((*stack)[n - 1]);
+  t->statementNoShortIf2 = dynamic_cast<TStatementNoShortIf *>((*stack)[n - 1]);
   assert(t->statementNoShortIf);
   stack->pop_back();
   stack->pop_back();
