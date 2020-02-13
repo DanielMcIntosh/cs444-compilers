@@ -31,17 +31,13 @@ std::unique_ptr<MethodDeclaration> MethodDeclaration::create(const Parse::Tree *
 }
 MethodDeclaration::MethodDeclaration(const Parse::TAbstractMethodDeclaration *ptNode)
   : MemberDeclaration(ptNode->methodHeader->modifiers, ptNode->methodHeader->methodDeclarator->identifier->value),
-    returnType(Type::create(ptNode->methodHeader->type->v == Parse::TTypeV::PrimitiveType
-                            ? static_cast<Parse::Tree *>(ptNode->methodHeader->type->primitiveType)
-                            : static_cast<Parse::Tree *>(ptNode->methodHeader->type->referenceType))),
+    returnType(Type::create(ptNode->methodHeader->type)),
     parameters(std::move(NodeList<VariableDeclaration>(ptNode->methodHeader->methodDeclarator->formalParameterList).list))
 {
 }
 MethodDeclaration::MethodDeclaration(const Parse::TMethodDeclaration *ptNode)
   : MemberDeclaration(ptNode->methodHeader->modifiers, ptNode->methodHeader->methodDeclarator->identifier->value),
-    returnType(Type::create(ptNode->methodHeader->type->v == Parse::TTypeV::PrimitiveType
-                            ? static_cast<Parse::Tree *>(ptNode->methodHeader->type->primitiveType)
-                            : static_cast<Parse::Tree *>(ptNode->methodHeader->type->referenceType))),
+    returnType(Type::create(ptNode->methodHeader->type)),
     parameters(std::move(NodeList<VariableDeclaration>(ptNode->methodHeader->methodDeclarator->formalParameterList).list)),
     body(Block::create(ptNode->methodBody->block))
 {
