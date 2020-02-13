@@ -99,7 +99,7 @@ ClassType: -Type(subclass of Node)
 InterfaceType: -Type(subclass of Node)
 	ClassOrInterfaceType
 
-ArrayType: +ArrayType(subclass of Type)(convert to bool in Type during a second pass?)
+ArrayType: Type(subclass of Node)
 	PrimitiveType </i>[<i> </i>]<i>
 	Name </i>[<i> </i>]<i>
 
@@ -117,11 +117,11 @@ CompilationUnit: CompilationUnit(subclass of Node)
 	ImportDeclarations TypeDeclaration
 	PackageDeclaration ImportDeclarations TypeDeclaration
 
-ImportDeclarations: .ImportDeclarations(vector in parent class)
+ImportDeclarations: .NodeList<ImportDeclaration>
 	ImportDeclaration
 	ImportDeclarations ImportDeclaration
 
-PackageDeclaration: +PackageDeclaration(subclass of Node)
+PackageDeclaration: .PackageDeclaration(subclass of Node)
 	</i>package<i> Name </i>;<i>
 
 ImportDeclaration: -ImportDeclaration(subclass of Node)
@@ -139,7 +139,7 @@ TypeDeclaration: TypeDeclaration(subclass of Node)
 	InterfaceDeclaration
 	</i>;<i>
 
-Modifiers: .Modifiers(subclass of Node)(vector in parent class)
+Modifiers: .NodeList<Modifier>
 	Modifier
 	Modifiers Modifier
 
@@ -157,7 +157,7 @@ ClassDeclaration: TypeDeclaration(subclass of Node)
 	Modifiers </i>class<i> Identifier </i>implements<i> InterfaceTypeList ClassBody
 	Modifiers </i>class<i> Identifier </i>extends<i> ClassType </i>implements<i> InterfaceTypeList ClassBody
 
-InterfaceTypeList: .InterfaceTypeList(vector of InterfaceType in parent class)
+InterfaceTypeList: .NodeList<Type>
 	InterfaceType
 	InterfaceTypeList </i>,<i> InterfaceType
 
@@ -165,7 +165,7 @@ ClassBody: .TypeBody(vector of MemberDeclaration in parent class)
 	</i>{<i> </i>}<i>
 	</i>{<i> ClassMemberDeclarations </i>}<i>
 
-ClassMemberDeclarations: .MemberDeclarations(vector of MemberDeclaration in parent class)
+ClassMemberDeclarations: .NodeList<MemberDeclaration>
 	ClassMemberDeclaration
 	ClassMemberDeclarations ClassMemberDeclaration
 
@@ -194,7 +194,7 @@ MethodDeclarator: .MethodDeclarator(subclass of Node)(members get moved into par
 	Identifier </i>(<i> </i>)<i>
 	Identifier </i>(<i> FormalParameterList </i>)<i>
 
-FormalParameterList: .FormalParameterList(vector of VariableDeclaration in parent class)
+FormalParameterList: .NodeList<VariableDeclaration>
 	FormalParameter
 	FormalParameterList </i>,<i> FormalParameter
 
@@ -221,7 +221,7 @@ InterfaceDeclaration: TypeDeclaration(subclass of Node)
 	</i>interface<i> Identifier ExtendsInterfaces InterfaceBody
 	Modifiers </i>interface<i> Identifier ExtendsInterfaces InterfaceBody
 
-ExtendsInterfaces: .ExtendsInterfaces(vector of InterfaceType in parent class)
+ExtendsInterfaces: .NodeList<Type>
 	</i>extends<i> InterfaceType
 	ExtendsInterfaces </i>,<i> InterfaceType
 
@@ -229,7 +229,7 @@ InterfaceBody: .TypeBody(vector of MemberDeclaration in parent class)
 	</i>{<i> </i>}<i>
 	</i>{<i> InterfaceMemberDeclarations </i>}<i>
 
-InterfaceMemberDeclarations: .InterfaceMemberDeclarations(vector of MemberDeclaration in parent class)
+InterfaceMemberDeclarations: .NodeList<MemberDeclaration>
 	InterfaceMemberDeclaration
 	InterfaceMemberDeclarations InterfaceMemberDeclaration
 
@@ -243,7 +243,7 @@ Block: Block(subclass of Statement)(can't always be flatened into parent because
 	</i>{<i> </i>}<i>
 	</i>{<i> BlockStatements </i>}<i>
 
-BlockStatements: .BlockStatements(vector of BlockStatement in parent class)
+BlockStatements: .NodeList<Statement>
 	BlockStatement
 	BlockStatements BlockStatement
 
@@ -329,7 +329,7 @@ Primary: -Expression(subclass of Node)
 PrimaryNoNewArray: -Expression(subclass of Node)
 	Literal
 	This
-	ParethesizedExpression
+	ParenthesizedExpression
 	ClassInstanceCreationExpression
 	FieldAccess
 	MethodInvocation
@@ -338,14 +338,14 @@ PrimaryNoNewArray: -Expression(subclass of Node)
 This: This(subclass of Expression)
 	</i>this<i>
 
-ParenthesizedExpression: .ParenthesizedExpression(subclass of Expression)(maybe move expression into parent?)
+ParenthesizedExpression: .Expression(subclass of Node)
 	</i>(<i> Expression </i>)<i>
 
 ClassInstanceCreationExpression: ClassInstanceCreationExpression(subclass of Expression)
 	</i>new<i> ClassType </i>(<i> </i>)<i>
 	</i>new<i> ClassType </i>(<i> ArgumentList </i>)<i>
 
-ArgumentList: .ArgumentList(replace with vector<Expression> in parent node)
+ArgumentList: .NodeList<Expression>
 	Expression
 	ArgumentList </i>,<i> Expression
 
