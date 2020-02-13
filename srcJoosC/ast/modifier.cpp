@@ -16,7 +16,7 @@ std::unique_ptr<Modifier> Modifier::create(const Parse::Tree *ptNode)
 	case Parse::NonTerminalType::Modifier:
 		return std::make_unique<Modifier>(static_cast<const Parse::TModifier*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for Modifier: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for Modifier: " + std::to_string((int)ptNode->type));
 	}
 }
 

@@ -16,7 +16,7 @@ std::unique_ptr<PrimitiveType> PrimitiveType::create(const Parse::Tree *ptNode)
 	case Parse::NonTerminalType::PrimitiveType:
 		return std::make_unique<PrimitiveType>(static_cast<const Parse::TPrimitiveType*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for PrimitiveType: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for PrimitiveType: " + std::to_string((int)ptNode->type));
 	}
 }
 

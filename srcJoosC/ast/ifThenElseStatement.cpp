@@ -19,7 +19,7 @@ std::unique_ptr<IfThenElseStatement> IfThenElseStatement::create(const Parse::Tr
 	case Parse::NonTerminalType::IfThenElseStatementNoShortIf:
 		return std::make_unique<IfThenElseStatement>(static_cast<const Parse::TIfThenElseStatementNoShortIf*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for IfThenElseStatement: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for IfThenElseStatement: " + std::to_string((int)ptNode->type));
 	}
 }
 IfThenElseStatement::IfThenElseStatement(const Parse::TIfThenElseStatement *ptNode)

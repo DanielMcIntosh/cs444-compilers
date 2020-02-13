@@ -30,7 +30,7 @@ std::unique_ptr<Type> Type::create(const Parse::Tree *ptNode)
 		case Parse::NonTerminalType::Name:
 			return std::make_unique<NameType>(std::move(*Name::create(ptNode)));
 		default:
-			throw std::runtime_error("inapropriate PT type for Type: " + std::to_string((int)ptNode->type));
+			throw std::runtime_error("inappropriate PT type for Type: " + std::to_string((int)ptNode->type));
 	}
 }
 

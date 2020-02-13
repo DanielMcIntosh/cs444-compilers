@@ -20,7 +20,7 @@ std::unique_ptr<ForStatement> ForStatement::create(const Parse::Tree *ptNode)
 	case Parse::NonTerminalType::ForStatementNoShortIf:
 		return std::make_unique<ForStatement>(static_cast<const Parse::TForStatementNoShortIf*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for ForStatement: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for ForStatement: " + std::to_string((int)ptNode->type));
 	}
 }
 ForStatement::ForStatement(const Parse::TForStatement *ptNode)

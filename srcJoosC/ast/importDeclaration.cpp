@@ -23,13 +23,16 @@ std::unique_ptr<ImportDeclaration> ImportDeclaration::create(const Parse::Tree *
 	case Parse::NonTerminalType::TypeImportOnDemandDeclaration:
 		return std::make_unique<ImportDeclaration>(static_cast<const Parse::TTypeImportOnDemandDeclaration*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for ImportDeclaration: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for ImportDeclaration: " + std::to_string((int)ptNode->type));
 	}
 }
-ImportDeclaration::ImportDeclaration(const Parse::TSingleTypeImportDeclaration *ptNode)
+// TODO I assume the meaning of multiImport is whether the import is name.* or not?
+ImportDeclaration::ImportDeclaration(const Parse::TSingleTypeImportDeclaration *ptNode):
+importName(Name::create(ptNode->name)), multiImport(false)
 {
 }
-ImportDeclaration::ImportDeclaration(const Parse::TTypeImportOnDemandDeclaration *ptNode)
+ImportDeclaration::ImportDeclaration(const Parse::TTypeImportOnDemandDeclaration *ptNode):
+importName(Name::create(ptNode->name)), multiImport(true)
 {
 }
 

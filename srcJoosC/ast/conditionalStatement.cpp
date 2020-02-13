@@ -21,7 +21,7 @@ std::unique_ptr<ConditionalStatement> ConditionalStatement::create(const Parse::
 	case Parse::NonTerminalType::WhileStatementNoShortIf:
 		return std::make_unique<ConditionalStatement>(static_cast<const Parse::TWhileStatementNoShortIf*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for ConditionalStatement: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for ConditionalStatement: " + std::to_string((int)ptNode->type));
 	}
 }
 ConditionalStatement::ConditionalStatement(const Parse::TIfThenStatement *ptNode)

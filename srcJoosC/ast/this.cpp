@@ -14,7 +14,7 @@ std::unique_ptr<This> This::create(const Parse::Tree *ptNode)
 	case Parse::NonTerminalType::This2:
 		return std::make_unique<This>(static_cast<const Parse::TThis2*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for This: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for This: " + std::to_string((int)ptNode->type));
 	}
 }
 // mostly a dummy class - the equivalent of the Literal class, but for a "this" expression

@@ -1,8 +1,11 @@
 #include "ast/methodHeader.h"
 #include "ast/node.h"
+#include "ast/nodeList.h"
 #include "ast/modifier.h"
+#include "ast/type.h"
 #include "ast/methodDeclarator.h"
 #include "parse/parseTree.h"
+
 #include <vector>
 #include <memory>
 
@@ -19,10 +22,13 @@ std::unique_ptr<MethodHeader> MethodHeader::create(const Parse::Tree *ptNode)
 	case Parse::NonTerminalType::MethodHeader:
 		return std::make_unique<MethodHeader>(static_cast<const Parse::TMethodHeader*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for MethodHeader: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for MethodHeader: " + std::to_string((int)ptNode->type));
 	}
 }
-MethodHeader::MethodHeader(const Parse::TMethodHeader *ptNode)
+MethodHeader::MethodHeader(const Parse::TMethodHeader *ptNode):
+modifiers(std::move(NodeList<Modifier>::create(ptNode->modifiers)->list)),
+returnType(Type::create(ptNode->type)),
+declarator(MethodDeclarator::create(ptNode->methodDeclarator))
 {
 }
 

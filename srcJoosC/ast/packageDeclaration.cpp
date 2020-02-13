@@ -21,10 +21,12 @@ std::unique_ptr<PackageDeclaration> PackageDeclaration::create(const Parse::Tree
 	case Parse::NonTerminalType::PackageDeclaration:
 		return std::make_unique<PackageDeclaration>(static_cast<const Parse::TPackageDeclaration*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for PackageDeclaration: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for PackageDeclaration: " + std::to_string((int)ptNode->type));
 	}
 }
-PackageDeclaration::PackageDeclaration(const Parse::TPackageDeclaration *ptNode)
+
+PackageDeclaration::PackageDeclaration(const Parse::TPackageDeclaration *ptNode):
+packageName(Name::create(ptNode->name))
 {
 }
 

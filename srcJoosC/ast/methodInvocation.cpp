@@ -19,7 +19,7 @@ std::unique_ptr<MethodInvocation> MethodInvocation::create(const Parse::Tree *pt
 	case Parse::NonTerminalType::MethodInvocation:
 		return std::make_unique<MethodInvocation>(static_cast<const Parse::TMethodInvocation*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for MethodInvocation: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for MethodInvocation: " + std::to_string((int)ptNode->type));
 	}
 }
 MethodInvocation::MethodInvocation(const Parse::TMethodInvocation *ptNode)

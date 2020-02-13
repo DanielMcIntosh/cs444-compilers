@@ -30,7 +30,7 @@ std::unique_ptr<TypeDeclaration> TypeDeclaration::create(const Parse::Tree *ptNo
 	case Parse::NonTerminalType::TypeDeclaration:
 		return std::make_unique<TypeDeclaration>(static_cast<const Parse::TTypeDeclaration*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for TypeDeclaration: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for TypeDeclaration: " + std::to_string((int)ptNode->type));
 	}
 }
 

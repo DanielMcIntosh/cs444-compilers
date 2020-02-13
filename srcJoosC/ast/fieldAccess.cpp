@@ -15,7 +15,7 @@ std::unique_ptr<FieldAccess> FieldAccess::create(const Parse::Tree *ptNode)
 	case Parse::NonTerminalType::FieldAccess:
 		return std::make_unique<FieldAccess>(static_cast<const Parse::TFieldAccess*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for FieldAccess: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for FieldAccess: " + std::to_string((int)ptNode->type));
 	}
 }
 FieldAccess::FieldAccess(const Parse::TFieldAccess *ptNode)

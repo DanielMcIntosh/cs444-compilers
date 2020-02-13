@@ -17,7 +17,7 @@ public:
 
 	std::vector<std::unique_ptr<Modifier>> modifiers;
 	std::unique_ptr<Type> returnType;
-	std::unique_ptr<MethodDeclarator> declerator;
+	std::unique_ptr<MethodDeclarator> declarator;
 
 	std::string toCode() override { return "[MethodHeader]"; }
 };

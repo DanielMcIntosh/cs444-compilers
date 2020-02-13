@@ -36,7 +36,7 @@ std::unique_ptr<BinaryExpression> BinaryExpression::create(const Parse::Tree *pt
 	case Parse::NonTerminalType::RelationalExpression:
 		return std::make_unique<BinaryExpression>(static_cast<const Parse::TRelationalExpression*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for BinaryExpression: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for BinaryExpression: " + std::to_string((int)ptNode->type));
 	}
 }
 

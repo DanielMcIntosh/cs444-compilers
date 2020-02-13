@@ -18,7 +18,7 @@ std::unique_ptr<Literal> Literal::create(const Parse::Tree *ptNode)
 	case Parse::NonTerminalType::Literal:
 		return std::make_unique<Literal>(static_cast<const Parse::TLiteral*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for Literal: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for Literal: " + std::to_string((int)ptNode->type));
 	}
 }
 Literal::Literal(const Parse::TLiteral *ptNode)

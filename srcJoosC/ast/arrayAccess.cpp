@@ -16,7 +16,7 @@ std::unique_ptr<ArrayAccess> ArrayAccess::create(const Parse::Tree *ptNode)
 	case Parse::NonTerminalType::ArrayAccess:
 		return std::make_unique<ArrayAccess>(static_cast<const Parse::TArrayAccess*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for ArrayAccess: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for ArrayAccess: " + std::to_string((int)ptNode->type));
 	}
 }
 ArrayAccess::ArrayAccess(const Parse::TArrayAccess *ptNode)

@@ -17,7 +17,7 @@ std::unique_ptr<TypeBody> TypeBody::create(const Parse::Tree *ptNode)
 	case Parse::NonTerminalType::InterfaceBody:
 		return std::make_unique<TypeBody>(static_cast<const Parse::TInterfaceBody*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for TypeBody: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for TypeBody: " + std::to_string((int)ptNode->type));
 	}
 }
 TypeBody::TypeBody(const Parse::TClassBody *ptNode)

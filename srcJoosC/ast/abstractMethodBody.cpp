@@ -15,7 +15,7 @@ std::unique_ptr<AbstractMethodBody> AbstractMethodBody::create(const Parse::Tree
 	case Parse::NonTerminalType::AbstractMethodBody:
 		return std::make_unique<AbstractMethodBody>(static_cast<const Parse::TAbstractMethodBody*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for AbstractMethodBody: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for AbstractMethodBody: " + std::to_string((int)ptNode->type));
 	}
 }
 // mostly a dummy class

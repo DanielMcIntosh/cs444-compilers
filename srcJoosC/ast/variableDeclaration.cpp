@@ -20,7 +20,7 @@ std::unique_ptr<VariableDeclaration> VariableDeclaration::create(const Parse::Tr
 	case Parse::NonTerminalType::LocalVariableDeclaration:
 		return std::make_unique<VariableDeclaration>(static_cast<const Parse::TLocalVariableDeclaration*>(ptNode));
 	default:
-		throw std::runtime_error("inapropriate PT type for VariableDeclaration: " + std::to_string((int)ptNode->type));
+		throw std::runtime_error("inappropriate PT type for VariableDeclaration: " + std::to_string((int)ptNode->type));
 	}
 }
 VariableDeclaration::VariableDeclaration(const Parse::TFormalParameter *ptNode)

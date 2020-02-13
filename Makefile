@@ -1,5 +1,14 @@
 # Common configurations
 
+NPROC := 4
+
+ifneq ($(OS),Windows_NT)
+UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S), Linux)
+		NPROC := $(shell grep -c ^processor /proc/cpuinfo)
+	endif
+endif
+
 CXXFLAGS_RELEASE := -O3 -flto -s 
 CXXFLAGS_DEBUG := -g
 
@@ -89,13 +98,13 @@ clean:
 	$(RM) ptgen
 
 a1:
-	$(MAKE) a1Direct -j4
+	$(MAKE) a1Direct -j$(NPROC)
 
 a1Direct: joosc_debug
 	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=1; ./joosc_debug
 
 a2:
-	$(MAKE) a2Direct -j4
+	$(MAKE) a2Direct -j$(NPROC)
 
 a2Direct: joosc_debug
 	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=2; ./joosc_debug
