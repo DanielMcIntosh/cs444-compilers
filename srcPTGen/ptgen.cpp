@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -45,8 +46,8 @@ struct NonTerminalInfo {
 const int MaxNumRule = 256;
 
 struct PTGen {
-  unordered_map<string, TerminalInfo> terminalMap;
-  unordered_map<string, NonTerminalInfo> nonTerminalMap;
+  map<string, TerminalInfo> terminalMap;
+  map<string, NonTerminalInfo> nonTerminalMap;
   array<NonTerminalRule *, MaxNumRule> ruleById;
   int numRules;
 

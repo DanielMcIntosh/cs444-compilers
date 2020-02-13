@@ -1,52 +1,43 @@
 #pragma once
 namespace Parse { 
 enum class TerminalType {
-  StringLiteral,            // StringLiteral 
-  CharacterLiteral,         // CharacterLiteral 
-  Or,                       // | 
-  LCBr,                     // { 
-  IntegerLiteral,           // IntegerLiteral 
-  While,                    // while 
-  This2,                    // this 
-  LSBr,                     // [ 
-  Minus,                    // - 
-  byte,                     // byte 
-  Eq,                       // = 
-  Short,                    // short 
-  SCol,                     // ; 
-  interface,                // interface 
-  New,                      // new 
-  RPar,                     // ) 
-  RSBr,                     // ] 
-  BangEq,                   // != 
-  Amp,                      // & 
-  BooleanLiteral,           // BooleanLiteral 
-  Void,                     // void 
   Bang,                     // ! 
-  BOF,                      // BOF 
-  Gr,                       // > 
-  OrOr,                     // || 
-  abstract,                 // abstract 
+  BangEq,                   // != 
+  Perc,                     // % 
+  Amp,                      // & 
+  AmpAmp,                   // && 
+  LPar,                     // ( 
+  RPar,                     // ) 
   Star,                     // * 
+  Plus,                     // + 
+  Com,                      // , 
+  Minus,                    // - 
   Dot,                      // . 
+  RSlash,                   // / 
+  SCol,                     // ; 
+  Le,                       // < 
+  LeEq,                     // <= 
+  Eq,                       // = 
+  EqEq,                     // == 
+  Gr,                       // > 
+  GrEq,                     // >= 
+  BOF,                      // BOF 
+  BooleanLiteral,           // BooleanLiteral 
+  CharacterLiteral,         // CharacterLiteral 
   Eof,                      // EOF 
   Identifier,               // Identifier 
-  Perc,                     // % 
-  Com,                      // , 
-  EqEq,                     // == 
-  Plus,                     // + 
-  GrEq,                     // >= 
-  AmpAmp,                   // && 
-  LeEq,                     // <= 
-  boolean,                  // boolean 
-  Char,                     // char 
-  Static,                   // static 
-  Class,                    // class 
+  IntegerLiteral,           // IntegerLiteral 
   NullLiteral,              // NullLiteral 
+  StringLiteral,            // StringLiteral 
+  LSBr,                     // [ 
+  RSBr,                     // ] 
+  abstract,                 // abstract 
+  boolean,                  // boolean 
+  byte,                     // byte 
+  Char,                     // char 
+  Class,                    // class 
   Else,                     // else 
   extends,                  // extends 
-  LPar,                     // ( 
-  Le,                       // < 
   final,                    // final 
   For,                      // for 
   If,                       // if 
@@ -54,203 +45,212 @@ enum class TerminalType {
   import,                   // import 
   instanceof,               // instanceof 
   Int,                      // int 
+  interface,                // interface 
   native,                   // native 
+  New,                      // new 
   package,                  // package 
-  RSlash,                   // / 
   Protected,                // protected 
-  RCBr,                     // } 
   Public,                   // public 
   Return,                   // return 
+  Short,                    // short 
+  Static,                   // static 
+  This2,                    // this 
+  Void,                     // void 
+  While,                    // while 
+  LCBr,                     // { 
+  Or,                       // | 
+  OrOr,                     // || 
+  RCBr,                     // } 
   Max,
 };
 
 enum class NonTerminalType {
-  LeftHandSide, 
-  AssignmentExpression, 
-  ConditionalAndExpression, 
-  AndExpression, 
-  EqualityExpression, 
-  MultiplicativeExpression, 
-  CastExpression, 
-  MethodInvocation, 
-  ConditionalOrExpression, 
-  FieldAccess, 
-  ParenthesizedExpression, 
+  AbstractMethodBody, 
+  AbstractMethodDeclaration, 
   AdditiveExpression, 
-  ReturnStatement, 
-  ForUpdate, 
+  AndExpression, 
+  ArgumentList, 
+  ArrayAccess, 
+  ArrayCreationExpression, 
+  ArrayType, 
+  Assignment, 
+  AssignmentExpression, 
+  Block, 
+  BlockStatement, 
+  BlockStatements, 
+  BooleanLiteral, 
+  CastExpression, 
+  CharacterLiteral, 
+  ClassBody, 
+  ClassDeclaration, 
+  ClassInstanceCreationExpression, 
+  ClassMemberDeclaration, 
+  ClassMemberDeclarations, 
+  ClassOrInterfaceType, 
+  ClassType, 
+  CompilationUnit, 
+  ConditionalAndExpression, 
+  ConditionalOrExpression, 
+  ConstructorDeclaration, 
+  ConstructorDeclarator, 
+  EqualityExpression, 
+  Expression, 
+  ExpressionStatement, 
+  ExtendsInterfaces, 
+  FieldAccess, 
+  FieldDeclaration, 
   ForInit, 
   ForStatement, 
-  Primary, 
-  WhileStatement, 
-  IfThenElseStatement, 
-  ArgumentList, 
-  IfThenStatement, 
-  StatementNoShortIf, 
-  Statement, 
-  Expression, 
-  LocalVariableDeclarationStatement, 
-  BlockStatements, 
-  Block, 
-  SingleTypeImportDeclaration, 
-  ImportDeclaration, 
-  ClassMemberDeclaration, 
-  IntegerLiteral, 
-  ArrayType, 
-  RelationalExpression, 
-  ClassType, 
-  LocalVariableDeclaration, 
-  NullLiteral, 
-  ExpressionStatement, 
-  ClassOrInterfaceType, 
-  ArrayCreationExpression, 
-  Name, 
-  ClassBody, 
-  InterfaceType, 
-  CompilationUnit, 
   ForStatementNoShortIf, 
-  CharacterLiteral, 
-  ExtendsInterfaces, 
-  Goal, 
-  StatementExpression, 
-  ImportDeclarations, 
-  ReferenceType, 
-  TypeDeclaration, 
-  InclusiveOrExpression, 
-  StatementWithoutTrailingSubstatement, 
-  Identifier, 
-  UnaryExpression, 
-  StringLiteral, 
-  PrimitiveType, 
-  MethodHeader, 
-  Modifiers, 
-  BooleanLiteral, 
-  PackageDeclaration, 
-  MethodDeclaration, 
-  Literal, 
-  UnaryExpressionNotPlusMinus, 
-  Type, 
-  ConstructorDeclaration, 
-  Modifier, 
-  ClassInstanceCreationExpression, 
-  ClassDeclaration, 
-  This2, 
-  InterfaceTypeList, 
-  ClassMemberDeclarations, 
+  ForUpdate, 
   FormalParameter, 
-  Assignment, 
-  TypeImportOnDemandDeclaration, 
-  VariableDeclarator, 
-  InterfaceMemberDeclaration, 
-  MethodDeclarator, 
   FormalParameterList, 
+  Goal, 
+  Identifier, 
+  IfThenElseStatement, 
   IfThenElseStatementNoShortIf, 
-  MethodBody, 
-  FieldDeclaration, 
-  AbstractMethodBody, 
-  PrimaryNoNewArray, 
+  IfThenStatement, 
+  ImportDeclaration, 
+  ImportDeclarations, 
+  InclusiveOrExpression, 
+  IntegerLiteral, 
   InterfaceBody, 
-  ConstructorDeclarator, 
-  ArrayAccess, 
   InterfaceDeclaration, 
-  WhileStatementNoShortIf, 
-  BlockStatement, 
+  InterfaceMemberDeclaration, 
   InterfaceMemberDeclarations, 
-  AbstractMethodDeclaration, 
+  InterfaceType, 
+  InterfaceTypeList, 
+  LeftHandSide, 
+  Literal, 
+  LocalVariableDeclaration, 
+  LocalVariableDeclarationStatement, 
+  MethodBody, 
+  MethodDeclaration, 
+  MethodDeclarator, 
+  MethodHeader, 
+  MethodInvocation, 
+  Modifier, 
+  Modifiers, 
+  MultiplicativeExpression, 
+  Name, 
+  NullLiteral, 
+  PackageDeclaration, 
+  ParenthesizedExpression, 
+  Primary, 
+  PrimaryNoNewArray, 
+  PrimitiveType, 
+  ReferenceType, 
+  RelationalExpression, 
+  ReturnStatement, 
+  SingleTypeImportDeclaration, 
+  Statement, 
+  StatementExpression, 
+  StatementNoShortIf, 
+  StatementWithoutTrailingSubstatement, 
+  StringLiteral, 
+  This2, 
+  Type, 
+  TypeDeclaration, 
+  TypeImportOnDemandDeclaration, 
+  UnaryExpression, 
+  UnaryExpressionNotPlusMinus, 
+  VariableDeclarator, 
+  WhileStatement, 
+  WhileStatementNoShortIf, 
   Max,
 };
 
-struct TLeftHandSide;
-struct TAssignmentExpression;
-struct TConditionalAndExpression;
-struct TAndExpression;
-struct TEqualityExpression;
-struct TMultiplicativeExpression;
-struct TCastExpression;
-struct TMethodInvocation;
-struct TConditionalOrExpression;
-struct TFieldAccess;
-struct TParenthesizedExpression;
+struct TAbstractMethodBody;
+struct TAbstractMethodDeclaration;
 struct TAdditiveExpression;
-struct TReturnStatement;
-struct TForUpdate;
+struct TAndExpression;
+struct TArgumentList;
+struct TArrayAccess;
+struct TArrayCreationExpression;
+struct TArrayType;
+struct TAssignment;
+struct TAssignmentExpression;
+struct TBlock;
+struct TBlockStatement;
+struct TBlockStatements;
+struct TBooleanLiteral;
+struct TCastExpression;
+struct TCharacterLiteral;
+struct TClassBody;
+struct TClassDeclaration;
+struct TClassInstanceCreationExpression;
+struct TClassMemberDeclaration;
+struct TClassMemberDeclarations;
+struct TClassOrInterfaceType;
+struct TClassType;
+struct TCompilationUnit;
+struct TConditionalAndExpression;
+struct TConditionalOrExpression;
+struct TConstructorDeclaration;
+struct TConstructorDeclarator;
+struct TEqualityExpression;
+struct TExpression;
+struct TExpressionStatement;
+struct TExtendsInterfaces;
+struct TFieldAccess;
+struct TFieldDeclaration;
 struct TForInit;
 struct TForStatement;
-struct TPrimary;
-struct TWhileStatement;
-struct TIfThenElseStatement;
-struct TArgumentList;
-struct TIfThenStatement;
-struct TStatementNoShortIf;
-struct TStatement;
-struct TExpression;
-struct TLocalVariableDeclarationStatement;
-struct TBlockStatements;
-struct TBlock;
-struct TSingleTypeImportDeclaration;
-struct TImportDeclaration;
-struct TClassMemberDeclaration;
-struct TIntegerLiteral;
-struct TArrayType;
-struct TRelationalExpression;
-struct TClassType;
-struct TLocalVariableDeclaration;
-struct TNullLiteral;
-struct TExpressionStatement;
-struct TClassOrInterfaceType;
-struct TArrayCreationExpression;
-struct TName;
-struct TClassBody;
-struct TInterfaceType;
-struct TCompilationUnit;
 struct TForStatementNoShortIf;
-struct TCharacterLiteral;
-struct TExtendsInterfaces;
-struct TGoal;
-struct TStatementExpression;
-struct TImportDeclarations;
-struct TReferenceType;
-struct TTypeDeclaration;
-struct TInclusiveOrExpression;
-struct TStatementWithoutTrailingSubstatement;
-struct TIdentifier;
-struct TUnaryExpression;
-struct TStringLiteral;
-struct TPrimitiveType;
-struct TMethodHeader;
-struct TModifiers;
-struct TBooleanLiteral;
-struct TPackageDeclaration;
-struct TMethodDeclaration;
-struct TLiteral;
-struct TUnaryExpressionNotPlusMinus;
-struct TType;
-struct TConstructorDeclaration;
-struct TModifier;
-struct TClassInstanceCreationExpression;
-struct TClassDeclaration;
-struct TThis2;
-struct TInterfaceTypeList;
-struct TClassMemberDeclarations;
+struct TForUpdate;
 struct TFormalParameter;
-struct TAssignment;
-struct TTypeImportOnDemandDeclaration;
-struct TVariableDeclarator;
-struct TInterfaceMemberDeclaration;
-struct TMethodDeclarator;
 struct TFormalParameterList;
+struct TGoal;
+struct TIdentifier;
+struct TIfThenElseStatement;
 struct TIfThenElseStatementNoShortIf;
-struct TMethodBody;
-struct TFieldDeclaration;
-struct TAbstractMethodBody;
-struct TPrimaryNoNewArray;
+struct TIfThenStatement;
+struct TImportDeclaration;
+struct TImportDeclarations;
+struct TInclusiveOrExpression;
+struct TIntegerLiteral;
 struct TInterfaceBody;
-struct TConstructorDeclarator;
-struct TArrayAccess;
 struct TInterfaceDeclaration;
-struct TWhileStatementNoShortIf;
-struct TBlockStatement;
+struct TInterfaceMemberDeclaration;
 struct TInterfaceMemberDeclarations;
-struct TAbstractMethodDeclaration;
+struct TInterfaceType;
+struct TInterfaceTypeList;
+struct TLeftHandSide;
+struct TLiteral;
+struct TLocalVariableDeclaration;
+struct TLocalVariableDeclarationStatement;
+struct TMethodBody;
+struct TMethodDeclaration;
+struct TMethodDeclarator;
+struct TMethodHeader;
+struct TMethodInvocation;
+struct TModifier;
+struct TModifiers;
+struct TMultiplicativeExpression;
+struct TName;
+struct TNullLiteral;
+struct TPackageDeclaration;
+struct TParenthesizedExpression;
+struct TPrimary;
+struct TPrimaryNoNewArray;
+struct TPrimitiveType;
+struct TReferenceType;
+struct TRelationalExpression;
+struct TReturnStatement;
+struct TSingleTypeImportDeclaration;
+struct TStatement;
+struct TStatementExpression;
+struct TStatementNoShortIf;
+struct TStatementWithoutTrailingSubstatement;
+struct TStringLiteral;
+struct TThis2;
+struct TType;
+struct TTypeDeclaration;
+struct TTypeImportOnDemandDeclaration;
+struct TUnaryExpression;
+struct TUnaryExpressionNotPlusMinus;
+struct TVariableDeclarator;
+struct TWhileStatement;
+struct TWhileStatementNoShortIf;
 
 } // namespace Parse 
