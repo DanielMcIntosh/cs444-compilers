@@ -24,10 +24,24 @@ std::unique_ptr<VariableDeclaration> VariableDeclaration::create(const Parse::Tr
 	}
 }
 VariableDeclaration::VariableDeclaration(const Parse::TFormalParameter *ptNode)
+	: type(Type::create(ptNode->type)),
+	identifier(ptNode->identifier->value)
 {
+
 }
 VariableDeclaration::VariableDeclaration(const Parse::TLocalVariableDeclaration *ptNode)
+	: type(Type::create(ptNode->type)),
+	identifier(ptNode->variableDeclarator->identifier->value),
+    initializer(Expression::create(ptNode->variableDeclarator->expression))
 {
+}
+
+std::string VariableDeclaration::toCode() {
+    if (initializer) {
+        return type->toCode() + " " + identifier + " = " + initializer->toCode();
+    } else {
+        return type->toCode() + " " + identifier;
+    }
 }
 
 } //namespace AST

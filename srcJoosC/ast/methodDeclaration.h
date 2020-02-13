@@ -21,7 +21,7 @@ public:
 	// nullable
 	std::unique_ptr<Block> body;
 
-	std::string toCode() override { return "[MethodDeclaration]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST

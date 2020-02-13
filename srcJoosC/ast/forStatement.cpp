@@ -24,30 +24,23 @@ std::unique_ptr<ForStatement> ForStatement::create(const Parse::Tree *ptNode)
 	}
 }
 ForStatement::ForStatement(const Parse::TForStatement *ptNode)
-  : ConditionalStatement(ConditionalStatement::ConditionType::For)
+  : ConditionalStatement(ConditionalStatement::ConditionType::For),
+    init(Statement::create(ptNode->forInit->v == Parse::TForInitV::ExpressionStatement
+                           ? static_cast<Parse::Tree *>(ptNode->forInit->expressionStatement)
+                           : static_cast<Parse::Tree *>(ptNode->forInit->localVariableDeclarationStatement))),
+    increment(Statement::create(ptNode->forInit->localVariableDeclarationStatement))
 {
-	/*
-	if (!Parser::isTerminal(children[cur].sym))
-	{
-		init = std::dynamic_pointer_cast<Expression>(children[cur++].astNode);
-	}
-	++cur; // semicolon
-	if (!Parser::isTerminal(children[cur].sym))
-	{
-		condition = std::dynamic_pointer_cast<Expression>(children[cur++].astNode);
-	}
-	++cur; // semicolon
-	if (!Parser::isTerminal(children[cur].sym))
-	{
-		increment = std::dynamic_pointer_cast<Expression>(children[cur++].astNode);
-	}
-	++cur; //close paren
-	body = std::dynamic_pointer_cast<Statement>(children[cur++].astNode);
-	*/
 }
 ForStatement::ForStatement(const Parse::TForStatementNoShortIf *ptNode)
-  : ConditionalStatement(ConditionalStatement::ConditionType::For)
+  : ConditionalStatement(ConditionalStatement::ConditionType::For),
+    init(Statement::create(ptNode->forInit->v == Parse::TForInitV::ExpressionStatement
+    ? static_cast<Parse::Tree *>(ptNode->forInit->expressionStatement)
+    : static_cast<Parse::Tree *>(ptNode->forInit->localVariableDeclarationStatement))),
+    increment(Statement::create(ptNode->forInit->localVariableDeclarationStatement))
 {
+}
+std::string ForStatement::toCode() {
+    return "for (" + init->toCode() + " " + condition->toCode() + "; " + increment->toCode() + ") " + body->toCode();
 }
 
 } //namespace AST

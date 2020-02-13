@@ -20,7 +20,13 @@ std::unique_ptr<ArrayAccess> ArrayAccess::create(const Parse::Tree *ptNode)
 	}
 }
 ArrayAccess::ArrayAccess(const Parse::TArrayAccess *ptNode)
+    : array(Expression::create(ptNode->expression)),
+    index(Expression::create(ptNode->expression))
 {
+}
+
+std::string ArrayAccess::toCode() {
+    return array->toCode() + "[" + index->toCode() + "]";
 }
 
 } //namespace AST

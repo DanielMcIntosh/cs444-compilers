@@ -20,7 +20,7 @@ public:
 	// nullable
 	std::unique_ptr<Expression> initializer;
 
-	std::string toCode() override { return "[VariableDeclaration]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST

@@ -14,10 +14,10 @@ public:
 	ForStatement(const Parse::TForStatementNoShortIf *ptNode);
 	ForStatement(const Parse::TForStatement *ptNode);
 
-	std::unique_ptr<Expression> init;
-	std::unique_ptr<Expression> increment;
+	std::unique_ptr<Statement> init;
+	std::unique_ptr<Statement> increment;
 
-	std::string toCode() override { return "[ForStatement]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST

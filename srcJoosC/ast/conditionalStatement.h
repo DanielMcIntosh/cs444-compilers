@@ -27,10 +27,10 @@ public:
 	// nullable (empty for-loop condition)
 	std::unique_ptr<Expression> condition;
 	std::unique_ptr<Statement> body;
-protected:
-	ConditionalStatement(ConditionType cond);
 
 	std::string toCode() override { return "[ConditionalStatement]"; }
+protected:
+	ConditionalStatement(ConditionType cond);
 };
 
 } //namespace AST
