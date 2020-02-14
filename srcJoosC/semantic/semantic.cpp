@@ -7,12 +7,12 @@
 namespace Semantic {
 
 const char *gSemanticErrorTypeName[] = {
-				"None",
-				"SingleImportAmbiguous",
-				"MultiImportAmbiguous",
-				"NotFoundImport",
-				"MultipleDefinitionOfClassInterface",
-				"CycleInHierarchy",
+	"None",
+	"SingleImportAmbiguous",
+	"MultiImportAmbiguous",
+	"NotFoundImport",
+	"MultipleDefinitionOfClassInterface",
+	"CycleInHierarchy",
 };
 
 static_assert(static_cast<int>(SemanticErrorType::Max) == ARRAY_SIZE(gSemanticErrorTypeName));
@@ -101,7 +101,13 @@ enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const Com
 	}
 
 	// simple name
-	// 1. enclosing class/interface not possible
+	// 1. enclosing class/interface
+	{
+		if (namedType->id == source->name) {
+			setupTypeDependency(namedType, source->fqn, source, source);
+			return SemanticErrorType::None;
+		}
+	}
 	//
 	// 2. single import
 	{
@@ -118,7 +124,7 @@ enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const Com
 			if (it == db->typeMap.end())
 				continue;
 
-			if (found) // TODO: error
+			if (found)
 				return SemanticErrorType::SingleImportAmbiguous;
 
 			setupTypeDependency(namedType, fullImp, it->second, source);
@@ -151,7 +157,7 @@ enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const Com
 			if (it == db->typeMap.end())
 				continue;
 
-			if (found) // TODO: error
+			if (found)
 				return SemanticErrorType::MultiImportAmbiguous;
 
 			setupTypeDependency(namedType, fullImp, it->second, source);
@@ -175,7 +181,7 @@ void semanticDo(SemanticDB *sdb) {
 			continue;
 
 		auto it = sdb->typeMap.find(cpu->typeDeclaration->fqn);
-		if (it != sdb->typeMap.end()) { // TODO: error
+		if (it != sdb->typeMap.end()) {
 			sdb->error = SemanticErrorType::MultipleDefinitionOfClassInterface;
 			return;
 		}
@@ -227,6 +233,7 @@ void semanticDo(SemanticDB *sdb) {
 			return;
 		}
 
+		// Implements formal hierarchy checking algorithm.
 		for (auto *type : allTypes) {
 
 		}

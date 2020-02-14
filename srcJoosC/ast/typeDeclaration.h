@@ -37,7 +37,30 @@ public:
 	// Fully qualified name (with package string)
 	std::string fqn;
 
+	// Used in topological sort of class hierarchy.
 	std::vector<TypeDeclaration *> children;
+
+	//
+	// Implements formal hierarchy checking
+	// Exact container types may be changed to facilitate easier access
+	// or iteration
+	//
+
+	// Super.
+	// Need to contain all top level parents
+	std::vector<TypeDeclaration *> superSet;
+
+	// Declare.
+	// Should be a copy of "members" field above. Exists to make things clear.
+	std::vector<MemberDeclaration *> declareSet;
+
+	// Inherit.
+	// Should copy from all parents.
+	std::vector<MemberDeclaration *> inheritSet;
+
+	// Contain.
+	// Should be a concatination of declareSet and inheritSet above.
+	std::vector<MemberDeclaration *> containSet;
 };
 
 } //namespace AST
