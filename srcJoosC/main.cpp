@@ -225,13 +225,7 @@ void batchTesting(JoosC *joosc, const string &baseDir,
       }
     }
 
-    // notes regarding some tests:
-    // 203, 204: The reported error is NotFoundImport. Although the test mentioned
-    // that an interface must not be mentioned more than once in the same
-	  // implements clause of a class, Runnable is actually in java.lang,
-	  // and importing java.io.* don't enable Runnable
-
-	  if (numTests == 215) {
+	  if (numTests == 225) {
 		  int dummp = 1234; // for breakpointing
 	  }
 

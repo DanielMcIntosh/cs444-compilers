@@ -13,6 +13,7 @@ public:
 	static std::unique_ptr<ImportDeclaration> create(const Parse::Tree *ptNode);
 	ImportDeclaration(const Parse::TSingleTypeImportDeclaration *ptNode);
 	ImportDeclaration(const Parse::TTypeImportOnDemandDeclaration *ptNode);
+	ImportDeclaration() = default;
 
 	std::unique_ptr<Name> importName;
 	bool multiImport;

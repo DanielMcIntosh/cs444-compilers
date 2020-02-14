@@ -7,12 +7,19 @@
 namespace AST
 {
 
+bool isBypassingOneNT(Parse::NonTerminalType type) {
+	if (type == Parse::NonTerminalType::CompilationUnit)
+		return true;
+	return false;
+}
+
 std::unique_ptr<Node> Node::create(const Parse::Tree *ptNode)
 {
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if ((ptNode->oneNt && !isListType(ptNode)) || ptNode->type == Parse::NonTerminalType::ParenthesizedExpression)
+	if (!isBypassingOneNT(ptNode->type) &&
+	((ptNode->oneNt && !isListType(ptNode)) || ptNode->type == Parse::NonTerminalType::ParenthesizedExpression))
 	{
 		return Node::create(ptNode->children[0]);
 	}

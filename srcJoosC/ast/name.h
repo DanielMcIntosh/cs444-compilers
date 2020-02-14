@@ -14,6 +14,7 @@ class Name: public Node
 public:
 	static std::unique_ptr<Name> create(const Parse::Tree *ptNode);
 	Name(const Parse::TName *ptNode);
+	Name() = default;
 
 	std::vector<std::string> prefix;
 	std::string id;

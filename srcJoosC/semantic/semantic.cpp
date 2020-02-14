@@ -18,24 +18,21 @@ const char *gSemanticErrorTypeName[] = {
 static_assert(static_cast<int>(SemanticErrorType::Max) == ARRAY_SIZE(gSemanticErrorTypeName));
 
 void semanticInit(SemanticDB *db, const vector<FrontendResult> &frontendResult) {
-  for (auto &result: frontendResult) {
-    auto *cpu = dynamic_cast<CompilationUnit *>(result.astResult.ast.get());
-    if (!cpu) // TODO: error
-      continue;
-
-    ASSERT(cpu);
-    db->cpus.push_back(cpu);
-  }
+	for (auto &result: frontendResult) {
+		auto *cpu = dynamic_cast<CompilationUnit *>(result.astResult.ast.get());
+		ASSERT(cpu);
+		db->cpus.push_back(cpu);
+	}
 }
 
 string flatten(const vector<string> &list, const string &str) {
-  string res;
-  for (const auto &s : list) {
-    res.append(s);
-    res.append(".");
-  }
-  res.append(str);
-  return res;
+	string res;
+	for (const auto &s : list) {
+		res.append(s);
+		res.append(".");
+	}
+	res.append(str);
+	return res;
 }
 
 struct DagSortContext {
@@ -82,6 +79,13 @@ bool dagSort(vector<TypeDeclaration *> *allTypes) {
 	return true;
 }
 
+void setupTypeDependency(NameType *target, const string &fqn, TypeDeclaration *decl,
+                         TypeDeclaration *source) {
+	target->fqn = fqn;
+	target->decl = decl;
+	decl->children.push_back(source);
+}
+
 enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const CompilationUnit *cpu,
                                            TypeDeclaration *source) {
 	auto *namedType = dynamic_cast<NameType *>(type);
@@ -92,9 +96,7 @@ enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const Com
 		if (it == db->typeMap.end())
 			return SemanticErrorType::NotFoundImport;
 
-		namedType->fqn = fqn;
-		namedType->decl = it->second;
-		it->second->children.push_back(source);
+		setupTypeDependency(namedType, fqn, it->second, source);
 		return SemanticErrorType::None;
 	}
 
@@ -119,9 +121,7 @@ enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const Com
 			if (found) // TODO: error
 				return SemanticErrorType::SingleImportAmbiguous;
 
-			namedType->fqn = fullImp;
-			namedType->decl = it->second;
-			it->second->children.push_back(source);
+			setupTypeDependency(namedType, fullImp, it->second, source);
 			found = true;
 		}
 
@@ -134,9 +134,7 @@ enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const Com
 		string fullImp = cpu->packageName + string(".") + namedType->id;
 		auto it = db->typeMap.find(fullImp);
 		if (it != db->typeMap.end()) {
-			namedType->fqn = fullImp;
-			namedType->decl = it->second;
-			it->second->children.push_back(source);
+			setupTypeDependency(namedType, fullImp, it->second, source);
 			return SemanticErrorType::None;
 		}
 	}
@@ -156,9 +154,7 @@ enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const Com
 			if (found) // TODO: error
 				return SemanticErrorType::MultiImportAmbiguous;
 
-			namedType->fqn = fullImp;
-			namedType->decl = it->second;
-			it->second->children.push_back(source);
+			setupTypeDependency(namedType, fullImp, it->second, source);
 			found = true;
 		}
 
@@ -170,44 +166,54 @@ enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const Com
 }
 
 void semanticDo(SemanticDB *sdb) {
-  for (auto *cpu: sdb->cpus) {
-	  cpu->resolveEnclosingPackageAndApplyToTypeDecl();
-  }
+	for (auto *cpu: sdb->cpus) {
+		cpu->resolveEnclosingPackageAndApplyToTypeDecl();
+	}
 
-  for (auto *cpu : sdb->cpus) {
-    if (!cpu->typeDeclaration)
-      continue;
+	for (auto *cpu : sdb->cpus) {
+		if (!cpu->typeDeclaration)
+			continue;
 
-    auto it = sdb->typeMap.find(cpu->typeDeclaration->fqn);
-    if (it != sdb->typeMap.end()) { // TODO: error
-	    sdb->error = SemanticErrorType::MultipleDefinitionOfClassInterface;
-	    return;
-    }
+		auto it = sdb->typeMap.find(cpu->typeDeclaration->fqn);
+		if (it != sdb->typeMap.end()) { // TODO: error
+			sdb->error = SemanticErrorType::MultipleDefinitionOfClassInterface;
+			return;
+		}
 
-    sdb->typeMap[cpu->typeDeclaration->fqn] = cpu->typeDeclaration.get();
-  }
+		sdb->typeMap[cpu->typeDeclaration->fqn] = cpu->typeDeclaration.get();
+	}
 
-  for (auto *cpu : sdb->cpus) {
-    if (!cpu->typeDeclaration)
-      continue;
+	for (auto *cpu : sdb->cpus) {
+		if (!cpu->typeDeclaration)
+			continue;
 
-    TypeDeclaration *type = cpu->typeDeclaration.get();
-    if (type->superClass) {
-      SemanticErrorType error = semanticResolveType(sdb, type->superClass.get(), cpu, type);
-      if (error != SemanticErrorType::None) {
-      	sdb->error = error;
-      	return;
-      }
-    }
+		{ // inject java.lang.* multiimport
+			auto imp = make_unique<ImportDeclaration>();
+			auto name = make_unique<Name>();
+			name->prefix.push_back("java");
+			name->id = "lang";
+			imp->multiImport = true;
+			imp->importName = move(name);
+			cpu->imports.push_back(move(imp));
+		}
 
-    for (auto &itf : type->interfaces) {
-	    SemanticErrorType error = semanticResolveType(sdb, itf.get(), cpu, type);
-	    if (error != SemanticErrorType::None) {
-		    sdb->error = error;
-		    return;
-	    }
-    }
-  }
+		TypeDeclaration *type = cpu->typeDeclaration.get();
+		if (type->superClass) {
+			SemanticErrorType error = semanticResolveType(sdb, type->superClass.get(), cpu, type);
+			if (error != SemanticErrorType::None) {
+				sdb->error = error;
+				return;
+			}
+		}
+
+		for (auto &itf : type->interfaces) {
+			SemanticErrorType error = semanticResolveType(sdb, itf.get(), cpu, type);
+			if (error != SemanticErrorType::None) {
+				sdb->error = error;
+				return;
+			}
+		}
+	}
 
 
 	{
