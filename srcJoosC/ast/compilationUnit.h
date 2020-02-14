@@ -14,7 +14,7 @@ class CompilationUnit: public Node
 {
 public:
 	static std::unique_ptr<CompilationUnit> create(const Parse::Tree *ptNode);
-	CompilationUnit(const Parse::TCompilationUnit *ptNode);
+	explicit CompilationUnit(const Parse::TCompilationUnit *ptNode);
 
 	// nullable
 	std::unique_ptr<Name> package;

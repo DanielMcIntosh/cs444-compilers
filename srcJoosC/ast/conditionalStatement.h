@@ -13,9 +13,9 @@ class ConditionalStatement: public Statement
 {
 public:
 	static std::unique_ptr<ConditionalStatement> create(const Parse::Tree *ptNode);
-	ConditionalStatement(const Parse::TIfThenStatement *ptNode);
-	ConditionalStatement(const Parse::TWhileStatement *ptNode);
-	ConditionalStatement(const Parse::TWhileStatementNoShortIf *ptNode);
+	explicit ConditionalStatement(const Parse::TIfThenStatement *ptNode);
+	explicit ConditionalStatement(const Parse::TWhileStatement *ptNode);
+	explicit ConditionalStatement(const Parse::TWhileStatementNoShortIf *ptNode);
 
 	enum class ConditionType {
 		If,

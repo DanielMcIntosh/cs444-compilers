@@ -18,9 +18,9 @@ class TypeDeclaration: public Node
 {
 public:
 	static std::unique_ptr<TypeDeclaration> create(const Parse::Tree *ptNode);
-	TypeDeclaration(const Parse::TTypeDeclaration *ptNode);
-	TypeDeclaration(const Parse::TClassDeclaration *ptNode);
-	TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode);
+	explicit TypeDeclaration(const Parse::TTypeDeclaration *ptNode);
+	explicit TypeDeclaration(const Parse::TClassDeclaration *ptNode);
+	explicit TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode);
 
 	bool isInterface;
 	std::vector<std::unique_ptr<Modifier>> modifiers;

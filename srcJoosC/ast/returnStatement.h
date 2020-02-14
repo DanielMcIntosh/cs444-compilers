@@ -11,7 +11,7 @@ class ReturnStatement: public Statement
 {
 public:
 	static std::unique_ptr<ReturnStatement> create(const Parse::Tree *ptNode);
-	ReturnStatement(const Parse::TReturnStatement *ptNode);
+	explicit ReturnStatement(const Parse::TReturnStatement *ptNode);
 
 	// nullable
 	std::unique_ptr<Expression> returnValue;

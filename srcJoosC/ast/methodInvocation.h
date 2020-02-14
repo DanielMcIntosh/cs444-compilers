@@ -14,7 +14,7 @@ class MethodInvocation: public Expression
 {
 public:
 	static std::unique_ptr<MethodInvocation> create(const Parse::Tree *ptNode);
-	MethodInvocation(const Parse::TMethodInvocation *ptNode);
+	explicit MethodInvocation(const Parse::TMethodInvocation *ptNode);
 
 	// nullable
 	std::unique_ptr<Expression> obj;

@@ -11,7 +11,7 @@ class ExpressionStatement: public Statement
 {
 public:
 	static std::unique_ptr<ExpressionStatement> create(const Parse::Tree *ptNode);
-	ExpressionStatement(const Parse::TExpressionStatement *ptNode);
+	explicit ExpressionStatement(const Parse::TExpressionStatement *ptNode);
 
 	// nullable
 	std::unique_ptr<Expression> expression;

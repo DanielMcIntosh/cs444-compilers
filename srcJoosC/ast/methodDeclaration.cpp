@@ -48,7 +48,7 @@ std::string MethodDeclaration::toCode() {
     {
     	s += p->toCode() + ", ";
     }
-    if (s.back() != '(') {
+    if (!parameters.empty()) {
 		s.pop_back();
 		s.pop_back();
 	}

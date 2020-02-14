@@ -12,7 +12,7 @@ class VariableDeclarator: public Node
 {
 public:
 	static std::unique_ptr<VariableDeclarator> create(const Parse::Tree *ptNode);
-	VariableDeclarator(const Parse::TVariableDeclarator *ptNode);
+	explicit VariableDeclarator(const Parse::TVariableDeclarator *ptNode);
 
 	std::string id;
 	std::unique_ptr<Expression> initializer;

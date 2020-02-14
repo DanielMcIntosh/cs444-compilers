@@ -13,7 +13,7 @@ class CastExpression: public Expression
 {
 public:
 	static std::unique_ptr<CastExpression> create(const Parse::Tree *ptNode);
-	CastExpression(const Parse::TCastExpression *ptNode);
+	explicit CastExpression(const Parse::TCastExpression *ptNode);
 
 	std::unique_ptr<Type> type;
 	std::unique_ptr<Expression> rhs;

@@ -11,7 +11,7 @@ class LocalVariableDeclarationStatement: public Statement
 {
 public:
 	static std::unique_ptr<LocalVariableDeclarationStatement> create(const Parse::Tree *ptNode);
-	LocalVariableDeclarationStatement(const Parse::TLocalVariableDeclarationStatement *ptNode);
+	explicit LocalVariableDeclarationStatement(const Parse::TLocalVariableDeclarationStatement *ptNode);
 
 	std::unique_ptr<VariableDeclaration> declaration;
 

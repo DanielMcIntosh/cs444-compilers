@@ -16,14 +16,14 @@ class BinaryExpression: public Expression
 public:
 	static std::unique_ptr<BinaryExpression> create(const Parse::Tree *ptNode);
 
-	BinaryExpression(const Parse::TAdditiveExpression *ptNode);
-	BinaryExpression(const Parse::TAndExpression *ptNode);
-	BinaryExpression(const Parse::TConditionalAndExpression *ptNode);
-	BinaryExpression(const Parse::TConditionalOrExpression *ptNode);
-	BinaryExpression(const Parse::TEqualityExpression *ptNode);
-	BinaryExpression(const Parse::TInclusiveOrExpression *ptNode);
-	BinaryExpression(const Parse::TMultiplicativeExpression *ptNode);
-	BinaryExpression(const Parse::TRelationalExpression *ptNode);
+	explicit BinaryExpression(const Parse::TAdditiveExpression *ptNode);
+	explicit BinaryExpression(const Parse::TAndExpression *ptNode);
+	explicit BinaryExpression(const Parse::TConditionalAndExpression *ptNode);
+	explicit BinaryExpression(const Parse::TConditionalOrExpression *ptNode);
+	explicit BinaryExpression(const Parse::TEqualityExpression *ptNode);
+	explicit BinaryExpression(const Parse::TInclusiveOrExpression *ptNode);
+	explicit BinaryExpression(const Parse::TMultiplicativeExpression *ptNode);
+	explicit BinaryExpression(const Parse::TRelationalExpression *ptNode);
 
 	enum class Variant {
 		Add,		// Accept Int, Return Int

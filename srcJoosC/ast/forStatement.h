@@ -11,8 +11,8 @@ class ForStatement: public ConditionalStatement
 {
 public:
 	static std::unique_ptr<ForStatement> create(const Parse::Tree *ptNode);
-	ForStatement(const Parse::TForStatementNoShortIf *ptNode);
-	ForStatement(const Parse::TForStatement *ptNode);
+	explicit ForStatement(const Parse::TForStatementNoShortIf *ptNode);
+	explicit ForStatement(const Parse::TForStatement *ptNode);
 
     // nullable
 	std::unique_ptr<Statement> init;

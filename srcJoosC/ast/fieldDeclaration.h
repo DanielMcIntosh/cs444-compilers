@@ -13,7 +13,7 @@ class FieldDeclaration: public MemberDeclaration
 {
 public:
 	static std::unique_ptr<FieldDeclaration> create(const Parse::Tree *ptNode);
-	FieldDeclaration(const Parse::TFieldDeclaration *ptNode);
+	explicit FieldDeclaration(const Parse::TFieldDeclaration *ptNode);
 
 	// maybe change this to hold a VariableDeclaration instead?
 	// would have to remove identifier from MemberDeclaration so we don't inherit an extra identifier

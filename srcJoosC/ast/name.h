@@ -13,7 +13,7 @@ class Name: public Node
 {
 public:
 	static std::unique_ptr<Name> create(const Parse::Tree *ptNode);
-	Name(const Parse::TName *ptNode);
+	explicit Name(const Parse::TName *ptNode);
 	Name() = default;
 
 	std::vector<std::string> prefix;
@@ -28,7 +28,7 @@ public:
 	std::vector<std::string> prefix;
 	std::string id;
 
-	NameType(Name&& other);
+	explicit NameType(Name&& other);
 
 	std::string toCode() override { return "[NameType]"; }
 };
@@ -39,7 +39,7 @@ public:
 	std::vector<std::string> prefix;
 	std::string id;
 
-	NameExpression(Name&& other);
+	explicit NameExpression(Name&& other);
 
 	std::string toCode() override { return "[NameExpression]"; }
 };

@@ -11,7 +11,7 @@ class FieldAccess: public Expression
 {
 public:
 	static std::unique_ptr<FieldAccess> create(const Parse::Tree *ptNode);
-	FieldAccess(const Parse::TFieldAccess *ptNode);
+	explicit FieldAccess(const Parse::TFieldAccess *ptNode);
 
 	std::unique_ptr<Expression> object;
 	std::string member;

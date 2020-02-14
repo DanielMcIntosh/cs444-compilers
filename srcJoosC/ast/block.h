@@ -11,7 +11,7 @@ class Block: public Statement
 {
 public:
 	static std::unique_ptr<Block> create(const Parse::Tree *ptNode);
-	Block(const Parse::TBlock *ptNode);
+	explicit Block(const Parse::TBlock *ptNode);
 
 	std::vector<std::unique_ptr<Statement>> statements;
 

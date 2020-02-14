@@ -10,7 +10,7 @@ class This: public Expression
 {
 public:
 	static std::unique_ptr<This> create(const Parse::Tree *ptNode);
-	This(const Parse::TThis2 *ptNode);
+	explicit This(const Parse::TThis2 *ptNode);
 
 	std::string toCode() override;
 };

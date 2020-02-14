@@ -10,7 +10,7 @@ class AssignmentExpression: public Expression
 {
 public:
 	static std::unique_ptr<AssignmentExpression> create(const Parse::Tree *ptNode);
-	AssignmentExpression(const Parse::TAssignment *ptNode);
+	explicit AssignmentExpression(const Parse::TAssignment *ptNode);
 
 	std::unique_ptr<Expression> lhs;
 	std::unique_ptr<Expression> rhs;

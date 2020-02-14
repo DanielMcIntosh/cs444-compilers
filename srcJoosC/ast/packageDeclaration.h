@@ -11,7 +11,7 @@ class PackageDeclaration: public Node
 {
 public:
 	static std::unique_ptr<PackageDeclaration> create(const Parse::Tree *ptNode);
-	PackageDeclaration(const Parse::TPackageDeclaration *ptNode);
+	explicit PackageDeclaration(const Parse::TPackageDeclaration *ptNode);
 
 	std::unique_ptr<Name> packageName;
 

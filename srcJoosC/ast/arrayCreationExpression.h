@@ -11,7 +11,7 @@ class ArrayCreationExpression: public Expression
 {
 public:
 	static std::unique_ptr<ArrayCreationExpression> create(const Parse::Tree *ptNode);
-	ArrayCreationExpression(const Parse::TArrayCreationExpression *ptNode);
+	explicit ArrayCreationExpression(const Parse::TArrayCreationExpression *ptNode);
 
 	// IMPORTANT: during construction, we have to change type->isArray to true
 	std::unique_ptr<Type> type;

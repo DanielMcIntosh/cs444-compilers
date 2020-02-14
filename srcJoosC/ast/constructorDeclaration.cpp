@@ -55,6 +55,7 @@ std::string ConstructorDeclaration::toCode()
 		str.pop_back();
 		str.pop_back();
 	}
+    str += ") ";
 	str += body->toCode();
 	return str;
 }

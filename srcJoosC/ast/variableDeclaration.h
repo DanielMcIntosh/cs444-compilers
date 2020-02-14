@@ -12,8 +12,8 @@ class VariableDeclaration: public Node
 {
 public:
 	static std::unique_ptr<VariableDeclaration> create(const Parse::Tree *ptNode);
-	VariableDeclaration(const Parse::TFormalParameter *ptNode);
-	VariableDeclaration(const Parse::TLocalVariableDeclaration *ptNode);
+	explicit VariableDeclaration(const Parse::TFormalParameter *ptNode);
+	explicit VariableDeclaration(const Parse::TLocalVariableDeclaration *ptNode);
 
 	std::unique_ptr<Type> type;
 	std::string identifier;

@@ -13,7 +13,7 @@ class ConstructorDeclaration: public MemberDeclaration
 {
 public:
 	static std::unique_ptr<ConstructorDeclaration> create(const Parse::Tree *ptNode);
-	ConstructorDeclaration(const Parse::TConstructorDeclaration *ptNode);
+	explicit ConstructorDeclaration(const Parse::TConstructorDeclaration *ptNode);
 
 	std::vector<std::unique_ptr<VariableDeclaration>> parameters;
 	std::unique_ptr<Block> body;

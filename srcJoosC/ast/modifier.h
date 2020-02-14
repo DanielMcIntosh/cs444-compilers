@@ -10,7 +10,7 @@ class Modifier: public Node
 {
 public:
 	static std::unique_ptr<Modifier> create(const Parse::Tree *ptNode);
-	Modifier(const Parse::TModifier *ptNode);
+	explicit Modifier(const Parse::TModifier *ptNode);
 
 	enum class Variant
 	{

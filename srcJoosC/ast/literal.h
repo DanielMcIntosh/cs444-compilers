@@ -12,7 +12,7 @@ class Literal: public Expression
 {
 public:
 	static std::unique_ptr<Literal> create(const Parse::Tree *ptNode);
-	Literal(const Parse::TLiteral *ptNode);
+	explicit Literal(const Parse::TLiteral *ptNode);
 
 	struct null {};
 	std::variant<unsigned int,bool,char,std::string,null> value;

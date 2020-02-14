@@ -11,8 +11,8 @@ class UnaryExpression: public Expression
 {
 public:
 	static std::unique_ptr<UnaryExpression> create(const Parse::Tree *ptNode);
-	UnaryExpression(const Parse::TUnaryExpression *ptNode);
-	UnaryExpression(const Parse::TUnaryExpressionNotPlusMinus *ptNode);
+	explicit UnaryExpression(const Parse::TUnaryExpression *ptNode);
+	explicit UnaryExpression(const Parse::TUnaryExpressionNotPlusMinus *ptNode);
 
 	enum class Variant
 	{
