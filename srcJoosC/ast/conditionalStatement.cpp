@@ -25,15 +25,21 @@ std::unique_ptr<ConditionalStatement> ConditionalStatement::create(const Parse::
 	}
 }
 ConditionalStatement::ConditionalStatement(const Parse::TIfThenStatement *ptNode)
-  : condType(ConditionalStatement::ConditionType::If)
+  : condType(ConditionalStatement::ConditionType::If),
+    condition(Expression::create(ptNode->expression)),
+    body(Statement::create(ptNode->statement))
 {
 }
 ConditionalStatement::ConditionalStatement(const Parse::TWhileStatement *ptNode)
-  : condType(ConditionalStatement::ConditionType::While)
+  : condType(ConditionalStatement::ConditionType::While),
+  condition(Expression::create(ptNode->expression)),
+  body(Statement::create(ptNode->statement))
 {
 }
 ConditionalStatement::ConditionalStatement(const Parse::TWhileStatementNoShortIf *ptNode)
-  : condType(ConditionalStatement::ConditionType::While)
+  : condType(ConditionalStatement::ConditionType::While),
+    condition(Expression::create(ptNode->expression)),
+    body(Statement::create(ptNode->statementNoShortIf))
 {
 }
 

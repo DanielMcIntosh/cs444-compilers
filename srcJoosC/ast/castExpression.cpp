@@ -3,6 +3,7 @@
 #include "ast/unaryExpression.h"
 #include "ast/type.h"
 #include "parse/parseTree.h"
+#include "utility.h"
 #include <memory>
 
 namespace AST
@@ -23,17 +24,34 @@ std::unique_ptr<CastExpression> CastExpression::create(const Parse::Tree *ptNode
 }
 CastExpression::CastExpression(const Parse::TCastExpression *ptNode)
 {
-	/*
-	type = std::dynamic_pointer_cast<Type>(children[cur++].astNode);
-	if (children[cur].lexeme == "[")
-	{
-		type->isArray = true;
-		++cur; // open bracket
-		++cur; // close bracket
-	}
-	++cur; // close paren
-	rhs = std::dynamic_pointer_cast<UnaryExpression>(children[cur++].astNode);
-	*/
+    switch (ptNode->v) {
+        case Parse::TCastExpressionV::LParPrimitiveTypeRParUnaryExpression:
+            type = Type::create(ptNode->primitiveType);
+            rhs = Expression::create(ptNode->unaryExpression);
+            break;
+        case Parse::TCastExpressionV::LParPrimitiveTypeLSBrRSBrRParUnaryExpression:
+            type = Type::create(ptNode->primitiveType);
+            type->isArray = true;
+            rhs = Expression::create(ptNode->unaryExpression);
+            break;
+        case Parse::TCastExpressionV::LParExpressionRParUnaryExpressionNotPlusMinus:
+            type = Type::create(ptNode->expression->assignmentExpression->conditionalOrExpression->conditionalAndExpression
+                    ->inclusiveOrExpression->andExpression->equalityExpression->relationalExpression->additiveExpression
+                    ->multiplicativeExpression->unaryExpression->unaryExpressionNotPlusMinus->name);
+            rhs = Expression::create(ptNode->unaryExpressionNotPlusMinus);
+            break;
+        case Parse::TCastExpressionV::LParNameLSBrRSBrRParUnaryExpressionNotPlusMinus:
+            type = Type::create(ptNode->name);
+            type->isArray = true;
+            rhs = Expression::create(ptNode->unaryExpressionNotPlusMinus);
+            break;
+        default:
+            ASSERT(false);
+    }
+}
+
+std::string CastExpression::toCode() {
+    return "(" + type->toCode() + ")" + rhs->toCode();
 }
 
 } //namespace AST

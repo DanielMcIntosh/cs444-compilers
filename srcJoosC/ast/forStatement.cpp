@@ -36,8 +36,9 @@ ForStatement::ForStatement(const Parse::TForStatementNoShortIf *ptNode)
 {
 }
 std::string ForStatement::toCode() {
-    return "for (" + init->toCode() + " " + condition->toCode() + "; " + increment->toCode() + ")\n"
-    		+ body->toCode();
+    return "for (" + (init ? init->toCode() : "")
+        + " " + (condition ? condition->toCode() : "")
+        + "; " + (increment ? increment->toCode() : "") + ")\n" + body->toCode();
 }
 
 } //namespace AST

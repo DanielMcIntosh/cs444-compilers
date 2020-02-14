@@ -14,8 +14,8 @@ class MethodDeclaration: public MemberDeclaration
 {
 public:
 	static std::unique_ptr<MethodDeclaration> create(const Parse::Tree *ptNode);
-	MethodDeclaration(const Parse::TMethodDeclaration *ptNode);
-	MethodDeclaration(const Parse::TAbstractMethodDeclaration *ptNode);
+	explicit MethodDeclaration(const Parse::TMethodDeclaration *ptNode);
+	explicit MethodDeclaration(const Parse::TAbstractMethodDeclaration *ptNode);
 
 	std::unique_ptr<Type> returnType;
 	std::vector<std::unique_ptr<VariableDeclaration>> parameters;
@@ -23,6 +23,7 @@ public:
 	std::unique_ptr<Block> body;
 
 	std::string toCode() override;
+
 private:
 	MethodDeclaration(MethodHeader&& header, std::unique_ptr<Block> block);
 };

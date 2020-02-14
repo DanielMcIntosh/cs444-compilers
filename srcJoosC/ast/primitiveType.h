@@ -9,18 +9,20 @@ namespace AST
 class PrimitiveType: public Type
 {
 public:
-	static std::unique_ptr<PrimitiveType> create(const Parse::Tree *ptNode);
-	PrimitiveType(const Parse::TPrimitiveType *ptNode);
+    enum class Variant
+    {
+        Boolean,
+        Byte,
+        Short,
+        Int,
+        Char,
+        Void,
+        Max
+    } type;
 
-	enum class Variant
-	{
-		Boolean,
-		Byte,
-		Short,
-		Int,
-		Char,
-		Max
-	} type;
+    static std::unique_ptr<PrimitiveType> create(const Parse::Tree *ptNode);
+	explicit PrimitiveType(const Parse::TPrimitiveType *ptNode);
+    explicit PrimitiveType(Variant type);
 
 	std::string toCode() override;
 };

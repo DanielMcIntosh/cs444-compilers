@@ -5,6 +5,7 @@
 #include "ast/type.h"
 #include "ast/methodDeclarator.h"
 #include "parse/parseTree.h"
+#include "primitiveType.h"
 
 #include <vector>
 #include <memory>
@@ -32,6 +33,10 @@ MethodHeader::MethodHeader(std::vector<std::unique_ptr<Modifier>> mods, std::uni
 	id(std::move(declarator.id)),
 	parameterList(std::move(declarator.parameterList))
 {
+    if (!returnType)
+    {
+        returnType = std::make_unique<PrimitiveType>(PrimitiveType::Variant::Void);
+    }
 }
 MethodHeader::MethodHeader(const Parse::TMethodHeader *ptNode)
   : MethodHeader(std::move(NodeList<Modifier>(ptNode->modifiers).list), Type::create(ptNode->type), MethodDeclarator(ptNode->methodDeclarator))

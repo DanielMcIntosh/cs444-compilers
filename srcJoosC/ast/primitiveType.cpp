@@ -30,6 +30,10 @@ PrimitiveType::PrimitiveType(const Parse::TPrimitiveType *ptNode)
 {
 	assert(type <= Variant::Max);
 }
+PrimitiveType::PrimitiveType(const AST::PrimitiveType::Variant type)
+    : type(type)
+{
+}
 
 std::string PrimitiveType::toCode()
 {
@@ -45,6 +49,7 @@ std::string operator+=(std::string& str, PrimitiveType::Variant type)
 		case PrimitiveType::Variant::Short:  	return str += "short";
 		case PrimitiveType::Variant::Int:    	return str += "int";
 		case PrimitiveType::Variant::Char:   	return str += "char";
+        case PrimitiveType::Variant::Void:   	return str += "void";
 		case PrimitiveType::Variant::Max:		;// fallthrough
 		// no default to trigger compiler warning on missing case
     }

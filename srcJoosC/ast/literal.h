@@ -1,6 +1,9 @@
 #pragma once
 
 #include "ast/expression.h"
+#include "utility.h"
+#include <variant>
+#include <string>
 
 namespace AST
 {
@@ -11,16 +14,10 @@ public:
 	static std::unique_ptr<Literal> create(const Parse::Tree *ptNode);
 	Literal(const Parse::TLiteral *ptNode);
 
-	enum class Value {
-		IntegerLiteral,
-		BooleanLiteral,
-		CharacterLiteral,
-		StringLiteral,
-		NullLiteral,
-	};
-	Value literalType;
+	struct null {};
+	std::variant<unsigned int,bool,char,std::string,null> value;
 
-	std::string toCode() override { return "[Literal]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST

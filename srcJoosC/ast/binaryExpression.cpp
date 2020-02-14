@@ -92,7 +92,7 @@ BinaryExpression::BinaryExpression(const Parse::TInclusiveOrExpression *ptNode)
 BinaryExpression::BinaryExpression(const Parse::TConditionalAndExpression *ptNode)
   : op(Variant::LazyAnd),
 	lhs(Expression::create(ptNode->conditionalAndExpression)),
-	rhs(Expression::create(ptNode->inclusiveOrExpression))
+	rhs(Expression::create(ptNode->equalityExpression))
 {
 }
 BinaryExpression::BinaryExpression(const Parse::TConditionalOrExpression *ptNode)

@@ -1,10 +1,7 @@
 #include "ast/methodDeclaration.h"
 #include "ast/memberDeclaration.h"
 #include "ast/methodHeader.h"
-#include "ast/statement.h"
-#include "ast/nodeList.h"
 #include "parse/parseTree.h"
-#include "primitiveType.h"
 #include <memory>
 
 namespace AST

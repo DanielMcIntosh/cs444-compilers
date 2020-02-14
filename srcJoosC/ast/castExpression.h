@@ -16,9 +16,9 @@ public:
 	CastExpression(const Parse::TCastExpression *ptNode);
 
 	std::unique_ptr<Type> type;
-	std::unique_ptr<UnaryExpression> rhs;
+	std::unique_ptr<Expression> rhs;
 
-	std::string toCode() override { return "[CastExpression]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST

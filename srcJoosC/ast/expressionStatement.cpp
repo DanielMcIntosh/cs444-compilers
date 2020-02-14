@@ -20,7 +20,11 @@ std::unique_ptr<ExpressionStatement> ExpressionStatement::create(const Parse::Tr
 	}
 }
 ExpressionStatement::ExpressionStatement(const Parse::TExpressionStatement *ptNode)
+    : expression(Expression::create(ptNode->statementExpression))
 {
+}
+std::string ExpressionStatement::toCode() {
+    return expression ? expression->toCode() + ";" : ";";
 }
 
 } //namespace AST
