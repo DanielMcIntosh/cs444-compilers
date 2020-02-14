@@ -23,6 +23,11 @@ public:
 	std::unique_ptr<TypeDeclaration> typeDeclaration;
 
 	std::string toCode() override;
+
+	std::string packageName;
+
+	// apply package name to all type declarations under this node
+	void resolveEnclosingPackageAndApplyToTypeDecl();
 };
 
 } //namespace AST

@@ -29,6 +29,26 @@ CompilationUnit::CompilationUnit(const Parse::TCompilationUnit *ptNode)
 	imports(std::move(NodeList<ImportDeclaration>(ptNode->importDeclarations).list)),
 	typeDeclaration(TypeDeclaration::create(ptNode->typeDeclaration))
 {
+	resolveEnclosingPackageAndApplyToTypeDecl();
+}
+
+void CompilationUnit::resolveEnclosingPackageAndApplyToTypeDecl() {
+  if (!typeDeclaration)
+    return;
+
+  std::string thePackage;
+  if (!package)
+    thePackage = "java._global";
+  else {
+    for (const auto &s: package->prefix) {
+      thePackage.append(s);
+      thePackage.append(".");
+    }
+    thePackage.append(package->id);
+  }
+
+  packageName = thePackage;
+  typeDeclaration->fqn = thePackage + std::string(".") + typeDeclaration->name;
 }
 
 std::string CompilationUnit::toCode()

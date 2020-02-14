@@ -55,9 +55,10 @@ vector<T *> __ptFindByType(Tree *root, enum NonTerminalType type) {
   return result;
 }
 
-#define __prependNonTerminalType(x) NonTerminalType::x
+} // namespace Parse
+
+#define __prependNonTerminalType(x) Parse::NonTerminalType::x
 
 #define ptFindByType(root, _type) \
-  __ptFindByType<T##_type>(root, __prependNonTerminalType(_type))  
+  Parse::__ptFindByType<Parse::T##_type>(root, __prependNonTerminalType(_type))
 
-} // namespace Parse

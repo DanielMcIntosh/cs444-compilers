@@ -2,8 +2,10 @@
 #include "ast/expression.h"
 #include "ast/type.h"
 #include "parse/parseTree.h"
+
 #include <memory>
 #include <vector>
+#include <algorithm>
 
 namespace AST
 {
@@ -25,8 +27,16 @@ std::unique_ptr<Name> Name::create(const Parse::Tree *ptNode)
 		throw std::runtime_error("inappropriate PT type for Name: " + std::to_string((int)ptNode->type));
 	}
 }
+
 Name::Name(const Parse::TName *ptNode)
 {
+	auto *tree = static_cast<const Parse::Tree *>(ptNode);
+	auto ident = ptFindByType(const_cast<Parse::Tree*>(tree), Identifier);
+	std::reverse(ident.begin(), ident.end());
+	for (size_t i = 0; i < ident.size() - 1; ++i) {
+		prefix.push_back(ident[i]->value);
+	}
+	id = ident.back()->value;
 }
 
 NameType::NameType(Name &&other)

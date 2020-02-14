@@ -16,6 +16,8 @@
 #include "ast/ast.h"
 #include "ast/node.h"
 
+#include "semantic/semantic.h"
+
 using namespace std;
 namespace fs = std::filesystem;
 
@@ -101,7 +103,16 @@ FrontendResult doFrontEndSingle(JoosC *joosc, const char *fileName) {
 
 MiddleendResult doMiddleend(JoosC* joosc, const vector<FrontendResult> &frontendResults) {
   MiddleendResult result;
-  // ...
+
+  using namespace Semantic;
+  semanticInit(&result.semanticDB, frontendResults);
+  semanticDo(&result.semanticDB);
+
+  if (result.semanticDB.error != SemanticErrorType::None) {
+	  result.failedStage = MiddleendStageType::Semantic;
+	  return result;
+  }
+
   return result;
 }
 
@@ -179,6 +190,14 @@ void batchTesting(JoosC *joosc, const string &baseDir,
 
     // stdlib frontend result is reused each time, so don't free them
     vector<FrontendResult> frontendResults = stdlibFrontendResult;
+
+	  {
+	  	// regenerate ast, since ast contains per compilation fields
+	  	for (auto &frontend : frontendResults) {
+	  		frontend.astResult = AST::buildAST(frontend.parseResult.treeRoot);
+	  	}
+	  }
+
     MiddleendResult middleend;
 
     if (fs::is_regular_file(dupPath)) {
@@ -206,6 +225,16 @@ void batchTesting(JoosC *joosc, const string &baseDir,
       }
     }
 
+    // notes regarding some tests:
+    // 203, 204: The reported error is NotFoundImport. Although the test mentioned
+    // that an interface must not be mentioned more than once in the same
+	  // implements clause of a class, Runnable is actually in java.lang,
+	  // and importing java.io.* don't enable Runnable
+
+	  if (numTests == 215) {
+		  int dummp = 1234; // for breakpointing
+	  }
+
     {
       profileSection("middleend");
       // middle end
@@ -218,8 +247,11 @@ void batchTesting(JoosC *joosc, const string &baseDir,
 
   cleanup:
     if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
-      LOGR("\033[0;31m%s: failed\033[0m", topLevelName.c_str());
+      LOGR("%3d \033[0;91m%s: (Semantic: %s)\033[0m", numTests, topLevelName.c_str(),
+      		 Semantic::gSemanticErrorTypeName[static_cast<int>(middleend.semanticDB.error)]);
     } else {
+	    LOGR("%3d \033[0;92m%s: (Semantic: %s)\033[0m", numTests, topLevelName.c_str(),
+	         Semantic::gSemanticErrorTypeName[static_cast<int>(middleend.semanticDB.error)]);
       ++numPassed;
     }
 
