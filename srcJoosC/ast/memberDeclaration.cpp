@@ -32,9 +32,9 @@ std::unique_ptr<MemberDeclaration> MemberDeclaration::create(const Parse::Tree *
 	}
 }
 
-MemberDeclaration::MemberDeclaration(const Parse::TModifiers *ptModifiers, std::string const& id)
-  : modifiers(std::move(NodeList<Modifier>((const Parse::Tree *)ptModifiers).list)),
-	identifier(id)
+MemberDeclaration::MemberDeclaration(std::vector<std::unique_ptr<Modifier>> mods, std::string id)
+  : modifiers(std::move(mods)),
+	identifier(std::move(id))
 {
 }
 

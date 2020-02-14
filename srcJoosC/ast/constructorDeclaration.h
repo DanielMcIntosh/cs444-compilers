@@ -22,7 +22,7 @@ public:
 
 private:
 	// not convinced this is the best way of dealing with needing 2 members from declarator
-	ConstructorDeclaration(const Parse::TModifiers *ptModifiers, MethodDeclarator &&declarator, const Parse::TBlock *block);
+	ConstructorDeclaration(std::vector<std::unique_ptr<Modifier>> mods, MethodDeclarator &&declarator, std::unique_ptr<Block> block);
 };
 
 } //namespace AST

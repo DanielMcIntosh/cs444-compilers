@@ -29,28 +29,37 @@ std::unique_ptr<MethodDeclaration> MethodDeclaration::create(const Parse::Tree *
 		throw std::runtime_error("inappropriate PT type for MethodDeclaration: " + std::to_string((int)ptNode->type));
 	}
 }
+
+MethodDeclaration::MethodDeclaration(MethodHeader&& header, std::unique_ptr<Block> block)
+  : MemberDeclaration(std::move(header.modifiers), std::move(header.id)),
+    returnType(std::move(header.returnType)),
+    parameters(std::move(header.parameterList)),
+    body(std::move(block))
+{
+}
 MethodDeclaration::MethodDeclaration(const Parse::TAbstractMethodDeclaration *ptNode)
-  : MemberDeclaration(ptNode->methodHeader->modifiers, ptNode->methodHeader->methodDeclarator->identifier->value),
-    returnType(Type::create(ptNode->methodHeader->type)),
-    parameters(std::move(NodeList<VariableDeclaration>(ptNode->methodHeader->methodDeclarator->formalParameterList).list))
+  : MethodDeclaration(MethodHeader(ptNode->methodHeader), nullptr)
 {
 }
 MethodDeclaration::MethodDeclaration(const Parse::TMethodDeclaration *ptNode)
-  : MemberDeclaration(ptNode->methodHeader->modifiers, ptNode->methodHeader->methodDeclarator->identifier->value),
-    returnType(Type::create(ptNode->methodHeader->type)),
-    parameters(std::move(NodeList<VariableDeclaration>(ptNode->methodHeader->methodDeclarator->formalParameterList).list)),
-    body(Block::create(ptNode->methodBody->block))
+  : MethodDeclaration(MethodHeader(ptNode->methodHeader), Block::create(ptNode->methodBody->block))
 {
 }
 std::string MethodDeclaration::toCode() {
     std::string s = returnType->toCode() + " " + identifier + "(";
-    for (const auto& p : parameters) s += p->type->toCode() + " " + p->identifier + ", ";
+    for (const auto& p : parameters)
+    {
+    	s += p->toCode() + ", ";
+    }
     if (s.back() != '(') {
 		s.pop_back();
 		s.pop_back();
 	}
     s += ") ";
-    if (body) s += body->toCode();
+    if (body)
+    {
+    	s += body->toCode();
+    }
     return s;
 }
 

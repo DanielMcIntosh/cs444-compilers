@@ -24,16 +24,19 @@ std::unique_ptr<Block> Block::create(const Parse::Tree *ptNode)
 	}
 }
 Block::Block(const Parse::TBlock *ptNode)
+  : statements(std::move(NodeList<Statement>(ptNode->blockStatements).list))
 {
-	switch (ptNode->v) {
-		case Parse::TBlockV::LCBrRCBr:
-			break;
-		case Parse::TBlockV::LCBrBlockStatementsRCBr:
-			statements = std::move(NodeList<Statement>::create(ptNode->blockStatements)->list);
-			break;
-		default:
-			ASSERT(false);
+}
+
+std::string Block::toCode()
+{
+	std::string str = "{\n";
+	for (auto &stmt : statements)
+	{
+		str += stmt->toCode() + "\n";
 	}
+	str += "}";
+	return str;
 }
 
 } //namespace AST

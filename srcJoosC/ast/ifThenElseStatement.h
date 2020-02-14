@@ -16,7 +16,7 @@ public:
 
 	std::unique_ptr<Statement> elseBody;
 
-	std::string toCode() override { return "[IfThenElseStatement]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST

@@ -36,4 +36,15 @@ importName(Name::create(ptNode->name)), multiImport(true)
 {
 }
 
+std::string ImportDeclaration::toCode()
+{
+	std::string str = "import " + importName->toCode();
+	if (multiImport)
+	{
+		str += ".*";
+	}
+	str += ";";
+	return str;
+}
+
 } //namespace AST

@@ -1,11 +1,9 @@
 #include "ast/unaryExpression.h"
 #include "ast/expression.h"
 #include "parse/parseTree.h"
-
-#include "utility.h"
-
 #include <memory>
 #include <string>
+#include <ostream>
 
 namespace AST
 {
@@ -16,7 +14,10 @@ std::unique_ptr<UnaryExpression> UnaryExpression::create(const Parse::Tree *ptNo
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	// NOTE: removed because otherwise losing operator information
+	if (ptNode->oneNt)
+	{
+		return UnaryExpression::create(ptNode->children[0]);
+	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::UnaryExpression:
 		return std::make_unique<UnaryExpression>(static_cast<const Parse::TUnaryExpression*>(ptNode));
@@ -28,36 +29,45 @@ std::unique_ptr<UnaryExpression> UnaryExpression::create(const Parse::Tree *ptNo
 }
 
 UnaryExpression::UnaryExpression(const Parse::TUnaryExpression *ptNode)
+  : op(Variant::Minus),
+	expr(Expression::create(ptNode->unaryExpression))
 {
-	switch (ptNode->v) {
-		case Parse::TUnaryExpressionV::MinusUnaryExpression:
-			op = "-";
-			expr = std::move(Expression::create(ptNode->unaryExpression));
-			break;
-		case Parse::TUnaryExpressionV::UnaryExpressionNotPlusMinus:
-			op = "+";
-			expr = std::move(Expression::create((ptNode->unaryExpressionNotPlusMinus)));
-			break;
-		default:
-			ASSERT(false);
-	}
 }
 
-UnaryExpression::UnaryExpression(const Parse::TUnaryExpressionNotPlusMinus *ptNode):
-expr(Expression::create(ptNode->children[0]))
+UnaryExpression::UnaryExpression(const Parse::TUnaryExpressionNotPlusMinus *ptNode)
+  : op(Variant::Bang),
+	expr(Expression::create(ptNode->unaryExpression))
 {
-	switch (ptNode->v) {
-		case Parse::TUnaryExpressionNotPlusMinusV::BangUnaryExpression:
-			op = "!";
-			break;
-		case Parse::TUnaryExpressionNotPlusMinusV::Name:
-		case Parse::TUnaryExpressionNotPlusMinusV::Primary:
-		case Parse::TUnaryExpressionNotPlusMinusV::CastExpression:
-			op = "+";
-			break;
-		default:
-			ASSERT(false);
+}
+
+std::string UnaryExpression::toCode()
+{
+	return "" + op + expr->toCode();
+}
+
+std::string operator+=(std::string& str, UnaryExpression::Variant type)
+{
+    switch(type)
+    {
+		case UnaryExpression::Variant::Minus:	return str += "-";
+		case UnaryExpression::Variant::Bang: 	return str += "!";
+		case UnaryExpression::Variant::Max:		;// fallthrough
+		// no default to trigger compiler warning on missing case
+    }
+    throw std::runtime_error("String conversion on invalid operator type: " + std::to_string((int)type));
+}
+std::string operator+(std::string str, UnaryExpression::Variant type)
+{
+	return str += type;
+}
+
+std::ostream& operator<<(std::ostream& os, UnaryExpression::Variant type)
+{
+	if (type >= UnaryExpression::Variant::Max) {
+		os.setstate(std::ios_base::failbit);
+		return os;
 	}
+	return os << ("" + type);
 }
 
 } //namespace AST

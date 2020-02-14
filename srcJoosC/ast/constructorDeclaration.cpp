@@ -3,6 +3,7 @@
 #include "ast/modifier.h"
 #include "ast/methodDeclarator.h"
 #include "ast/block.h"
+#include "ast/nodeList.h"
 #include "parse/parseTree.h"
 #include <memory>
 
@@ -23,14 +24,15 @@ std::unique_ptr<ConstructorDeclaration> ConstructorDeclaration::create(const Par
 	}
 }
 
-ConstructorDeclaration::ConstructorDeclaration(const Parse::TModifiers *ptModifiers, MethodDeclarator &&declarator, const Parse::TBlock *block)
-  : MemberDeclaration(ptModifiers, declarator.id),
+ConstructorDeclaration::ConstructorDeclaration(std::vector<std::unique_ptr<Modifier>> mods, MethodDeclarator &&declarator, std::unique_ptr<Block> block)
+  : MemberDeclaration(std::move(mods), std::move(declarator.id)),
 	parameters(std::move(declarator.parameterList)),
-	body(std::make_unique<Block>(block))
+	body(std::move(block))
 {
 }
 ConstructorDeclaration::ConstructorDeclaration(const Parse::TConstructorDeclaration *ptNode)
-  : ConstructorDeclaration(ptNode->modifiers, MethodDeclarator(ptNode->constructorDeclarator), ptNode->block)
+  : ConstructorDeclaration(std::move(NodeList<Modifier>(ptNode->modifiers).list),
+		MethodDeclarator(ptNode->constructorDeclarator), std::make_unique<Block>(ptNode->block))
 {
 }
 

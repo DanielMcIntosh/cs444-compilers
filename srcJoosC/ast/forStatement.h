@@ -15,7 +15,7 @@ public:
 	ForStatement(const Parse::TForStatement *ptNode);
 
 	std::unique_ptr<Statement> init;
-	std::unique_ptr<Statement> increment;
+	std::unique_ptr<Expression> increment;
 
 	std::string toCode() override;
 };

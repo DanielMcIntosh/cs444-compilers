@@ -23,12 +23,23 @@ std::unique_ptr<IfThenElseStatement> IfThenElseStatement::create(const Parse::Tr
 	}
 }
 IfThenElseStatement::IfThenElseStatement(const Parse::TIfThenElseStatement *ptNode)
-  : ConditionalStatement(ConditionalStatement::ConditionType::If)
+  : ConditionalStatement(ConditionalStatement::ConditionType::If, Expression::create(ptNode->expression), Statement::create(ptNode->statementNoShortIf)),
+	elseBody(Statement::create(ptNode->statement))
 {
 }
 IfThenElseStatement::IfThenElseStatement(const Parse::TIfThenElseStatementNoShortIf *ptNode)
-  : ConditionalStatement(ConditionalStatement::ConditionType::If)
+  : ConditionalStatement(ConditionalStatement::ConditionType::If, Expression::create(ptNode->expression), Statement::create(ptNode->statementNoShortIf)),
+	elseBody(Statement::create(ptNode->statementNoShortIf2))
 {
+}
+
+std::string IfThenElseStatement::toCode()
+{
+	std::string str = "if (" + condition->toCode() + ")\n";
+	str += body->toCode();
+	str += "\nelse\n";
+	str += elseBody->toCode();
+	return str;
 }
 
 } //namespace AST

@@ -20,7 +20,13 @@ std::unique_ptr<LocalVariableDeclarationStatement> LocalVariableDeclarationState
 	}
 }
 LocalVariableDeclarationStatement::LocalVariableDeclarationStatement(const Parse::TLocalVariableDeclarationStatement *ptNode)
+  : declaration(std::make_unique<VariableDeclaration>(ptNode->localVariableDeclaration))
 {
+}
+
+std::string LocalVariableDeclarationStatement::toCode()
+{
+	return declaration->toCode() + ";";
 }
 
 } //namespace AST

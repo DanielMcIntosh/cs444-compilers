@@ -25,11 +25,40 @@ std::unique_ptr<MethodHeader> MethodHeader::create(const Parse::Tree *ptNode)
 		throw std::runtime_error("inappropriate PT type for MethodHeader: " + std::to_string((int)ptNode->type));
 	}
 }
-MethodHeader::MethodHeader(const Parse::TMethodHeader *ptNode):
-modifiers(std::move(NodeList<Modifier>::create(ptNode->modifiers)->list)),
-returnType(Type::create(ptNode->type)),
-declarator(MethodDeclarator::create(ptNode->methodDeclarator))
+
+MethodHeader::MethodHeader(std::vector<std::unique_ptr<Modifier>> mods, std::unique_ptr<Type> ret, MethodDeclarator&& declarator)
+  : modifiers(std::move(mods)),
+	returnType(std::move(ret)),
+	id(std::move(declarator.id)),
+	parameterList(std::move(declarator.parameterList))
 {
+}
+MethodHeader::MethodHeader(const Parse::TMethodHeader *ptNode)
+  : MethodHeader(std::move(NodeList<Modifier>(ptNode->modifiers).list), Type::create(ptNode->type), MethodDeclarator(ptNode->methodDeclarator))
+{
+}
+
+std::string MethodHeader::toCode()
+{
+	// we're a PseudoAST node, so this shouldn't be called
+	// therefore, we'll print something which is useful for debugging, but doesn't look like actual code
+	std::string str = "[MethodHeader: modifiers={";
+	for (auto &mod : modifiers)
+	{
+		str += mod->toCode();
+		str += ",";
+	}
+	str += "}";
+	str += " returnType=" + returnType->toCode();
+	str += " id=" + id;
+	str += " params={";
+	for (auto &param : parameterList)
+	{
+		str += param->toCode();
+		str += ",";
+	}
+	str += "}]";
+	return str;
 }
 
 } //namespace AST

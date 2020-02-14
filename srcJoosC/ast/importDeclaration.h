@@ -17,7 +17,7 @@ public:
 	std::unique_ptr<Name> importName;
 	bool multiImport;
 
-	std::string toCode() override { return "[ImportDeclaration]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST

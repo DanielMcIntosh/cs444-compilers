@@ -30,7 +30,7 @@ public:
 
 	std::string toCode() override { return "[ConditionalStatement]"; }
 protected:
-	ConditionalStatement(ConditionType cond);
+	ConditionalStatement(ConditionType type, std::unique_ptr<Expression> cond, std::unique_ptr<Statement> statement);
 };
 
 } //namespace AST

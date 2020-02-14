@@ -15,7 +15,7 @@ public:
 	std::unique_ptr<Expression> lhs;
 	std::unique_ptr<Expression> rhs;
 
-	std::string toCode() override { return "[AssignmentExpression]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST

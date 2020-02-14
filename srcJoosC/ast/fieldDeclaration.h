@@ -3,6 +3,7 @@
 #include "ast/memberDeclaration.h"
 #include "ast/type.h"
 #include "ast/expression.h"
+#include "ast/variableDeclarator.h"
 #include <memory>
 
 namespace AST
@@ -20,7 +21,9 @@ public:
 	// nullable
 	std::unique_ptr<Expression> initializer;
 
-	std::string toCode() override { return "[FieldDeclaration]"; }
+	std::string toCode() override;
+private:
+	FieldDeclaration(std::vector<std::unique_ptr<Modifier>> mods, VariableDeclarator &&declarator, std::unique_ptr<Type> t);
 };
 
 } //namespace AST

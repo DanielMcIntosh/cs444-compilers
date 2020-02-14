@@ -27,11 +27,6 @@ std::unique_ptr<ConditionalStatement> ConditionalStatement::create(const Parse::
 ConditionalStatement::ConditionalStatement(const Parse::TIfThenStatement *ptNode)
   : condType(ConditionalStatement::ConditionType::If)
 {
-	/*
-	condition = std::dynamic_pointer_cast<Expression>(children[cur++].astNode);
-	++cur; //close paren
-	body = std::dynamic_pointer_cast<Statement>(children[cur++].astNode);
-	*/
 }
 ConditionalStatement::ConditionalStatement(const Parse::TWhileStatement *ptNode)
   : condType(ConditionalStatement::ConditionType::While)
@@ -43,8 +38,10 @@ ConditionalStatement::ConditionalStatement(const Parse::TWhileStatementNoShortIf
 }
 
 // protected
-ConditionalStatement::ConditionalStatement(ConditionType cond)
-  : condType(cond)
+ConditionalStatement::ConditionalStatement(ConditionType type, std::unique_ptr<Expression> cond, std::unique_ptr<Statement> statement)
+  : condType(type),
+	condition(std::move(cond)),
+	body(std::move(statement))
 {
 }
 

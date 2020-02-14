@@ -17,7 +17,7 @@ public:
 	std::vector<std::unique_ptr<Modifier>> modifiers;
 	std::string identifier;
 protected:
-	MemberDeclaration(const Parse::TModifiers *ptModifiers, std::string const& id);
+	MemberDeclaration(std::vector<std::unique_ptr<Modifier>> mods, std::string id);
 };
 
 } //namespace AST

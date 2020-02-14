@@ -1,12 +1,6 @@
 #include "ast/assignmentExpression.h"
 #include "ast/expression.h"
-#include "ast/fieldAccess.h"
-#include "ast/arrayAccess.h"
-#include "ast/name.h"
-#include "ast/binaryExpression.h"
 #include "parse/parseTree.h"
-
-#include "utility.h"
 
 #include <memory>
 
@@ -26,10 +20,15 @@ std::unique_ptr<AssignmentExpression> AssignmentExpression::create(const Parse::
 		throw std::runtime_error("inappropriate PT type for AssignmentExpression: " + std::to_string((int)ptNode->type));
 	}
 }
-AssignmentExpression::AssignmentExpression(const Parse::TAssignment *ptNode):
-lhs(Expression::create(ptNode->leftHandSide)),
-rhs(Expression::create(ptNode->assignmentExpression))
+AssignmentExpression::AssignmentExpression(const Parse::TAssignment *ptNode)
+  : lhs(Expression::create(ptNode->leftHandSide)),
+	rhs(Expression::create(ptNode->assignmentExpression))
 {
+}
+
+std::string AssignmentExpression::toCode()
+{
+	return lhs->toCode() + "=" + rhs->toCode();
 }
 
 } //namespace AST

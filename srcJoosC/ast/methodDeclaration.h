@@ -3,6 +3,7 @@
 #include "ast/memberDeclaration.h"
 #include "ast/type.h"
 #include "ast/variableDeclaration.h"
+#include "ast/methodHeader.h"
 #include "ast/block.h"
 #include <memory>
 
@@ -22,6 +23,8 @@ public:
 	std::unique_ptr<Block> body;
 
 	std::string toCode() override;
+private:
+	MethodDeclaration(MethodHeader&& header, std::unique_ptr<Block> block);
 };
 
 } //namespace AST

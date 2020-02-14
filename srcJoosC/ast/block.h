@@ -15,7 +15,7 @@ public:
 
 	std::vector<std::unique_ptr<Statement>> statements;
 
-	std::string toCode() override { return "[Block]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST

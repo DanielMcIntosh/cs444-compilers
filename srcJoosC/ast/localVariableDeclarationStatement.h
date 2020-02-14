@@ -15,7 +15,7 @@ public:
 
 	std::unique_ptr<VariableDeclaration> declaration;
 
-	std::string toCode() override { return "[LocalVariableDeclarationStatement]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST
