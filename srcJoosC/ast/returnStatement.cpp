@@ -26,4 +26,9 @@ returnValue(Expression::create(ptNode->expression))
 {
 }
 
+std::string ReturnStatement::toCode()
+{
+	return "return " + (returnValue ? returnValue->toCode() : "") + ";";
+}
+
 } //namespace AST

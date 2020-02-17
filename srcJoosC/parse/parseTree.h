@@ -390,7 +390,7 @@ struct TCompilationUnit: public Tree {
 
 enum class TConditionalAndExpressionV {
   InclusiveOrExpression,  // InclusiveOrExpression 
-  ConditionalAndExpressionAmpAmpEqualityExpression,  // ConditionalAndExpression && EqualityExpression 
+  ConditionalAndExpressionAmpAmpInclusiveOrExpression,  // ConditionalAndExpression && InclusiveOrExpression 
   Max,
 };
 
@@ -398,9 +398,8 @@ struct TConditionalAndExpression: public Tree {
   enum TConditionalAndExpressionV v;
   TConditionalAndExpression* conditionalAndExpression;
   TInclusiveOrExpression* inclusiveOrExpression;
-  TEqualityExpression* equalityExpression;
 
-  TConditionalAndExpression(): Tree(NonTerminalType::ConditionalAndExpression), v(TConditionalAndExpressionV::Max), conditionalAndExpression(nullptr), inclusiveOrExpression(nullptr), equalityExpression(nullptr){
+  TConditionalAndExpression(): Tree(NonTerminalType::ConditionalAndExpression), v(TConditionalAndExpressionV::Max), conditionalAndExpression(nullptr), inclusiveOrExpression(nullptr){
 
   }
 };

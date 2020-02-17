@@ -7,10 +7,20 @@
 namespace AST
 {
 
-bool isBypassingOneNT(Parse::NonTerminalType type) {
-	if (type == Parse::NonTerminalType::CompilationUnit)
-		return true;
-	return false;
+// static
+[[gnu::pure]]
+bool Node::isSingleton(const Parse::Tree *ptNode)
+{
+	switch (ptNode->type) {
+		case Parse::NonTerminalType::ParenthesizedExpression:
+			return true;
+		case Parse::NonTerminalType::Name:
+		case Parse::NonTerminalType::CompilationUnit:
+		case Parse::NonTerminalType::VariableDeclarator:
+			return false;
+		default:
+			return ptNode->oneNt && !isListType(ptNode);
+	}
 }
 
 std::unique_ptr<Node> Node::create(const Parse::Tree *ptNode)
@@ -18,8 +28,7 @@ std::unique_ptr<Node> Node::create(const Parse::Tree *ptNode)
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (!isBypassingOneNT(ptNode->type) &&
-	((ptNode->oneNt && !isListType(ptNode)) || ptNode->type == Parse::NonTerminalType::ParenthesizedExpression))
+	if (isSingleton(ptNode))
 	{
 		return Node::create(ptNode->children[0]);
 	}

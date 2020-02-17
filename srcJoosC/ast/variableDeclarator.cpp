@@ -21,6 +21,8 @@ std::unique_ptr<VariableDeclarator> VariableDeclarator::create(const Parse::Tree
 	}
 }
 VariableDeclarator::VariableDeclarator(const Parse::TVariableDeclarator *ptNode)
+  : id(ptNode->identifier->value),
+	initializer(Expression::create(ptNode->expression))
 {
 }
 

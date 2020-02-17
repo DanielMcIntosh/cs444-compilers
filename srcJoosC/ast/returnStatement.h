@@ -16,7 +16,7 @@ public:
 	// nullable
 	std::unique_ptr<Expression> returnValue;
 
-	std::string toCode() override { return "[ReturnStatement]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST

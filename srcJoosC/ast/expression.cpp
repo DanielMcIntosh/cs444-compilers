@@ -23,7 +23,7 @@ std::unique_ptr<Expression> Expression::create(const Parse::Tree *ptNode)
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt || ptNode->type == Parse::NonTerminalType::ParenthesizedExpression)
+	if (isSingleton(ptNode))
 	{
 		return Expression::create(ptNode->children[0]);
 	}

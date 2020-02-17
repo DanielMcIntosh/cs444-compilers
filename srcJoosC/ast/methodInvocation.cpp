@@ -23,27 +23,42 @@ std::unique_ptr<MethodInvocation> MethodInvocation::create(const Parse::Tree *pt
 	}
 }
 MethodInvocation::MethodInvocation(const Parse::TMethodInvocation *ptNode)
+  : args(std::move(NodeList<Expression>(ptNode->argumentList).list))
 {
-	/*
-	int cur = 0;
-	// Primary.Identifier() or Primary.Identifier(ArgList)
-	if (children[1].lexeme == ".")
+	if (ptNode->name != nullptr)
 	{
-		obj = std::dynamic_pointer_cast<Primary>(children[cur++].astNode);
-		++cur; // dot
-		identifier = children[cur++].lexeme;
+		identifier = Name::create(ptNode->name);
 	} else
 	{
-		identifier = std::dynamic_pointer_cast<Name>(children[cur++].astNode);
+		obj = Expression::create(ptNode->primary);
+		identifier = ptNode->identifier->value;
 	}
-	++cur; // open paren
-	if (!Parser::isTerminal(children[cur].sym))
+}
+
+std::string MethodInvocation::toCode()
+{
+	std::string str = "(";
+	if (obj)
 	{
-		auto argList = std::dynamic_pointer_cast<ArgumentList>(children[cur++].astNode);
-		args = argList->list;
+		str += obj->toCode() + ".";
+		str += std::get<std::string>(identifier);
+	} else
+	{
+		str += std::get<std::unique_ptr<Name>>(identifier)->toCode();
 	}
-	++cur; //close paren
-	*/
+	str += "(";
+	for (auto &arg : args)
+	{
+		str += arg->toCode() + ", ";
+	}
+	// pop the extra ", "
+	if (!args.empty())
+	{
+		str.pop_back();
+		str.pop_back();
+	}
+	str += "))";
+	return str;
 }
 
 } //namespace AST

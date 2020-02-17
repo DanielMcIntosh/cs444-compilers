@@ -13,6 +13,9 @@ public:
 	static std::unique_ptr<Node> create(const Parse::Tree *ptNode);
 	virtual ~Node() = default;
 
+	[[gnu::pure]]
+	static bool isSingleton(const Parse::Tree *ptNode);
+
 	virtual std::string toCode() = 0;
 };
 

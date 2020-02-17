@@ -14,16 +14,16 @@ std::unique_ptr<UnaryExpression> UnaryExpression::create(const Parse::Tree *ptNo
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
+	if (isSingleton(ptNode))
+	{
+		return UnaryExpression::create(ptNode->children[0]);
+	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::UnaryExpression:
 		return std::make_unique<UnaryExpression>(static_cast<const Parse::TUnaryExpression*>(ptNode));
 	case Parse::NonTerminalType::UnaryExpressionNotPlusMinus:
 		return std::make_unique<UnaryExpression>(static_cast<const Parse::TUnaryExpressionNotPlusMinus*>(ptNode));
 	default:
-        if (ptNode->oneNt)
-        {
-            return UnaryExpression::create(ptNode->children[0]);
-        }
 		throw std::runtime_error("inappropriate PT type for UnaryExpression: " + std::to_string((int)ptNode->type));
 	}
 }

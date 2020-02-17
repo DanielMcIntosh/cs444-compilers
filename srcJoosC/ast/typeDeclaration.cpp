@@ -18,7 +18,7 @@ std::unique_ptr<TypeDeclaration> TypeDeclaration::create(const Parse::Tree *ptNo
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
+	if (isSingleton(ptNode))
 	{
 		return TypeDeclaration::create(ptNode->children[0]);
 	}
@@ -46,7 +46,7 @@ TypeDeclaration::TypeDeclaration(const Parse::TClassDeclaration *ptNode)
 	name(ptNode->identifier->value),
 	// Simple case - we need a unique_ptr<Type>, so call Type::create
 	// Also note that we don't need to call std::move because the return is an r-value
-	superClass(Type::create(ptNode->classType)),
+	superClass(ptNode->classType ? Type::create(ptNode->classType) : nullptr),
 	// similar to modifiers
 	interfaces(std::move(NodeList<Type>(ptNode->interfaceTypeList).list)),
 	// Since nothing sub-classes TypeBody, and none of the rules for TypeBody are oneNT rules,

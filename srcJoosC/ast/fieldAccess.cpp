@@ -26,7 +26,7 @@ FieldAccess::FieldAccess(const Parse::TFieldAccess *ptNode)
 
 std::string FieldAccess::toCode()
 {
-	return object->toCode() + "." + member;
+	return "(" + object->toCode() + "." + member + ")";
 }
 
 } //namespace AST

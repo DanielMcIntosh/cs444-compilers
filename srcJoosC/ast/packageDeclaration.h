@@ -15,7 +15,7 @@ public:
 
 	std::unique_ptr<Name> packageName;
 
-	std::string toCode() override { return "[PackageDeclaration]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST

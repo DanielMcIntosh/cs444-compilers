@@ -10,7 +10,8 @@ namespace AST
 std::unique_ptr<PrimitiveType> PrimitiveType::create(const Parse::Tree *ptNode)
 {
 	if (ptNode == nullptr) {
-		return nullptr;
+		// Type is never nullable, but "void" doesn't show up in the PT, so we use nullptr to indicate type void
+		return std::unique_ptr<PrimitiveType>(new PrimitiveType(nullptr));
 	}
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::PrimitiveType:
@@ -28,10 +29,10 @@ static_assert( (int)Parse::TPrimitiveTypeV::Char   	== (int)PrimitiveType::Varia
 PrimitiveType::PrimitiveType(const Parse::TPrimitiveType *ptNode)
   : type{(int)ptNode->v}
 {
-	assert(type <= Variant::Max);
+	assert(type <= Variant::Max && type != Variant::Void);
 }
-PrimitiveType::PrimitiveType(const AST::PrimitiveType::Variant type)
-    : type(type)
+PrimitiveType::PrimitiveType(nullptr_t null)
+  : type(Variant::Void)
 {
 }
 

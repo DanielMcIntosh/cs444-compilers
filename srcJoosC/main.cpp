@@ -49,7 +49,7 @@ void compileDumpSingleResult(char *baseOutputPath, const FrontendResult &singleR
     fclose(originalFile);
 
     //Scan::scannerDumpDebugInfo(singleResult.scanResult, baseOutputPath);
-    Parse::parserDumpDebugInfo(singleResult.parseResult, baseOutputPath);
+    //Parse::parserDumpDebugInfo(singleResult.parseResult, baseOutputPath);
     AST::astDumpDebugInfo(singleResult.astResult, baseOutputPath);
   }
 }
@@ -98,6 +98,10 @@ FrontendResult doFrontEndSingle(JoosC *joosc, const char *fileName) {
   }
 
   fileResult.failedStage = FrontendStageType::Pass;
+
+  strdecl256(baseOutputPath, "output/%s", fileName);
+  compileDumpSingleResult(baseOutputPath, fileResult);
+
   return fileResult;
 }
 
@@ -122,9 +126,6 @@ int compileMain(JoosC *joosc, const vector<string> &fileList) {
   int retVal = 0;
   for (const string &file: fileList) {
     frontendResult.emplace_back(doFrontEndSingle(joosc, file.c_str()));
-
-    strdecl256(baseOutputPath, "output/%s", file.c_str());
-    compileDumpSingleResult(baseOutputPath, frontendResult.back());
 
     if (frontendResult.back().failedStage != FrontendStageType::Pass)
     {

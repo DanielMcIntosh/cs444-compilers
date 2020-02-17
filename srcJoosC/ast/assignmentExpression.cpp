@@ -28,7 +28,7 @@ AssignmentExpression::AssignmentExpression(const Parse::TAssignment *ptNode)
 
 std::string AssignmentExpression::toCode()
 {
-	return lhs->toCode() + "=" + rhs->toCode();
+	return "(" + lhs->toCode() + "=" + rhs->toCode() + ")";
 }
 
 } //namespace AST

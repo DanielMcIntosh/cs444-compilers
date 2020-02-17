@@ -13,7 +13,7 @@ std::unique_ptr<ImportDeclaration> ImportDeclaration::create(const Parse::Tree *
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
+	if (isSingleton(ptNode))
 	{
 		return ImportDeclaration::create(ptNode->children[0]);
 	}

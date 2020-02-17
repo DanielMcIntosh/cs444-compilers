@@ -30,7 +30,7 @@ ClassInstanceCreationExpression::ClassInstanceCreationExpression(const Parse::TC
 
 std::string ClassInstanceCreationExpression::toCode()
 {
-	std::string str = "new " + type->toCode() + "(";
+	std::string str = "(new " + type->toCode() + "(";
 	for (auto &arg : args)
 	{
 		str += arg->toCode();
@@ -42,7 +42,7 @@ std::string ClassInstanceCreationExpression::toCode()
 		str.pop_back();
 		str.pop_back();
 	}
-	str += ")";
+	str += "))";
 	return str;
 }
 

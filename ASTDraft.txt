@@ -416,7 +416,7 @@ InclusiveOrExpression: BinaryExpression(subclass of Expression)
 
 ConditionalAndExpression: BinaryExpression(subclass of Expression)
 	InclusiveOrExpression
-	ConditionalAndExpression </i>&amp;&amp;<i> EqualityExpression
+	ConditionalAndExpression </i>&amp;&amp;<i> InclusiveOrExpression
 
 ConditionalOrExpression: BinaryExpression(subclass of Expression)
 	ConditionalAndExpression

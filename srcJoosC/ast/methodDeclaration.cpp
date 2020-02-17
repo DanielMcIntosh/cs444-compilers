@@ -13,7 +13,7 @@ std::unique_ptr<MethodDeclaration> MethodDeclaration::create(const Parse::Tree *
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
+	if (isSingleton(ptNode))
 	{
 		return MethodDeclaration::create(ptNode->children[0]);
 	}

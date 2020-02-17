@@ -23,4 +23,9 @@ AbstractMethodBody::AbstractMethodBody(const Parse::TAbstractMethodBody *ptNode)
 {
 }
 
+std::string AbstractMethodBody::toCode()
+{
+	return ";";
+}
+
 } //namespace AST

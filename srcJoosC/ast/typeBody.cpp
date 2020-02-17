@@ -30,8 +30,9 @@ TypeBody::TypeBody(const Parse::TInterfaceBody *ptNode)
 }
 
 std::string TypeBody::toCode() {
-    std::string s;
-    for (const auto& m : members) s += m->toCode() + " ";
+    std::string s = "[TypeBody: members={";
+    for (const auto& m : members) s += m->toCode() + ", ";
+    s += "}]";
     return s;
 }
 

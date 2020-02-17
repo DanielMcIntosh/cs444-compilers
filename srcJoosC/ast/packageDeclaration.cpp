@@ -13,7 +13,7 @@ std::unique_ptr<PackageDeclaration> PackageDeclaration::create(const Parse::Tree
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
+	if (isSingleton(ptNode))
 	{
 		return PackageDeclaration::create(ptNode->children[0]);
 	}
@@ -28,6 +28,11 @@ std::unique_ptr<PackageDeclaration> PackageDeclaration::create(const Parse::Tree
 PackageDeclaration::PackageDeclaration(const Parse::TPackageDeclaration *ptNode):
 packageName(Name::create(ptNode->name))
 {
+}
+
+std::string PackageDeclaration::toCode()
+{
+	return "package " + packageName->toCode() + ";";
 }
 
 } //namespace AST

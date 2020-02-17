@@ -16,7 +16,7 @@ std::unique_ptr<Name> Name::create(const Parse::Tree *ptNode)
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
+	if (isSingleton(ptNode))
 	{
 		return Name::create(ptNode->children[0]);
 	}
@@ -29,14 +29,25 @@ std::unique_ptr<Name> Name::create(const Parse::Tree *ptNode)
 }
 
 Name::Name(const Parse::TName *ptNode)
+  : id(ptNode->identifier->value)
 {
-	auto *tree = static_cast<const Parse::Tree *>(ptNode);
-	auto ident = ptFindByType(const_cast<Parse::Tree*>(tree), Identifier);
-	std::reverse(ident.begin(), ident.end());
-	for (size_t i = 0; i < ident.size() - 1; ++i) {
-		prefix.push_back(ident[i]->value);
+	if (ptNode->name)
+	{
+		Name pre = Name(ptNode->name);
+		prefix = std::move(pre.prefix);
+		prefix.push_back(std::move(pre.id));
 	}
-	id = ident.back()->value;
+}
+
+std::string Name::toCode()
+{
+	std::string str;
+	for (auto &pre : prefix)
+	{
+		str += pre + ".";
+	}
+	str += id;
+	return str;
 }
 
 NameType::NameType(Name &&other)
@@ -45,10 +56,32 @@ NameType::NameType(Name &&other)
 {
 }
 
+std::string NameType::toCode()
+{
+	std::string str;
+	for (auto &pre : prefix)
+	{
+		str += pre + ".";
+	}
+	str += id;
+	return str;
+}
+
 NameExpression::NameExpression(Name &&other)
   : prefix(std::move(other.prefix)),
 	id(std::move(other.id))
 {
+}
+
+std::string NameExpression::toCode()
+{
+	std::string str;
+	for (auto &pre : prefix)
+	{
+		str += pre + ".";
+	}
+	str += id;
+	return str;
 }
 
 } //namespace AST

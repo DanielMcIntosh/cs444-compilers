@@ -349,7 +349,7 @@ InclusiveOrExpression:
 
 ConditionalAndExpression:
 	InclusiveOrExpression
-	ConditionalAndExpression </i>&amp;&amp;<i> EqualityExpression
+	ConditionalAndExpression </i>&amp;&amp;<i> InclusiveOrExpression
 
 ConditionalOrExpression:
 	ConditionalAndExpression

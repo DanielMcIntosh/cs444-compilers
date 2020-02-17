@@ -31,7 +31,7 @@ ArrayCreationExpression::ArrayCreationExpression(const Parse::TArrayCreationExpr
 
 std::string ArrayCreationExpression::toCode()
 {
-	return "new " + type->toCode() + '[' + size->toCode() + ']';
+	return "(new " + type->toCode() + '[' + size->toCode() + "])";
 }
 
 } //namespace AST

@@ -14,7 +14,7 @@ std::unique_ptr<BinaryExpression> BinaryExpression::create(const Parse::Tree *pt
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
+	if (isSingleton(ptNode))
 	{
 		return BinaryExpression::create(ptNode->children[0]);
 	}
@@ -92,7 +92,7 @@ BinaryExpression::BinaryExpression(const Parse::TInclusiveOrExpression *ptNode)
 BinaryExpression::BinaryExpression(const Parse::TConditionalAndExpression *ptNode)
   : op(Variant::LazyAnd),
 	lhs(Expression::create(ptNode->conditionalAndExpression)),
-	rhs(Expression::create(ptNode->equalityExpression))
+	rhs(Expression::create(ptNode->inclusiveOrExpression))
 {
 }
 BinaryExpression::BinaryExpression(const Parse::TConditionalOrExpression *ptNode)
@@ -106,9 +106,11 @@ std::string BinaryExpression::toCode()
 {
 	if (op == Variant::InstanceOf)
 	{
-		return lhs->toCode() + op + std::get<std::unique_ptr<Type>>(rhs)->toCode();
+		auto &rhsType = std::get<std::unique_ptr<Type>>(rhs);
+		return "(" + lhs->toCode() + op + rhsType->toCode() + ")";
 	}
-	return lhs->toCode() + op + std::get<std::unique_ptr<Expression>>(rhs)->toCode();
+	auto &rhsExpr = std::get<std::unique_ptr<Expression>>(rhs);
+	return "(" + lhs->toCode() + op + rhsExpr->toCode() + ")";
 }
 
 std::string operator+=(std::string& str, BinaryExpression::Variant op)

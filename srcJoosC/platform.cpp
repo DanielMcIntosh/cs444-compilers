@@ -65,6 +65,7 @@ void createDirectoryChain(const char *path) {
   system(commandBuffer);
 }
 
+[[gnu::const]]
 s32 getLeadingZeros(u64 val) {
   return __builtin_clzll(val);
 

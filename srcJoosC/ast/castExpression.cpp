@@ -35,9 +35,7 @@ CastExpression::CastExpression(const Parse::TCastExpression *ptNode)
             rhs = Expression::create(ptNode->unaryExpression);
             break;
         case Parse::TCastExpressionV::LParExpressionRParUnaryExpressionNotPlusMinus:
-            type = Type::create(ptNode->expression->assignmentExpression->conditionalOrExpression->conditionalAndExpression
-                    ->inclusiveOrExpression->andExpression->equalityExpression->relationalExpression->additiveExpression
-                    ->multiplicativeExpression->unaryExpression->unaryExpressionNotPlusMinus->name);
+            type = Type::create(ptNode->expression);
             rhs = Expression::create(ptNode->unaryExpressionNotPlusMinus);
             break;
         case Parse::TCastExpressionV::LParNameLSBrRSBrRParUnaryExpressionNotPlusMinus:

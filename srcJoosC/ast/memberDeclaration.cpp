@@ -14,7 +14,7 @@ std::unique_ptr<MemberDeclaration> MemberDeclaration::create(const Parse::Tree *
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
+	if (isSingleton(ptNode))
 	{
 		return MemberDeclaration::create(ptNode->children[0]);
 	}

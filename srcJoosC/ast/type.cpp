@@ -10,10 +10,11 @@ namespace AST
 // static
 std::unique_ptr<Type> Type::create(const Parse::Tree *ptNode)
 {
+	// Type is never nullable, but "void" doesn't show up in the PT, so we use nullptr to indicate type void
 	if (ptNode == nullptr) {
-		return nullptr;
+		return PrimitiveType::create(nullptr);
 	}
-	if (ptNode->oneNt)
+	if (isSingleton(ptNode))
 	{
 		return Type::create(ptNode->children[0]);
 	}

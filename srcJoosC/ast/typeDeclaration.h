@@ -25,8 +25,8 @@ public:
 	bool isInterface;
 	std::vector<std::unique_ptr<Modifier>> modifiers;
 	std::string name;
-	// null for interfaces
 	// TODO: these should be NameType
+	// null for interfaces and classes without a superclass
 	std::unique_ptr<Type> superClass;
 	// implements if we're a class, extends if we're an interface
 	std::vector<std::unique_ptr<Type>> interfaces;

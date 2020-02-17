@@ -10,7 +10,7 @@ std::unique_ptr<Literal> Literal::create(const Parse::Tree *ptNode)
 	if (ptNode == nullptr) {
 		return nullptr;
 	}
-	if (ptNode->oneNt)
+	if (isSingleton(ptNode))
 	{
 		return Literal::create(ptNode->children[0]);
 	}
@@ -37,7 +37,7 @@ Literal::Literal(const Parse::TLiteral *ptNode)
             value = ptNode->stringLiteral->value;
             break;
         case Parse::TLiteralV::NullLiteral:
-            value = null{};
+            value = nullptr;
             break;
         default:
             ASSERT(false);
@@ -47,9 +47,9 @@ std::string Literal::toCode() {
     return std::visit(visitor {
         [](unsigned int x) { return std::to_string(x); },
         [](bool x) -> std::string { return x ? "true" : "false"; },
-        [](char x) { return std::string(1, x); },
+        [](char x) { return std::string("'") + x + "'"; },
         [](std::string x) { return x; },
-        [](null) -> std::string { return "null"; }
+        [](nullptr_t) -> std::string { return "null"; }
     }, value);
 }
 

@@ -3,6 +3,7 @@
 #include "ast/expression.h"
 #include "parse/parseTree.h"
 #include <memory>
+#include <ostream>
 
 namespace AST
 {
@@ -49,6 +50,39 @@ ConditionalStatement::ConditionalStatement(ConditionType type, std::unique_ptr<E
 	condition(std::move(cond)),
 	body(std::move(statement))
 {
+}
+
+std::string ConditionalStatement::toCode()
+{
+	std::string str = "" + condType + "(" + condition->toCode() + ")\n";
+	str += body->toCode();
+	return str;
+}
+
+std::string operator+=(std::string& str, ConditionalStatement::ConditionType type)
+{
+    switch(type)
+    {
+		case ConditionalStatement::ConditionType::If:   	return str += "if";
+		case ConditionalStatement::ConditionType::While:	return str += "while";
+		case ConditionalStatement::ConditionType::For:  	return str += "for";
+		case ConditionalStatement::ConditionType::Max:		;// fallthrough
+		// no default to trigger compiler warning on missing case
+    }
+    throw std::runtime_error("String conversion on invalid condition type: " + std::to_string((int)type));
+}
+std::string operator+(std::string str, ConditionalStatement::ConditionType type)
+{
+	return str += type;
+}
+
+std::ostream& operator<<(std::ostream& os, ConditionalStatement::ConditionType type)
+{
+	if (type >= ConditionalStatement::ConditionType::Max) {
+		os.setstate(std::ios_base::failbit);
+		return os;
+	}
+	return os << ("" + type);
 }
 
 } //namespace AST

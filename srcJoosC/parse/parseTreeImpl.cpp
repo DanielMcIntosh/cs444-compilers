@@ -3358,21 +3358,21 @@ void ptConditionalAndExpression_InclusiveOrExpression(vector<Tree *> *stack) {
   stack->push_back(t);
 }
 
-// ConditionalAndExpression -> ConditionalAndExpression && EqualityExpression 
-void ptConditionalAndExpression_ConditionalAndExpressionAmpAmpEqualityExpression(vector<Tree *> *stack) {
+// ConditionalAndExpression -> ConditionalAndExpression && InclusiveOrExpression 
+void ptConditionalAndExpression_ConditionalAndExpressionAmpAmpInclusiveOrExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::ConditionalAndExpression);
-  assert((*stack)[n - 1]->type == NonTerminalType::EqualityExpression);
+  assert((*stack)[n - 1]->type == NonTerminalType::InclusiveOrExpression);
   auto t = new TConditionalAndExpression;
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
-  t->v = TConditionalAndExpressionV::ConditionalAndExpressionAmpAmpEqualityExpression;
+  t->v = TConditionalAndExpressionV::ConditionalAndExpressionAmpAmpInclusiveOrExpression;
   t->oneNt = false;
   t->conditionalAndExpression = dynamic_cast<TConditionalAndExpression *>((*stack)[n - 2]);
   assert(t->conditionalAndExpression);
-  t->equalityExpression = dynamic_cast<TEqualityExpression *>((*stack)[n - 1]);
-  assert(t->equalityExpression);
+  t->inclusiveOrExpression = dynamic_cast<TInclusiveOrExpression *>((*stack)[n - 1]);
+  assert(t->inclusiveOrExpression);
   stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
@@ -3722,7 +3722,7 @@ void ptDispatcher(vector<Tree *> *stack, int ruleID) {
     ptInclusiveOrExpression_AndExpression, 
     ptInclusiveOrExpression_InclusiveOrExpressionOrAndExpression, 
     ptConditionalAndExpression_InclusiveOrExpression, 
-    ptConditionalAndExpression_ConditionalAndExpressionAmpAmpEqualityExpression, 
+    ptConditionalAndExpression_ConditionalAndExpressionAmpAmpInclusiveOrExpression, 
     ptConditionalOrExpression_ConditionalAndExpression, 
     ptConditionalOrExpression_ConditionalOrExpressionOrOrConditionalAndExpression, 
     ptAssignmentExpression_ConditionalOrExpression, 

@@ -19,7 +19,7 @@ public:
 	std::vector<std::string> prefix;
 	std::string id;
 
-	std::string toCode() override { return "[Name]"; }
+	std::string toCode() override;
 };
 
 class NameType: public Type
@@ -30,7 +30,7 @@ public:
 
 	explicit NameType(Name&& other);
 
-	std::string toCode() override { return "[NameType]"; }
+	std::string toCode() override;
 };
 
 class NameExpression: public Expression
@@ -41,7 +41,7 @@ public:
 
 	explicit NameExpression(Name&& other);
 
-	std::string toCode() override { return "[NameExpression]"; }
+	std::string toCode() override;
 };
 
 } //namespace AST
