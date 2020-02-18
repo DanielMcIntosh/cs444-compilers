@@ -64,7 +64,7 @@ NameType::NameType(Name &&other)
 Semantic::SemanticErrorType NameType::resolve(Semantic::SemanticDB *db,
 																							const CompilationUnit *cpu,
 																							TypeDeclaration *typeDecl) {
-	return Semantic::semanticResolveType(db, this, flatten(), cpu, typeDecl, false);
+	return Semantic::semanticResolveType(db, this, flatten(), cpu, typeDecl);
 }
 
 std::string NameType::toCode()

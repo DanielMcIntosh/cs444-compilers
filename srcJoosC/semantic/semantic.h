@@ -48,7 +48,7 @@ void semanticInit(SemanticDB *db, const vector<FrontendResult> &frontendResult);
 void semanticDo(SemanticDB *sdb);
 SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, 
 																			const string &typeName, const CompilationUnit *cpu,
-																			TypeDeclaration *source, bool forClass);
+																			TypeDeclaration *source);
 
 } // namespace Semantic
 
