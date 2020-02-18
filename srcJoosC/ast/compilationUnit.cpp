@@ -48,7 +48,7 @@ void CompilationUnit::resolveEnclosingPackageAndApplyToTypeDecl() {
   }
 
   packageName = thePackage;
-  typeDeclaration->fqn = thePackage + std::string(".") + typeDeclaration->name;
+  typeDeclaration->fqn = thePackage + "." + typeDeclaration->name;
 }
 
 std::string CompilationUnit::toCode()
