@@ -13,6 +13,8 @@
 namespace AST
 {
 
+class CompilationUnit;
+
 // might not be sub-classed (i.e. can have empty 'type declarations' which are just a semicolon)
 class TypeDeclaration: public Node
 {
@@ -36,9 +38,10 @@ public:
 
 	// Fully qualified name (with package string)
 	std::string fqn;
-
 	// Used in topological sort of class hierarchy.
 	std::vector<TypeDeclaration *> children;
+	// The compilation unit in which this type is declared.
+	CompilationUnit *cpu;
 
 	//
 	// Implements formal hierarchy checking

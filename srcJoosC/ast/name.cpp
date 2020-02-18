@@ -50,10 +50,21 @@ std::string Name::toCode()
 	return str;
 }
 
+
+std::string NameType::flatten() {
+	return toCode();
+}
+
 NameType::NameType(Name &&other)
   : prefix(std::move(other.prefix)),
 	id(std::move(other.id))
 {
+}
+
+Semantic::SemanticErrorType NameType::resolve(Semantic::SemanticDB *db,
+																							const CompilationUnit *cpu,
+																							TypeDeclaration *typeDecl) {
+	return Semantic::semanticResolveType(db, this, flatten(), cpu, typeDecl, false);
 }
 
 std::string NameType::toCode()

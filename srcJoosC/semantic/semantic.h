@@ -1,13 +1,19 @@
 #pragma once
 
 #include "../frontend.h"
-#include "ast/compilationUnit.h"
-#include "ast/typeDeclaration.h"
 #include <vector>
 #include <unordered_map>
 
 using namespace std;
 using namespace AST;
+
+namespace AST {
+
+class CompilationUnit;
+class TypeDeclaration;
+class Type;
+
+}
 
 namespace Semantic {
 
@@ -19,6 +25,8 @@ enum class SemanticErrorType {
 	NotFoundImport,
 	MultipleDefinitionOfClassInterface,
 	CycleInHierarchy,
+	ImplementSameInterface,
+	ExtendImplementSame,
 
 	Max
 };
@@ -34,6 +42,9 @@ struct SemanticDB {
 
 void semanticInit(SemanticDB *db, const vector<FrontendResult> &frontendResult);
 void semanticDo(SemanticDB *sdb);
+SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, 
+																			const string &typeName, const CompilationUnit *cpu,
+																			TypeDeclaration *source, bool forClass);
 
 } // namespace Semantic
 

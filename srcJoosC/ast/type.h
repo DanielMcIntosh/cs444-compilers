@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ast/node.h"
+#include "semantic/semantic.h"
 
 #include <string>
 
@@ -8,6 +9,7 @@ namespace AST
 {
 
 class TypeDeclaration;
+class CompilationUnit;
 
 class Type: public Node
 {
@@ -17,6 +19,10 @@ public:
 	bool isArray = false;
 
   TypeDeclaration *decl;
+
+	virtual Semantic::SemanticErrorType resolve(Semantic::SemanticDB *db, 
+																							const CompilationUnit *cpu,
+																							TypeDeclaration *typeDecl);
 protected:
 	Type() = default;
 };

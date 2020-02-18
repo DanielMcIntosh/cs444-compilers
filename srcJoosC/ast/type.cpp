@@ -35,4 +35,10 @@ std::unique_ptr<Type> Type::create(const Parse::Tree *ptNode)
 	}
 }
 
+Semantic::SemanticErrorType Type::resolve(Semantic::SemanticDB *db,
+																					const CompilationUnit *cpu,
+																					TypeDeclaration *typeDecl) {
+	return Semantic::SemanticErrorType::None;
+}
+
 } //namespace AST

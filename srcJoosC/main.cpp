@@ -242,10 +242,10 @@ void batchTesting(JoosC *joosc, const string &baseDir,
 
   cleanup:
     if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
-      LOGR("%3d \033[0;91m%s: (Semantic: %s)\033[0m", numTests, topLevelName.c_str(),
+      LOG_RED("%3d %s: (Semantic: %s)", numTests, topLevelName.c_str(),
       		 Semantic::gSemanticErrorTypeName[static_cast<int>(middleend.semanticDB.error)]);
     } else {
-	    LOGR("%3d \033[0;92m%s: (Semantic: %s)\033[0m", numTests, topLevelName.c_str(),
+	    LOG_GREEN("%3d %s: (Semantic: %s)", numTests, topLevelName.c_str(),
 	         Semantic::gSemanticErrorTypeName[static_cast<int>(middleend.semanticDB.error)]);
       ++numPassed;
     }

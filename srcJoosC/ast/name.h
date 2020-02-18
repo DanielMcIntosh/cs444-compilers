@@ -2,6 +2,7 @@
 
 #include "ast/expression.h"
 #include "ast/type.h"
+#include "semantic/semantic.h"
 #include <memory>
 #include <vector>
 #include <string>
@@ -28,6 +29,10 @@ public:
 	std::vector<std::string> prefix;
 	std::string id;
 
+	std::string flatten();
+	virtual Semantic::SemanticErrorType resolve(Semantic::SemanticDB *db,
+																							const CompilationUnit *cpu,
+																							TypeDeclaration *typeDecl) override;
 	explicit NameType(Name&& other);
 
 	std::string toCode() override;

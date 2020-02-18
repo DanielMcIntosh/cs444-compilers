@@ -49,6 +49,7 @@ void CompilationUnit::resolveEnclosingPackageAndApplyToTypeDecl() {
 
   packageName = thePackage;
   typeDeclaration->fqn = thePackage + "." + typeDeclaration->name;
+	typeDeclaration->cpu = this;
 }
 
 std::string CompilationUnit::toCode()
