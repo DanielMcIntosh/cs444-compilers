@@ -44,4 +44,8 @@ std::string VariableDeclaration::toCode() {
     }
 }
 
+bool VariableDeclaration::equals(VariableDeclaration *other) {
+  return identifier == other->identifier && type->equals(other->type.get());
+}
+
 } //namespace AST

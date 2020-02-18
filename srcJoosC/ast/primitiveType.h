@@ -21,10 +21,13 @@ public:
     } type;
 
     static std::unique_ptr<PrimitiveType> create(const Parse::Tree *ptNode);
-	explicit PrimitiveType(const Parse::TPrimitiveType *ptNode);
+    explicit PrimitiveType(const Parse::TPrimitiveType *ptNode);
     // void type - see note in Type::create
     explicit PrimitiveType(std::nullptr_t null);
 
+  virtual bool equals(PrimitiveType *) override;
+  virtual bool equals(NameType *) override;
+  virtual bool equals(Type *) override;
 	std::string toCode() override;
 };
 

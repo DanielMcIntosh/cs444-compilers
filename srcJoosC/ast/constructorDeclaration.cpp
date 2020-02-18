@@ -60,4 +60,26 @@ std::string ConstructorDeclaration::toCode()
 	return str;
 }
 
+bool ConstructorDeclaration::equals(FieldDeclaration *other) {
+  return false;
+}
+
+bool ConstructorDeclaration::equals(MemberDeclaration *other) {
+  return false;
+}
+
+bool ConstructorDeclaration::equals(ConstructorDeclaration *other) {
+  if (parameters.size() != other->parameters.size())
+    return false;
+  for (size_t i = 0; i < parameters.size(); ++i) {
+    if (!parameters[i]->equals(other->parameters[i].get()))
+      return false;
+  }
+  return true;
+}
+
+bool ConstructorDeclaration::equals(MethodDeclaration *other) {
+  return false;
+}
+
 } //namespace AST

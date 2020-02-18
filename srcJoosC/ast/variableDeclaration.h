@@ -21,6 +21,7 @@ public:
 	std::unique_ptr<Expression> initializer;
 
 	std::string toCode() override;
+	bool equals(VariableDeclaration *);
 };
 
 } //namespace AST

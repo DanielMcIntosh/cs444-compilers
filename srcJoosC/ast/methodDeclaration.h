@@ -24,6 +24,10 @@ public:
 
 	std::string toCode() override;
 
+  virtual bool equals(FieldDeclaration *) override;
+  virtual bool equals(MemberDeclaration *) override;
+  virtual bool equals(ConstructorDeclaration *) override;
+  virtual bool equals(MethodDeclaration *) override;
 private:
 	MethodDeclaration(MethodHeader&& header, std::unique_ptr<Block> block);
 };

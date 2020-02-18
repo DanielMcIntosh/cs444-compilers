@@ -22,6 +22,11 @@ public:
 	std::unique_ptr<Expression> initializer;
 
 	std::string toCode() override;
+
+  virtual bool equals(FieldDeclaration *) override;
+  virtual bool equals(MemberDeclaration *) override;
+  virtual bool equals(ConstructorDeclaration *) override;
+  virtual bool equals(MethodDeclaration *) override;
 private:
 	FieldDeclaration(std::vector<std::unique_ptr<Modifier>> mods, VariableDeclarator &&declarator, std::unique_ptr<Type> t);
 };

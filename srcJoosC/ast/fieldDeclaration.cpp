@@ -51,4 +51,20 @@ std::string FieldDeclaration::toCode()
 	return str;
 }
 
+bool FieldDeclaration::equals(FieldDeclaration *other) {
+  return identifier == other->identifier && type->equals(other->type.get());
+}
+
+bool FieldDeclaration::equals(MemberDeclaration *other) {
+  return false;
+}
+
+bool FieldDeclaration::equals(ConstructorDeclaration *other) {
+  return false;
+}
+
+bool FieldDeclaration::equals(MethodDeclaration *) {
+  return false;
+}
+
 } //namespace AST

@@ -10,6 +10,8 @@ namespace AST
 
 class TypeDeclaration;
 class CompilationUnit;
+class PrimitiveType;
+class NameType;
 
 class Type: public Node
 {
@@ -17,12 +19,17 @@ public:
 	static std::unique_ptr<Type> create(const Parse::Tree *ptNode);
 
 	bool isArray = false;
+	TypeDeclaration *decl;
 
-  TypeDeclaration *decl;
 
 	virtual Semantic::SemanticErrorType resolve(Semantic::SemanticDB *db, 
 																							const CompilationUnit *cpu,
 																							TypeDeclaration *typeDecl);
+
+  virtual bool equals(PrimitiveType *) = 0;
+  virtual bool equals(NameType *) = 0;
+  virtual bool equals(Type *) = 0;
+  
 protected:
 	Type() = default;
 };

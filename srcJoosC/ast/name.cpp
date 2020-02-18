@@ -78,6 +78,18 @@ std::string NameType::toCode()
 	return str;
 }
 
+bool NameType::equals(PrimitiveType *other) {
+  return false;
+}
+
+bool NameType::equals(NameType *other) {
+  return decl == other->decl;
+}
+
+bool NameType::equals(Type *other) {
+  return false;
+}
+
 NameExpression::NameExpression(Name &&other)
   : prefix(std::move(other.prefix)),
 	id(std::move(other.id))

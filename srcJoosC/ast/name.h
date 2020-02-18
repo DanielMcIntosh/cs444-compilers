@@ -28,12 +28,17 @@ class NameType: public Type
 public:
 	std::vector<std::string> prefix;
 	std::string id;
+  TypeDeclaration *decl;
 
 	std::string flatten();
 	virtual Semantic::SemanticErrorType resolve(Semantic::SemanticDB *db,
 																							const CompilationUnit *cpu,
 																							TypeDeclaration *typeDecl) override;
 	explicit NameType(Name&& other);
+
+  virtual bool equals(PrimitiveType *) override;
+  virtual bool equals(NameType *) override;
+  virtual bool equals(Type *) override;
 
 	std::string toCode() override;
 };
