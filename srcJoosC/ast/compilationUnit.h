@@ -28,6 +28,8 @@ public:
 
 	// apply package name to all type declarations under this node
 	void resolveEnclosingPackageAndApplyToTypeDecl();
+	// remove imports that are exactly the same
+	void importDeduplication();
 };
 
 } //namespace AST

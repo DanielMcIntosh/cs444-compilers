@@ -31,15 +31,25 @@ enum class SemanticErrorType {
 	ExtendNonClass,
 	ExtendClass,
 	ExtendFinalClass,
+	TypeDeclarationClashImport,
 
 	Max
 };
 
 extern const char *gSemanticErrorTypeName[];
 
+struct Trie;
+
+struct Trie {
+	string name;
+	bool isClass;
+	vector<unique_ptr<Trie>> children;
+};
+
 struct SemanticDB {
   vector<CompilationUnit *> cpus;
   unordered_map<string, TypeDeclaration *> typeMap;
+  Trie packageTrie;
 
   enum SemanticErrorType error = SemanticErrorType::None;
 };

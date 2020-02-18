@@ -50,6 +50,9 @@ std::string Name::toCode()
 	return str;
 }
 
+bool Name::operator==(const Name &other) {
+	return prefix == other.prefix && id == other.id;
+}
 
 std::string NameType::flatten() {
 	return toCode();

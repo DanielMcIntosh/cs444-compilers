@@ -25,10 +25,11 @@ std::unique_ptr<CompilationUnit> CompilationUnit::create(const Parse::Tree *ptNo
 	}
 }
 CompilationUnit::CompilationUnit(const Parse::TCompilationUnit *ptNode)
-  : package(Name::create((ptNode->packageDeclaration) ? ptNode->packageDeclaration->name : nullptr)),
-	imports(std::move(NodeList<ImportDeclaration>(ptNode->importDeclarations).list)),
-	typeDeclaration(TypeDeclaration::create(ptNode->typeDeclaration))
 {
+	Type::setCurrentCompilationUnit(this);
+	package = Name::create((ptNode->packageDeclaration) ? ptNode->packageDeclaration->name : nullptr);
+	imports = std::move(NodeList<ImportDeclaration>(ptNode->importDeclarations).list);
+	typeDeclaration = TypeDeclaration::create(ptNode->typeDeclaration);
 	resolveEnclosingPackageAndApplyToTypeDecl();
 }
 
@@ -67,6 +68,26 @@ std::string CompilationUnit::toCode()
 	str += typeDeclaration->toCode();
 
 	return str;
+}
+
+void CompilationUnit::importDeduplication() {
+	for (size_t i = 0; i < imports.size(); ++i) {
+		for (size_t j = i + 1; j < imports.size(); ++j) {
+			if (imports[i] && imports[j] && *imports[i] == *imports[j]) {
+				imports[j] = nullptr;
+			}
+		}
+	}
+	int left = 0;
+	for (size_t i = 0; i < imports.size(); ++i) {
+		if (imports[i]) {
+			if (left < i) {
+				imports[left] = std::move(imports[i]);
+			}
+			++left;
+		}
+	}
+	imports.resize(left);
 }
 
 } //namespace AST

@@ -21,6 +21,8 @@ public:
 	std::string id;
 
 	std::string toCode() override;
+
+	bool operator==(const Name &other);
 };
 
 class NameType: public Type

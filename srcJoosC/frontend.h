@@ -91,6 +91,7 @@ namespace AST {
 class Node;
 
 struct ASTResult {
+
   std::shared_ptr<Node> ast;
 };
 
@@ -117,3 +118,5 @@ struct FrontendResult {
 };
 
 void frontendResultDelete(FrontendResult *result);
+
+extern int gTestIndex;

@@ -19,6 +19,8 @@ public:
 	bool multiImport;
 
 	std::string toCode() override;
+
+	bool operator==(const ImportDeclaration &other);
 };
 
 } //namespace AST

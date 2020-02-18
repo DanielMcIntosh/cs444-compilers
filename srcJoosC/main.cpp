@@ -14,6 +14,7 @@
 #include "profiler.h"
 #include "middleend.h"
 #include "ast/ast.h"
+#include "ast/type.h"
 #include "ast/node.h"
 
 #include "semantic/semantic.h"
@@ -192,6 +193,7 @@ void batchTesting(JoosC *joosc, const string &baseDir,
     // stdlib frontend result is reused each time, so don't free them
     vector<FrontendResult> frontendResults = stdlibFrontendResult;
 
+    Type::reset();
 	  {
 	  	// regenerate ast, since ast contains per compilation fields
 	  	for (auto &frontend : frontendResults) {
@@ -214,6 +216,7 @@ void batchTesting(JoosC *joosc, const string &baseDir,
     }
 
     ++numTests;
+    gTestIndex = numTests;
 
     { // if there are any errors in frontend stage, find and report them
       for (auto it = frontendResults.begin() + stdlibFrontendResult.size();
@@ -225,10 +228,6 @@ void batchTesting(JoosC *joosc, const string &baseDir,
         goto cleanup;
       }
     }
-
-	  if (numTests == 225) {
-		  int dummp = 1234; // for breakpointing
-	  }
 
     {
       profileSection("middleend");

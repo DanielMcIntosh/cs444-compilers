@@ -26,7 +26,7 @@ std::unique_ptr<ImportDeclaration> ImportDeclaration::create(const Parse::Tree *
 		throw std::runtime_error("inappropriate PT type for ImportDeclaration: " + std::to_string((int)ptNode->type));
 	}
 }
-// TODO I assume the meaning of multiImport is whether the import is name.* or not?
+
 ImportDeclaration::ImportDeclaration(const Parse::TSingleTypeImportDeclaration *ptNode):
 importName(Name::create(ptNode->name)), multiImport(false)
 {
@@ -45,6 +45,10 @@ std::string ImportDeclaration::toCode()
 	}
 	str += ";";
 	return str;
+}
+
+bool ImportDeclaration::operator==(const ImportDeclaration &other) {
+	return *importName == *other.importName && multiImport == other.multiImport;
 }
 
 } //namespace AST

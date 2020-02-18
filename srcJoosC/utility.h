@@ -68,9 +68,9 @@ typedef int16_t s16;
   LOGR("\033[0;92m" _fmt "\033[0m", ##__VA_ARGS__)
 #else
 #define LOG_RED(_fmt, ...) \
-  LOGR("RED " _fmt, ##__VA_ARGS__)
+  LOGR("XXXXX " _fmt, ##__VA_ARGS__)
 #define LOG_GREEN(_fmt, ...) \
-  LOGR("GREEN " _fmt, ##__VA_ARGS__)
+  LOGR("      " _fmt, ##__VA_ARGS__)
 #endif
 
 #define UNIMPLEMENTED unimplementedImpl

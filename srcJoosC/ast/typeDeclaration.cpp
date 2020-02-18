@@ -36,37 +36,42 @@ std::unique_ptr<TypeDeclaration> TypeDeclaration::create(const Parse::Tree *ptNo
 
 TypeDeclaration::TypeDeclaration(const Parse::TTypeDeclaration *ptNode)
 {
+	Type::setCurrentTypeDeclaration(this);
 }
 
 TypeDeclaration::TypeDeclaration(const Parse::TClassDeclaration *ptNode)
-  : isInterface(false), // depends only on which constructor is called
+{
+	Type::setCurrentTypeDeclaration(this);
+
+	isInterface = false; // depends only on which constructor is called
 	// modifiers is a list of Modifier, use NodeList<Modifier> to extract it as a vector
-	modifiers(std::move(NodeList<Modifier>(ptNode->modifiers).list)),
+	modifiers = std::move(NodeList<Modifier>(ptNode->modifiers).list);
 	// TIdentifier isn't actually a non-terminal, so there is no PseudoAST class for it
-	name(ptNode->identifier->value),
+	name = ptNode->identifier->value;
 	// Simple case - we need a unique_ptr<Type>, so call Type::create
 	// Also note that we don't need to call std::move because the return is an r-value
-	superClass(ptNode->classType ? Type::create(ptNode->classType) : nullptr),
+	superClass = ptNode->classType ? Type::create(ptNode->classType) : nullptr;
 	// similar to modifiers
-	interfaces(std::move(NodeList<Type>(ptNode->interfaceTypeList).list)),
+	interfaces = std::move(NodeList<Type>(ptNode->interfaceTypeList).list);
 	// Since nothing sub-classes TypeBody, and none of the rules for TypeBody are oneNT rules,
 	// we can directly call the constructor, giving us a little bit more type safety.
 	// Also note, since TypeBody is only a PseudoAST class, we won't store the
 	// TypeBody itself. Instead we need to extract the relevant contents.
-	members(std::move(TypeBody(ptNode->classBody).members))
-{
+	members = std::move(TypeBody(ptNode->classBody).members);
 }
 
 TypeDeclaration::TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode)
-  : isInterface(true),
-	modifiers(std::move(NodeList<Modifier>(ptNode->modifiers).list)),
-	// TIdentifier isn't actually a non-terminal, so there is no PseudoAST class for it
-	name(ptNode->identifier->value),
-	// this line is optional, but having it here means we have an explicit initialization for all members
-	superClass(nullptr),
-	interfaces(std::move(NodeList<Type>(ptNode->extendsInterfaces).list)),
-	members(std::move(TypeBody(ptNode->interfaceBody).members))
 {
+	Type::setCurrentTypeDeclaration(this);
+
+	isInterface = true;
+	modifiers = std::move(NodeList<Modifier>(ptNode->modifiers).list);
+	// TIdentifier isn't actually a non-terminal, so there is no PseudoAST class for it
+	name = ptNode->identifier->value;
+	// this line is optional, but having it here means we have an explicit initialization for all members
+	superClass = nullptr;
+	interfaces =std::move(NodeList<Type>(ptNode->extendsInterfaces).list);
+	members = std::move(TypeBody(ptNode->interfaceBody).members);
 }
 
 std::string TypeDeclaration::toCode()
