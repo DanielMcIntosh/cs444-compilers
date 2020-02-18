@@ -26,7 +26,10 @@ const char *gSemanticErrorTypeName[] = {
 	"ExtendNonClass",
 	"ExtendClass",
 	"ExtendFinalClass",
-	"TypeDeclarationClashImport"
+	"TypeDeclarationClashImport",
+	"PrefixNameIsType",
+	"NotPackage",
+
 };
 
 static_assert(static_cast<int>(SemanticErrorType::Max) == ARRAY_SIZE(gSemanticErrorTypeName));
@@ -153,6 +156,17 @@ enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const str
 		if (it == db->typeMap.end())
 			return SemanticErrorType::NotFoundImport;
 
+		{
+			// check prefix
+			auto pos = typeName.rfind('.');
+			if (pos != string::npos) {
+				SemanticErrorType error = semanticResolveType(db, type, typeName.substr(0, pos), cpu, source);
+				if (error == SemanticErrorType::None) {
+					return SemanticErrorType::PrefixNameIsType;
+				}
+			}
+		}
+
 		type->decl = it->second;
 		return SemanticErrorType::None;
 	}
@@ -230,7 +244,7 @@ void semanticDo(SemanticDB *sdb) {
 				if (!found) {
 					trieHead->children.push_back(make_unique<Trie>());
 					Trie *trie = trieHead->children.back().get();
-					trie->isClass = false;
+					trie->theTypeDecl = nullptr;
 					trie->name = name;
 					trieHead = trieHead->children.back().get();
 				}
@@ -238,8 +252,12 @@ void semanticDo(SemanticDB *sdb) {
 				component = strtok(nullptr, ".");
 			}
 
-			trieHead->isClass = true;
+			trieHead->theTypeDecl = cpu->typeDeclaration.get();
 			free(fqn);
+			if (!trieHead->children.empty()) {
+				sdb->error = SemanticErrorType::PrefixNameIsType;
+				return;
+			}
 		}
 	}
 
@@ -258,6 +276,46 @@ void semanticDo(SemanticDB *sdb) {
 		}
 
 		cpu->importDeduplication();
+
+		{
+			// check imports are actually packages
+			for (auto &imp : cpu->imports) {
+				Trie *trieHead = &sdb->packageTrie;
+
+				vector<string> iter = imp->importName->prefix;
+				iter.push_back(imp->importName->id);
+
+				for (auto &component : iter) {
+					bool found = false;
+					for (auto &child : trieHead->children) {
+						if (child->name == component) {
+							trieHead = child.get();
+							found = true;
+							break;
+						}
+					}
+
+					if (!found || (trieHead->theTypeDecl && imp->multiImport)) {
+						sdb->error = SemanticErrorType::NotPackage;
+						return;
+					}
+				}
+			}
+		}
+
+		{
+			// check simple import clash
+			unordered_set<string> classes;
+			for (auto &imp : cpu->imports) {
+				if (imp->multiImport)
+					continue;
+				if (classes.count(imp->importName->id)) {
+					sdb->error = SemanticErrorType::SingleImportAmbiguous;
+					return;
+				}
+				classes.insert(imp->importName->id);
+			}
+		}
 
 		TypeDeclaration *type = cpu->typeDeclaration.get();
 

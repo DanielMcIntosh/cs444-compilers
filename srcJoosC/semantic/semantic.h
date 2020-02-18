@@ -32,6 +32,8 @@ enum class SemanticErrorType {
 	ExtendClass,
 	ExtendFinalClass,
 	TypeDeclarationClashImport,
+	PrefixNameIsType,
+	NotPackage,
 
 	Max
 };
@@ -42,7 +44,7 @@ struct Trie;
 
 struct Trie {
 	string name;
-	bool isClass;
+	TypeDeclaration *theTypeDecl;
 	vector<unique_ptr<Trie>> children;
 };
 
