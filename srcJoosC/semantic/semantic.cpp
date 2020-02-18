@@ -254,9 +254,21 @@ void semanticDo(SemanticDB *sdb) {
 
 			trieHead->theTypeDecl = cpu->typeDeclaration.get();
 			free(fqn);
-			if (!trieHead->children.empty()) {
+		}
+	}
+
+	{
+		// check the trie
+		vector<Trie *> stack{&sdb->packageTrie};
+		while (!stack.empty()) {
+			Trie *trie = stack.back();
+			stack.pop_back();
+			if (trie->theTypeDecl && !trie->children.empty()) {
 				sdb->error = SemanticErrorType::PrefixNameIsType;
 				return;
+			}
+			for (auto &child : trie->children) {
+				stack.push_back(child.get());
 			}
 		}
 	}
@@ -319,10 +331,6 @@ void semanticDo(SemanticDB *sdb) {
 
 		TypeDeclaration *type = cpu->typeDeclaration.get();
 
-		if (gTestIndex == 121) { // for breakpointing
-			int k = 1234;
-		}
-
 		{ // type declaration clash with imports
 			TypeDeclaration *out;
 			SemanticErrorType error = semanticResolveSingleImport(sdb, cpu, type->name, &out);
@@ -376,11 +384,7 @@ void semanticDo(SemanticDB *sdb) {
 		for (const auto &[name, ptr] : sdb->typeMap) {
 			allTypes.push_back(ptr);
 		}
-
-		if (gTestIndex == 150) { // for breakpointing
-			int k = 1234;
-		}
-
+		
 		if (!dagSort(&allTypes)) {
 			sdb->error = SemanticErrorType::CycleInHierarchy;
 			return;

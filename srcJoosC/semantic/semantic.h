@@ -44,7 +44,7 @@ struct Trie;
 
 struct Trie {
 	string name;
-	TypeDeclaration *theTypeDecl;
+	TypeDeclaration *theTypeDecl = nullptr;
 	vector<unique_ptr<Trie>> children;
 };
 

@@ -78,7 +78,7 @@ void CompilationUnit::importDeduplication() {
 			}
 		}
 	}
-	int left = 0;
+	size_t left = 0;
 	for (size_t i = 0; i < imports.size(); ++i) {
 		if (imports[i]) {
 			if (left < i) {
