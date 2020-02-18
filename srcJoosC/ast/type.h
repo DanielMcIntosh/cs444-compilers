@@ -21,7 +21,6 @@ public:
 	bool isArray = false;
 	TypeDeclaration *decl;
 
-
 	virtual Semantic::SemanticErrorType resolve(Semantic::SemanticDB *db, 
 																							const CompilationUnit *cpu,
 																							TypeDeclaration *typeDecl);
@@ -29,7 +28,7 @@ public:
   virtual bool equals(PrimitiveType *) = 0;
   virtual bool equals(NameType *) = 0;
   virtual bool equals(Type *) = 0;
-  
+
 protected:
 	Type() = default;
 };

@@ -27,6 +27,10 @@ enum class SemanticErrorType {
 	CycleInHierarchy,
 	ImplementSameInterface,
 	ExtendImplementSame,
+	ImplementNonInterface,
+	ExtendNonClass,
+	ExtendClass,
+	ExtendFinalClass,
 
 	Max
 };

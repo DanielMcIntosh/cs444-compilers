@@ -22,6 +22,10 @@ const char *gSemanticErrorTypeName[] = {
 	"CycleInHierarchy",
 	"ImplementSameInterface",
 	"ExtendImplementSame",
+	"ImplementNonInterface",
+	"ExtendNonClass",
+	"ExtendClass",
+	"ExtendFinalClass",
 };
 
 static_assert(static_cast<int>(SemanticErrorType::Max) == ARRAY_SIZE(gSemanticErrorTypeName));
@@ -297,8 +301,16 @@ void semanticDo(SemanticDB *sdb) {
 
 			TypeDeclaration *super = type->superClass ? type->superClass->decl : nullptr;
 
+			//
+			// various extends
+			//
 			unordered_set<TypeDeclaration *> extends;
 			for (auto &itf : type->interfaces) {
+				if (!type->isInterface && !itf->decl->isInterface) {
+					sdb->error = SemanticErrorType::ImplementNonInterface;
+					return;
+				}
+
 				if (itf->decl == super) {
 					sdb->error = SemanticErrorType::ExtendImplementSame;
 					return;
@@ -313,19 +325,42 @@ void semanticDo(SemanticDB *sdb) {
 				extends.insert(itf->decl);
 			}
 
+			//
+			// populate initial super set
+			//
 			unordered_set<TypeDeclaration *> newSuper;
 			if (super) {
+				if (!type->isInterface && super->isInterface) {
+					sdb->error = SemanticErrorType::ExtendNonClass;
+					return;
+				}
+
+				if (type->isInterface && !super->isInterface) {
+					sdb->error = SemanticErrorType::ExtendClass;
+					return;
+				}
+
+				for (auto &mod : super->modifiers) {
+					if (mod->type == Modifier::Variant::Final) {
+						sdb->error = SemanticErrorType::ExtendFinalClass;
+						return;
+					}
+				}
+
 				newSuper.insert(super);
 				for (TypeDeclaration *decl : super->superSet) {
 					newSuper.insert(decl);
 				}
 			}
+
 			for (auto *ext : extends) {
 				newSuper.insert(ext);
 				for (TypeDeclaration *decl : ext->superSet) {
 					newSuper.insert(decl);
 				}
 			}
+
+			
 		}
 	}
 }
