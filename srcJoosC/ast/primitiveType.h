@@ -23,7 +23,7 @@ public:
     static std::unique_ptr<PrimitiveType> create(const Parse::Tree *ptNode);
 	explicit PrimitiveType(const Parse::TPrimitiveType *ptNode);
     // void type - see note in Type::create
-    explicit PrimitiveType(nullptr_t null);
+    explicit PrimitiveType(std::nullptr_t null);
 
 	std::string toCode() override;
 };

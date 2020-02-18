@@ -16,7 +16,6 @@ public:
 
 	bool isArray = false;
 
-  std::string fqn;
   TypeDeclaration *decl;
 protected:
 	Type() = default;

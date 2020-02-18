@@ -79,15 +79,15 @@ bool dagSort(vector<TypeDeclaration *> *allTypes) {
 	return true;
 }
 
-void setupTypeDependency(NameType *target, const string &fqn, TypeDeclaration *decl,
-                         TypeDeclaration *source) {
-	target->fqn = fqn;
+void setupTypeDependency(NameType *target, TypeDeclaration *decl,
+                         TypeDeclaration *source, bool forClass) {
 	target->decl = decl;
-	decl->children.push_back(source);
+	if (forClass)
+		decl->children.push_back(source);
 }
 
 enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const CompilationUnit *cpu,
-                                           TypeDeclaration *source) {
+                                           TypeDeclaration *source, bool forClass) {
 	auto *namedType = dynamic_cast<NameType *>(type);
 	ASSERT(namedType);
 	if (!namedType->prefix.empty())  { // qualified name
@@ -96,7 +96,7 @@ enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const Com
 		if (it == db->typeMap.end())
 			return SemanticErrorType::NotFoundImport;
 
-		setupTypeDependency(namedType, fqn, it->second, source);
+		setupTypeDependency(namedType, it->second, source, forClass);
 		return SemanticErrorType::None;
 	}
 
@@ -104,7 +104,7 @@ enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const Com
 	// 1. enclosing class/interface
 	{
 		if (namedType->id == source->name) {
-			setupTypeDependency(namedType, source->fqn, source, source);
+			setupTypeDependency(namedType, source, source, forClass);
 			return SemanticErrorType::None;
 		}
 	}
@@ -127,7 +127,7 @@ enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const Com
 			if (found)
 				return SemanticErrorType::SingleImportAmbiguous;
 
-			setupTypeDependency(namedType, fullImp, it->second, source);
+			setupTypeDependency(namedType, it->second, source, forClass);
 			found = true;
 		}
 
@@ -140,7 +140,7 @@ enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const Com
 		string fullImp = cpu->packageName + string(".") + namedType->id;
 		auto it = db->typeMap.find(fullImp);
 		if (it != db->typeMap.end()) {
-			setupTypeDependency(namedType, fullImp, it->second, source);
+			setupTypeDependency(namedType, it->second, source, forClass);
 			return SemanticErrorType::None;
 		}
 	}
@@ -160,7 +160,7 @@ enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const Com
 			if (found)
 				return SemanticErrorType::MultiImportAmbiguous;
 
-			setupTypeDependency(namedType, fullImp, it->second, source);
+			setupTypeDependency(namedType, it->second, source, forClass);
 			found = true;
 		}
 
@@ -205,7 +205,7 @@ void semanticDo(SemanticDB *sdb) {
 
 		TypeDeclaration *type = cpu->typeDeclaration.get();
 		if (type->superClass) {
-			SemanticErrorType error = semanticResolveType(sdb, type->superClass.get(), cpu, type);
+			SemanticErrorType error = semanticResolveType(sdb, type->superClass.get(), cpu, type, true);
 			if (error != SemanticErrorType::None) {
 				sdb->error = error;
 				return;
@@ -213,7 +213,7 @@ void semanticDo(SemanticDB *sdb) {
 		}
 
 		for (auto &itf : type->interfaces) {
-			SemanticErrorType error = semanticResolveType(sdb, itf.get(), cpu, type);
+			SemanticErrorType error = semanticResolveType(sdb, itf.get(), cpu, type, true);
 			if (error != SemanticErrorType::None) {
 				sdb->error = error;
 				return;

@@ -49,7 +49,7 @@ std::string Literal::toCode() {
         [](bool x) -> std::string { return x ? "true" : "false"; },
         [](char x) { return std::string("'") + x + "'"; },
         [](std::string x) { return x; },
-        [](nullptr_t) -> std::string { return "null"; }
+        [](std::nullptr_t) -> std::string { return "null"; }
     }, value);
 }
 
