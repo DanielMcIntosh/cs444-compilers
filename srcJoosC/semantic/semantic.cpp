@@ -1,8 +1,9 @@
 #include "semantic.h"
+#include "dagSort.h"
+#include "ast/compilationUnit.h"
 
-#include <utility>
-#include <algorithm>
-#include <unordered_set>
+using namespace std;
+using namespace AST;
 
 #include "ast/compilationUnit.h"
 #include "ast/typeDeclaration.h"
@@ -10,6 +11,7 @@
 #include "ast/variableDeclaration.h"
 #include "ast/methodDeclaration.h"
 #include "ast/constructorDeclaration.h"
+#include <unordered_set>
 
 namespace Semantic {
 
@@ -49,50 +51,6 @@ string flatten(const vector<string> &list, const string &str) {
 	}
 	res.append(str);
 	return res;
-}
-
-struct DagSortContext {
-	unordered_set<TypeDeclaration *> visited;
-	unordered_set<TypeDeclaration *> tempVisited;
-	vector<TypeDeclaration *> result;
-	bool failed = false;
-};
-
-void dagSortHelper(TypeDeclaration *type, DagSortContext *ctx) {
-	if (ctx->visited.count(type))
-		return;
-
-	if (ctx->tempVisited.count(type)) {
-		ctx->failed = true;
-		return;
-	}
-
-	ctx->tempVisited.insert(type);
-
-	for (auto *child : type->children) {
-		dagSortHelper(child, ctx);
-	}
-
-	ctx->tempVisited.erase(type);
-	ctx->visited.insert(type);
-	ctx->result.push_back(type);
-}
-
-bool dagSort(vector<TypeDeclaration *> *allTypes) {
-	DagSortContext ctx;
-	for (auto *type : *allTypes) {
-		if (ctx.visited.count(type))
-			continue;
-
-		dagSortHelper(type, &ctx);
-	}
-
-	if (ctx.failed)
-		return false;
-
-	reverse(ctx.result.begin(), ctx.result.end());
-	*allTypes = ctx.result;
-	return true;
 }
 
 enum SemanticErrorType semanticResolveSingleImport(SemanticDB *db, const CompilationUnit *cpu,
@@ -383,8 +341,8 @@ void semanticDo(SemanticDB *sdb) {
 		for (const auto &[name, ptr] : sdb->typeMap) {
 			allTypes.push_back(ptr);
 		}
-		
-		if (!dagSort(&allTypes)) {
+
+		if (!dagSort(allTypes)) {
 			sdb->error = SemanticErrorType::CycleInHierarchy;
 			return;
 		}
@@ -407,7 +365,7 @@ void semanticDo(SemanticDB *sdb) {
 					sdb->error = SemanticErrorType::ExtendImplementSame;
 					return;
 				}
-				
+
 				auto it = extends.find(itf->decl);
 				if (it != extends.end()) {
 					sdb->error = SemanticErrorType::ImplementSameInterface;
@@ -452,7 +410,7 @@ void semanticDo(SemanticDB *sdb) {
 				}
 			}
 
-			
+
 		}
 	}
 }

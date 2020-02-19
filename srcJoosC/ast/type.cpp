@@ -9,16 +9,16 @@ namespace AST
 
 struct TypeDeclTypeInfo {
 	TypeDeclaration *typeDecl;
-	vector<Type *> enclosingTypes;
+	std::vector<Type *> enclosingTypes;
 };
 
 struct CPUTypeInfo {
 	CompilationUnit *cpu;
-	vector<TypeDeclTypeInfo> enclosingTypeDecl;
+	std::vector<TypeDeclTypeInfo> enclosingTypeDecl;
 };
 
 struct TypeManager {
-	vector<CPUTypeInfo> cpus;
+	std::vector<CPUTypeInfo> cpus;
 } gTypeManager;
 
 // static

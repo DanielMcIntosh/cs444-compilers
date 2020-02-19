@@ -3,9 +3,12 @@
 #include "../frontend.h"
 #include <vector>
 #include <unordered_map>
+#include <string>
 
-using namespace std;
-using namespace AST;
+namespace AST {
+	class CompilationUnit;
+	class TypeDeclaration;
+}
 
 namespace AST {
 
@@ -43,26 +46,25 @@ extern const char *gSemanticErrorTypeName[];
 struct Trie;
 
 struct Trie {
-	string name;
-	TypeDeclaration *theTypeDecl;
-	vector<unique_ptr<Trie>> children;
-
 	Trie();
+	std::string name;
+	AST::TypeDeclaration *theTypeDecl = nullptr;
+	std::vector<std::unique_ptr<Trie>> children;
 };
 
 struct SemanticDB {
-  vector<CompilationUnit *> cpus;
-  unordered_map<string, TypeDeclaration *> typeMap;
+  std::vector<AST::CompilationUnit *> cpus;
+  std::unordered_map<std::string, AST::TypeDeclaration *> typeMap;
   Trie packageTrie;
 
   enum SemanticErrorType error = SemanticErrorType::None;
 };
 
-void semanticInit(SemanticDB *db, const vector<FrontendResult> &frontendResult);
+void semanticInit(SemanticDB *db, const std::vector<FrontendResult> &frontendResult);
 void semanticDo(SemanticDB *sdb);
-SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, 
-																			const string &typeName, const CompilationUnit *cpu,
-																			TypeDeclaration *source);
+SemanticErrorType semanticResolveType(SemanticDB *db, AST::Type *type,
+																			const std::string &typeName, const AST::CompilationUnit *cpu,
+																			AST::TypeDeclaration *source);
 
 } // namespace Semantic
 
