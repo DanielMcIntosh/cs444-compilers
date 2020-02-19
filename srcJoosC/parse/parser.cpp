@@ -164,6 +164,83 @@ const string &lexTokenTranslate(const Scan::LexToken &lexToken) {
   return gError;
 }
 
+string expandEscapeSequence(const string &str) {
+	string result;
+
+	string octBuffer;
+	bool octActive = false;
+  int octMax = 0;
+	for (size_t i = 0; i < str.size(); ++i) {
+		if (octActive) {
+			if (str[i] > '7' || str[i] < '0' || octBuffer.size() == octMax) {
+				unsigned char value = 0;
+				size_t octLen = octBuffer.length();
+				value |= ((unsigned char)(octBuffer[octLen - 1] - '0')) & 7;
+				if (octLen > 1)
+					value |= ((unsigned char)(octBuffer[octLen - 2] - '0') & 7) << 3;
+				if (octLen > 2)
+					value |= ((unsigned char)(octBuffer[octLen - 3] - '0') & 7) << 6;
+				result.push_back(value & 0x7f);
+
+        octBuffer.clear();
+				octActive = false;
+        octMax = 0;
+				--i;        
+			} else {
+				octBuffer.push_back(str[i]);
+			}
+			continue;
+		}
+
+		if (str[i] != '\\') {
+			result.push_back(str[i]);
+			continue;
+		}
+
+		char value = 0;
+		switch (str[i + 1]) {
+		case 'b':
+			value = 0x8;
+			break;
+		case 't':
+			value = 0x9;
+			break;
+		case 'n':
+			value = 0xa;
+			break;
+		case 'f':
+			value = 0xc;
+			break;
+		case 'r':
+			value = 0xd;
+			break;
+		case '"':
+			value = 0x22;
+			break;
+		case '\'':
+			value = 0x27;
+			break;
+		case '\\':
+			value = 0x5c;
+			break;
+		default:
+			break;
+		}
+
+		if (!value) {
+      if (str[i + 1] < '4')
+        octMax = 3;
+      else
+        octMax = 2;
+			octActive = true;
+		} else {
+			result.push_back(value);
+      ++i;
+		}
+	}
+	return result;
+}
+
 bool treeStackShiftTerminal(vector<Tree *> *stack, const Scan::LexToken &token) {
   if (token.name == "Identifier") {
     auto t = new TIdentifier;
@@ -188,14 +265,22 @@ bool treeStackShiftTerminal(vector<Tree *> *stack, const Scan::LexToken &token) 
 
   if (token.name == "BooleanLiteral") {
     auto t = new TBooleanLiteral;
-    /* TODO */
+    if (token.lexeme == "true") {
+      t->value = true;
+    } else if (token.lexeme == "false") {
+      t->value = false;
+    } else {
+      ASSERT(false);
+    }
     stack->push_back(t);
     return true;
   }
 
   if (token.name == "StringLiteral") {
     auto t = new TStringLiteral;
-    t->value = token.lexeme;
+    string newTok = token.lexeme.substr(1, token.lexeme.length() - 2);
+    string expanded = expandEscapeSequence(newTok);
+    t->value = expanded;
     stack->push_back(t);
     return true;
   }
@@ -209,7 +294,9 @@ bool treeStackShiftTerminal(vector<Tree *> *stack, const Scan::LexToken &token) 
 
   if (token.name == "CharacterLiteral") {
     auto t = new TCharacterLiteral;
-    t->value = token.lexeme[0];
+    string newTok = token.lexeme.substr(1, token.lexeme.length() - 2);
+    string expanded = expandEscapeSequence(newTok);
+    t->value = expanded[0];
     stack->push_back(t);
     return true;
   }

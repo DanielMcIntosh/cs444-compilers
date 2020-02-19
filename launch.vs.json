@@ -10,6 +10,15 @@
       "currentDir": "${workspaceRoot}",
       "args": [],
       "env": "JOOSC_TEST=1\u0000JOOSC_TEST_ASSN=2"
+    },
+    {
+      "type": "Release",
+      "project": "CMakeLists.txt",
+      "projectTarget": "cs444.exe",
+      "name": "cs444.exe",
+      "currentDir": "${workspaceRoot}",
+      "args": [],
+      "env": "JOOSC_TEST=1\u0000JOOSC_TEST_ASSN=2"
     }
   ]
 }

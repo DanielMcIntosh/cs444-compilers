@@ -88,6 +88,7 @@ typedef int16_t s16;
 
 [[gnu::format(printf, 2, 3)]] void strAppend(std::string *str, const char *fmt, ...);
 void strFlushFILE(std::string *str, FILE *file);
+char *getPrintableChar(char c);
 
 void globalInit();
 void globalFini();

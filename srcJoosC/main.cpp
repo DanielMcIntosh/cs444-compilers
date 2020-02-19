@@ -153,7 +153,7 @@ int compileMain(JoosC *joosc, const vector<string> &fileList) {
 }
 
 void batchTesting(JoosC *joosc, const string &baseDir,
-                  const vector<string> &stdlib) {
+                  const vector<string> &stdlib, int assignNum) {
   profileSection("batch testing");
 
   // perform frontend compilation on stdlib only once to speed things up
@@ -193,13 +193,13 @@ void batchTesting(JoosC *joosc, const string &baseDir,
     // stdlib frontend result is reused each time, so don't free them
     vector<FrontendResult> frontendResults = stdlibFrontendResult;
 
-    Type::reset();
-	  {
-	  	// regenerate ast, since ast contains per compilation fields
-	  	for (auto &frontend : frontendResults) {
-	  		frontend.astResult = AST::buildAST(frontend.parseResult.treeRoot);
-	  	}
-	  }
+    {
+      // regenerate ast, since ast contains per compilation fields
+      Type::reset();	    
+      for (auto &frontend : frontendResults) {
+	frontend.astResult = AST::buildAST(frontend.parseResult.treeRoot);
+      }
+    }
 
     MiddleendResult middleend;
 
@@ -229,7 +229,7 @@ void batchTesting(JoosC *joosc, const string &baseDir,
       }
     }
 
-    {
+    if (assignNum >= 2) {
       profileSection("middleend");
       // middle end
       middleend = doMiddleend(joosc, frontendResults);
@@ -287,7 +287,7 @@ void checkTestMode(JoosC *joosc) {
     strdecl256(libFolder, "%s/%d.0/", libBase, num);
     getJavaFilesRecursive(stdlib, string(libFolder));
   }
-  batchTesting(joosc, string(progFolder), stdlib);
+  batchTesting(joosc, string(progFolder), stdlib, num);
 }
 
 void checkScanner() {
