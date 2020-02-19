@@ -24,7 +24,7 @@ std::unique_ptr<UnaryExpression> UnaryExpression::create(const Parse::Tree *ptNo
 	case Parse::NonTerminalType::UnaryExpressionNotPlusMinus:
 		return std::make_unique<UnaryExpression>(static_cast<const Parse::TUnaryExpressionNotPlusMinus*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for UnaryExpression: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for UnaryExpression: " + std::to_string((int)ptNode->type));
 	}
 }
 
@@ -54,7 +54,7 @@ std::string operator+=(std::string& str, UnaryExpression::Variant type)
 		case UnaryExpression::Variant::Max:		;// fallthrough
 		// no default to trigger compiler warning on missing case
     }
-    throw std::runtime_error("String conversion on invalid operator type: " + std::to_string((int)type));
+    FAILED("String conversion on invalid operator type: " + std::to_string((int)type));
 }
 std::string operator+(std::string str, UnaryExpression::Variant type)
 {

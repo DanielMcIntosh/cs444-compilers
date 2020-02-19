@@ -20,7 +20,7 @@ std::unique_ptr<FieldDeclaration> FieldDeclaration::create(const Parse::Tree *pt
 	case Parse::NonTerminalType::FieldDeclaration:
 		return std::make_unique<FieldDeclaration>(static_cast<const Parse::TFieldDeclaration*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for FieldDeclaration: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for FieldDeclaration: " + std::to_string((int)ptNode->type));
 	}
 }
 FieldDeclaration::FieldDeclaration(std::vector<std::unique_ptr<Modifier>> mods, VariableDeclarator &&declarator, std::unique_ptr<Type> t)

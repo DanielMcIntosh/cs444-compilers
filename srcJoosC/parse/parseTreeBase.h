@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "parseTreeNode.h"
+#include "utility.h"
 
 namespace Parse {
 
@@ -47,8 +48,7 @@ vector<T*> __ptFindByType(Tree* root, enum NonTerminalType type) {
       stack.push_back(tree->children[i]);
     }
     if (tree->type == type) {
-      result.push_back(dynamic_cast<T*>(tree));
-      assert(result.back() != nullptr);
+      result.push_back(reinterpret_cast<T*>(tree));
     }
   }
   return result;

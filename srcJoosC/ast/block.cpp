@@ -20,7 +20,7 @@ std::unique_ptr<Block> Block::create(const Parse::Tree *ptNode)
 	case Parse::NonTerminalType::Block:
 		return std::make_unique<Block>(static_cast<const Parse::TBlock*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for Block: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for Block: " + std::to_string((int)ptNode->type));
 	}
 }
 Block::Block(const Parse::TBlock *ptNode)

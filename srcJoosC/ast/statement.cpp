@@ -42,7 +42,7 @@ std::unique_ptr<Statement> Statement::create(const Parse::Tree *ptNode)
 		case Parse::NonTerminalType::IfThenElseStatementNoShortIf:
 			return IfThenElseStatement::create(ptNode);
 		default:
-			throw std::runtime_error("inappropriate PT type for Statement: " + std::to_string((int)ptNode->type));
+			FAILED("inappropriate PT type for Statement: " + std::to_string((int)ptNode->type));
 	}
 }
 

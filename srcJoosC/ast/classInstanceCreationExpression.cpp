@@ -19,7 +19,7 @@ std::unique_ptr<ClassInstanceCreationExpression> ClassInstanceCreationExpression
 	case Parse::NonTerminalType::ClassInstanceCreationExpression:
 		return std::make_unique<ClassInstanceCreationExpression>(static_cast<const Parse::TClassInstanceCreationExpression*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for ClassInstanceCreationExpression: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for ClassInstanceCreationExpression: " + std::to_string((int)ptNode->type));
 	}
 }
 ClassInstanceCreationExpression::ClassInstanceCreationExpression(const Parse::TClassInstanceCreationExpression *ptNode)

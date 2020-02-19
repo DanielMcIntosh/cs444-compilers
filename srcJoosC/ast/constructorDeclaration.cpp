@@ -20,7 +20,7 @@ std::unique_ptr<ConstructorDeclaration> ConstructorDeclaration::create(const Par
 	case Parse::NonTerminalType::ConstructorDeclaration:
 		return std::make_unique<ConstructorDeclaration>(static_cast<const Parse::TConstructorDeclaration*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for ConstructorDeclaration: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for ConstructorDeclaration: " + std::to_string((int)ptNode->type));
 	}
 }
 

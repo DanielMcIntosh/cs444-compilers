@@ -400,11 +400,11 @@ void ptgenOutputHeaders(PTGen* ptgen) {
         memberName[0] += 'a' - 'A';
         // t->* = dynamic_cast<Tree* *>((*stack)[n - *]);
         strAppend(output,
-                  "  t->%s%s = dynamic_cast<T%s *>((*stack)[n - %ld]);\n",
+                  "  t->%s%s = reinterpret_cast<T%s *>((*stack)[n - %ld]);\n",
                   memberName.c_str(), timeStr.c_str(), rule->rhs[index].c_str(),
                   captureSize - i);
         // assert(t->*);
-        strAppend(output, "  assert(t->%s);\n", memberName.c_str());
+        // strAppend(output, "  assert(t->%s);\n", memberName.c_str());
       }
 
       for (size_t i = 0; i < captureSize; ++i) {

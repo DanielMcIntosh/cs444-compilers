@@ -36,8 +36,7 @@ static_assert(static_cast<int>(SemanticErrorType::Max) == ARRAY_SIZE(gSemanticEr
 
 void semanticInit(SemanticDB *db, const vector<FrontendResult> &frontendResult) {
 	for (auto &result: frontendResult) {
-		auto *cpu = dynamic_cast<CompilationUnit *>(result.astResult.ast.get());
-		ASSERT(cpu);
+		auto *cpu = reinterpret_cast<CompilationUnit *>(result.astResult.ast.get());
 		db->cpus.push_back(cpu);
 	}
 }

@@ -22,7 +22,7 @@ std::unique_ptr<ConditionalStatement> ConditionalStatement::create(const Parse::
 	case Parse::NonTerminalType::WhileStatementNoShortIf:
 		return std::make_unique<ConditionalStatement>(static_cast<const Parse::TWhileStatementNoShortIf*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for ConditionalStatement: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for ConditionalStatement: " + std::to_string((int)ptNode->type));
 	}
 }
 ConditionalStatement::ConditionalStatement(const Parse::TIfThenStatement *ptNode)
@@ -69,7 +69,7 @@ std::string operator+=(std::string& str, ConditionalStatement::ConditionType typ
 		case ConditionalStatement::ConditionType::Max:		;// fallthrough
 		// no default to trigger compiler warning on missing case
     }
-    throw std::runtime_error("String conversion on invalid condition type: " + std::to_string((int)type));
+    FAILED("String conversion on invalid condition type: " + std::to_string((int)type));
 }
 std::string operator+(std::string str, ConditionalStatement::ConditionType type)
 {

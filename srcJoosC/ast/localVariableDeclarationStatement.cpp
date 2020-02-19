@@ -16,7 +16,7 @@ std::unique_ptr<LocalVariableDeclarationStatement> LocalVariableDeclarationState
 	case Parse::NonTerminalType::LocalVariableDeclarationStatement:
 		return std::make_unique<LocalVariableDeclarationStatement>(static_cast<const Parse::TLocalVariableDeclarationStatement*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for LocalVariableDeclarationStatement: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for LocalVariableDeclarationStatement: " + std::to_string((int)ptNode->type));
 	}
 }
 LocalVariableDeclarationStatement::LocalVariableDeclarationStatement(const Parse::TLocalVariableDeclarationStatement *ptNode)

@@ -51,6 +51,8 @@ typedef int16_t s16;
 #define ASSERT(_exp, ...) assertImpl((bool)(_exp), #_exp, ##__VA_ARGS__)
 #define ASSERT2(_exp, _fmt, ...) \
   assertImpl_((bool)(_exp), #_exp, _fmt, ##__VA_ARGS__)
+#define FAILED(_str) \
+  failedImpl(_str, __FILE__, __LINE__, __func__)
 #define LOG(fmt, ...) \
   logImpl((fmt), __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #define LOGR(fmt, ...) logImplRaw((fmt), ##__VA_ARGS__)
@@ -84,6 +86,7 @@ typedef int16_t s16;
                                                const char* str,
                                                const char* fmt,
                                                ...);
+[[noreturn]] void failedImpl(std::string str, const char* file, int line, const char* func);
 
 [[gnu::format(printf, 2, 3)]] void strAppend(std::string* str,
                                              const char* fmt,

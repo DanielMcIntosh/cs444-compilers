@@ -54,7 +54,7 @@ void logImplRaw(const char* str, ...) {
   vsnprintf(logEntry, ARRAY_SIZE(logEntry), str, arg);
   va_end(arg);
 
-  fprintf(stdout, "%s\n", logEntry);
+  fprintf(stderr, "%s\n", logEntry);
 }
 
 void logImpl(const char* str,
@@ -70,7 +70,7 @@ void logImpl(const char* str,
            "%d/%d %2d:%02d:%02d.%03d %s:%4d:\n", info.month, info.day,
            info.hour, info.minute, info.second, info.millisecond, file, line);
 
-  fprintf(stdout, "%s", logHeader);
+  fprintf(stderr, "%s", logHeader);
 
   char logEntry[TWO_TO_EIGHT];
   va_list arg;
@@ -78,7 +78,7 @@ void logImpl(const char* str,
   vsnprintf(logEntry, ARRAY_SIZE(logEntry), str, arg);
   va_end(arg);
 
-  fprintf(stdout, "%s", logEntry);
+  fprintf(stderr, "%s", logEntry);
 }
 
 void globalInit() {
@@ -141,4 +141,9 @@ void getJavaFilesRecursive(vector<string>& fileList, const string& folder) {
       continue;
     }
   }
+}
+
+[[noreturn]] void failedImpl(std::string str, const char *file, int line, const char *func) {
+  logImplRaw("%s:%d %s: FAILED: %s", file, line, func, str.c_str());
+  unimplementedImpl();
 }

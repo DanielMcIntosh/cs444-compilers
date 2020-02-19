@@ -17,7 +17,7 @@ std::unique_ptr<ArrayCreationExpression> ArrayCreationExpression::create(const P
 	case Parse::NonTerminalType::ArrayCreationExpression:
 		return std::make_unique<ArrayCreationExpression>(static_cast<const Parse::TArrayCreationExpression*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for ArrayCreationExpression: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for ArrayCreationExpression: " + std::to_string((int)ptNode->type));
 	}
 }
 ArrayCreationExpression::ArrayCreationExpression(const Parse::TArrayCreationExpression *ptNode)

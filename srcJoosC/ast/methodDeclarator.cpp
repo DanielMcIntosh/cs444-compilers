@@ -19,7 +19,7 @@ std::unique_ptr<MethodDeclarator> MethodDeclarator::create(const Parse::Tree *pt
 	case Parse::NonTerminalType::MethodDeclarator:
 		return std::make_unique<MethodDeclarator>(static_cast<const Parse::TMethodDeclarator*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for MethodDeclarator: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for MethodDeclarator: " + std::to_string((int)ptNode->type));
 	}
 }
 MethodDeclarator::MethodDeclarator(const Parse::TConstructorDeclarator *ptNode)

@@ -62,7 +62,7 @@ std::unique_ptr<Expression> Expression::create(const Parse::Tree *ptNode)
 		case Parse::NonTerminalType::This2:
 			return This::create(ptNode);
 		default:
-			throw std::runtime_error("inappropriate PT type for Expression: " + std::to_string((int)ptNode->type));
+			FAILED("inappropriate PT type for Expression: " + std::to_string((int)ptNode->type));
 	}
 }
 

@@ -23,7 +23,7 @@ std::unique_ptr<MethodHeader> MethodHeader::create(const Parse::Tree *ptNode)
 	case Parse::NonTerminalType::MethodHeader:
 		return std::make_unique<MethodHeader>(static_cast<const Parse::TMethodHeader*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for MethodHeader: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for MethodHeader: " + std::to_string((int)ptNode->type));
 	}
 }
 

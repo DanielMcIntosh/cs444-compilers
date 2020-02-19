@@ -23,7 +23,7 @@ std::unique_ptr<ImportDeclaration> ImportDeclaration::create(const Parse::Tree *
 	case Parse::NonTerminalType::TypeImportOnDemandDeclaration:
 		return std::make_unique<ImportDeclaration>(static_cast<const Parse::TTypeImportOnDemandDeclaration*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for ImportDeclaration: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for ImportDeclaration: " + std::to_string((int)ptNode->type));
 	}
 }
 

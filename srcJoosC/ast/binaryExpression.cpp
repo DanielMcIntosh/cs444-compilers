@@ -36,7 +36,7 @@ std::unique_ptr<BinaryExpression> BinaryExpression::create(const Parse::Tree *pt
 	case Parse::NonTerminalType::RelationalExpression:
 		return std::make_unique<BinaryExpression>(static_cast<const Parse::TRelationalExpression*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for BinaryExpression: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for BinaryExpression: " + std::to_string((int)ptNode->type));
 	}
 }
 
@@ -136,7 +136,7 @@ std::string operator+=(std::string& str, BinaryExpression::Variant op)
 		case BinaryExpression::Variant::Max:		;// fallthrough
 		// no default to trigger compiler warning on missing case
     }
-    throw std::runtime_error("String conversion on invalid opcode: " + std::to_string((int)op));
+    FAILED("String conversion on invalid opcode: " + std::to_string((int)op));
 }
 std::string operator+(std::string str, BinaryExpression::Variant op)
 {

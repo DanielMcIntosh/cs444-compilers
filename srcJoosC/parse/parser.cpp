@@ -170,7 +170,7 @@ string expandEscapeSequence(const string& str) {
 
   string octBuffer;
   bool octActive = false;
-  int octMax = 0;
+  size_t octMax = 0;
   for (size_t i = 0; i < str.size(); ++i) {
     if (octActive) {
       if (str[i] > '7' || str[i] < '0' || octBuffer.size() == octMax) {
@@ -252,13 +252,7 @@ bool treeStackShiftTerminal(vector<Tree*>* stack, const Scan::LexToken& token) {
 
   if (token.name == "IntegerLiteral") {
     auto t = new TIntegerLiteral;
-    try {
-      t->value = stoul(token.lexeme);
-    } catch (std::out_of_range& error) {
-      // push anyway or we will leak t
-      stack->push_back(t);
-      return false;
-    }
+    t->value = strtoul(token.lexeme.c_str(), nullptr, 10);
     stack->push_back(t);
     // reject values larger than 1<<31, to check if 1<<31 is actually a negated
     // literal in weeder

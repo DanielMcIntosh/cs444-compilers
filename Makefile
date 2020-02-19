@@ -9,9 +9,11 @@ UNAME_S := $(shell uname -s)
 	endif
 endif
 
+CXXFLAGS := -fno-rtti -fno-exceptions -D__USE_MINGW_ANSI_STDIO -MMD -MP -std=c++17
 CXXFLAGS_RELEASE := -O3 -flto -s 
 CXXFLAGS_DEBUG := -g
 
+LDFLAGS := -fno-rtti -fno-exceptions
 LDFLAGS_RELEASE := -O3 -flto -s 
 LDFLAGS_DEBUG := -g
 
@@ -23,15 +25,15 @@ endif
 BUILD_DIR_DEBUG := ./build/debug
 BUILD_DIR_RELEASE := ./build/release
 
-WARNINGS = -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimization \
-  -Winit-self -Wlogical-op -Wmissing-include-dirs -Wredundant-decls \
-	-Wshadow -Wundef -Wno-variadic-macros -Wstrict-aliasing=3 -Wwrite-strings \
-  -Wfloat-conversion -Wsuggest-attribute=pure -Wsuggest-attribute=const \
-  -Wsuggest-attribute=noreturn -Wsuggest-attribute=format -Wnull-dereference \
-  -Wzero-as-null-pointer-constant -Wctor-dtor-privacy -Wnon-virtual-dtor \
-  -Woverloaded-virtual -Wno-unused-parameter -Wfatal-errors
+GLOBAL_WARNINGS := -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-optimization \
+  -Winit-self -Wmissing-include-dirs -Wredundant-decls -Wshadow -Wundef -Wno-variadic-macros \
+  -Wwrite-strings -Wfloat-conversion -Wnull-dereference -Wzero-as-null-pointer-constant \
+  -Wctor-dtor-privacy -Wnon-virtual-dtor -Woverloaded-virtual -Wno-unused-parameter -Wfatal-errors
 
-EXTRA_CXXFLAGS += $(WARNINGS) -D__USE_MINGW_ANSI_STDIO -MMD -MP -std=c++17 
+GCC_WARNINGS := -Wlogical-op -Wstrict-aliasing=3 -Wsuggest-attribute=pure -Wsuggest-attribute=const \
+  -Wsuggest-attribute=noreturn -Wsuggest-attribute=format
+
+CLANG_WARNINGS := -fcolor-diagnostics
 
 CXX := g++-9
 
@@ -40,8 +42,17 @@ CXX := g++
 endif
 
 ifeq ($(OS),Windows_NT)
-CXX := g++
+CXX := clang
+LDFLAGS += -lstdc++
 endif
+
+ifeq ($(CXX),clang)
+WARNINGS := $(GLOBAL_WARNINGS) $(CLANG_WARNINGS)
+else
+WARNINGS := $(GLOBAL_WARNINGS) $(GCC_WARNINGS)
+endif
+
+EXTRA_CXXFLAGS += $(WARNINGS) 
 
 # Target : JoosC
 
@@ -80,11 +91,11 @@ ptgen: $(PTGEN_OBJS)
 
 $(BUILD_DIR_RELEASE)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
-	$(CXX) $(CXXFLAGS_RELEASE) $(EXTRA_CXXFLAGS) -I$(JOOSC_SRC_DIRS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_RELEASE) $(EXTRA_CXXFLAGS) -I$(JOOSC_SRC_DIRS) -c $< -o $@
 
 $(BUILD_DIR_DEBUG)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
-	$(CXX) $(CXXFLAGS_DEBUG) $(EXTRA_CXXFLAGS) -I$(JOOSC_SRC_DIRS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_DEBUG) $(EXTRA_CXXFLAGS) -I$(JOOSC_SRC_DIRS) -c $< -o $@
 
 # Pseudo target
 

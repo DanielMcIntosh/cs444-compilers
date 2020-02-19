@@ -46,7 +46,7 @@ std::unique_ptr<Type> Type::create(const Parse::Tree *ptNode)
 				value = std::make_unique<NameType>(std::move(*Name::create(ptNode)));
 				break;
 			default:
-				throw std::runtime_error("inappropriate PT type for Type: " + std::to_string((int)ptNode->type));
+				FAILED("inappropriate PT type for Type: " + std::to_string((int)ptNode->type));
 		}
 
 	}
@@ -63,11 +63,11 @@ Semantic::SemanticErrorType Type::resolve(Semantic::SemanticDB *db,
 }
 
 void Type::setCurrentCompilationUnit(CompilationUnit *item) {
-	gTypeManager.cpus.push_back({item});
+	gTypeManager.cpus.push_back({item, {}});
 }
 
 void Type::setCurrentTypeDeclaration(TypeDeclaration *item) {
-	gTypeManager.cpus.back().enclosingTypeDecl.push_back({item});
+	gTypeManager.cpus.back().enclosingTypeDecl.push_back({item, {}});
 }
 
 void Type::reset() {

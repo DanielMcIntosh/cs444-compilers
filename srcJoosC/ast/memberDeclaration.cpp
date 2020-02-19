@@ -28,7 +28,7 @@ std::unique_ptr<MemberDeclaration> MemberDeclaration::create(const Parse::Tree *
 		case Parse::NonTerminalType::ConstructorDeclaration:
 			return ConstructorDeclaration::create(ptNode);
 		default:
-			throw std::runtime_error("inappropriate PT type for MemberDeclaration: " + std::to_string((int)ptNode->type));
+			FAILED("inappropriate PT type for MemberDeclaration: " + std::to_string((int)ptNode->type));
 	}
 }
 

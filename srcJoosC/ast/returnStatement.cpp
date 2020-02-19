@@ -17,7 +17,7 @@ std::unique_ptr<ReturnStatement> ReturnStatement::create(const Parse::Tree *ptNo
 	case Parse::NonTerminalType::ReturnStatement:
 		return std::make_unique<ReturnStatement>(static_cast<const Parse::TReturnStatement*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for ReturnStatement: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for ReturnStatement: " + std::to_string((int)ptNode->type));
 	}
 }
 

@@ -16,7 +16,7 @@ std::unique_ptr<Modifier> Modifier::create(const Parse::Tree *ptNode)
 	case Parse::NonTerminalType::Modifier:
 		return std::make_unique<Modifier>(static_cast<const Parse::TModifier*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for Modifier: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for Modifier: " + std::to_string((int)ptNode->type));
 	}
 }
 
@@ -50,7 +50,7 @@ std::string operator+=(std::string& str, Modifier::Variant type)
 		case Modifier::Variant::Max:		;// fallthrough
 		// no default to trigger compiler warning on missing case
     }
-    throw std::runtime_error("String conversion on invalid modifier type: " + std::to_string((int)type));
+    FAILED("String conversion on invalid modifier type: " + std::to_string((int)type));
 }
 std::string operator+(std::string str, Modifier::Variant type)
 {

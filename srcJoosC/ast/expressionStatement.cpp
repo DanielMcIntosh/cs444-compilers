@@ -16,7 +16,7 @@ std::unique_ptr<ExpressionStatement> ExpressionStatement::create(const Parse::Tr
 	case Parse::NonTerminalType::ExpressionStatement:
 		return std::make_unique<ExpressionStatement>(static_cast<const Parse::TExpressionStatement*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for ExpressionStatement: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for ExpressionStatement: " + std::to_string((int)ptNode->type));
 	}
 }
 ExpressionStatement::ExpressionStatement(const Parse::TExpressionStatement *ptNode)

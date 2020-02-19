@@ -17,7 +17,7 @@ std::unique_ptr<PrimitiveType> PrimitiveType::create(const Parse::Tree *ptNode)
 	case Parse::NonTerminalType::PrimitiveType:
 		return std::make_unique<PrimitiveType>(static_cast<const Parse::TPrimitiveType*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for PrimitiveType: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for PrimitiveType: " + std::to_string((int)ptNode->type));
 	}
 }
 
@@ -66,7 +66,7 @@ std::string operator+=(std::string& str, PrimitiveType::Variant type)
 		case PrimitiveType::Variant::Max:		;// fallthrough
 		// no default to trigger compiler warning on missing case
     }
-    throw std::runtime_error("String conversion on invalid PrimitiveType type: " + std::to_string((int)type));
+    FAILED("String conversion on invalid PrimitiveType type: " + std::to_string((int)type));
 }
 std::string operator+(std::string str, PrimitiveType::Variant type)
 {

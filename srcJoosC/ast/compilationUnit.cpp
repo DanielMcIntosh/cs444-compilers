@@ -21,7 +21,7 @@ std::unique_ptr<CompilationUnit> CompilationUnit::create(const Parse::Tree *ptNo
 	case Parse::NonTerminalType::CompilationUnit:
 		return std::make_unique<CompilationUnit>(static_cast<const Parse::TCompilationUnit*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for CompilationUnit: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for CompilationUnit: " + std::to_string((int)ptNode->type));
 	}
 }
 CompilationUnit::CompilationUnit(const Parse::TCompilationUnit *ptNode)

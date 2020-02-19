@@ -17,7 +17,7 @@ std::unique_ptr<AssignmentExpression> AssignmentExpression::create(const Parse::
 	case Parse::NonTerminalType::Assignment:
 		return std::make_unique<AssignmentExpression>(static_cast<const Parse::TAssignment*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for AssignmentExpression: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for AssignmentExpression: " + std::to_string((int)ptNode->type));
 	}
 }
 AssignmentExpression::AssignmentExpression(const Parse::TAssignment *ptNode)

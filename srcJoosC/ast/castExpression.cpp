@@ -19,7 +19,7 @@ std::unique_ptr<CastExpression> CastExpression::create(const Parse::Tree *ptNode
 	case Parse::NonTerminalType::CastExpression:
 		return std::make_unique<CastExpression>(static_cast<const Parse::TCastExpression*>(ptNode));
 	default:
-		throw std::runtime_error("inappropriate PT type for CastExpression: " + std::to_string((int)ptNode->type));
+		FAILED("inappropriate PT type for CastExpression: " + std::to_string((int)ptNode->type));
 	}
 }
 CastExpression::CastExpression(const Parse::TCastExpression *ptNode)
