@@ -44,8 +44,10 @@ struct Trie;
 
 struct Trie {
 	string name;
-	TypeDeclaration *theTypeDecl = nullptr;
+	TypeDeclaration *theTypeDecl;
 	vector<unique_ptr<Trie>> children;
+
+	Trie();
 };
 
 struct SemanticDB {

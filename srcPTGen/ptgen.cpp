@@ -206,6 +206,7 @@ void ptgenOutputHeaders(PTGen* ptgen) {
   fclose(parserNodeHdr);
 
   FILE* parserASTHdr = fopen("srcJoosC/parse/parseTree.h", "w");
+  FILE* ptImpl = fopen("srcJoosC/parse/parseTree.cpp", "w");
 
   {  // header
     string _output, *output = &_output;
@@ -213,10 +214,15 @@ void ptgenOutputHeaders(PTGen* ptgen) {
     output->append("#include \"parseTreeBase.h\"\n");
     output->append("namespace Parse { \n");
     strFlushFILE(output, parserASTHdr);
+
+    output->append("#include \"parseTree.h\"\n");
+    output->append("namespace Parse { \n");
+    strFlushFILE(output, ptImpl);
   }
 
   {  // Tree subclasses and variants
     string _output, *output = &_output;
+    string _ctor, *ctor = &_ctor;    
     size_t maxChildren = 0;
 
     for (const auto& [name, info] : ptgen->nonTerminalMap) {
@@ -280,10 +286,13 @@ void ptgenOutputHeaders(PTGen* ptgen) {
                     fieldInfo.fieldName.c_str());
         }
 
+        // declare default constructor
+        output->append("\n");        
+        strAppend(output, "  T%s();\n", name.c_str());
+        
         // default constructor
-        output->append("\n");
-        strAppend(output, "  T%s(): Tree(NonTerminalType::%s), v(T%sV::Max)",
-                  name.c_str(), name.c_str(), name.c_str());
+        strAppend(ctor, "T%s::T%s(): Tree(NonTerminalType::%s), v(T%sV::Max)",
+                  name.c_str(), name.c_str(), name.c_str(), name.c_str());
         if (!captureOccr.empty()) {
           // generate initializer list for members
           for (const auto& [name, times] : captureOccr) {
@@ -294,17 +303,19 @@ void ptgenOutputHeaders(PTGen* ptgen) {
             for (int i = 0; i < times; ++i) {
               if (i >= 1)
                 timeStr = to_string(i + 1);
-              strAppend(output, ", %s%s(nullptr)", memberName.c_str(),
+              strAppend(ctor, ", %s%s(nullptr)", memberName.c_str(),
                         timeStr.c_str());
             }
           }
         }
-        output->append("{\n\n  }\n");
+        ctor->append(" {}\n\n");
+      
       }
 
       output->append("};\n\n");
 
       strFlushFILE(output, parserASTHdr);
+      strFlushFILE(ctor, ptImpl);
     }  // for each non terminal
 
     // assert(maxChildren <= TreeMaxChild);
@@ -314,8 +325,12 @@ void ptgenOutputHeaders(PTGen* ptgen) {
     string _output, *output = &_output;
     output->append("} // namespace Parse \n");
     strFlushFILE(output, parserASTHdr);
+
+    output->append("} // namespace Parse \n");
+    strFlushFILE(output, ptImpl);
   }
 
+  fclose(ptImpl);
   fclose(parserASTHdr);
 
   FILE* parserASTImpl = fopen("srcJoosC/parse/parseTreeImpl.cpp", "w");

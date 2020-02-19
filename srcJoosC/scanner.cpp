@@ -567,4 +567,16 @@ void scannerDumpDebugInfo(const ScanResult& result,
   }
 }
 
+void Statistic::add(s64 value) {
+	this->min = std::min(value, this->min);
+	this->max = std::max(value, this->max);
+	this->numElement++;
+	this->sum += value;
+}
+
+void Statistic::report() const {
+	LOGR("Data points %ld, min %ld, max %ld, avg %f", this->numElement,
+	     this->min, this->max, (f64)sum / (f64)numElement);
+}
+
 }  // namespace Scan

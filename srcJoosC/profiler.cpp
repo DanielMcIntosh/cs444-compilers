@@ -11,6 +11,12 @@
 using namespace std;
 using namespace chrono;
 
+ProfileScope::ProfileScope(const char* file_, int line_, const char* name_) {
+	impl = profileSectionFunc(file_, line_, name_);
+}
+
+ProfileScope::~ProfileScope() { profileSectionEndFunc(impl); }
+
 namespace Profiler {
 
 struct Node {

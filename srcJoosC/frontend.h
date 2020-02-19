@@ -18,9 +18,11 @@ struct LexToken {
 
 struct ScanResult {
   vector<LexToken> tokens;
-  bool valid = false;
-  s32 errorPosition = -1;
+  bool valid;
+  s32 errorPosition;
   string detailedStep;
+
+  ScanResult();
 };
 
 }  // namespace Scan
@@ -28,9 +30,11 @@ struct ScanResult {
 namespace Parse {
 
 struct ParseResult {
-  Tree* treeRoot = nullptr;
-  s32 errorLexTokenIndex = -1;
-  bool valid = false;
+  Tree* treeRoot;
+  s32 errorLexTokenIndex;
+  bool valid;
+
+  ParseResult();
 };
 
 }  // namespace Parse
@@ -76,11 +80,12 @@ struct WeederViolation {
 };
 
 struct WeederResult {
-  bool valid = false;
+  bool valid;
 
-  // TODO: parallalize weeding process
   mutex* theMutex;
   vector<WeederViolation> violations;
+
+  WeederResult();
 };
 
 }  // namespace Weeder

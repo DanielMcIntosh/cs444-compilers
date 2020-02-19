@@ -458,4 +458,7 @@ void semanticDo(SemanticDB *sdb) {
 	}
 }
 
+Trie::Trie(): theTypeDecl(nullptr) {
+
+}
 }

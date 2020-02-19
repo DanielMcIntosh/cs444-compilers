@@ -23,13 +23,8 @@ struct Tree {
   // hand side
   bool oneNt;
 
-  Tree(enum NonTerminalType type_)
-      : type(type_),
-        parent(nullptr),
-        numChildren(0),
-        children({}),
-        oneNt(false) {}
-  virtual ~Tree() {}
+  Tree(enum NonTerminalType type_);
+  virtual ~Tree();
 };
 
 typedef void (*ptFunc)(vector<Tree*>* stack);

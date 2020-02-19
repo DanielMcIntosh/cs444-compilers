@@ -9,9 +9,7 @@ enum class TAbstractMethodBodyV {
 struct TAbstractMethodBody: public Tree {
   enum TAbstractMethodBodyV v;
 
-  TAbstractMethodBody(): Tree(NonTerminalType::AbstractMethodBody), v(TAbstractMethodBodyV::Max){
-
-  }
+  TAbstractMethodBody();
 };
 
 enum class TAbstractMethodDeclarationV {
@@ -23,9 +21,7 @@ struct TAbstractMethodDeclaration: public Tree {
   enum TAbstractMethodDeclarationV v;
   TMethodHeader* methodHeader;
 
-  TAbstractMethodDeclaration(): Tree(NonTerminalType::AbstractMethodDeclaration), v(TAbstractMethodDeclarationV::Max), methodHeader(nullptr){
-
-  }
+  TAbstractMethodDeclaration();
 };
 
 enum class TAdditiveExpressionV {
@@ -40,9 +36,7 @@ struct TAdditiveExpression: public Tree {
   TAdditiveExpression* additiveExpression;
   TMultiplicativeExpression* multiplicativeExpression;
 
-  TAdditiveExpression(): Tree(NonTerminalType::AdditiveExpression), v(TAdditiveExpressionV::Max), additiveExpression(nullptr), multiplicativeExpression(nullptr){
-
-  }
+  TAdditiveExpression();
 };
 
 enum class TAndExpressionV {
@@ -56,9 +50,7 @@ struct TAndExpression: public Tree {
   TAndExpression* andExpression;
   TEqualityExpression* equalityExpression;
 
-  TAndExpression(): Tree(NonTerminalType::AndExpression), v(TAndExpressionV::Max), andExpression(nullptr), equalityExpression(nullptr){
-
-  }
+  TAndExpression();
 };
 
 enum class TArgumentListV {
@@ -72,9 +64,7 @@ struct TArgumentList: public Tree {
   TArgumentList* argumentList;
   TExpression* expression;
 
-  TArgumentList(): Tree(NonTerminalType::ArgumentList), v(TArgumentListV::Max), argumentList(nullptr), expression(nullptr){
-
-  }
+  TArgumentList();
 };
 
 enum class TArrayAccessV {
@@ -89,9 +79,7 @@ struct TArrayAccess: public Tree {
   TExpression* expression;
   TName* name;
 
-  TArrayAccess(): Tree(NonTerminalType::ArrayAccess), v(TArrayAccessV::Max), primaryNoNewArray(nullptr), expression(nullptr), name(nullptr){
-
-  }
+  TArrayAccess();
 };
 
 enum class TArrayCreationExpressionV {
@@ -106,9 +94,7 @@ struct TArrayCreationExpression: public Tree {
   TExpression* expression;
   TPrimitiveType* primitiveType;
 
-  TArrayCreationExpression(): Tree(NonTerminalType::ArrayCreationExpression), v(TArrayCreationExpressionV::Max), classOrInterfaceType(nullptr), expression(nullptr), primitiveType(nullptr){
-
-  }
+  TArrayCreationExpression();
 };
 
 enum class TArrayTypeV {
@@ -122,9 +108,7 @@ struct TArrayType: public Tree {
   TName* name;
   TPrimitiveType* primitiveType;
 
-  TArrayType(): Tree(NonTerminalType::ArrayType), v(TArrayTypeV::Max), name(nullptr), primitiveType(nullptr){
-
-  }
+  TArrayType();
 };
 
 enum class TAssignmentV {
@@ -137,9 +121,7 @@ struct TAssignment: public Tree {
   TLeftHandSide* leftHandSide;
   TAssignmentExpression* assignmentExpression;
 
-  TAssignment(): Tree(NonTerminalType::Assignment), v(TAssignmentV::Max), leftHandSide(nullptr), assignmentExpression(nullptr){
-
-  }
+  TAssignment();
 };
 
 enum class TAssignmentExpressionV {
@@ -153,9 +135,7 @@ struct TAssignmentExpression: public Tree {
   TAssignment* assignment;
   TConditionalOrExpression* conditionalOrExpression;
 
-  TAssignmentExpression(): Tree(NonTerminalType::AssignmentExpression), v(TAssignmentExpressionV::Max), assignment(nullptr), conditionalOrExpression(nullptr){
-
-  }
+  TAssignmentExpression();
 };
 
 enum class TBlockV {
@@ -168,9 +148,7 @@ struct TBlock: public Tree {
   enum TBlockV v;
   TBlockStatements* blockStatements;
 
-  TBlock(): Tree(NonTerminalType::Block), v(TBlockV::Max), blockStatements(nullptr){
-
-  }
+  TBlock();
 };
 
 enum class TBlockStatementV {
@@ -184,9 +162,7 @@ struct TBlockStatement: public Tree {
   TStatement* statement;
   TLocalVariableDeclarationStatement* localVariableDeclarationStatement;
 
-  TBlockStatement(): Tree(NonTerminalType::BlockStatement), v(TBlockStatementV::Max), statement(nullptr), localVariableDeclarationStatement(nullptr){
-
-  }
+  TBlockStatement();
 };
 
 enum class TBlockStatementsV {
@@ -200,9 +176,7 @@ struct TBlockStatements: public Tree {
   TBlockStatements* blockStatements;
   TBlockStatement* blockStatement;
 
-  TBlockStatements(): Tree(NonTerminalType::BlockStatements), v(TBlockStatementsV::Max), blockStatements(nullptr), blockStatement(nullptr){
-
-  }
+  TBlockStatements();
 };
 
 enum class TBooleanLiteralV {
@@ -213,9 +187,7 @@ struct TBooleanLiteral: public Tree {
   enum TBooleanLiteralV v;
   bool value;
 
-  TBooleanLiteral(): Tree(NonTerminalType::BooleanLiteral), v(TBooleanLiteralV::Max){
-
-  }
+  TBooleanLiteral();
 };
 
 enum class TCastExpressionV {
@@ -234,9 +206,7 @@ struct TCastExpression: public Tree {
   TUnaryExpressionNotPlusMinus* unaryExpressionNotPlusMinus;
   TPrimitiveType* primitiveType;
 
-  TCastExpression(): Tree(NonTerminalType::CastExpression), v(TCastExpressionV::Max), name(nullptr), expression(nullptr), unaryExpression(nullptr), unaryExpressionNotPlusMinus(nullptr), primitiveType(nullptr){
-
-  }
+  TCastExpression();
 };
 
 enum class TCharacterLiteralV {
@@ -247,9 +217,7 @@ struct TCharacterLiteral: public Tree {
   enum TCharacterLiteralV v;
   char value;
 
-  TCharacterLiteral(): Tree(NonTerminalType::CharacterLiteral), v(TCharacterLiteralV::Max){
-
-  }
+  TCharacterLiteral();
 };
 
 enum class TClassBodyV {
@@ -262,9 +230,7 @@ struct TClassBody: public Tree {
   enum TClassBodyV v;
   TClassMemberDeclarations* classMemberDeclarations;
 
-  TClassBody(): Tree(NonTerminalType::ClassBody), v(TClassBodyV::Max), classMemberDeclarations(nullptr){
-
-  }
+  TClassBody();
 };
 
 enum class TClassDeclarationV {
@@ -283,9 +249,7 @@ struct TClassDeclaration: public Tree {
   TClassBody* classBody;
   TModifiers* modifiers;
 
-  TClassDeclaration(): Tree(NonTerminalType::ClassDeclaration), v(TClassDeclarationV::Max), classType(nullptr), interfaceTypeList(nullptr), identifier(nullptr), classBody(nullptr), modifiers(nullptr){
-
-  }
+  TClassDeclaration();
 };
 
 enum class TClassInstanceCreationExpressionV {
@@ -299,9 +263,7 @@ struct TClassInstanceCreationExpression: public Tree {
   TArgumentList* argumentList;
   TClassType* classType;
 
-  TClassInstanceCreationExpression(): Tree(NonTerminalType::ClassInstanceCreationExpression), v(TClassInstanceCreationExpressionV::Max), argumentList(nullptr), classType(nullptr){
-
-  }
+  TClassInstanceCreationExpression();
 };
 
 enum class TClassMemberDeclarationV {
@@ -317,9 +279,7 @@ struct TClassMemberDeclaration: public Tree {
   TFieldDeclaration* fieldDeclaration;
   TMethodDeclaration* methodDeclaration;
 
-  TClassMemberDeclaration(): Tree(NonTerminalType::ClassMemberDeclaration), v(TClassMemberDeclarationV::Max), constructorDeclaration(nullptr), fieldDeclaration(nullptr), methodDeclaration(nullptr){
-
-  }
+  TClassMemberDeclaration();
 };
 
 enum class TClassMemberDeclarationsV {
@@ -333,9 +293,7 @@ struct TClassMemberDeclarations: public Tree {
   TClassMemberDeclarations* classMemberDeclarations;
   TClassMemberDeclaration* classMemberDeclaration;
 
-  TClassMemberDeclarations(): Tree(NonTerminalType::ClassMemberDeclarations), v(TClassMemberDeclarationsV::Max), classMemberDeclarations(nullptr), classMemberDeclaration(nullptr){
-
-  }
+  TClassMemberDeclarations();
 };
 
 enum class TClassOrInterfaceTypeV {
@@ -347,9 +305,7 @@ struct TClassOrInterfaceType: public Tree {
   enum TClassOrInterfaceTypeV v;
   TName* name;
 
-  TClassOrInterfaceType(): Tree(NonTerminalType::ClassOrInterfaceType), v(TClassOrInterfaceTypeV::Max), name(nullptr){
-
-  }
+  TClassOrInterfaceType();
 };
 
 enum class TClassTypeV {
@@ -361,9 +317,7 @@ struct TClassType: public Tree {
   enum TClassTypeV v;
   TClassOrInterfaceType* classOrInterfaceType;
 
-  TClassType(): Tree(NonTerminalType::ClassType), v(TClassTypeV::Max), classOrInterfaceType(nullptr){
-
-  }
+  TClassType();
 };
 
 enum class TCompilationUnitV {
@@ -383,9 +337,7 @@ struct TCompilationUnit: public Tree {
   TPackageDeclaration* packageDeclaration;
   TImportDeclarations* importDeclarations;
 
-  TCompilationUnit(): Tree(NonTerminalType::CompilationUnit), v(TCompilationUnitV::Max), typeDeclaration(nullptr), packageDeclaration(nullptr), importDeclarations(nullptr){
-
-  }
+  TCompilationUnit();
 };
 
 enum class TConditionalAndExpressionV {
@@ -399,9 +351,7 @@ struct TConditionalAndExpression: public Tree {
   TConditionalAndExpression* conditionalAndExpression;
   TInclusiveOrExpression* inclusiveOrExpression;
 
-  TConditionalAndExpression(): Tree(NonTerminalType::ConditionalAndExpression), v(TConditionalAndExpressionV::Max), conditionalAndExpression(nullptr), inclusiveOrExpression(nullptr){
-
-  }
+  TConditionalAndExpression();
 };
 
 enum class TConditionalOrExpressionV {
@@ -415,9 +365,7 @@ struct TConditionalOrExpression: public Tree {
   TConditionalOrExpression* conditionalOrExpression;
   TConditionalAndExpression* conditionalAndExpression;
 
-  TConditionalOrExpression(): Tree(NonTerminalType::ConditionalOrExpression), v(TConditionalOrExpressionV::Max), conditionalOrExpression(nullptr), conditionalAndExpression(nullptr){
-
-  }
+  TConditionalOrExpression();
 };
 
 enum class TConstructorDeclarationV {
@@ -431,9 +379,7 @@ struct TConstructorDeclaration: public Tree {
   TBlock* block;
   TModifiers* modifiers;
 
-  TConstructorDeclaration(): Tree(NonTerminalType::ConstructorDeclaration), v(TConstructorDeclarationV::Max), constructorDeclarator(nullptr), block(nullptr), modifiers(nullptr){
-
-  }
+  TConstructorDeclaration();
 };
 
 enum class TConstructorDeclaratorV {
@@ -447,9 +393,7 @@ struct TConstructorDeclarator: public Tree {
   TFormalParameterList* formalParameterList;
   TIdentifier* identifier;
 
-  TConstructorDeclarator(): Tree(NonTerminalType::ConstructorDeclarator), v(TConstructorDeclaratorV::Max), formalParameterList(nullptr), identifier(nullptr){
-
-  }
+  TConstructorDeclarator();
 };
 
 enum class TEqualityExpressionV {
@@ -464,9 +408,7 @@ struct TEqualityExpression: public Tree {
   TEqualityExpression* equalityExpression;
   TRelationalExpression* relationalExpression;
 
-  TEqualityExpression(): Tree(NonTerminalType::EqualityExpression), v(TEqualityExpressionV::Max), equalityExpression(nullptr), relationalExpression(nullptr){
-
-  }
+  TEqualityExpression();
 };
 
 enum class TExpressionV {
@@ -478,9 +420,7 @@ struct TExpression: public Tree {
   enum TExpressionV v;
   TAssignmentExpression* assignmentExpression;
 
-  TExpression(): Tree(NonTerminalType::Expression), v(TExpressionV::Max), assignmentExpression(nullptr){
-
-  }
+  TExpression();
 };
 
 enum class TExpressionStatementV {
@@ -493,9 +433,7 @@ struct TExpressionStatement: public Tree {
   enum TExpressionStatementV v;
   TStatementExpression* statementExpression;
 
-  TExpressionStatement(): Tree(NonTerminalType::ExpressionStatement), v(TExpressionStatementV::Max), statementExpression(nullptr){
-
-  }
+  TExpressionStatement();
 };
 
 enum class TExtendsInterfacesV {
@@ -509,9 +447,7 @@ struct TExtendsInterfaces: public Tree {
   TExtendsInterfaces* extendsInterfaces;
   TInterfaceType* interfaceType;
 
-  TExtendsInterfaces(): Tree(NonTerminalType::ExtendsInterfaces), v(TExtendsInterfacesV::Max), extendsInterfaces(nullptr), interfaceType(nullptr){
-
-  }
+  TExtendsInterfaces();
 };
 
 enum class TFieldAccessV {
@@ -524,9 +460,7 @@ struct TFieldAccess: public Tree {
   TPrimary* primary;
   TIdentifier* identifier;
 
-  TFieldAccess(): Tree(NonTerminalType::FieldAccess), v(TFieldAccessV::Max), primary(nullptr), identifier(nullptr){
-
-  }
+  TFieldAccess();
 };
 
 enum class TFieldDeclarationV {
@@ -540,9 +474,7 @@ struct TFieldDeclaration: public Tree {
   TVariableDeclarator* variableDeclarator;
   TModifiers* modifiers;
 
-  TFieldDeclaration(): Tree(NonTerminalType::FieldDeclaration), v(TFieldDeclarationV::Max), type(nullptr), variableDeclarator(nullptr), modifiers(nullptr){
-
-  }
+  TFieldDeclaration();
 };
 
 enum class TForInitV {
@@ -556,9 +488,7 @@ struct TForInit: public Tree {
   TLocalVariableDeclarationStatement* localVariableDeclarationStatement;
   TExpressionStatement* expressionStatement;
 
-  TForInit(): Tree(NonTerminalType::ForInit), v(TForInitV::Max), localVariableDeclarationStatement(nullptr), expressionStatement(nullptr){
-
-  }
+  TForInit();
 };
 
 enum class TForStatementV {
@@ -576,9 +506,7 @@ struct TForStatement: public Tree {
   TStatement* statement;
   TForInit* forInit;
 
-  TForStatement(): Tree(NonTerminalType::ForStatement), v(TForStatementV::Max), forUpdate(nullptr), expression(nullptr), statement(nullptr), forInit(nullptr){
-
-  }
+  TForStatement();
 };
 
 enum class TForStatementNoShortIfV {
@@ -596,9 +524,7 @@ struct TForStatementNoShortIf: public Tree {
   TStatementNoShortIf* statementNoShortIf;
   TForInit* forInit;
 
-  TForStatementNoShortIf(): Tree(NonTerminalType::ForStatementNoShortIf), v(TForStatementNoShortIfV::Max), forUpdate(nullptr), expression(nullptr), statementNoShortIf(nullptr), forInit(nullptr){
-
-  }
+  TForStatementNoShortIf();
 };
 
 enum class TForUpdateV {
@@ -610,9 +536,7 @@ struct TForUpdate: public Tree {
   enum TForUpdateV v;
   TStatementExpression* statementExpression;
 
-  TForUpdate(): Tree(NonTerminalType::ForUpdate), v(TForUpdateV::Max), statementExpression(nullptr){
-
-  }
+  TForUpdate();
 };
 
 enum class TFormalParameterV {
@@ -625,9 +549,7 @@ struct TFormalParameter: public Tree {
   TType* type;
   TIdentifier* identifier;
 
-  TFormalParameter(): Tree(NonTerminalType::FormalParameter), v(TFormalParameterV::Max), type(nullptr), identifier(nullptr){
-
-  }
+  TFormalParameter();
 };
 
 enum class TFormalParameterListV {
@@ -641,9 +563,7 @@ struct TFormalParameterList: public Tree {
   TFormalParameterList* formalParameterList;
   TFormalParameter* formalParameter;
 
-  TFormalParameterList(): Tree(NonTerminalType::FormalParameterList), v(TFormalParameterListV::Max), formalParameterList(nullptr), formalParameter(nullptr){
-
-  }
+  TFormalParameterList();
 };
 
 enum class TGoalV {
@@ -655,9 +575,7 @@ struct TGoal: public Tree {
   enum TGoalV v;
   TCompilationUnit* compilationUnit;
 
-  TGoal(): Tree(NonTerminalType::Goal), v(TGoalV::Max), compilationUnit(nullptr){
-
-  }
+  TGoal();
 };
 
 enum class TIdentifierV {
@@ -668,9 +586,7 @@ struct TIdentifier: public Tree {
   enum TIdentifierV v;
   string value;
 
-  TIdentifier(): Tree(NonTerminalType::Identifier), v(TIdentifierV::Max){
-
-  }
+  TIdentifier();
 };
 
 enum class TIfThenElseStatementV {
@@ -684,9 +600,7 @@ struct TIfThenElseStatement: public Tree {
   TStatement* statement;
   TExpression* expression;
 
-  TIfThenElseStatement(): Tree(NonTerminalType::IfThenElseStatement), v(TIfThenElseStatementV::Max), statementNoShortIf(nullptr), statement(nullptr), expression(nullptr){
-
-  }
+  TIfThenElseStatement();
 };
 
 enum class TIfThenElseStatementNoShortIfV {
@@ -700,9 +614,7 @@ struct TIfThenElseStatementNoShortIf: public Tree {
   TStatementNoShortIf* statementNoShortIf;
   TStatementNoShortIf* statementNoShortIf2;
 
-  TIfThenElseStatementNoShortIf(): Tree(NonTerminalType::IfThenElseStatementNoShortIf), v(TIfThenElseStatementNoShortIfV::Max), expression(nullptr), statementNoShortIf(nullptr), statementNoShortIf2(nullptr){
-
-  }
+  TIfThenElseStatementNoShortIf();
 };
 
 enum class TIfThenStatementV {
@@ -715,9 +627,7 @@ struct TIfThenStatement: public Tree {
   TExpression* expression;
   TStatement* statement;
 
-  TIfThenStatement(): Tree(NonTerminalType::IfThenStatement), v(TIfThenStatementV::Max), expression(nullptr), statement(nullptr){
-
-  }
+  TIfThenStatement();
 };
 
 enum class TImportDeclarationV {
@@ -731,9 +641,7 @@ struct TImportDeclaration: public Tree {
   TTypeImportOnDemandDeclaration* typeImportOnDemandDeclaration;
   TSingleTypeImportDeclaration* singleTypeImportDeclaration;
 
-  TImportDeclaration(): Tree(NonTerminalType::ImportDeclaration), v(TImportDeclarationV::Max), typeImportOnDemandDeclaration(nullptr), singleTypeImportDeclaration(nullptr){
-
-  }
+  TImportDeclaration();
 };
 
 enum class TImportDeclarationsV {
@@ -747,9 +655,7 @@ struct TImportDeclarations: public Tree {
   TImportDeclarations* importDeclarations;
   TImportDeclaration* importDeclaration;
 
-  TImportDeclarations(): Tree(NonTerminalType::ImportDeclarations), v(TImportDeclarationsV::Max), importDeclarations(nullptr), importDeclaration(nullptr){
-
-  }
+  TImportDeclarations();
 };
 
 enum class TInclusiveOrExpressionV {
@@ -763,9 +669,7 @@ struct TInclusiveOrExpression: public Tree {
   TInclusiveOrExpression* inclusiveOrExpression;
   TAndExpression* andExpression;
 
-  TInclusiveOrExpression(): Tree(NonTerminalType::InclusiveOrExpression), v(TInclusiveOrExpressionV::Max), inclusiveOrExpression(nullptr), andExpression(nullptr){
-
-  }
+  TInclusiveOrExpression();
 };
 
 enum class TIntegerLiteralV {
@@ -776,9 +680,7 @@ struct TIntegerLiteral: public Tree {
   enum TIntegerLiteralV v;
   unsigned int value;
 
-  TIntegerLiteral(): Tree(NonTerminalType::IntegerLiteral), v(TIntegerLiteralV::Max){
-
-  }
+  TIntegerLiteral();
 };
 
 enum class TInterfaceBodyV {
@@ -791,9 +693,7 @@ struct TInterfaceBody: public Tree {
   enum TInterfaceBodyV v;
   TInterfaceMemberDeclarations* interfaceMemberDeclarations;
 
-  TInterfaceBody(): Tree(NonTerminalType::InterfaceBody), v(TInterfaceBodyV::Max), interfaceMemberDeclarations(nullptr){
-
-  }
+  TInterfaceBody();
 };
 
 enum class TInterfaceDeclarationV {
@@ -811,9 +711,7 @@ struct TInterfaceDeclaration: public Tree {
   TInterfaceBody* interfaceBody;
   TIdentifier* identifier;
 
-  TInterfaceDeclaration(): Tree(NonTerminalType::InterfaceDeclaration), v(TInterfaceDeclarationV::Max), extendsInterfaces(nullptr), modifiers(nullptr), interfaceBody(nullptr), identifier(nullptr){
-
-  }
+  TInterfaceDeclaration();
 };
 
 enum class TInterfaceMemberDeclarationV {
@@ -825,9 +723,7 @@ struct TInterfaceMemberDeclaration: public Tree {
   enum TInterfaceMemberDeclarationV v;
   TAbstractMethodDeclaration* abstractMethodDeclaration;
 
-  TInterfaceMemberDeclaration(): Tree(NonTerminalType::InterfaceMemberDeclaration), v(TInterfaceMemberDeclarationV::Max), abstractMethodDeclaration(nullptr){
-
-  }
+  TInterfaceMemberDeclaration();
 };
 
 enum class TInterfaceMemberDeclarationsV {
@@ -841,9 +737,7 @@ struct TInterfaceMemberDeclarations: public Tree {
   TInterfaceMemberDeclarations* interfaceMemberDeclarations;
   TInterfaceMemberDeclaration* interfaceMemberDeclaration;
 
-  TInterfaceMemberDeclarations(): Tree(NonTerminalType::InterfaceMemberDeclarations), v(TInterfaceMemberDeclarationsV::Max), interfaceMemberDeclarations(nullptr), interfaceMemberDeclaration(nullptr){
-
-  }
+  TInterfaceMemberDeclarations();
 };
 
 enum class TInterfaceTypeV {
@@ -855,9 +749,7 @@ struct TInterfaceType: public Tree {
   enum TInterfaceTypeV v;
   TClassOrInterfaceType* classOrInterfaceType;
 
-  TInterfaceType(): Tree(NonTerminalType::InterfaceType), v(TInterfaceTypeV::Max), classOrInterfaceType(nullptr){
-
-  }
+  TInterfaceType();
 };
 
 enum class TInterfaceTypeListV {
@@ -871,9 +763,7 @@ struct TInterfaceTypeList: public Tree {
   TInterfaceTypeList* interfaceTypeList;
   TInterfaceType* interfaceType;
 
-  TInterfaceTypeList(): Tree(NonTerminalType::InterfaceTypeList), v(TInterfaceTypeListV::Max), interfaceTypeList(nullptr), interfaceType(nullptr){
-
-  }
+  TInterfaceTypeList();
 };
 
 enum class TLeftHandSideV {
@@ -889,9 +779,7 @@ struct TLeftHandSide: public Tree {
   TArrayAccess* arrayAccess;
   TFieldAccess* fieldAccess;
 
-  TLeftHandSide(): Tree(NonTerminalType::LeftHandSide), v(TLeftHandSideV::Max), name(nullptr), arrayAccess(nullptr), fieldAccess(nullptr){
-
-  }
+  TLeftHandSide();
 };
 
 enum class TLiteralV {
@@ -911,9 +799,7 @@ struct TLiteral: public Tree {
   TStringLiteral* stringLiteral;
   TBooleanLiteral* booleanLiteral;
 
-  TLiteral(): Tree(NonTerminalType::Literal), v(TLiteralV::Max), nullLiteral(nullptr), characterLiteral(nullptr), integerLiteral(nullptr), stringLiteral(nullptr), booleanLiteral(nullptr){
-
-  }
+  TLiteral();
 };
 
 enum class TLocalVariableDeclarationV {
@@ -926,9 +812,7 @@ struct TLocalVariableDeclaration: public Tree {
   TType* type;
   TVariableDeclarator* variableDeclarator;
 
-  TLocalVariableDeclaration(): Tree(NonTerminalType::LocalVariableDeclaration), v(TLocalVariableDeclarationV::Max), type(nullptr), variableDeclarator(nullptr){
-
-  }
+  TLocalVariableDeclaration();
 };
 
 enum class TLocalVariableDeclarationStatementV {
@@ -940,9 +824,7 @@ struct TLocalVariableDeclarationStatement: public Tree {
   enum TLocalVariableDeclarationStatementV v;
   TLocalVariableDeclaration* localVariableDeclaration;
 
-  TLocalVariableDeclarationStatement(): Tree(NonTerminalType::LocalVariableDeclarationStatement), v(TLocalVariableDeclarationStatementV::Max), localVariableDeclaration(nullptr){
-
-  }
+  TLocalVariableDeclarationStatement();
 };
 
 enum class TMethodBodyV {
@@ -956,9 +838,7 @@ struct TMethodBody: public Tree {
   TAbstractMethodBody* abstractMethodBody;
   TBlock* block;
 
-  TMethodBody(): Tree(NonTerminalType::MethodBody), v(TMethodBodyV::Max), abstractMethodBody(nullptr), block(nullptr){
-
-  }
+  TMethodBody();
 };
 
 enum class TMethodDeclarationV {
@@ -971,9 +851,7 @@ struct TMethodDeclaration: public Tree {
   TMethodHeader* methodHeader;
   TMethodBody* methodBody;
 
-  TMethodDeclaration(): Tree(NonTerminalType::MethodDeclaration), v(TMethodDeclarationV::Max), methodHeader(nullptr), methodBody(nullptr){
-
-  }
+  TMethodDeclaration();
 };
 
 enum class TMethodDeclaratorV {
@@ -987,9 +865,7 @@ struct TMethodDeclarator: public Tree {
   TFormalParameterList* formalParameterList;
   TIdentifier* identifier;
 
-  TMethodDeclarator(): Tree(NonTerminalType::MethodDeclarator), v(TMethodDeclaratorV::Max), formalParameterList(nullptr), identifier(nullptr){
-
-  }
+  TMethodDeclarator();
 };
 
 enum class TMethodHeaderV {
@@ -1006,9 +882,7 @@ struct TMethodHeader: public Tree {
   TMethodDeclarator* methodDeclarator;
   TType* type;
 
-  TMethodHeader(): Tree(NonTerminalType::MethodHeader), v(TMethodHeaderV::Max), modifiers(nullptr), methodDeclarator(nullptr), type(nullptr){
-
-  }
+  TMethodHeader();
 };
 
 enum class TMethodInvocationV {
@@ -1026,9 +900,7 @@ struct TMethodInvocation: public Tree {
   TName* name;
   TArgumentList* argumentList;
 
-  TMethodInvocation(): Tree(NonTerminalType::MethodInvocation), v(TMethodInvocationV::Max), identifier(nullptr), primary(nullptr), name(nullptr), argumentList(nullptr){
-
-  }
+  TMethodInvocation();
 };
 
 enum class TModifierV {
@@ -1044,9 +916,7 @@ enum class TModifierV {
 struct TModifier: public Tree {
   enum TModifierV v;
 
-  TModifier(): Tree(NonTerminalType::Modifier), v(TModifierV::Max){
-
-  }
+  TModifier();
 };
 
 enum class TModifiersV {
@@ -1060,9 +930,7 @@ struct TModifiers: public Tree {
   TModifiers* modifiers;
   TModifier* modifier;
 
-  TModifiers(): Tree(NonTerminalType::Modifiers), v(TModifiersV::Max), modifiers(nullptr), modifier(nullptr){
-
-  }
+  TModifiers();
 };
 
 enum class TMultiplicativeExpressionV {
@@ -1078,9 +946,7 @@ struct TMultiplicativeExpression: public Tree {
   TMultiplicativeExpression* multiplicativeExpression;
   TUnaryExpression* unaryExpression;
 
-  TMultiplicativeExpression(): Tree(NonTerminalType::MultiplicativeExpression), v(TMultiplicativeExpressionV::Max), multiplicativeExpression(nullptr), unaryExpression(nullptr){
-
-  }
+  TMultiplicativeExpression();
 };
 
 enum class TNameV {
@@ -1094,9 +960,7 @@ struct TName: public Tree {
   TName* name;
   TIdentifier* identifier;
 
-  TName(): Tree(NonTerminalType::Name), v(TNameV::Max), name(nullptr), identifier(nullptr){
-
-  }
+  TName();
 };
 
 enum class TNullLiteralV {
@@ -1107,9 +971,7 @@ struct TNullLiteral: public Tree {
   enum TNullLiteralV v;
   bool value;
 
-  TNullLiteral(): Tree(NonTerminalType::NullLiteral), v(TNullLiteralV::Max){
-
-  }
+  TNullLiteral();
 };
 
 enum class TPackageDeclarationV {
@@ -1121,9 +983,7 @@ struct TPackageDeclaration: public Tree {
   enum TPackageDeclarationV v;
   TName* name;
 
-  TPackageDeclaration(): Tree(NonTerminalType::PackageDeclaration), v(TPackageDeclarationV::Max), name(nullptr){
-
-  }
+  TPackageDeclaration();
 };
 
 enum class TParenthesizedExpressionV {
@@ -1135,9 +995,7 @@ struct TParenthesizedExpression: public Tree {
   enum TParenthesizedExpressionV v;
   TExpression* expression;
 
-  TParenthesizedExpression(): Tree(NonTerminalType::ParenthesizedExpression), v(TParenthesizedExpressionV::Max), expression(nullptr){
-
-  }
+  TParenthesizedExpression();
 };
 
 enum class TPrimaryV {
@@ -1151,9 +1009,7 @@ struct TPrimary: public Tree {
   TArrayCreationExpression* arrayCreationExpression;
   TPrimaryNoNewArray* primaryNoNewArray;
 
-  TPrimary(): Tree(NonTerminalType::Primary), v(TPrimaryV::Max), arrayCreationExpression(nullptr), primaryNoNewArray(nullptr){
-
-  }
+  TPrimary();
 };
 
 enum class TPrimaryNoNewArrayV {
@@ -1177,9 +1033,7 @@ struct TPrimaryNoNewArray: public Tree {
   TClassInstanceCreationExpression* classInstanceCreationExpression;
   TFieldAccess* fieldAccess;
 
-  TPrimaryNoNewArray(): Tree(NonTerminalType::PrimaryNoNewArray), v(TPrimaryNoNewArrayV::Max), methodInvocation(nullptr), this2(nullptr), literal(nullptr), arrayAccess(nullptr), parenthesizedExpression(nullptr), classInstanceCreationExpression(nullptr), fieldAccess(nullptr){
-
-  }
+  TPrimaryNoNewArray();
 };
 
 enum class TPrimitiveTypeV {
@@ -1194,9 +1048,7 @@ enum class TPrimitiveTypeV {
 struct TPrimitiveType: public Tree {
   enum TPrimitiveTypeV v;
 
-  TPrimitiveType(): Tree(NonTerminalType::PrimitiveType), v(TPrimitiveTypeV::Max){
-
-  }
+  TPrimitiveType();
 };
 
 enum class TReferenceTypeV {
@@ -1210,9 +1062,7 @@ struct TReferenceType: public Tree {
   TArrayType* arrayType;
   TClassOrInterfaceType* classOrInterfaceType;
 
-  TReferenceType(): Tree(NonTerminalType::ReferenceType), v(TReferenceTypeV::Max), arrayType(nullptr), classOrInterfaceType(nullptr){
-
-  }
+  TReferenceType();
 };
 
 enum class TRelationalExpressionV {
@@ -1231,9 +1081,7 @@ struct TRelationalExpression: public Tree {
   TAdditiveExpression* additiveExpression;
   TRelationalExpression* relationalExpression;
 
-  TRelationalExpression(): Tree(NonTerminalType::RelationalExpression), v(TRelationalExpressionV::Max), referenceType(nullptr), additiveExpression(nullptr), relationalExpression(nullptr){
-
-  }
+  TRelationalExpression();
 };
 
 enum class TReturnStatementV {
@@ -1246,9 +1094,7 @@ struct TReturnStatement: public Tree {
   enum TReturnStatementV v;
   TExpression* expression;
 
-  TReturnStatement(): Tree(NonTerminalType::ReturnStatement), v(TReturnStatementV::Max), expression(nullptr){
-
-  }
+  TReturnStatement();
 };
 
 enum class TSingleTypeImportDeclarationV {
@@ -1260,9 +1106,7 @@ struct TSingleTypeImportDeclaration: public Tree {
   enum TSingleTypeImportDeclarationV v;
   TName* name;
 
-  TSingleTypeImportDeclaration(): Tree(NonTerminalType::SingleTypeImportDeclaration), v(TSingleTypeImportDeclarationV::Max), name(nullptr){
-
-  }
+  TSingleTypeImportDeclaration();
 };
 
 enum class TStatementV {
@@ -1282,9 +1126,7 @@ struct TStatement: public Tree {
   TStatementWithoutTrailingSubstatement* statementWithoutTrailingSubstatement;
   TIfThenStatement* ifThenStatement;
 
-  TStatement(): Tree(NonTerminalType::Statement), v(TStatementV::Max), forStatement(nullptr), ifThenElseStatement(nullptr), whileStatement(nullptr), statementWithoutTrailingSubstatement(nullptr), ifThenStatement(nullptr){
-
-  }
+  TStatement();
 };
 
 enum class TStatementExpressionV {
@@ -1300,9 +1142,7 @@ struct TStatementExpression: public Tree {
   TAssignment* assignment;
   TMethodInvocation* methodInvocation;
 
-  TStatementExpression(): Tree(NonTerminalType::StatementExpression), v(TStatementExpressionV::Max), classInstanceCreationExpression(nullptr), assignment(nullptr), methodInvocation(nullptr){
-
-  }
+  TStatementExpression();
 };
 
 enum class TStatementNoShortIfV {
@@ -1320,9 +1160,7 @@ struct TStatementNoShortIf: public Tree {
   TStatementWithoutTrailingSubstatement* statementWithoutTrailingSubstatement;
   TIfThenElseStatementNoShortIf* ifThenElseStatementNoShortIf;
 
-  TStatementNoShortIf(): Tree(NonTerminalType::StatementNoShortIf), v(TStatementNoShortIfV::Max), forStatementNoShortIf(nullptr), whileStatementNoShortIf(nullptr), statementWithoutTrailingSubstatement(nullptr), ifThenElseStatementNoShortIf(nullptr){
-
-  }
+  TStatementNoShortIf();
 };
 
 enum class TStatementWithoutTrailingSubstatementV {
@@ -1338,9 +1176,7 @@ struct TStatementWithoutTrailingSubstatement: public Tree {
   TBlock* block;
   TExpressionStatement* expressionStatement;
 
-  TStatementWithoutTrailingSubstatement(): Tree(NonTerminalType::StatementWithoutTrailingSubstatement), v(TStatementWithoutTrailingSubstatementV::Max), returnStatement(nullptr), block(nullptr), expressionStatement(nullptr){
-
-  }
+  TStatementWithoutTrailingSubstatement();
 };
 
 enum class TStringLiteralV {
@@ -1351,9 +1187,7 @@ struct TStringLiteral: public Tree {
   enum TStringLiteralV v;
   string value;
 
-  TStringLiteral(): Tree(NonTerminalType::StringLiteral), v(TStringLiteralV::Max){
-
-  }
+  TStringLiteral();
 };
 
 enum class TThis2V {
@@ -1364,9 +1198,7 @@ enum class TThis2V {
 struct TThis2: public Tree {
   enum TThis2V v;
 
-  TThis2(): Tree(NonTerminalType::This2), v(TThis2V::Max){
-
-  }
+  TThis2();
 };
 
 enum class TTypeV {
@@ -1380,9 +1212,7 @@ struct TType: public Tree {
   TReferenceType* referenceType;
   TPrimitiveType* primitiveType;
 
-  TType(): Tree(NonTerminalType::Type), v(TTypeV::Max), referenceType(nullptr), primitiveType(nullptr){
-
-  }
+  TType();
 };
 
 enum class TTypeDeclarationV {
@@ -1397,9 +1227,7 @@ struct TTypeDeclaration: public Tree {
   TInterfaceDeclaration* interfaceDeclaration;
   TClassDeclaration* classDeclaration;
 
-  TTypeDeclaration(): Tree(NonTerminalType::TypeDeclaration), v(TTypeDeclarationV::Max), interfaceDeclaration(nullptr), classDeclaration(nullptr){
-
-  }
+  TTypeDeclaration();
 };
 
 enum class TTypeImportOnDemandDeclarationV {
@@ -1411,9 +1239,7 @@ struct TTypeImportOnDemandDeclaration: public Tree {
   enum TTypeImportOnDemandDeclarationV v;
   TName* name;
 
-  TTypeImportOnDemandDeclaration(): Tree(NonTerminalType::TypeImportOnDemandDeclaration), v(TTypeImportOnDemandDeclarationV::Max), name(nullptr){
-
-  }
+  TTypeImportOnDemandDeclaration();
 };
 
 enum class TUnaryExpressionV {
@@ -1427,9 +1253,7 @@ struct TUnaryExpression: public Tree {
   TUnaryExpressionNotPlusMinus* unaryExpressionNotPlusMinus;
   TUnaryExpression* unaryExpression;
 
-  TUnaryExpression(): Tree(NonTerminalType::UnaryExpression), v(TUnaryExpressionV::Max), unaryExpressionNotPlusMinus(nullptr), unaryExpression(nullptr){
-
-  }
+  TUnaryExpression();
 };
 
 enum class TUnaryExpressionNotPlusMinusV {
@@ -1447,9 +1271,7 @@ struct TUnaryExpressionNotPlusMinus: public Tree {
   TPrimary* primary;
   TName* name;
 
-  TUnaryExpressionNotPlusMinus(): Tree(NonTerminalType::UnaryExpressionNotPlusMinus), v(TUnaryExpressionNotPlusMinusV::Max), castExpression(nullptr), unaryExpression(nullptr), primary(nullptr), name(nullptr){
-
-  }
+  TUnaryExpressionNotPlusMinus();
 };
 
 enum class TVariableDeclaratorV {
@@ -1463,9 +1285,7 @@ struct TVariableDeclarator: public Tree {
   TExpression* expression;
   TIdentifier* identifier;
 
-  TVariableDeclarator(): Tree(NonTerminalType::VariableDeclarator), v(TVariableDeclaratorV::Max), expression(nullptr), identifier(nullptr){
-
-  }
+  TVariableDeclarator();
 };
 
 enum class TWhileStatementV {
@@ -1478,9 +1298,7 @@ struct TWhileStatement: public Tree {
   TExpression* expression;
   TStatement* statement;
 
-  TWhileStatement(): Tree(NonTerminalType::WhileStatement), v(TWhileStatementV::Max), expression(nullptr), statement(nullptr){
-
-  }
+  TWhileStatement();
 };
 
 enum class TWhileStatementNoShortIfV {
@@ -1493,9 +1311,7 @@ struct TWhileStatementNoShortIf: public Tree {
   TExpression* expression;
   TStatementNoShortIf* statementNoShortIf;
 
-  TWhileStatementNoShortIf(): Tree(NonTerminalType::WhileStatementNoShortIf), v(TWhileStatementNoShortIfV::Max), expression(nullptr), statementNoShortIf(nullptr){
-
-  }
+  TWhileStatementNoShortIf();
 };
 
 } // namespace Parse 

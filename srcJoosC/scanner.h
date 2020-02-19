@@ -72,17 +72,8 @@ struct Statistic {
   s64 max = 0;
   s64 numElement = 0;
 
-  void add(s64 value) {
-    this->min = std::min(value, this->min);
-    this->max = std::max(value, this->max);
-    this->numElement++;
-    this->sum += value;
-  }
-
-  void report() const {
-    LOGR("Data points %ld, min %ld, max %ld, avg %f", this->numElement,
-         this->min, this->max, (f64)sum / (f64)numElement);
-  }
+  void add(s64 value);
+  void report() const;
 };
 
 struct Scanner {

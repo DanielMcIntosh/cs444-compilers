@@ -5,6 +5,14 @@
 
 namespace Parse {
 
+Tree::~Tree() {}
+Tree::Tree(enum NonTerminalType type_)
+				: type(type_),
+				  parent(nullptr),
+				  numChildren(0),
+				  children({}),
+				  oneNt(false) {}
+
 void ptSetTopParents(vector<Tree*>* stack, int topN, Tree* parent) {
   const int n = stack->size();
   assert(topN <= n);
