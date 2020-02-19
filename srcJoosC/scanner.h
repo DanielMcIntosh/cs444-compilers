@@ -1,15 +1,15 @@
 #pragma once
 
-#include <vector>
-#include <string>
 #include <algorithm>
-#include <map>
 #include <array>
-#include <unordered_map>
+#include <map>
 #include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-#include "utility.h"
 #include "frontend.h"
+#include "utility.h"
 
 namespace Scan {
 
@@ -20,15 +20,11 @@ const s32 NumLetters = 128;
 template <typename T>
 struct Edge {
   char letter;
-  T *state;
+  T* state;
 
-  bool operator<(const Edge &other) const {
-    return letter < other.letter;
-  }
+  bool operator<(const Edge& other) const { return letter < other.letter; }
 
-  bool operator==(const Edge &other) const {
-    return letter == other.letter;
-  }
+  bool operator==(const Edge& other) const { return letter == other.letter; }
 };
 
 struct NState;
@@ -36,17 +32,17 @@ struct Token;
 
 struct NState {
   vector<Edge<NState>> letterTransition;
-  vector<NState *> epsilonTransitions;
+  vector<NState*> epsilonTransitions;
 
   s32 index;
   char stateSymbol;
 
-  Token *token;
+  Token* token;
 };
 
 struct Token {
-  NState *startingNState;
-  NState *acceptingNState;
+  NState* startingNState;
+  NState* acceptingNState;
 
   s32 index;
   bool declared;
@@ -63,11 +59,11 @@ typedef array<u64, NStateFieldLen> NStateBitField;
 
 struct DState {
   NStateBitField nstatesField;
-  unordered_map<int, DState *> transition;
+  unordered_map<int, DState*> transition;
 
   s32 index;
-  Token *tokenEmission;
-  vector<Token *> allTokens;
+  Token* tokenEmission;
+  vector<Token*> allTokens;
 };
 
 struct Statistic {
@@ -84,32 +80,32 @@ struct Statistic {
   }
 
   void report() const {
-    LOGR("Data points %ld, min %ld, max %ld, avg %f",
-         this->numElement, this->min, this->max, (f64)sum/(f64)numElement);
+    LOGR("Data points %ld, min %ld, max %ld, avg %f", this->numElement,
+         this->min, this->max, (f64)sum / (f64)numElement);
   }
 };
 
 struct Scanner {
-  unordered_map<string, Token *> tokenMap;
+  unordered_map<string, Token*> tokenMap;
 
   vector<unique_ptr<Token>> tokens;
   vector<unique_ptr<NState>> nstates;
   vector<unique_ptr<DState>> dstates;
 
   vector<NStateBitField> epsilonClosureCache;
-  multimap<u64, DState *> dstateMap;
+  multimap<u64, DState*> dstateMap;
 
-  vector<Token *> silentTokens;
+  vector<Token*> silentTokens;
 
   Statistic ndfaStat;
   Statistic dfsStat;
 };
 
-void scannerRegularLanguageToNFA(Scanner *scanner, const char *text);
-void scannerNFAtoDFA(Scanner *scanner);
-void scannerDumpDFA(const Scanner *scanner);
-void scannerLoadJoosRule(Scanner *scanner);
-ScanResult scannerProcessText(const Scanner *scanner, const char *text);
-void scannerDumpDebugInfo(const ScanResult &result, const char* baseOutputPath);
+void scannerRegularLanguageToNFA(Scanner* scanner, const char* text);
+void scannerNFAtoDFA(Scanner* scanner);
+void scannerDumpDFA(const Scanner* scanner);
+void scannerLoadJoosRule(Scanner* scanner);
+ScanResult scannerProcessText(const Scanner* scanner, const char* text);
+void scannerDumpDebugInfo(const ScanResult& result, const char* baseOutputPath);
 
-} // namespace Scan
+}  // namespace Scan

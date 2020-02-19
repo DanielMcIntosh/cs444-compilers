@@ -1,11 +1,11 @@
 #pragma once
 
-#include <vector>
-#include <string>
 #include <mutex>
+#include <string>
+#include <vector>
 
-#include "utility.h"
 #include "parse/parseTreeBase.h"
+#include "utility.h"
 
 namespace Scan {
 
@@ -23,24 +23,23 @@ struct ScanResult {
   string detailedStep;
 };
 
-} // namespace Scan
+}  // namespace Scan
 
 namespace Parse {
 
 struct ParseResult {
-  Tree *treeRoot = nullptr;
+  Tree* treeRoot = nullptr;
   s32 errorLexTokenIndex = -1;
   bool valid = false;
 };
 
-} // namespace Parse
+}  // namespace Parse
 
 namespace Weeder {
 
 using namespace std;
 
-enum class WeederCategory
-{
+enum class WeederCategory {
   // An abstract method cannot be static or final.
   ClassNotAbstractAndFinal,
   // A method has a body if and only if it is neither abstract nor native.
@@ -61,7 +60,8 @@ enum class WeederCategory
   MethodThisCall,
   // All integer literals are within the interval [-(1<<31), 1<<31)
   NoOverflow,
-  // A class/interface must be declared in a .java file with the same base name as the class/interface.
+  // A class/interface must be declared in a .java file with the same base name
+  // as the class/interface.
   FileNameMatchClass,
   // A class, class method or field must have exactly one access modifier
   AccessModifiers,
@@ -79,35 +79,28 @@ struct WeederResult {
   bool valid = false;
 
   // TODO: parallalize weeding process
-  mutex *theMutex;
+  mutex* theMutex;
   vector<WeederViolation> violations;
-
 };
 
-} // namespace Weeder
+}  // namespace Weeder
 
 namespace AST {
 
 class Node;
 
 struct ASTResult {
-
   std::shared_ptr<Node> ast;
 };
 
-} // namespace AST
+}  // namespace AST
 
-enum class FrontendStageType {
-  Scan,
-  Parse,
-  Weed,
-  Pass
-};
+enum class FrontendStageType { Scan, Parse, Weed, Pass };
 
 struct FrontendResult {
   std::string fileName;
   s32 fileSize;
-  char *fileContent;
+  char* fileContent;
 
   FrontendStageType failedStage;
 
@@ -117,6 +110,6 @@ struct FrontendResult {
   AST::ASTResult astResult;
 };
 
-void frontendResultDelete(FrontendResult *result);
+void frontendResultDelete(FrontendResult* result);
 
 extern int gTestIndex;

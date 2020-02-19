@@ -2,63 +2,63 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <vector>
-#include <string>
 #include <filesystem>
+#include <string>
+#include <vector>
 
-#include "parse/parser.h"
-#include "utility.h"
-#include "platform.h"
-#include "scanner.h"
-#include "weeder.h"
-#include "profiler.h"
-#include "middleend.h"
 #include "ast/ast.h"
-#include "ast/type.h"
 #include "ast/node.h"
-
+#include "ast/type.h"
+#include "middleend.h"
+#include "parse/parser.h"
+#include "platform.h"
+#include "profiler.h"
+#include "scanner.h"
 #include "semantic/semantic.h"
+#include "utility.h"
+#include "weeder.h"
 
 using namespace std;
 namespace fs = std::filesystem;
 
-const char *gFrontendStageName[] = {
-  "Scan", "Parse", "Weed", "(Pass)"
-};
+const char* gFrontendStageName[] = {"Scan", "Parse", "Weed", "(Pass)"};
 
 struct JoosC {
   Scan::Scanner scanner;
   Parse::Parser parser;
 };
 
-bool isProgramValidFromFileName(const char *name) {
+bool isProgramValidFromFileName(const char* name) {
   auto path = fs::path(string(name));
   const string stem = path.stem().string();
   return stem[1] != 'e';
 }
 
-void compileDumpSingleResult(char *baseOutputPath, const FrontendResult &singleResult) {
-  { // create descending directories
+void compileDumpSingleResult(char* baseOutputPath,
+                             const FrontendResult& singleResult) {
+  {  // create descending directories
     auto p = fs::path(string(baseOutputPath));
     fs::create_directories(p.parent_path());
   }
 
-  { // copy the original source code file so that it appears in the same directory
+  {  // copy the original source code file so that it appears in the same
+     // directory
     // as debug output files
-    FILE *originalFile = fopen(baseOutputPath, "wb");
+    FILE* originalFile = fopen(baseOutputPath, "wb");
     fwrite(singleResult.fileContent, singleResult.fileSize, 1, originalFile);
     fclose(originalFile);
 
-    //Scan::scannerDumpDebugInfo(singleResult.scanResult, baseOutputPath);
-    //Parse::parserDumpDebugInfo(singleResult.parseResult, baseOutputPath);
+    // Scan::scannerDumpDebugInfo(singleResult.scanResult, baseOutputPath);
+    // Parse::parserDumpDebugInfo(singleResult.parseResult, baseOutputPath);
     AST::astDumpDebugInfo(singleResult.astResult, baseOutputPath);
   }
 }
 
-FrontendResult doFrontEndSingle(JoosC *joosc, const char *fileName) {
+FrontendResult doFrontEndSingle(JoosC* joosc, const char* fileName) {
   profileSection("compile single");
   s32 sourceFileSize;
-  std::unique_ptr<char[]> sourceCode = readEntireFile(fileName, &sourceFileSize);
+  std::unique_ptr<char[]> sourceCode =
+      readEntireFile(fileName, &sourceFileSize);
 
   FrontendResult fileResult;
   fileResult.fileName = string(fileName);
@@ -67,8 +67,8 @@ FrontendResult doFrontEndSingle(JoosC *joosc, const char *fileName) {
 
   {
     profileSection("scan");
-    fileResult.scanResult = Scan::scannerProcessText(&joosc->scanner,
-                                                     fileResult.fileContent);
+    fileResult.scanResult =
+        Scan::scannerProcessText(&joosc->scanner, fileResult.fileContent);
     if (!fileResult.scanResult.valid) {
       fileResult.failedStage = FrontendStageType::Scan;
       return fileResult;
@@ -77,7 +77,8 @@ FrontendResult doFrontEndSingle(JoosC *joosc, const char *fileName) {
 
   {
     profileSection("parse");
-    fileResult.parseResult = Parse::parserParse(&joosc->parser, fileResult.scanResult.tokens);
+    fileResult.parseResult =
+        Parse::parserParse(&joosc->parser, fileResult.scanResult.tokens);
     if (!fileResult.parseResult.valid) {
       fileResult.failedStage = FrontendStageType::Parse;
       return fileResult;
@@ -86,7 +87,8 @@ FrontendResult doFrontEndSingle(JoosC *joosc, const char *fileName) {
 
   {
     profileSection("weeder");
-    fileResult.weederResult = Weeder::weederCheck(fileResult.parseResult.treeRoot, fileName);
+    fileResult.weederResult =
+        Weeder::weederCheck(fileResult.parseResult.treeRoot, fileName);
     if (!fileResult.weederResult.valid) {
       fileResult.failedStage = FrontendStageType::Weed;
       return fileResult;
@@ -106,7 +108,8 @@ FrontendResult doFrontEndSingle(JoosC *joosc, const char *fileName) {
   return fileResult;
 }
 
-MiddleendResult doMiddleend(JoosC* joosc, const vector<FrontendResult> &frontendResults) {
+MiddleendResult doMiddleend(JoosC* joosc,
+                            const vector<FrontendResult>& frontendResults) {
   MiddleendResult result;
 
   using namespace Semantic;
@@ -114,22 +117,21 @@ MiddleendResult doMiddleend(JoosC* joosc, const vector<FrontendResult> &frontend
   semanticDo(&result.semanticDB);
 
   if (result.semanticDB.error != SemanticErrorType::None) {
-	  result.failedStage = MiddleendStageType::Semantic;
-	  return result;
+    result.failedStage = MiddleendStageType::Semantic;
+    return result;
   }
 
   return result;
 }
 
-int compileMain(JoosC *joosc, const vector<string> &fileList) {
+int compileMain(JoosC* joosc, const vector<string>& fileList) {
   vector<FrontendResult> frontendResult;
   MiddleendResult middleend;
   int retVal = 0;
-  for (const string &file: fileList) {
+  for (const string& file : fileList) {
     frontendResult.emplace_back(doFrontEndSingle(joosc, file.c_str()));
 
-    if (frontendResult.back().failedStage != FrontendStageType::Pass)
-    {
+    if (frontendResult.back().failedStage != FrontendStageType::Pass) {
       retVal = 42;
       LOGR("%s failed", file.c_str());
       goto cleanup;
@@ -142,29 +144,31 @@ int compileMain(JoosC *joosc, const vector<string> &fileList) {
     goto cleanup;
   }
 
- cleanup:
-  { // clean ups
-    for (FrontendResult &singleResult : frontendResult) {
-      frontendResultDelete(&singleResult);
-    }
+cleanup : {  // clean ups
+  for (FrontendResult& singleResult : frontendResult) {
+    frontendResultDelete(&singleResult);
   }
+}
 
   return retVal;
 }
 
-void batchTesting(JoosC *joosc, const string &baseDir,
-                  const vector<string> &stdlib, int assignNum) {
+void batchTesting(JoosC* joosc,
+                  const string& baseDir,
+                  const vector<string>& stdlib,
+                  int assignNum) {
   profileSection("batch testing");
 
   // perform frontend compilation on stdlib only once to speed things up
   vector<FrontendResult> stdlibFrontendResult;
   {
     profileSection("stdlib frontend");
-    for (const auto &libName: stdlib) {
-      stdlibFrontendResult.emplace_back(doFrontEndSingle(joosc, libName.c_str()));
+    for (const auto& libName : stdlib) {
+      stdlibFrontendResult.emplace_back(
+          doFrontEndSingle(joosc, libName.c_str()));
     }
 
-    for (auto &frontendResult : stdlibFrontendResult) {
+    for (auto& frontendResult : stdlibFrontendResult) {
       // stdlibs are always correct
       assert(frontendResult.failedStage == FrontendStageType::Pass);
       // prevent copying list of tokens
@@ -174,9 +178,9 @@ void batchTesting(JoosC *joosc, const string &baseDir,
 
   vector<string> topLevelFileList;
 
-  { // sort file lists as on linux they are not sorted
+  {  // sort file lists as on linux they are not sorted
     auto it = fs::directory_iterator(baseDir);
-    for (const auto &e: it) {
+    for (const auto& e : it) {
       fs::path path = e;
       path.make_preferred();
       topLevelFileList.push_back(path.string());
@@ -186,7 +190,7 @@ void batchTesting(JoosC *joosc, const string &baseDir,
 
   s32 numTests = 0;
   s32 numPassed = 0;
-  for (const string &topLevelName : topLevelFileList) {
+  for (const string& topLevelName : topLevelFileList) {
     fs::path dupPath = fs::path(topLevelName);
     bool valid = true;
 
@@ -195,20 +199,21 @@ void batchTesting(JoosC *joosc, const string &baseDir,
 
     {
       // regenerate ast, since ast contains per compilation fields
-      Type::reset();	    
-      for (auto &frontend : frontendResults) {
-	frontend.astResult = AST::buildAST(frontend.parseResult.treeRoot);
+      Type::reset();
+      for (auto& frontend : frontendResults) {
+        frontend.astResult = AST::buildAST(frontend.parseResult.treeRoot);
       }
     }
 
     MiddleendResult middleend;
 
     if (fs::is_regular_file(dupPath)) {
-      frontendResults.emplace_back(doFrontEndSingle(joosc, topLevelName.c_str()));
+      frontendResults.emplace_back(
+          doFrontEndSingle(joosc, topLevelName.c_str()));
     } else if (fs::is_directory(dupPath)) {
       vector<string> fileBundle;
       getJavaFilesRecursive(fileBundle, topLevelName);
-      for (const string &file: fileBundle) {
+      for (const string& file : fileBundle) {
         frontendResults.emplace_back(doFrontEndSingle(joosc, file.c_str()));
       }
     } else {
@@ -218,7 +223,7 @@ void batchTesting(JoosC *joosc, const string &baseDir,
     ++numTests;
     gTestIndex = numTests;
 
-    { // if there are any errors in frontend stage, find and report them
+    {  // if there are any errors in frontend stage, find and report them
       for (auto it = frontendResults.begin() + stdlibFrontendResult.size();
            it != frontendResults.end(); ++it) {
         if (it->failedStage == FrontendStageType::Pass)
@@ -242,10 +247,12 @@ void batchTesting(JoosC *joosc, const string &baseDir,
   cleanup:
     if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
       LOG_RED("%3d %s: (Semantic: %s)", numTests, topLevelName.c_str(),
-      		 Semantic::gSemanticErrorTypeName[static_cast<int>(middleend.semanticDB.error)]);
+              Semantic::gSemanticErrorTypeName[static_cast<int>(
+                  middleend.semanticDB.error)]);
     } else {
-	    LOG_GREEN("%3d %s: (Semantic: %s)", numTests, topLevelName.c_str(),
-	         Semantic::gSemanticErrorTypeName[static_cast<int>(middleend.semanticDB.error)]);
+      LOG_GREEN("%3d %s: (Semantic: %s)", numTests, topLevelName.c_str(),
+                Semantic::gSemanticErrorTypeName[static_cast<int>(
+                    middleend.semanticDB.error)]);
       ++numPassed;
     }
 
@@ -262,28 +269,28 @@ void batchTesting(JoosC *joosc, const string &baseDir,
 
   {
     // free stdlib frontend result separately
-    for (auto &r: stdlibFrontendResult) {
+    for (auto& r : stdlibFrontendResult) {
       frontendResultDelete(&r);
     }
   }
 }
 
-void checkTestMode(JoosC *joosc) {
+void checkTestMode(JoosC* joosc) {
   profileSection("check test mode");
-  const char *mode = getenv("JOOSC_TEST");
+  const char* mode = getenv("JOOSC_TEST");
   if (!mode)
     return;
-  const char *assnNum = getenv("JOOSC_TEST_ASSN");
+  const char* assnNum = getenv("JOOSC_TEST_ASSN");
   if (!assnNum)
     return;
 
   s32 num = atoi(assnNum);
-  const char *assnBase = "tests/assignment_testcases";
+  const char* assnBase = "tests/assignment_testcases";
   strdecl256(progFolder, "%s/a%d/", assnBase, num);
 
   vector<string> stdlib;
   if (num >= 2) {
-    const char *libBase = "tests/stdlib";
+    const char* libBase = "tests/stdlib";
     strdecl256(libFolder, "%s/%d.0/", libBase, num);
     getJavaFilesRecursive(stdlib, string(libFolder));
   }
@@ -291,11 +298,11 @@ void checkTestMode(JoosC *joosc) {
 }
 
 void checkScanner() {
-  const char *mode = getenv("JOOSC_SCANNER");
+  const char* mode = getenv("JOOSC_SCANNER");
   if (!mode)
     return;
 
-  const char *file = getenv("JOOSC_SCANNER_FILE");
+  const char* file = getenv("JOOSC_SCANNER_FILE");
   if (!file)
     return;
 
@@ -316,7 +323,7 @@ void checkScanner() {
   }
 }
 
-int main(int argc, const char ** argv) {
+int main(int argc, const char** argv) {
   profileSection("main app");
 
   globalInit();

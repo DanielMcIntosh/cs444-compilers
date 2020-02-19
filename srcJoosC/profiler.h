@@ -2,20 +2,20 @@
 
 struct ProfileScopeImpl;
 
-ProfileScopeImpl* profileSectionFunc(const char *file, int line, const char *name);
-void profileSectionEndFunc(ProfileScopeImpl *);
+ProfileScopeImpl* profileSectionFunc(const char* file,
+                                     int line,
+                                     const char* name);
+void profileSectionEndFunc(ProfileScopeImpl*);
 
 struct ProfileScope {
-  ProfileScopeImpl *impl;
-  ProfileScope(const char *file_, int line_, const char *name_) {
+  ProfileScopeImpl* impl;
+  ProfileScope(const char* file_, int line_, const char* name_) {
     impl = profileSectionFunc(file_, line_, name_);
   }
-  ~ProfileScope() {
-    profileSectionEndFunc(impl);
-  }
+  ~ProfileScope() { profileSectionEndFunc(impl); }
 };
 
-#define CONCAT(_x, _y) _x ## _y
+#define CONCAT(_x, _y) _x##_y
 #define CONCAT2(_x, _y) CONCAT(_x, _y)
 
 #define profileSection(_name) \

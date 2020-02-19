@@ -1,11 +1,11 @@
 #include "parseTreeBase.h"
 
-#include "../utility.h"
 #include "../profiler.h"
+#include "../utility.h"
 
 namespace Parse {
 
-void ptSetTopParents(vector<Tree *> *stack, int topN, Tree *parent) {
+void ptSetTopParents(vector<Tree*>* stack, int topN, Tree* parent) {
   const int n = stack->size();
   assert(topN <= n);
   for (int i = 0; i < topN; ++i) {
@@ -14,7 +14,7 @@ void ptSetTopParents(vector<Tree *> *stack, int topN, Tree *parent) {
   }
 }
 
-void ptPopulateChildrenList(Tree *tree, const vector<Tree *> &stack, int n) {
+void ptPopulateChildrenList(Tree* tree, const vector<Tree*>& stack, int n) {
   tree->numChildren = n;
   const int stackN = stack.size();
   assert(stackN >= n);
@@ -23,20 +23,20 @@ void ptPopulateChildrenList(Tree *tree, const vector<Tree *> &stack, int n) {
   }
 }
 
-void ptDeleteStack(vector<Tree *> *stack) {
+void ptDeleteStack(vector<Tree*>* stack) {
   for (const auto tree : *stack) {
     ptDelete(tree);
   }
 }
 
-void ptDelete(Tree *root) {
+void ptDelete(Tree* root) {
   profileSection("pt delete");
   if (!root)
     return;
-  vector<Tree *> stack;
+  vector<Tree*> stack;
   stack.push_back(root);
   while (!stack.empty()) {
-    Tree *node = stack.back();
+    Tree* node = stack.back();
     stack.pop_back();
     for (int i = 0; i < node->numChildren; ++i) {
       stack.push_back(node->children[i]);
@@ -45,4 +45,4 @@ void ptDelete(Tree *root) {
   }
 }
 
-} // namespace Parse
+}  // namespace Parse

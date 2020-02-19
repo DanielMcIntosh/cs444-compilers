@@ -1,22 +1,23 @@
-#include <filesystem>
+#include "utility.h"
 
 #include <time.h>
 
-#include "utility.h"
+#include <filesystem>
+
 #include "platform.h"
 #include "profiler.h"
 
 using namespace std;
 namespace fs = std::filesystem;
 
-void assertImpl(bool value, const char *str, ...) {
+void assertImpl(bool value, const char* str, ...) {
   if (!value) {
     LOGR("failed: %d (%s) ", value, str);
     UNIMPLEMENTED();
   }
 }
 
-void assertImpl_(bool value, const char *str, const char *fmt, ...) {
+void assertImpl_(bool value, const char* str, const char* fmt, ...) {
   if (!value) {
     LOGR("failed: %d (%s) ", value, str);
     va_list arg;
@@ -31,7 +32,7 @@ void assertImpl_(bool value, const char *str, const char *fmt, ...) {
   abort();
 }
 
-void strAppend(std::string *str, const char *fmt, ...) {
+void strAppend(std::string* str, const char* fmt, ...) {
   char buffer[TWO_TO_EIGHT];
   va_list arg;
   va_start(arg, fmt);
@@ -41,12 +42,12 @@ void strAppend(std::string *str, const char *fmt, ...) {
   str->append(buffer);
 }
 
-void strFlushFILE(std::string *output, FILE *file) {
+void strFlushFILE(std::string* output, FILE* file) {
   fwrite(output->data(), output->length(), 1, file);
   output->clear();
 }
 
-void logImplRaw(const char *str, ...) {
+void logImplRaw(const char* str, ...) {
   char logEntry[TWO_TO_EIGHT];
   va_list arg;
   va_start(arg, str);
@@ -56,15 +57,18 @@ void logImplRaw(const char *str, ...) {
   fprintf(stdout, "%s\n", logEntry);
 }
 
-void logImpl(const char *str, const char *file, s32 line, const char *func, ...) {
+void logImpl(const char* str,
+             const char* file,
+             s32 line,
+             const char* func,
+             ...) {
   CivicTimeInfo info;
   getCivicTime(&info);
 
   char logHeader[TWO_TO_EIGHT];
   snprintf(logHeader, ARRAY_SIZE(logHeader),
-                 "%d/%d %2d:%02d:%02d.%03d %s:%4d:\n",
-                 info.month, info.day, info.hour, info.minute, info.second,
-                 info.millisecond, file, line);
+           "%d/%d %2d:%02d:%02d.%03d %s:%4d:\n", info.month, info.day,
+           info.hour, info.minute, info.second, info.millisecond, file, line);
 
   fprintf(stdout, "%s", logHeader);
 
@@ -83,18 +87,18 @@ void globalInit() {
 }
 
 void globalFini() {
-  //profileReport();
+  // profileReport();
 #ifdef _MSC_VER
   fprintf(stderr, "Press enter to exit...\n");
   getchar();
 #endif
 }
 
-std::unique_ptr<char[]> readEntireFile(const char *path, s32 *size) {
+std::unique_ptr<char[]> readEntireFile(const char* path, s32* size) {
   profileSection("read entire file");
   *size = 0;
 
-  FILE *file = fopen(path, "rb");
+  FILE* file = fopen(path, "rb");
   if (!file)
     return nullptr;
 
@@ -112,7 +116,7 @@ std::unique_ptr<char[]> readEntireFile(const char *path, s32 *size) {
   return filePtr;
 }
 
-char *getPrintableChar(char c) {
+char* getPrintableChar(char c) {
   static char buffer[8];
   if (c <= 0x20)
     snprintf(buffer, 8, "\\x%x", c);

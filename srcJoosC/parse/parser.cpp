@@ -1,21 +1,23 @@
-#include <memory>
-#include <array>
-#include <unordered_set>
-#include <unordered_map>
-#include <string>
-
 #include "parser.h"
-#include "parseTreeBase.h"
-#include "parseTree.h"
+
+#include <array>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
 
 #include "../profiler.h"
+#include "parseTree.h"
+#include "parseTreeBase.h"
 
 namespace Parse {
 
-const char *newLines = "\r\n";
-const char *Spaces = " ";
+const char* newLines = "\r\n";
+const char* Spaces = " ";
 
-bool can_parse(const vector<string>& input, const vector<Rule>& rules, const DFA& joos_dfa) {
+bool can_parse(const vector<string>& input,
+               const vector<Rule>& rules,
+               const DFA& joos_dfa) {
   vector<int> state_stack;
   vector<string> token_stack;
   state_stack.push_back(0);
@@ -48,14 +50,14 @@ bool can_parse(const vector<string>& input, const vector<Rule>& rules, const DFA
       if (r.first == SHIFT) {
         state_stack.push_back(r.second);
       } else {
-        assert(false); // this can never happen
+        assert(false);  // this can never happen
       }
     }
   }
   return true;
 }
 
-void lineHelper(char *buffer, const char **textPtr) {
+void lineHelper(char* buffer, const char** textPtr) {
   profileSection("line helper");
   int len = strcspn(*textPtr, newLines);
   snprintf(buffer, len + 1, "%s", *textPtr);
@@ -63,12 +65,12 @@ void lineHelper(char *buffer, const char **textPtr) {
   *textPtr += strspn(*textPtr, newLines);
 }
 
-void lineHelperFast(char **textPtr, char **state) {
+void lineHelperFast(char** textPtr, char** state) {
   profileSection("line helper fast");
 
   *textPtr = *state;
 
-  char *n = *state;
+  char* n = *state;
   while (*n != '\n')
     ++n;
 
@@ -76,9 +78,9 @@ void lineHelperFast(char **textPtr, char **state) {
   *state = n + 1;
 }
 
-void parserReadLR1(Parser *parser, const char *text) {
-  char *textPtr = const_cast<char *>(text);
-  char *state = textPtr;
+void parserReadLR1(Parser* parser, const char* text) {
+  char* textPtr = const_cast<char*>(text);
+  char* state = textPtr;
 
   lineHelperFast(&textPtr, &state);
 
@@ -101,7 +103,7 @@ void parserReadLR1(Parser *parser, const char *text) {
     int numRules = atoi(textPtr);
     for (int i = 0; i < numRules; ++i) {
       lineHelperFast(&textPtr, &state);
-      char *token = strtok(textPtr, Spaces);
+      char* token = strtok(textPtr, Spaces);
       string lhs(token);
       int rhsSize = 0;
       while ((token = strtok(nullptr, Spaces))) {
@@ -125,12 +127,13 @@ void parserReadLR1(Parser *parser, const char *text) {
       string symbol(strtok(nullptr, Spaces));
       string action(strtok(nullptr, Spaces));
       int stateOrRuleNumber = atoi(strtok(nullptr, Spaces));
-      parser->joos_dfa[stateNum][symbol] = {action == "shift" ? SHIFT : REDUCE, stateOrRuleNumber};
+      parser->joos_dfa[stateNum][symbol] = {action == "shift" ? SHIFT : REDUCE,
+                                            stateOrRuleNumber};
     }
   }
 }
 
-void parserReadJoosLR1(Parser *parser) {
+void parserReadJoosLR1(Parser* parser) {
   s32 fileSize;
   unique_ptr<char[]> text = readEntireFile("joos.lr1", &fileSize);
   if (!text)
@@ -139,21 +142,19 @@ void parserReadJoosLR1(Parser *parser) {
   parserReadLR1(parser, text.get());
 }
 
-const string &lexTokenTranslate(const Scan::LexToken &lexToken) {
-  static const unordered_set<string> gNameSet = {
-          "IntegerLiteral",
-          "BooleanLiteral",
-          "CharacterLiteral",
-          "StringLiteral",
-          "NullLiteral",
-          "Identifier",
-          "BOF",
-          "EOF"
-  };
+const string& lexTokenTranslate(const Scan::LexToken& lexToken) {
+  static const unordered_set<string> gNameSet = {"IntegerLiteral",
+                                                 "BooleanLiteral",
+                                                 "CharacterLiteral",
+                                                 "StringLiteral",
+                                                 "NullLiteral",
+                                                 "Identifier",
+                                                 "BOF",
+                                                 "EOF"};
   static const unordered_set<string> gLexemeSet = {
-          "Keyword",
-          "Separator",
-          "Operator",
+      "Keyword",
+      "Separator",
+      "Operator",
   };
   static const string gError = "ERROR";
   if (gNameSet.count(lexToken.name))
@@ -164,84 +165,84 @@ const string &lexTokenTranslate(const Scan::LexToken &lexToken) {
   return gError;
 }
 
-string expandEscapeSequence(const string &str) {
-	string result;
+string expandEscapeSequence(const string& str) {
+  string result;
 
-	string octBuffer;
-	bool octActive = false;
+  string octBuffer;
+  bool octActive = false;
   int octMax = 0;
-	for (size_t i = 0; i < str.size(); ++i) {
-		if (octActive) {
-			if (str[i] > '7' || str[i] < '0' || octBuffer.size() == octMax) {
-				unsigned char value = 0;
-				size_t octLen = octBuffer.length();
-				value |= ((unsigned char)(octBuffer[octLen - 1] - '0')) & 7;
-				if (octLen > 1)
-					value |= ((unsigned char)(octBuffer[octLen - 2] - '0') & 7) << 3;
-				if (octLen > 2)
-					value |= ((unsigned char)(octBuffer[octLen - 3] - '0') & 7) << 6;
-				result.push_back(value & 0x7f);
+  for (size_t i = 0; i < str.size(); ++i) {
+    if (octActive) {
+      if (str[i] > '7' || str[i] < '0' || octBuffer.size() == octMax) {
+        unsigned char value = 0;
+        size_t octLen = octBuffer.length();
+        value |= ((unsigned char)(octBuffer[octLen - 1] - '0')) & 7;
+        if (octLen > 1)
+          value |= ((unsigned char)(octBuffer[octLen - 2] - '0') & 7) << 3;
+        if (octLen > 2)
+          value |= ((unsigned char)(octBuffer[octLen - 3] - '0') & 7) << 6;
+        result.push_back(value & 0x7f);
 
         octBuffer.clear();
-				octActive = false;
+        octActive = false;
         octMax = 0;
-				--i;        
-			} else {
-				octBuffer.push_back(str[i]);
-			}
-			continue;
-		}
+        --i;
+      } else {
+        octBuffer.push_back(str[i]);
+      }
+      continue;
+    }
 
-		if (str[i] != '\\') {
-			result.push_back(str[i]);
-			continue;
-		}
+    if (str[i] != '\\') {
+      result.push_back(str[i]);
+      continue;
+    }
 
-		char value = 0;
-		switch (str[i + 1]) {
-		case 'b':
-			value = 0x8;
-			break;
-		case 't':
-			value = 0x9;
-			break;
-		case 'n':
-			value = 0xa;
-			break;
-		case 'f':
-			value = 0xc;
-			break;
-		case 'r':
-			value = 0xd;
-			break;
-		case '"':
-			value = 0x22;
-			break;
-		case '\'':
-			value = 0x27;
-			break;
-		case '\\':
-			value = 0x5c;
-			break;
-		default:
-			break;
-		}
+    char value = 0;
+    switch (str[i + 1]) {
+      case 'b':
+        value = 0x8;
+        break;
+      case 't':
+        value = 0x9;
+        break;
+      case 'n':
+        value = 0xa;
+        break;
+      case 'f':
+        value = 0xc;
+        break;
+      case 'r':
+        value = 0xd;
+        break;
+      case '"':
+        value = 0x22;
+        break;
+      case '\'':
+        value = 0x27;
+        break;
+      case '\\':
+        value = 0x5c;
+        break;
+      default:
+        break;
+    }
 
-		if (!value) {
+    if (!value) {
       if (str[i + 1] < '4')
         octMax = 3;
       else
         octMax = 2;
-			octActive = true;
-		} else {
-			result.push_back(value);
+      octActive = true;
+    } else {
+      result.push_back(value);
       ++i;
-		}
-	}
-	return result;
+    }
+  }
+  return result;
 }
 
-bool treeStackShiftTerminal(vector<Tree *> *stack, const Scan::LexToken &token) {
+bool treeStackShiftTerminal(vector<Tree*>* stack, const Scan::LexToken& token) {
   if (token.name == "Identifier") {
     auto t = new TIdentifier;
     t->value = token.lexeme;
@@ -253,14 +254,15 @@ bool treeStackShiftTerminal(vector<Tree *> *stack, const Scan::LexToken &token) 
     auto t = new TIntegerLiteral;
     try {
       t->value = stoul(token.lexeme);
-    } catch (std::out_of_range &error) {
+    } catch (std::out_of_range& error) {
       // push anyway or we will leak t
       stack->push_back(t);
       return false;
     }
     stack->push_back(t);
-    // reject values larger than 1<<31, to check if 1<<31 is actually a negated literal in weeder
-    return t->value <= (1u<<31);
+    // reject values larger than 1<<31, to check if 1<<31 is actually a negated
+    // literal in weeder
+    return t->value <= (1u << 31);
   }
 
   if (token.name == "BooleanLiteral") {
@@ -303,10 +305,10 @@ bool treeStackShiftTerminal(vector<Tree *> *stack, const Scan::LexToken &token) 
   return true;
 }
 
-ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens) {
+ParseResult parserParse(Parser* parser, const vector<Scan::LexToken>& tokens) {
   vector<int> state_stack;
   vector<string> token_stack;
-  vector<Tree *> tree_stack;
+  vector<Tree*> tree_stack;
 
   ParseResult result;
   result.treeRoot = nullptr;
@@ -315,17 +317,19 @@ ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens) {
 
   state_stack.push_back(0);
   s32 tokenIndex = 0;
-  for (const auto &token : tokens) {
-    const string &canonicalTokenName = lexTokenTranslate(token);
+  for (const auto& token : tokens) {
+    const string& canonicalTokenName = lexTokenTranslate(token);
 
     while (true) {
-      if (parser->joos_dfa.at(state_stack.back()).count(canonicalTokenName) == 0) {
+      if (parser->joos_dfa.at(state_stack.back()).count(canonicalTokenName) ==
+          0) {
         // invalid token at this state
         ptDeleteStack(&tree_stack);
         result.errorLexTokenIndex = tokenIndex;
         return result;
       }
-      Transition next_rule = parser->joos_dfa.at(state_stack.back()).at(canonicalTokenName);
+      Transition next_rule =
+          parser->joos_dfa.at(state_stack.back()).at(canonicalTokenName);
       auto [action, rule_id] = next_rule;
       if (action == SHIFT) {
         auto next_state = rule_id;
@@ -346,7 +350,8 @@ ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens) {
       }
       token_stack.push_back(parser->rules[rule_id].lhs);
 
-      if (parser->joos_dfa.at(state_stack.back()).count(token_stack.back()) == 0) {
+      if (parser->joos_dfa.at(state_stack.back()).count(token_stack.back()) ==
+          0) {
         ptDeleteStack(&tree_stack);
         result.errorLexTokenIndex = tokenIndex;
         return result;
@@ -356,7 +361,7 @@ ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens) {
       if (r.first == SHIFT) {
         state_stack.push_back(r.second);
       } else {
-        ASSERT(false); // this can never happen
+        ASSERT(false);  // this can never happen
       }
     }
 
@@ -369,9 +374,10 @@ ParseResult parserParse(Parser *parser, const vector<Scan::LexToken> &tokens) {
   return result;
 }
 
-void parserDumpDebugInfo(const ParseResult& result, const char *baseOutputPath) {
+void parserDumpDebugInfo(const ParseResult& result,
+                         const char* baseOutputPath) {
   strdecl512(filePath, "%s.parser.txt", baseOutputPath);
-  FILE *dump = fopen(filePath, "w");
+  FILE* dump = fopen(filePath, "w");
   fprintf(dump, "error at index %d\n", result.errorLexTokenIndex);
   fclose(dump);
 }
@@ -379,31 +385,43 @@ void parserDumpDebugInfo(const ParseResult& result, const char *baseOutputPath) 
 void parserTest() {
   Parser parser;
   s32 fileSize;
-  unique_ptr<char[]> fileContents = readEntireFile("experimental/sample.lr1", &fileSize);
+  unique_ptr<char[]> fileContents =
+      readEntireFile("experimental/sample.lr1", &fileSize);
   if (!fileContents)
     return;
 
   parserReadLR1(&parser, fileContents.get());
 
-  vector<pair<bool,vector<string>>> tests = {
-          {true, {"BOF", "id", "-", "(", "id", "-", "id", ")", "EOF"}},
-          {true, {"BOF", "id", "EOF"}},
-          {true, {"BOF", "(", "id", "-", "id", ")", "-", "(", "id", "-", "id", ")", "EOF"}},
-          {true, {"BOF", "(", "id", "-", "id", ")", "-", "id", "EOF"}},
-          {true, {"BOF", "id", "-", "id", "EOF"}},
-          {true, {"BOF", "(", "(", "id", "-", "id", ")", "-", "id", ")", "-", "id", "EOF"}},
-          {true, {"BOF", "(", "id", "-", "(", "id", "-", "(", "id", "-", "(", "id", "-", "(", "id", "-", "id", ")", ")", ")", ")", ")", "EOF"}},
-          {true, {"BOF", "(", "(", "(", "(", "(", "(", "id", "-", "id", ")", "-", "id", ")", "-", "id", ")", "-", "(", "id", "-", "(", "id", "-", "(", "id", "-", "(", "id", "-", "(", "id", "-", "id", ")", ")", ")", ")", ")", ")", ")", ")", "EOF"}},
-          {false, {"BOF", "id"}}, // BUG: accepts valid prefix if EOF marker is missing
-          {false, {"BOF", "(", "EOF"}},
-          {false, {"BOF", "(", ")", "EOF"}},
-          {false, {"BOF", "id", "id", "EOF"}},
+  vector<pair<bool, vector<string>>> tests = {
+      {true, {"BOF", "id", "-", "(", "id", "-", "id", ")", "EOF"}},
+      {true, {"BOF", "id", "EOF"}},
+      {true,
+       {"BOF", "(", "id", "-", "id", ")", "-", "(", "id", "-", "id", ")",
+        "EOF"}},
+      {true, {"BOF", "(", "id", "-", "id", ")", "-", "id", "EOF"}},
+      {true, {"BOF", "id", "-", "id", "EOF"}},
+      {true,
+       {"BOF", "(", "(", "id", "-", "id", ")", "-", "id", ")", "-", "id",
+        "EOF"}},
+      {true,
+       {"BOF", "(", "id", "-", "(",  "id", "-", "(", "id", "-", "(",  "id",
+        "-",   "(", "id", "-", "id", ")",  ")", ")", ")",  ")", "EOF"}},
+      {true, {"BOF", "(",  "(", "(",  "(",  "(", "(",  "id", "-",  "id", ")",
+              "-",   "id", ")", "-",  "id", ")", "-",  "(",  "id", "-",  "(",
+              "id",  "-",  "(", "id", "-",  "(", "id", "-",  "(",  "id", "-",
+              "id",  ")",  ")", ")",  ")",  ")", ")",  ")",  ")",  "EOF"}},
+      {false,
+       {"BOF", "id"}},  // BUG: accepts valid prefix if EOF marker is missing
+      {false, {"BOF", "(", "EOF"}},
+      {false, {"BOF", "(", ")", "EOF"}},
+      {false, {"BOF", "id", "id", "EOF"}},
   };
 
   for (auto [expected, input] : tests) {
     auto result = can_parse(input, parser.rules, parser.joos_dfa);
-    printf("expect: %d got: %d %s\n", expected, result, expected == result ? "" : "failed");
+    printf("expect: %d got: %d %s\n", expected, result,
+           expected == result ? "" : "failed");
   }
 }
 
-} // namespace Parse
+}  // namespace Parse

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "parse/parseTreeBase.h"
 #include "frontend.h"
+#include "parse/parseTreeBase.h"
 
 namespace Weeder {
 
-WeederResult weederCheck(Parse::Tree *root, const char *fileName);
+WeederResult weederCheck(Parse::Tree* root, const char* fileName);
 
-} // namespace Weeder
+}  // namespace Weeder
