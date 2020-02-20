@@ -61,17 +61,23 @@ public:
 	// Need to contain all top level parents
 	std::vector<TypeDeclaration *> superSet;
 
-	// Declare.
-	// Should be a copy of "members" field above. Exists to make things clear.
-	std::vector<MemberDeclaration *> declareSet;
+	template <class DeclType>
+	struct MemberSets{
+		// Declare.
+		// Should be a copy of "members" field above. Exists to make things clear.
+		std::vector<DeclType *> declareSet;
 
-	// Inherit.
-	// Should copy from all parents.
-	std::vector<MemberDeclaration *> inheritSet;
+		// Inherit.
+		// Should copy from all parents.
+		std::vector<DeclType *> inheritSet;
 
-	// Contain.
-	// Should be a concatination of declareSet and inheritSet above.
-	std::vector<MemberDeclaration *> containSet;
+		// Contain.
+		// Should be a concatination of declareSet and inheritSet above.
+		std::vector<DeclType *> containSet;
+	};
+
+	MemberSets<FieldDeclaration> fieldSets;
+	MemberSets<MethodDeclaration> methodSets;
 };
 
 } //namespace AST
