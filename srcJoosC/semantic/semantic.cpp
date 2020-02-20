@@ -356,7 +356,7 @@ void semanticDo(SemanticDB *sdb) {
 			//
 			unordered_set<TypeDeclaration *> extends;
 			for (auto &itf : type->interfaces) {
-				if (!type->isInterface && !itf->decl->isInterface) {
+				if (!itf->decl->isInterface) {
 					sdb->error = SemanticErrorType::ImplementNonInterface;
 					return;
 				}
@@ -380,13 +380,8 @@ void semanticDo(SemanticDB *sdb) {
 			//
 			unordered_set<TypeDeclaration *> newSuper;
 			if (super) {
-				if (!type->isInterface && super->isInterface) {
+				if (super->isInterface) {
 					sdb->error = SemanticErrorType::ExtendNonClass;
-					return;
-				}
-
-				if (type->isInterface && !super->isInterface) {
-					sdb->error = SemanticErrorType::ExtendClass;
 					return;
 				}
 
