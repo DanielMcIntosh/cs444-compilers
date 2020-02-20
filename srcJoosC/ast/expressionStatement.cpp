@@ -23,7 +23,7 @@ ExpressionStatement::ExpressionStatement(const Parse::TExpressionStatement *ptNo
     : expression(Expression::create(ptNode->statementExpression))
 {
 }
-std::string ExpressionStatement::toCode() {
+std::string ExpressionStatement::toCode() const {
     return expression ? expression->toCode() + ";" : ";";
 }
 

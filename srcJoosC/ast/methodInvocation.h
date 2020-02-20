@@ -22,7 +22,7 @@ public:
 	std::variant<std::unique_ptr<Name>, std::string> identifier;
 	std::vector<std::unique_ptr<Expression>> args;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 };
 
 } //namespace AST

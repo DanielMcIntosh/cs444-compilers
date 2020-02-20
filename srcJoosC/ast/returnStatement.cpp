@@ -26,7 +26,7 @@ returnValue(Expression::create(ptNode->expression))
 {
 }
 
-std::string ReturnStatement::toCode()
+std::string ReturnStatement::toCode() const
 {
 	return "return " + (returnValue ? returnValue->toCode() : "") + ";";
 }

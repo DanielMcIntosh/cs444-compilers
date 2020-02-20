@@ -16,7 +16,7 @@ public:
 
 	std::unique_ptr<Statement> elseBody;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 };
 
 } //namespace AST

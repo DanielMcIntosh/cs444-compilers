@@ -35,7 +35,7 @@ ForStatement::ForStatement(const Parse::TForStatementNoShortIf *ptNode)
     increment(Expression::create(ptNode->forUpdate))
 {
 }
-std::string ForStatement::toCode() {
+std::string ForStatement::toCode() const {
     return "for (" + (init ? init->toCode() : "")
         + " " + (condition ? condition->toCode() : "")
         + "; " + (increment ? increment->toCode() : "") + ")\n" + body->toCode();

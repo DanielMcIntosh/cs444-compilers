@@ -24,7 +24,7 @@ FieldAccess::FieldAccess(const Parse::TFieldAccess *ptNode)
 {
 }
 
-std::string FieldAccess::toCode()
+std::string FieldAccess::toCode() const
 {
 	return "(" + object->toCode() + "." + member + ")";
 }

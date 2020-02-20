@@ -29,7 +29,7 @@ ArrayCreationExpression::ArrayCreationExpression(const Parse::TArrayCreationExpr
 	type->isArray = true;
 }
 
-std::string ArrayCreationExpression::toCode()
+std::string ArrayCreationExpression::toCode() const
 {
 	return "(new " + type->toCode() + '[' + size->toCode() + "])";
 }

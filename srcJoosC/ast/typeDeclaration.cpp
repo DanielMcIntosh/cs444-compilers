@@ -4,7 +4,9 @@
 #include "ast/memberDeclaration.h"
 #include "ast/nodeList.h"
 #include "ast/typeBody.h"
+#include "ast/name.h"
 #include "parse/parseTree.h"
+#include "semantic/semantic.h"
 #include <memory>
 #include <vector>
 #include <string>
@@ -36,13 +38,10 @@ std::unique_ptr<TypeDeclaration> TypeDeclaration::create(const Parse::Tree *ptNo
 
 TypeDeclaration::TypeDeclaration(const Parse::TTypeDeclaration *ptNode)
 {
-	Type::setCurrentTypeDeclaration(this);
 }
 
 TypeDeclaration::TypeDeclaration(const Parse::TClassDeclaration *ptNode)
 {
-	Type::setCurrentTypeDeclaration(this);
-
 	isInterface = false; // depends only on which constructor is called
 	// modifiers is a list of Modifier, use NodeList<Modifier> to extract it as a vector
 	modifiers = std::move(NodeList<Modifier>(ptNode->modifiers).list);
@@ -62,8 +61,6 @@ TypeDeclaration::TypeDeclaration(const Parse::TClassDeclaration *ptNode)
 
 TypeDeclaration::TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode)
 {
-	Type::setCurrentTypeDeclaration(this);
-
 	isInterface = true;
 	modifiers = std::move(NodeList<Modifier>(ptNode->modifiers).list);
 	// TIdentifier isn't actually a non-terminal, so there is no PseudoAST class for it
@@ -74,7 +71,7 @@ TypeDeclaration::TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode)
 	members = std::move(TypeBody(ptNode->interfaceBody).members);
 }
 
-std::string TypeDeclaration::toCode()
+std::string TypeDeclaration::toCode() const
 {
 	if (name.empty())
 	{
@@ -112,5 +109,39 @@ std::string TypeDeclaration::toCode()
 	return str;
 }
 
+Semantic::SemanticErrorType TypeDeclaration::resolveSuperTypeNames(Semantic::SemanticDB const& semantic)
+{
+	if (superClass)
+	{
+		if (auto [decl, error] = semantic.resolveType(static_cast<NameType *>(superClass.get()), cpu, nullptr);
+			error != Semantic::SemanticErrorType::None)
+		{
+			return error;
+		} else
+		{
+			superClass->declaration = decl;
+			decl->children.push_back(this);
+		}
+	}
+
+	for (auto &intf: interfaces)
+	{
+		if (auto [decl, error] = semantic.resolveType(static_cast<NameType *>(intf.get()), cpu, nullptr);
+			error != Semantic::SemanticErrorType::None)
+		{
+			return error;
+		} else
+		{
+			intf->declaration = decl;
+			decl->children.push_back(this);
+		}
+	}
+	return Semantic::SemanticErrorType::None;
+}
+
+Semantic::SemanticErrorType TypeDeclaration::resolveBodyTypeNames(Semantic::SemanticDB const& semantic)
+{
+	return Semantic::SemanticErrorType::None;
+}
 
 } //namespace AST

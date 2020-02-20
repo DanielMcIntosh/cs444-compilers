@@ -17,7 +17,7 @@ public:
 	explicit TypeBody(const Parse::TClassBody *ptNode);
 	explicit TypeBody(const Parse::TInterfaceBody *ptNode);
 
-	std::string toCode() override;
+	std::string toCode() const override;
 };
 
 } //namespace AST

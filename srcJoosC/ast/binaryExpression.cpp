@@ -102,7 +102,7 @@ BinaryExpression::BinaryExpression(const Parse::TConditionalOrExpression *ptNode
 {
 }
 
-std::string BinaryExpression::toCode()
+std::string BinaryExpression::toCode() const
 {
 	if (op == Variant::InstanceOf)
 	{

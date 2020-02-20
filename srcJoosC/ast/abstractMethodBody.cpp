@@ -23,7 +23,7 @@ AbstractMethodBody::AbstractMethodBody(const Parse::TAbstractMethodBody *ptNode)
 {
 }
 
-std::string AbstractMethodBody::toCode()
+std::string AbstractMethodBody::toCode() const
 {
 	return ";";
 }

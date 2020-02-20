@@ -36,7 +36,7 @@ VariableDeclaration::VariableDeclaration(const Parse::TLocalVariableDeclaration 
 {
 }
 
-std::string VariableDeclaration::toCode() {
+std::string VariableDeclaration::toCode() const {
     if (initializer) {
         return type->toCode() + " " + identifier + " = " + initializer->toCode();
     } else {

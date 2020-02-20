@@ -48,7 +48,7 @@ CastExpression::CastExpression(const Parse::TCastExpression *ptNode)
     }
 }
 
-std::string CastExpression::toCode() {
+std::string CastExpression::toCode() const {
     return "(" + type->toCode() + ")" + rhs->toCode();
 }
 

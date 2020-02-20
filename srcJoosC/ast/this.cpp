@@ -22,7 +22,7 @@ This::This(const Parse::TThis2 *ptNode)
 {
 }
 
-std::string This::toCode()
+std::string This::toCode() const
 {
 	return "this";
 }

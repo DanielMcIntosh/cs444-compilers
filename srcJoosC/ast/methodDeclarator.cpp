@@ -33,7 +33,7 @@ MethodDeclarator::MethodDeclarator(const Parse::TMethodDeclarator *ptNode)
 {
 }
 
-std::string MethodDeclarator::toCode()
+std::string MethodDeclarator::toCode() const
 {
 	// we're a PseudoAST node, so this shouldn't be called
 	// therefore, we'll print something which is useful for debugging, but doesn't look like actual code

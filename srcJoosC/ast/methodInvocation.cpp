@@ -35,7 +35,7 @@ MethodInvocation::MethodInvocation(const Parse::TMethodInvocation *ptNode)
 	}
 }
 
-std::string MethodInvocation::toCode()
+std::string MethodInvocation::toCode() const
 {
 	std::string str = "(";
 	if (obj)

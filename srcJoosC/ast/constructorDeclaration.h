@@ -18,7 +18,7 @@ public:
 	std::vector<std::unique_ptr<VariableDeclaration>> parameters;
 	std::unique_ptr<Block> body;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 
   virtual bool equals(FieldDeclaration *) override;
   virtual bool equals(MemberDeclaration *) override;

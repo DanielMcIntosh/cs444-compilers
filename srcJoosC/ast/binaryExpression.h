@@ -49,7 +49,7 @@ public:
 	// instanceof has a rhs that's a ReferenceType instead of an Expression
 	std::variant<std::unique_ptr<Expression>, std::unique_ptr<Type>> rhs;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 };
 
 std::string operator+(std::string str, BinaryExpression::Variant op);

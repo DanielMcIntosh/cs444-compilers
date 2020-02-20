@@ -36,7 +36,7 @@ ConstructorDeclaration::ConstructorDeclaration(const Parse::TConstructorDeclarat
 {
 }
 
-std::string ConstructorDeclaration::toCode()
+std::string ConstructorDeclaration::toCode() const
 {
 	std::string str;
 	for (auto &mod: modifiers)

@@ -39,7 +39,7 @@ Name::Name(const Parse::TName *ptNode)
 	}
 }
 
-std::string Name::toCode()
+std::string Name::flatten() const
 {
 	std::string str;
 	for (auto &pre : prefix)
@@ -50,12 +50,23 @@ std::string Name::toCode()
 	return str;
 }
 
+std::string Name::toCode() const
+{
+	return flatten();
+}
+
 bool Name::operator==(const Name &other) {
 	return prefix == other.prefix && id == other.id;
 }
 
-std::string NameType::flatten() {
-	return toCode();
+std::string NameType::flatten() const {
+	std::string str;
+	for (auto &pre : prefix)
+	{
+		str += pre + ".";
+	}
+	str += id;
+	return str;
 }
 
 NameType::NameType(Name &&other)
@@ -64,21 +75,9 @@ NameType::NameType(Name &&other)
 {
 }
 
-Semantic::SemanticErrorType NameType::resolve(Semantic::SemanticDB *db,
-																							const CompilationUnit *cpu,
-																							TypeDeclaration *typeDecl) {
-	return Semantic::semanticResolveType(db, this, flatten(), cpu, typeDecl);
-}
-
-std::string NameType::toCode()
+std::string NameType::toCode() const
 {
-	std::string str;
-	for (auto &pre : prefix)
-	{
-		str += pre + ".";
-	}
-	str += id;
-	return str;
+	return flatten();
 }
 
 bool NameType::equals(PrimitiveType *other) {
@@ -99,7 +98,7 @@ NameExpression::NameExpression(Name &&other)
 {
 }
 
-std::string NameExpression::toCode()
+std::string NameExpression::toCode() const
 {
 	std::string str;
 	for (auto &pre : prefix)

@@ -28,7 +28,7 @@ Block::Block(const Parse::TBlock *ptNode)
 {
 }
 
-std::string Block::toCode()
+std::string Block::toCode() const
 {
 	std::string str = "{\n";
 	for (auto &stmt : statements)

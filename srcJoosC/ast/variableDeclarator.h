@@ -17,7 +17,7 @@ public:
 	std::string id;
 	std::unique_ptr<Expression> initializer;
 
-	std::string toCode() override { return "[VariableDeclarator]"; }
+	std::string toCode() const override { return "[VariableDeclarator]"; }
 };
 
 } //namespace AST

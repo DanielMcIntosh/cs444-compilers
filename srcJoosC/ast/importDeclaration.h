@@ -18,7 +18,7 @@ public:
 	std::unique_ptr<Name> importName;
 	bool multiImport;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 
 	bool operator==(const ImportDeclaration &other);
 };

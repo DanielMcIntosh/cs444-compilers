@@ -16,7 +16,7 @@ public:
 
 	std::variant<unsigned int, bool, char, std::string, std::nullptr_t > value;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 };
 
 } //namespace AST

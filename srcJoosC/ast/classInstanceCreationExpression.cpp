@@ -28,7 +28,7 @@ ClassInstanceCreationExpression::ClassInstanceCreationExpression(const Parse::TC
 {
 }
 
-std::string ClassInstanceCreationExpression::toCode()
+std::string ClassInstanceCreationExpression::toCode() const
 {
 	std::string str = "(new " + type->toCode() + "(";
 	for (auto &arg : args)

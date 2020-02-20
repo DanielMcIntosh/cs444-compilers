@@ -23,7 +23,7 @@ public:
 		Max
 	} type;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 };
 
 std::string operator+(std::string str, Modifier::Variant type);

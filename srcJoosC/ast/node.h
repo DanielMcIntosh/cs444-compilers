@@ -16,7 +16,7 @@ public:
 	[[gnu::pure]]
 	static bool isSingleton(const Parse::Tree *ptNode);
 
-	virtual std::string toCode() = 0;
+	virtual std::string toCode() const = 0;
 };
 
 }

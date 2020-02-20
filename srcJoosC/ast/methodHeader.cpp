@@ -40,7 +40,7 @@ MethodHeader::MethodHeader(const Parse::TMethodHeader *ptNode)
 {
 }
 
-std::string MethodHeader::toCode()
+std::string MethodHeader::toCode() const
 {
 	// we're a PseudoAST node, so this shouldn't be called
 	// therefore, we'll print something which is useful for debugging, but doesn't look like actual code

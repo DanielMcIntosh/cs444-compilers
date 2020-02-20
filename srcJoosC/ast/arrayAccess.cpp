@@ -25,7 +25,7 @@ ArrayAccess::ArrayAccess(const Parse::TArrayAccess *ptNode)
 {
 }
 
-std::string ArrayAccess::toCode() {
+std::string ArrayAccess::toCode() const {
     return "(" + array->toCode() + "[" + index->toCode() + "])";
 }
 

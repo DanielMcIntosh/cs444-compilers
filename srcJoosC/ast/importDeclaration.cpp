@@ -36,7 +36,7 @@ importName(Name::create(ptNode->name)), multiImport(true)
 {
 }
 
-std::string ImportDeclaration::toCode()
+std::string ImportDeclaration::toCode() const
 {
 	std::string str = "import " + importName->toCode();
 	if (multiImport)

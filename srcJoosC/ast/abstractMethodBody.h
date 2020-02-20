@@ -13,7 +13,7 @@ public:
 	static std::unique_ptr<AbstractMethodBody> create(const Parse::Tree *ptNode);
 	explicit AbstractMethodBody(const Parse::TAbstractMethodBody *ptNode);
 
-	std::string toCode() override;
+	std::string toCode() const override;
 };
 
 } //namespace AST

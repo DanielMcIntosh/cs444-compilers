@@ -40,7 +40,7 @@ UnaryExpression::UnaryExpression(const Parse::TUnaryExpressionNotPlusMinus *ptNo
 {
 }
 
-std::string UnaryExpression::toCode()
+std::string UnaryExpression::toCode() const
 {
 	return "" + op + expr->toCode();
 }

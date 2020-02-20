@@ -24,7 +24,7 @@ LocalVariableDeclarationStatement::LocalVariableDeclarationStatement(const Parse
 {
 }
 
-std::string LocalVariableDeclarationStatement::toCode()
+std::string LocalVariableDeclarationStatement::toCode() const
 {
 	return declaration->toCode() + ";";
 }

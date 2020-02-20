@@ -52,7 +52,7 @@ ConditionalStatement::ConditionalStatement(ConditionType type, std::unique_ptr<E
 {
 }
 
-std::string ConditionalStatement::toCode()
+std::string ConditionalStatement::toCode() const
 {
 	std::string str = "" + condType + "(" + condition->toCode() + ")\n";
 	str += body->toCode();

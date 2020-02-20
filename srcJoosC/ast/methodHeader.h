@@ -20,7 +20,7 @@ public:
 	std::string id;
 	std::vector<std::unique_ptr<VariableDeclaration>> parameterList;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 private:
 	MethodHeader(std::vector<std::unique_ptr<Modifier>> mods, std::unique_ptr<Type> ret, MethodDeclarator&& declarator);
 };

@@ -20,7 +20,7 @@ public:
 	// nullable
 	std::unique_ptr<Expression> initializer;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 	bool equals(VariableDeclaration *);
 };
 

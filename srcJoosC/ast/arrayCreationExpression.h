@@ -17,7 +17,7 @@ public:
 	std::unique_ptr<Type> type;
 	std::unique_ptr<Expression> size;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 };
 
 } //namespace AST

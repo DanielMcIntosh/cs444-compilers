@@ -15,7 +15,7 @@ public:
 	std::unique_ptr<Expression> array;
 	std::unique_ptr<Expression> index;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 };
 
 } //namespace AST

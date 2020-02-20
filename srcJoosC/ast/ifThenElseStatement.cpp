@@ -33,7 +33,7 @@ IfThenElseStatement::IfThenElseStatement(const Parse::TIfThenElseStatementNoShor
 {
 }
 
-std::string IfThenElseStatement::toCode()
+std::string IfThenElseStatement::toCode() const
 {
 	std::string str = "if (" + condition->toCode() + ")\n";
 	str += body->toCode();

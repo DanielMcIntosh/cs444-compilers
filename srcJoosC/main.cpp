@@ -199,7 +199,7 @@ void batchTesting(JoosC* joosc,
 
     {
       // regenerate ast, since ast contains per compilation fields
-      AST::Type::reset();
+      //AST::Type::reset();
       for (auto& frontend : frontendResults) {
         frontend.astResult = AST::buildAST(frontend.parseResult.treeRoot);
       }

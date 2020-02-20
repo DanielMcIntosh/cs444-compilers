@@ -12,7 +12,7 @@ public:
 	static std::unique_ptr<This> create(const Parse::Tree *ptNode);
 	explicit This(const Parse::TThis2 *ptNode);
 
-	std::string toCode() override;
+	std::string toCode() const override;
 };
 
 } //namespace AST

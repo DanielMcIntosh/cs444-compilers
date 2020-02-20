@@ -36,7 +36,7 @@ public:
 
 	std::vector<std::unique_ptr<NodeType>> list;
 
-	std::string toCode() override { return "[NodeList]"; }
+	std::string toCode() const override { return "[NodeList]"; }
 };
 
 

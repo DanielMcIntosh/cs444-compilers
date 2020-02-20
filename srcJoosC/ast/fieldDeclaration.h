@@ -21,7 +21,7 @@ public:
 	// nullable
 	std::unique_ptr<Expression> initializer;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 
   virtual bool equals(FieldDeclaration *) override;
   virtual bool equals(MemberDeclaration *) override;

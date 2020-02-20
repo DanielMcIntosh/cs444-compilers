@@ -53,9 +53,10 @@ string flatten(const vector<string> &list, const string &str) {
 	return res;
 }
 
-enum SemanticErrorType semanticResolveSingleImport(SemanticDB *db, const CompilationUnit *cpu,
-                                                   const string &simpleName, TypeDeclaration **out) {
-	bool found = false;
+std::tuple<TypeDeclaration *, SemanticErrorType>
+SemanticDB::resolveSingleImport(const CompilationUnit *cpu, const string &simpleName) const
+{
+	TypeDeclaration *ret = nullptr;
 	for (auto &imp : cpu->imports) {
 		if (imp->multiImport)
 			continue;
@@ -64,108 +65,113 @@ enum SemanticErrorType semanticResolveSingleImport(SemanticDB *db, const Compila
 			continue;
 
 		string fullImp = flatten(imp->importName->prefix, imp->importName->id);
-		auto it = db->typeMap.find(fullImp);
-		if (it == db->typeMap.end())
+		auto it = typeMap.find(fullImp);
+		if (it == typeMap.end())
 			continue;
 
-		if (found)
-			return SemanticErrorType::SingleImportAmbiguous;
+		if (ret != nullptr)
+			return {nullptr, SemanticErrorType::SingleImportAmbiguous};
 
-		*out = it->second;
-		found = true;
+		ret = it->second;
 	}
 
-	if (found)
-		return SemanticErrorType::None;
+	if (ret != nullptr)
+		return {ret, SemanticErrorType::None};
 
-	return SemanticErrorType::NotFoundImport;
+	return {nullptr, SemanticErrorType::NotFoundImport};
 }
 
-enum SemanticErrorType semanticResolveMultiImport(SemanticDB *db, const CompilationUnit *cpu,
-                                                  const string &simpleName, TypeDeclaration **out) {
-	bool found = false;
+std::tuple<TypeDeclaration *, SemanticErrorType>
+SemanticDB::resolveMultiImport(const CompilationUnit *cpu, const string &simpleName) const
+{
+	TypeDeclaration *ret = nullptr;
 	for (auto &imp : cpu->imports) {
 		if (!imp->multiImport)
 			continue;
 
 		string fullImp = flatten(imp->importName->prefix, imp->importName->id) + "." + simpleName;
-		auto it = db->typeMap.find(fullImp);
-		if (it == db->typeMap.end())
+		auto it = typeMap.find(fullImp);
+		if (it == typeMap.end())
 			continue;
 
-		if (found)
-			return SemanticErrorType::MultiImportAmbiguous;
+		if (ret != nullptr)
+			return {nullptr, SemanticErrorType::MultiImportAmbiguous};
 
-		*out = it->second;
-		found = true;
+		ret = it->second;
 	}
 
-	if (found)
-		return SemanticErrorType::None;
+	if (ret != nullptr)
+		return {ret, SemanticErrorType::None};
 
-	return SemanticErrorType::NotFoundImport;
+	return {nullptr, SemanticErrorType::NotFoundImport};
 }
 
-enum SemanticErrorType semanticResolveType(SemanticDB *db, Type *type, const string &typeName,
-                                           const CompilationUnit *cpu, TypeDeclaration *source) {
+std::tuple<TypeDeclaration *, SemanticErrorType>
+SemanticDB::resolveType(const AST::NameType *type, const AST::CompilationUnit *cpu, AST::TypeDeclaration *source) const
+{
+	assert(type);
+	return resolveTypeHelper(type, type->flatten(), cpu, source);
+}
+
+std::tuple<TypeDeclaration *, SemanticErrorType>
+SemanticDB::resolveTypeHelper(const NameType *type, const string &typeName, const CompilationUnit *cpu, TypeDeclaration *source) const
+{
 	if (typeName.find('.') != string::npos)  { // qualified name
-		auto it = db->typeMap.find(typeName);
-		if (it == db->typeMap.end())
-			return SemanticErrorType::NotFoundImport;
+		auto it = typeMap.find(typeName);
+		if (it == typeMap.end())
+			return {nullptr, SemanticErrorType::NotFoundImport};
 
 		{
 			// check prefix
 			auto pos = typeName.rfind('.');
 			if (pos != string::npos) {
-				SemanticErrorType error = semanticResolveType(db, type, typeName.substr(0, pos), cpu, source);
-				if (error == SemanticErrorType::None) {
-					return SemanticErrorType::PrefixNameIsType;
+				auto [decl, err] = resolveTypeHelper(type, typeName.substr(0, pos), cpu, source);
+				if (err == SemanticErrorType::None) {
+					return {nullptr, SemanticErrorType::PrefixNameIsType};
 				}
 			}
 		}
 
-		type->decl = it->second;
-		return SemanticErrorType::None;
+		return {it->second, SemanticErrorType::None};
 	}
 
 	// simple name
 	// 1. enclosing class/interface
 	{
-		if (typeName == source->name) {
-			type->decl = source;
-			return SemanticErrorType::None;
+		if (source && typeName == source->name) {
+			return {source, SemanticErrorType::None};
 		}
 	}
 	//
 	// 2. single import
 	{
-		SemanticErrorType error = semanticResolveSingleImport(db, cpu, typeName, &type->decl);
-		if (error == SemanticErrorType::None)
-			return error;
-		if (error != SemanticErrorType::NotFoundImport)
-			return error;
+		auto [decl, err] = resolveSingleImport(cpu, typeName);
+		if (err == SemanticErrorType::None)
+			return {decl, err};
+		if (err != SemanticErrorType::NotFoundImport)
+			return {nullptr, err};
 	}
 	//
 	// 3. same package
 	{
 		string fullImp = cpu->packageName + string(".") + typeName;
-		auto it = db->typeMap.find(fullImp);
-		if (it != db->typeMap.end()) {
-			type->decl = it->second;
-			return SemanticErrorType::None;
+		if (auto it = typeMap.find(fullImp);
+			it != typeMap.end())
+		{
+			return {it->second, SemanticErrorType::None};
 		}
 	}
 	//
 	// 4. multi import
 	{
-		SemanticErrorType error = semanticResolveMultiImport(db, cpu, typeName, &type->decl);
-		if (error == SemanticErrorType::None)
-			return error;
-		if (error != SemanticErrorType::NotFoundImport)
-			return error;
+		auto [decl, err] = resolveMultiImport(cpu, typeName);
+		if (err == SemanticErrorType::None)
+			return {decl, err};
+		if (err != SemanticErrorType::NotFoundImport)
+			return {nullptr, err};
 	}
 
-	return SemanticErrorType::NotFoundImport;
+	return {nullptr, SemanticErrorType::NotFoundImport};
 }
 
 void semanticDo(SemanticDB *sdb) {
@@ -286,12 +292,20 @@ void semanticDo(SemanticDB *sdb) {
 			}
 		}
 
-		TypeDeclaration *type = cpu->typeDeclaration.get();
+		TypeDeclaration *typeDecl = cpu->typeDeclaration.get();
+
+		// resolve superclass and 'implements' types, and initialize TypeDeclaration::children
+		if (SemanticErrorType err = typeDecl->resolveSuperTypeNames(*sdb);
+			err != SemanticErrorType::None)
+		{
+			sdb->error = err;
+			return;
+		}
 
 		{ // type declaration clash with imports
-			TypeDeclaration *out;
-			SemanticErrorType error = semanticResolveSingleImport(sdb, cpu, type->name, &out);
-			if (error != SemanticErrorType::NotFoundImport && out != type) {
+			if (auto [out, err] = sdb->resolveSingleImport(cpu, typeDecl->name);
+				err != SemanticErrorType::NotFoundImport && out != typeDecl)
+			{
 				sdb->error = SemanticErrorType::TypeDeclarationClashImport;
 				return;
 			}
@@ -299,80 +313,57 @@ void semanticDo(SemanticDB *sdb) {
 			for (auto &import : cpu->imports) {
 				if (import->multiImport)
 					continue;
-				if (flatten(import->importName->prefix, import->importName->id) == type->fqn)
+				if (flatten(import->importName->prefix, import->importName->id) == typeDecl->fqn)
 					continue;
-				if (import->importName->id == type->name) {
+				if (import->importName->id == typeDecl->name) {
 					sdb->error = SemanticErrorType::TypeDeclarationClashImport;
 					return;
 				}
 			}
 		}
-
-		if (type->superClass) {
-			SemanticErrorType error = type->superClass->resolve(sdb, cpu, type);
-			if (error != SemanticErrorType::None) {
-				sdb->error = error;
-				return;
-			}
-			type->superClass->decl->children.push_back(type);
-		}
-
-		for (auto &itf : type->interfaces) {
-			SemanticErrorType error = itf->resolve(sdb, cpu, type);
-			if (error != SemanticErrorType::None) {
-				sdb->error = error;
-				return;
-			}
-			itf->decl->children.push_back(type);
-		}
 	}
 
-	{
-		// Resolve types appearing in the body of class.
-		SemanticErrorType error = Type::resolveAllBodyType(sdb);
-		if (error != SemanticErrorType::None) {
-			sdb->error = error;
-			return;
-		}
+	vector<TypeDeclaration *> allTypes;
+	for (const auto &[name, ptr] : sdb->typeMap) {
+		allTypes.push_back(ptr);
 	}
 
-	{
-		vector<TypeDeclaration *> allTypes;
-		for (const auto &[name, ptr] : sdb->typeMap) {
-			allTypes.push_back(ptr);
-		}
+	if (!dagSort(allTypes)) {
+		sdb->error = SemanticErrorType::CycleInHierarchy;
+		return;
+	}
 
-		if (!dagSort(allTypes)) {
-			sdb->error = SemanticErrorType::CycleInHierarchy;
-			return;
-		}
+
+	//
+	{
 
 		// Implements formal hierarchy checking algorithm.
 		for (auto *type : allTypes) {
-			TypeDeclaration *super = type->superClass ? type->superClass->decl : nullptr;
+			TypeDeclaration *super = type->superClass ? type->superClass->declaration : nullptr;
 
 			//
 			// various extends
 			//
 			unordered_set<TypeDeclaration *> extends;
 			for (auto &itf : type->interfaces) {
-				if (!itf->decl->isInterface) {
+				assert(itf->declaration);
+				if (!itf->declaration->isInterface) {
 					sdb->error = SemanticErrorType::ImplementNonInterface;
 					return;
 				}
 
-				if (itf->decl == super) {
+				if (itf->declaration == super) {
 					sdb->error = SemanticErrorType::ExtendImplementSame;
 					return;
 				}
 
-				auto it = extends.find(itf->decl);
+				auto it = extends.find(itf->declaration);
 				if (it != extends.end()) {
 					sdb->error = SemanticErrorType::ImplementSameInterface;
 					return;
 				}
 
-				extends.insert(itf->decl);
+				extends.insert(itf->declaration);
 			}
 
 			//

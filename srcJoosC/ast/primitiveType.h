@@ -28,7 +28,7 @@ public:
   virtual bool equals(PrimitiveType *) override;
   virtual bool equals(NameType *) override;
   virtual bool equals(Type *) override;
-	std::string toCode() override;
+	std::string toCode() const override;
 };
 
 std::string operator+(std::string str, PrimitiveType::Variant type);

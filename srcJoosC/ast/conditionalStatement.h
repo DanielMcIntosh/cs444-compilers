@@ -29,7 +29,7 @@ public:
 	std::unique_ptr<Expression> condition;
 	std::unique_ptr<Statement> body;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 protected:
 	ConditionalStatement(ConditionType type, std::unique_ptr<Expression> cond, std::unique_ptr<Statement> statement);
 };

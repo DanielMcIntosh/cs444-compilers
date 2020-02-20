@@ -36,7 +36,7 @@ PrimitiveType::PrimitiveType(std::nullptr_t null)
 {
 }
 
-std::string PrimitiveType::toCode()
+std::string PrimitiveType::toCode() const
 {
 	return "" + type;
 }

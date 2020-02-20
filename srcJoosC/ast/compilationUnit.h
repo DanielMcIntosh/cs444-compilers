@@ -22,7 +22,7 @@ public:
 	// nullable
 	std::unique_ptr<TypeDeclaration> typeDeclaration;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 
 	std::string packageName;
 

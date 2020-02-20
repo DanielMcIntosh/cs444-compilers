@@ -34,7 +34,7 @@ FieldDeclaration::FieldDeclaration(const Parse::TFieldDeclaration *ptNode)
 {
 }
 
-std::string FieldDeclaration::toCode()
+std::string FieldDeclaration::toCode() const
 {
 	std::string str;
 	for (auto &mod: modifiers)

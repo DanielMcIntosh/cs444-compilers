@@ -16,7 +16,7 @@ public:
 	// nullable
 	std::unique_ptr<Expression> expression;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 };
 
 } //namespace AST

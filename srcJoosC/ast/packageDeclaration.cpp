@@ -30,7 +30,7 @@ packageName(Name::create(ptNode->name))
 {
 }
 
-std::string PackageDeclaration::toCode()
+std::string PackageDeclaration::toCode() const
 {
 	return "package " + packageName->toCode() + ";";
 }

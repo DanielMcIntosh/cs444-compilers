@@ -10,6 +10,12 @@
 #include <vector>
 #include <string>
 
+namespace Semantic
+{
+	struct SemanticDB;
+	enum class SemanticErrorType;
+}
+
 namespace AST
 {
 
@@ -24,6 +30,9 @@ public:
 	explicit TypeDeclaration(const Parse::TClassDeclaration *ptNode);
 	explicit TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode);
 
+	Semantic::SemanticErrorType resolveSuperTypeNames(Semantic::SemanticDB const& semantic);
+	Semantic::SemanticErrorType resolveBodyTypeNames(Semantic::SemanticDB const& semantic);
+
 	bool isInterface;
 	std::vector<std::unique_ptr<Modifier>> modifiers;
 	std::string name;
@@ -34,7 +43,7 @@ public:
 	std::vector<std::unique_ptr<Type>> interfaces;
 	std::vector<std::unique_ptr<MemberDeclaration>> members;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 
 	// Fully qualified name (with package string)
 	std::string fqn;

@@ -32,7 +32,7 @@ Modifier::Modifier(const Parse::TModifier *ptNode)
 	assert(type <= Variant::Max);
 }
 
-std::string Modifier::toCode()
+std::string Modifier::toCode() const
 {
 	return "" + type;
 }

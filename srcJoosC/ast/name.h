@@ -20,7 +20,8 @@ public:
 	std::vector<std::string> prefix;
 	std::string id;
 
-	std::string toCode() override;
+	std::string flatten() const;
+	std::string toCode() const override;
 
 	bool operator==(const Name &other);
 };
@@ -30,19 +31,16 @@ class NameType: public Type
 public:
 	std::vector<std::string> prefix;
 	std::string id;
-  TypeDeclaration *decl;
+	TypeDeclaration *decl;
 
-	std::string flatten();
-	virtual Semantic::SemanticErrorType resolve(Semantic::SemanticDB *db,
-																							const CompilationUnit *cpu,
-																							TypeDeclaration *typeDecl) override;
+	std::string flatten() const;
 	explicit NameType(Name&& other);
 
   virtual bool equals(PrimitiveType *) override;
   virtual bool equals(NameType *) override;
   virtual bool equals(Type *) override;
 
-	std::string toCode() override;
+	std::string toCode() const override;
 };
 
 class NameExpression: public Expression
@@ -53,7 +51,7 @@ public:
 
 	explicit NameExpression(Name&& other);
 
-	std::string toCode() override;
+	std::string toCode() const override;
 };
 
 } //namespace AST

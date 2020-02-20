@@ -26,7 +26,6 @@ std::unique_ptr<CompilationUnit> CompilationUnit::create(const Parse::Tree *ptNo
 }
 CompilationUnit::CompilationUnit(const Parse::TCompilationUnit *ptNode)
 {
-	Type::setCurrentCompilationUnit(this);
 	package = Name::create((ptNode->packageDeclaration) ? ptNode->packageDeclaration->name : nullptr);
 	imports = std::move(NodeList<ImportDeclaration>(ptNode->importDeclarations).list);
 	typeDeclaration = TypeDeclaration::create(ptNode->typeDeclaration);
@@ -53,7 +52,7 @@ void CompilationUnit::resolveEnclosingPackageAndApplyToTypeDecl() {
 	typeDeclaration->cpu = this;
 }
 
-std::string CompilationUnit::toCode()
+std::string CompilationUnit::toCode() const
 {
 	std::string str;
 	if (package)

@@ -42,7 +42,7 @@ MethodDeclaration::MethodDeclaration(const Parse::TMethodDeclaration *ptNode)
   : MethodDeclaration(MethodHeader(ptNode->methodHeader), Block::create(ptNode->methodBody->block))
 {
 }
-std::string MethodDeclaration::toCode() {
+std::string MethodDeclaration::toCode() const {
     std::string s = returnType->toCode() + " " + identifier + "(";
     for (const auto& p : parameters)
     {

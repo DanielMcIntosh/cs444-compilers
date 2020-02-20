@@ -43,7 +43,7 @@ Literal::Literal(const Parse::TLiteral *ptNode)
             ASSERT(false);
     }
 }
-std::string Literal::toCode() {
+std::string Literal::toCode() const {
     return std::visit(visitor {
         [](unsigned int x) { return std::to_string(x); },
         [](bool x) -> std::string { return x ? "true" : "false"; },
