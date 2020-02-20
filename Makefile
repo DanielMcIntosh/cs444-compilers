@@ -9,11 +9,11 @@ UNAME_S := $(shell uname -s)
 	endif
 endif
 
-CXXFLAGS := -fno-rtti -fno-exceptions -D__USE_MINGW_ANSI_STDIO -MMD -MP -std=c++17
+CXXFLAGS := -fno-rtti -D__USE_MINGW_ANSI_STDIO -MMD -MP -std=c++17
 CXXFLAGS_RELEASE := -O3 -flto -s 
 CXXFLAGS_DEBUG := -g
 
-LDFLAGS := -fno-rtti -fno-exceptions
+LDFLAGS := -fno-rtti
 LDFLAGS_RELEASE := -O3 -flto -s 
 LDFLAGS_DEBUG := -g
 
