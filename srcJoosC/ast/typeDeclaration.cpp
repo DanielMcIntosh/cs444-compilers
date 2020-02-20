@@ -47,11 +47,11 @@ TypeDeclaration::TypeDeclaration(const Parse::TClassDeclaration *ptNode)
 	modifiers = std::move(NodeList<Modifier>(ptNode->modifiers).list);
 	// TIdentifier isn't actually a non-terminal, so there is no PseudoAST class for it
 	name = ptNode->identifier->value;
-	// Simple case - we need a unique_ptr<Type>, so call Type::create
+	// Simple case - we need a unique_ptr<NameType>, so call NameType::create
 	// Also note that we don't need to call std::move because the return is an r-value
-	superClass = ptNode->classType ? Type::create(ptNode->classType) : nullptr;
+	superClass = ptNode->classType ? NameType::create(ptNode->classType) : nullptr;
 	// similar to modifiers
-	interfaces = std::move(NodeList<Type>(ptNode->interfaceTypeList).list);
+	interfaces = std::move(NodeList<NameType>(ptNode->interfaceTypeList).list);
 	// Since nothing sub-classes TypeBody, and none of the rules for TypeBody are oneNT rules,
 	// we can directly call the constructor, giving us a little bit more type safety.
 	// Also note, since TypeBody is only a PseudoAST class, we won't store the
@@ -67,7 +67,7 @@ TypeDeclaration::TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode)
 	name = ptNode->identifier->value;
 	// this line is optional, but having it here means we have an explicit initialization for all members
 	superClass = nullptr;
-	interfaces =std::move(NodeList<Type>(ptNode->extendsInterfaces).list);
+	interfaces =std::move(NodeList<NameType>(ptNode->extendsInterfaces).list);
 	members = std::move(TypeBody(ptNode->interfaceBody).members);
 }
 
@@ -113,7 +113,7 @@ Semantic::SemanticErrorType TypeDeclaration::resolveSuperTypeNames(Semantic::Sem
 {
 	if (superClass)
 	{
-		if (auto [decl, error] = semantic.resolveType(static_cast<NameType *>(superClass.get()), cpu, nullptr);
+		if (auto [decl, error] = semantic.resolveType(superClass.get(), cpu, nullptr);
 			error != Semantic::SemanticErrorType::None)
 		{
 			return error;
@@ -126,7 +126,7 @@ Semantic::SemanticErrorType TypeDeclaration::resolveSuperTypeNames(Semantic::Sem
 
 	for (auto &intf: interfaces)
 	{
-		if (auto [decl, error] = semantic.resolveType(static_cast<NameType *>(intf.get()), cpu, nullptr);
+		if (auto [decl, error] = semantic.resolveType(intf.get(), cpu, nullptr);
 			error != Semantic::SemanticErrorType::None)
 		{
 			return error;
@@ -141,6 +141,7 @@ Semantic::SemanticErrorType TypeDeclaration::resolveSuperTypeNames(Semantic::Sem
 
 Semantic::SemanticErrorType TypeDeclaration::resolveBodyTypeNames(Semantic::SemanticDB const& semantic)
 {
+
 	return Semantic::SemanticErrorType::None;
 }
 

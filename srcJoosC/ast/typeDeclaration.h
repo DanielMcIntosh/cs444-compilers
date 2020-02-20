@@ -36,11 +36,10 @@ public:
 	bool isInterface;
 	std::vector<std::unique_ptr<Modifier>> modifiers;
 	std::string name;
-	// TODO: these should be NameType
 	// null for interfaces and classes without a superclass
-	std::unique_ptr<Type> superClass;
+	std::unique_ptr<NameType> superClass;
 	// implements if we're a class, extends if we're an interface
-	std::vector<std::unique_ptr<Type>> interfaces;
+	std::vector<std::unique_ptr<NameType>> interfaces;
 	std::vector<std::unique_ptr<MemberDeclaration>> members;
 
 	std::string toCode() const override;

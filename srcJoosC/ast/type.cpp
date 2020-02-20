@@ -28,7 +28,7 @@ std::unique_ptr<Type> Type::create(const Parse::Tree *ptNode)
 		case Parse::NonTerminalType::PrimitiveType:
 			return PrimitiveType::create(ptNode);
 		case Parse::NonTerminalType::Name:
-			return std::make_unique<NameType>(std::move(*Name::create(ptNode)));
+			return NameType::create(ptNode);
 		default:
 			FAILED("inappropriate PT type for Type: " + std::to_string((int)ptNode->type));
 	}

@@ -41,7 +41,7 @@ NodeList<NodeType>::NodeList(const Parse::Tree *ptNode)
 
 template class NodeList<ImportDeclaration>;
 template class NodeList<Modifier>;
-template class NodeList<Type>;
+template class NodeList<NameType>;
 template class NodeList<MemberDeclaration>;
 template class NodeList<VariableDeclaration>;
 template class NodeList<Statement>;

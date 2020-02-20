@@ -62,7 +62,7 @@ std::unique_ptr<Node> Node::create(const Parse::Tree *ptNode)
 		case Parse::NonTerminalType::ClassDeclaration:
 			return TypeDeclaration                  	::create(static_cast<const Parse::TClassDeclaration*>(ptNode));
 		case Parse::NonTerminalType::InterfaceTypeList:
-			return NodeList<Type>                   	::create(static_cast<const Parse::TInterfaceTypeList*>(ptNode));
+			return NodeList<NameType>               	::create(static_cast<const Parse::TInterfaceTypeList*>(ptNode));
 		case Parse::NonTerminalType::ClassBody:
 			return TypeBody                         	::create(static_cast<const Parse::TClassBody*>(ptNode));
 		case Parse::NonTerminalType::ClassMemberDeclarations:
@@ -90,7 +90,7 @@ std::unique_ptr<Node> Node::create(const Parse::Tree *ptNode)
 		case Parse::NonTerminalType::InterfaceDeclaration:
 			return TypeDeclaration                  	::create(static_cast<const Parse::TInterfaceDeclaration*>(ptNode));
 		case Parse::NonTerminalType::ExtendsInterfaces:
-			return NodeList<Type>                   	::create(static_cast<const Parse::TExtendsInterfaces*>(ptNode));
+			return NodeList<NameType>               	::create(static_cast<const Parse::TExtendsInterfaces*>(ptNode));
 		case Parse::NonTerminalType::InterfaceBody:
 			return TypeBody                         	::create(static_cast<const Parse::TInterfaceBody*>(ptNode));
 		case Parse::NonTerminalType::InterfaceMemberDeclarations:

@@ -59,6 +59,35 @@ bool Name::operator==(const Name &other) {
 	return prefix == other.prefix && id == other.id;
 }
 
+// static
+std::unique_ptr<NameType> NameType::create(const Parse::Tree *ptNode)
+{
+	if (ptNode == nullptr) {
+		return nullptr;
+	}
+	if (isSingleton(ptNode)) {
+		return NameType::create(ptNode->children[0]);
+	}
+	switch(ptNode->type) {
+		case Parse::NonTerminalType::ArrayType:
+		{
+			std::unique_ptr<NameType> ret = NameType::create(ptNode->children[0]);
+			ret->isArray = true;
+			return ret;
+		}
+		case Parse::NonTerminalType::Name:
+			return std::make_unique<NameType>(std::move(*Name::create(ptNode)));
+		default:
+			FAILED("inappropriate PT type for NameType: " + std::to_string((int)ptNode->type));
+	}
+}
+
+NameType::NameType(Name &&other)
+  : prefix(std::move(other.prefix)),
+	id(std::move(other.id))
+{
+}
+
 std::string NameType::flatten() const {
 	std::string str;
 	for (auto &pre : prefix)
@@ -67,12 +96,6 @@ std::string NameType::flatten() const {
 	}
 	str += id;
 	return str;
-}
-
-NameType::NameType(Name &&other)
-  : prefix(std::move(other.prefix)),
-	id(std::move(other.id))
-{
 }
 
 std::string NameType::toCode() const
