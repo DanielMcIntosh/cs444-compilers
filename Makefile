@@ -10,11 +10,11 @@ UNAME_S := $(shell uname -s)
 endif
 
 CXXFLAGS := -fno-rtti -D__USE_MINGW_ANSI_STDIO -MMD -MP -std=c++17
-CXXFLAGS_RELEASE := -O3 -flto -s 
+CXXFLAGS_RELEASE := -O3 -flto -s
 CXXFLAGS_DEBUG := -g
 
 LDFLAGS := -fno-rtti
-LDFLAGS_RELEASE := -O3 -flto -s 
+LDFLAGS_RELEASE := -O3 -flto -s
 LDFLAGS_DEBUG := -g
 
 ifneq ($(OS),Windows_NT)
@@ -52,7 +52,7 @@ else
 WARNINGS := $(GLOBAL_WARNINGS) $(GCC_WARNINGS)
 endif
 
-EXTRA_CXXFLAGS += $(WARNINGS) 
+EXTRA_CXXFLAGS += $(WARNINGS)
 
 # Target : JoosC
 
@@ -120,9 +120,15 @@ a2:
 a2Direct: joosc_debug
 	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=2; ./joosc_debug
 
+a6:
+	$(MAKE) a6 -j$(NPROC)
+
+a6: joosc_debug
+	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=6; ./joosc_debug
+
 marmoset:
 	/u/cs_build/bin/marmoset_submit --username=-ddmcinto-q5an-whkuan- \
-	--zipargs=-r cs444 A1Code ./src ./Makefile ./joos.lr1 ./joos.txt 
+	--zipargs=-r cs444 A1Code ./src ./Makefile ./joos.lr1 ./joos.txt
 
 -include $(JOOSC_DEPS_DEBUG)
 -include $(JOOSC_DEPS_RELEASE)
