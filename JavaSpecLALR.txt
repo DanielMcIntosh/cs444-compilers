@@ -108,7 +108,7 @@ ClassMemberDeclaration:
 	ConstructorDeclaration
 
 FieldDeclaration:
-	Modifiers Type VariableDeclarator </i>;<i>
+	Modifiers VariableDeclaration </i>;<i>
 
 VariableDeclarator:
 	Identifier
@@ -185,9 +185,9 @@ BlockStatement:
 	Statement
 
 LocalVariableDeclarationStatement:
-	LocalVariableDeclaration </i>;<i>
+	VariableDeclaration </i>;<i>
 
-LocalVariableDeclaration:
+VariableDeclaration:
 	Type VariableDeclarator
 
 Statement:

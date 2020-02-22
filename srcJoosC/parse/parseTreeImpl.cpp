@@ -937,22 +937,19 @@ void ptClassMemberDeclaration_ConstructorDeclaration(vector<Tree *> *stack) {
   stack->push_back(t);
 }
 
-// FieldDeclaration -> Modifiers Type VariableDeclarator ; 
-void ptFieldDeclaration_ModifiersTypeVariableDeclaratorSCol(vector<Tree *> *stack) {
+// FieldDeclaration -> Modifiers VariableDeclaration ; 
+void ptFieldDeclaration_ModifiersVariableDeclarationSCol(vector<Tree *> *stack) {
   int n = stack->size();
-  assert(n >= 3);
-  assert((*stack)[n - 3]->type == NonTerminalType::Modifiers);
-  assert((*stack)[n - 2]->type == NonTerminalType::Type);
-  assert((*stack)[n - 1]->type == NonTerminalType::VariableDeclarator);
+  assert(n >= 2);
+  assert((*stack)[n - 2]->type == NonTerminalType::Modifiers);
+  assert((*stack)[n - 1]->type == NonTerminalType::VariableDeclaration);
   auto t = new TFieldDeclaration;
-  ptSetTopParents(stack, 3, t);
-  ptPopulateChildrenList(t, *stack, 3);
-  t->v = TFieldDeclarationV::ModifiersTypeVariableDeclaratorSCol;
+  ptSetTopParents(stack, 2, t);
+  ptPopulateChildrenList(t, *stack, 2);
+  t->v = TFieldDeclarationV::ModifiersVariableDeclarationSCol;
   t->oneNt = false;
-  t->modifiers = reinterpret_cast<TModifiers *>((*stack)[n - 3]);
-  t->type = reinterpret_cast<TType *>((*stack)[n - 2]);
-  t->variableDeclarator = reinterpret_cast<TVariableDeclarator *>((*stack)[n - 1]);
-  stack->pop_back();
+  t->modifiers = reinterpret_cast<TModifiers *>((*stack)[n - 2]);
+  t->variableDeclaration = reinterpret_cast<TVariableDeclaration *>((*stack)[n - 1]);
   stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
@@ -1558,31 +1555,31 @@ void ptBlockStatement_Statement(vector<Tree *> *stack) {
   stack->push_back(t);
 }
 
-// LocalVariableDeclarationStatement -> LocalVariableDeclaration ; 
-void ptLocalVariableDeclarationStatement_LocalVariableDeclarationSCol(vector<Tree *> *stack) {
+// LocalVariableDeclarationStatement -> VariableDeclaration ; 
+void ptLocalVariableDeclarationStatement_VariableDeclarationSCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::LocalVariableDeclaration);
+  assert((*stack)[n - 1]->type == NonTerminalType::VariableDeclaration);
   auto t = new TLocalVariableDeclarationStatement;
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
-  t->v = TLocalVariableDeclarationStatementV::LocalVariableDeclarationSCol;
+  t->v = TLocalVariableDeclarationStatementV::VariableDeclarationSCol;
   t->oneNt = false;
-  t->localVariableDeclaration = reinterpret_cast<TLocalVariableDeclaration *>((*stack)[n - 1]);
+  t->variableDeclaration = reinterpret_cast<TVariableDeclaration *>((*stack)[n - 1]);
   stack->pop_back();
   stack->push_back(t);
 }
 
-// LocalVariableDeclaration -> Type VariableDeclarator 
-void ptLocalVariableDeclaration_TypeVariableDeclarator(vector<Tree *> *stack) {
+// VariableDeclaration -> Type VariableDeclarator 
+void ptVariableDeclaration_TypeVariableDeclarator(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Type);
   assert((*stack)[n - 1]->type == NonTerminalType::VariableDeclarator);
-  auto t = new TLocalVariableDeclaration;
+  auto t = new TVariableDeclaration;
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
-  t->v = TLocalVariableDeclarationV::TypeVariableDeclarator;
+  t->v = TVariableDeclarationV::TypeVariableDeclarator;
   t->oneNt = false;
   t->type = reinterpret_cast<TType *>((*stack)[n - 2]);
   t->variableDeclarator = reinterpret_cast<TVariableDeclarator *>((*stack)[n - 1]);
@@ -3310,7 +3307,7 @@ void ptDispatcher(vector<Tree *> *stack, int ruleID) {
     ptClassMemberDeclaration_FieldDeclaration, 
     ptClassMemberDeclaration_MethodDeclaration, 
     ptClassMemberDeclaration_ConstructorDeclaration, 
-    ptFieldDeclaration_ModifiersTypeVariableDeclaratorSCol, 
+    ptFieldDeclaration_ModifiersVariableDeclarationSCol, 
     ptVariableDeclarator_Identifier, 
     ptVariableDeclarator_IdentifierEqExpression, 
     ptMethodDeclaration_MethodHeaderMethodBody, 
@@ -3347,8 +3344,8 @@ void ptDispatcher(vector<Tree *> *stack, int ruleID) {
     ptBlockStatements_BlockStatementsBlockStatement, 
     ptBlockStatement_LocalVariableDeclarationStatement, 
     ptBlockStatement_Statement, 
-    ptLocalVariableDeclarationStatement_LocalVariableDeclarationSCol, 
-    ptLocalVariableDeclaration_TypeVariableDeclarator, 
+    ptLocalVariableDeclarationStatement_VariableDeclarationSCol, 
+    ptVariableDeclaration_TypeVariableDeclarator, 
     ptStatement_StatementWithoutTrailingSubstatement, 
     ptStatement_IfThenStatement, 
     ptStatement_IfThenElseStatement, 

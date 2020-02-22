@@ -20,7 +20,7 @@ std::unique_ptr<LocalVariableDeclarationStatement> LocalVariableDeclarationState
 	}
 }
 LocalVariableDeclarationStatement::LocalVariableDeclarationStatement(const Parse::TLocalVariableDeclarationStatement *ptNode)
-  : declaration(std::make_unique<VariableDeclaration>(ptNode->localVariableDeclaration))
+  : declaration(std::make_unique<VariableDeclaration>(ptNode->variableDeclaration))
 {
 }
 

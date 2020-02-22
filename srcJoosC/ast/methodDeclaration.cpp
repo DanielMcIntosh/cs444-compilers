@@ -28,10 +28,11 @@ std::unique_ptr<MethodDeclaration> MethodDeclaration::create(const Parse::Tree *
 }
 
 MethodDeclaration::MethodDeclaration(MethodHeader&& header, std::unique_ptr<Block> block)
-  : MemberDeclaration(std::move(header.modifiers), std::move(header.id)),
-    returnType(std::move(header.returnType)),
-    parameters(std::move(header.parameterList)),
-    body(std::move(block))
+	: MemberDeclaration(std::move(header.modifiers)),
+		returnType(std::move(header.returnType)),
+		identifier(std::move(header.id)),
+		parameters(std::move(header.parameterList)),
+		body(std::move(block))
 {
 }
 MethodDeclaration::MethodDeclaration(const Parse::TAbstractMethodDeclaration *ptNode)

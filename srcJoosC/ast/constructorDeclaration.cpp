@@ -25,7 +25,8 @@ std::unique_ptr<ConstructorDeclaration> ConstructorDeclaration::create(const Par
 }
 
 ConstructorDeclaration::ConstructorDeclaration(std::vector<std::unique_ptr<Modifier>> mods, MethodDeclarator &&declarator, std::unique_ptr<Block> block)
-  : MemberDeclaration(std::move(mods), std::move(declarator.id)),
+  : MemberDeclaration(std::move(mods)),
+	identifier(std::move(declarator.id)),
 	parameters(std::move(declarator.parameterList)),
 	body(std::move(block))
 {

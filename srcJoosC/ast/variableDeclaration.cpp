@@ -17,8 +17,8 @@ std::unique_ptr<VariableDeclaration> VariableDeclaration::create(const Parse::Tr
 	switch(ptNode->type) {
 	case Parse::NonTerminalType::FormalParameter:
 		return std::make_unique<VariableDeclaration>(static_cast<const Parse::TFormalParameter*>(ptNode));
-	case Parse::NonTerminalType::LocalVariableDeclaration:
-		return std::make_unique<VariableDeclaration>(static_cast<const Parse::TLocalVariableDeclaration*>(ptNode));
+	case Parse::NonTerminalType::VariableDeclaration:
+		return std::make_unique<VariableDeclaration>(static_cast<const Parse::TVariableDeclaration*>(ptNode));
 	default:
 		FAILED("inappropriate PT type for VariableDeclaration: " + std::to_string((int)ptNode->type));
 	}
@@ -29,7 +29,7 @@ VariableDeclaration::VariableDeclaration(const Parse::TFormalParameter *ptNode)
 {
 
 }
-VariableDeclaration::VariableDeclaration(const Parse::TLocalVariableDeclaration *ptNode)
+VariableDeclaration::VariableDeclaration(const Parse::TVariableDeclaration *ptNode)
 	: type(Type::create(ptNode->type)),
 	identifier(ptNode->variableDeclarator->identifier->value),
     initializer(Expression::create(ptNode->variableDeclarator->expression))

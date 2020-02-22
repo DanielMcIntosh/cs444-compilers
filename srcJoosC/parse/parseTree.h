@@ -464,15 +464,14 @@ struct TFieldAccess: public Tree {
 };
 
 enum class TFieldDeclarationV {
-  ModifiersTypeVariableDeclaratorSCol,  // Modifiers Type VariableDeclarator ; 
+  ModifiersVariableDeclarationSCol,  // Modifiers VariableDeclaration ; 
   Max,
 };
 
 struct TFieldDeclaration: public Tree {
   enum TFieldDeclarationV v;
-  TType* type;
-  TVariableDeclarator* variableDeclarator;
   TModifiers* modifiers;
+  TVariableDeclaration* variableDeclaration;
 
   TFieldDeclaration();
 };
@@ -802,27 +801,14 @@ struct TLiteral: public Tree {
   TLiteral();
 };
 
-enum class TLocalVariableDeclarationV {
-  TypeVariableDeclarator,  // Type VariableDeclarator 
-  Max,
-};
-
-struct TLocalVariableDeclaration: public Tree {
-  enum TLocalVariableDeclarationV v;
-  TType* type;
-  TVariableDeclarator* variableDeclarator;
-
-  TLocalVariableDeclaration();
-};
-
 enum class TLocalVariableDeclarationStatementV {
-  LocalVariableDeclarationSCol,  // LocalVariableDeclaration ; 
+  VariableDeclarationSCol,  // VariableDeclaration ; 
   Max,
 };
 
 struct TLocalVariableDeclarationStatement: public Tree {
   enum TLocalVariableDeclarationStatementV v;
-  TLocalVariableDeclaration* localVariableDeclaration;
+  TVariableDeclaration* variableDeclaration;
 
   TLocalVariableDeclarationStatement();
 };
@@ -1272,6 +1258,19 @@ struct TUnaryExpressionNotPlusMinus: public Tree {
   TName* name;
 
   TUnaryExpressionNotPlusMinus();
+};
+
+enum class TVariableDeclarationV {
+  TypeVariableDeclarator,  // Type VariableDeclarator 
+  Max,
+};
+
+struct TVariableDeclaration: public Tree {
+  enum TVariableDeclarationV v;
+  TType* type;
+  TVariableDeclarator* variableDeclarator;
+
+  TVariableDeclaration();
 };
 
 enum class TVariableDeclaratorV {

@@ -20,14 +20,13 @@ public:
 	static std::unique_ptr<MemberDeclaration> create(const Parse::Tree *ptNode);
 
 	std::vector<std::unique_ptr<Modifier>> modifiers;
-	std::string identifier;
 
   virtual bool equals(FieldDeclaration *) = 0;
   virtual bool equals(MemberDeclaration *) = 0;
   virtual bool equals(ConstructorDeclaration *) = 0;
   virtual bool equals(MethodDeclaration *) = 0;
 protected:
-	MemberDeclaration(std::vector<std::unique_ptr<Modifier>> mods, std::string id);
+	MemberDeclaration(std::vector<std::unique_ptr<Modifier>> mods);
 };
 
 } //namespace AST

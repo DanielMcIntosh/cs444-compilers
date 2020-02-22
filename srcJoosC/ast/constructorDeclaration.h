@@ -15,6 +15,7 @@ public:
 	static std::unique_ptr<ConstructorDeclaration> create(const Parse::Tree *ptNode);
 	explicit ConstructorDeclaration(const Parse::TConstructorDeclaration *ptNode);
 
+	std::string identifier;
 	std::vector<std::unique_ptr<VariableDeclaration>> parameters;
 	std::unique_ptr<Block> body;
 

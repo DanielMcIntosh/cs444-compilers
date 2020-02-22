@@ -18,6 +18,7 @@ public:
 	explicit MethodDeclaration(const Parse::TAbstractMethodDeclaration *ptNode);
 
 	std::unique_ptr<Type> returnType;
+	std::string identifier;
 	std::vector<std::unique_ptr<VariableDeclaration>> parameters;
 	// nullable
 	std::unique_ptr<Block> body;

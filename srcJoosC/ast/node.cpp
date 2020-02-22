@@ -103,8 +103,8 @@ std::unique_ptr<Node> Node::create(const Parse::Tree *ptNode)
 			return NodeList<Statement>              	::create(static_cast<const Parse::TBlockStatements*>(ptNode));
 		case Parse::NonTerminalType::LocalVariableDeclarationStatement:
 			return LocalVariableDeclarationStatement	::create(static_cast<const Parse::TLocalVariableDeclarationStatement*>(ptNode));
-		case Parse::NonTerminalType::LocalVariableDeclaration:
-			return VariableDeclaration              	::create(static_cast<const Parse::TLocalVariableDeclaration*>(ptNode));
+		case Parse::NonTerminalType::VariableDeclaration:
+			return VariableDeclaration              	::create(static_cast<const Parse::TVariableDeclaration*>(ptNode));
 		case Parse::NonTerminalType::ExpressionStatement:
 			return ExpressionStatement              	::create(static_cast<const Parse::TExpressionStatement*>(ptNode));
 		case Parse::NonTerminalType::IfThenStatement:

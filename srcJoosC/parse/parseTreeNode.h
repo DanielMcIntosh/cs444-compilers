@@ -122,7 +122,6 @@ enum class NonTerminalType {
   InterfaceTypeList, 
   LeftHandSide, 
   Literal, 
-  LocalVariableDeclaration, 
   LocalVariableDeclarationStatement, 
   MethodBody, 
   MethodDeclaration, 
@@ -154,6 +153,7 @@ enum class NonTerminalType {
   TypeImportOnDemandDeclaration, 
   UnaryExpression, 
   UnaryExpressionNotPlusMinus, 
+  VariableDeclaration, 
   VariableDeclarator, 
   WhileStatement, 
   WhileStatementNoShortIf, 
@@ -217,7 +217,6 @@ struct TInterfaceType;
 struct TInterfaceTypeList;
 struct TLeftHandSide;
 struct TLiteral;
-struct TLocalVariableDeclaration;
 struct TLocalVariableDeclarationStatement;
 struct TMethodBody;
 struct TMethodDeclaration;
@@ -249,6 +248,7 @@ struct TTypeDeclaration;
 struct TTypeImportOnDemandDeclaration;
 struct TUnaryExpression;
 struct TUnaryExpressionNotPlusMinus;
+struct TVariableDeclaration;
 struct TVariableDeclarator;
 struct TWhileStatement;
 struct TWhileStatementNoShortIf;

@@ -66,7 +66,7 @@ TExtendsInterfaces::TExtendsInterfaces(): Tree(NonTerminalType::ExtendsInterface
 
 TFieldAccess::TFieldAccess(): Tree(NonTerminalType::FieldAccess), v(TFieldAccessV::Max), primary(nullptr), identifier(nullptr) {}
 
-TFieldDeclaration::TFieldDeclaration(): Tree(NonTerminalType::FieldDeclaration), v(TFieldDeclarationV::Max), type(nullptr), variableDeclarator(nullptr), modifiers(nullptr) {}
+TFieldDeclaration::TFieldDeclaration(): Tree(NonTerminalType::FieldDeclaration), v(TFieldDeclarationV::Max), modifiers(nullptr), variableDeclaration(nullptr) {}
 
 TForInit::TForInit(): Tree(NonTerminalType::ForInit), v(TForInitV::Max), localVariableDeclarationStatement(nullptr), expressionStatement(nullptr) {}
 
@@ -114,9 +114,7 @@ TLeftHandSide::TLeftHandSide(): Tree(NonTerminalType::LeftHandSide), v(TLeftHand
 
 TLiteral::TLiteral(): Tree(NonTerminalType::Literal), v(TLiteralV::Max), nullLiteral(nullptr), characterLiteral(nullptr), integerLiteral(nullptr), stringLiteral(nullptr), booleanLiteral(nullptr) {}
 
-TLocalVariableDeclaration::TLocalVariableDeclaration(): Tree(NonTerminalType::LocalVariableDeclaration), v(TLocalVariableDeclarationV::Max), type(nullptr), variableDeclarator(nullptr) {}
-
-TLocalVariableDeclarationStatement::TLocalVariableDeclarationStatement(): Tree(NonTerminalType::LocalVariableDeclarationStatement), v(TLocalVariableDeclarationStatementV::Max), localVariableDeclaration(nullptr) {}
+TLocalVariableDeclarationStatement::TLocalVariableDeclarationStatement(): Tree(NonTerminalType::LocalVariableDeclarationStatement), v(TLocalVariableDeclarationStatementV::Max), variableDeclaration(nullptr) {}
 
 TMethodBody::TMethodBody(): Tree(NonTerminalType::MethodBody), v(TMethodBodyV::Max), abstractMethodBody(nullptr), block(nullptr) {}
 
@@ -177,6 +175,8 @@ TTypeImportOnDemandDeclaration::TTypeImportOnDemandDeclaration(): Tree(NonTermin
 TUnaryExpression::TUnaryExpression(): Tree(NonTerminalType::UnaryExpression), v(TUnaryExpressionV::Max), unaryExpressionNotPlusMinus(nullptr), unaryExpression(nullptr) {}
 
 TUnaryExpressionNotPlusMinus::TUnaryExpressionNotPlusMinus(): Tree(NonTerminalType::UnaryExpressionNotPlusMinus), v(TUnaryExpressionNotPlusMinusV::Max), castExpression(nullptr), unaryExpression(nullptr), primary(nullptr), name(nullptr) {}
+
+TVariableDeclaration::TVariableDeclaration(): Tree(NonTerminalType::VariableDeclaration), v(TVariableDeclarationV::Max), type(nullptr), variableDeclarator(nullptr) {}
 
 TVariableDeclarator::TVariableDeclarator(): Tree(NonTerminalType::VariableDeclarator), v(TVariableDeclaratorV::Max), expression(nullptr), identifier(nullptr) {}
 
