@@ -44,18 +44,6 @@ bool FieldDeclaration::equals(FieldDeclaration *other) {
   return declaration->equals(other->declaration.get());
 }
 
-bool FieldDeclaration::equals(MemberDeclaration *other) {
-  return false;
-}
-
-bool FieldDeclaration::equals(ConstructorDeclaration *other) {
-  return false;
-}
-
-bool FieldDeclaration::equals(MethodDeclaration *) {
-  return false;
-}
-
 Semantic::SemanticErrorType FieldDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
 	return declaration->resolveTypes(semantic, enclosingClass);

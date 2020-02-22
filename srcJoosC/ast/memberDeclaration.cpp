@@ -37,4 +37,20 @@ MemberDeclaration::MemberDeclaration(std::vector<std::unique_ptr<Modifier>> mods
 {
 }
 
+bool MemberDeclaration::equals(FieldDeclaration *) {
+	return false;
+}
+
+bool MemberDeclaration::equals(MemberDeclaration *) {
+	return false;
+}
+
+bool MemberDeclaration::equals(ConstructorDeclaration *) {
+	return false;
+}
+
+bool MemberDeclaration::equals(MethodDeclaration *) {
+	return false;
+}
+
 } //namespace AST

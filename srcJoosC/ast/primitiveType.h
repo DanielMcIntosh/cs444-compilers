@@ -27,8 +27,6 @@ public:
     Semantic::SemanticErrorType resolve(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 
     virtual bool equals(PrimitiveType *) override;
-    virtual bool equals(NameType *) override;
-    virtual bool equals(Type *) override;
 	std::string toCode() const override;
 };
 

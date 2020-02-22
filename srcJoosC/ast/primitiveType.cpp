@@ -46,14 +46,6 @@ bool PrimitiveType::equals(PrimitiveType *other) {
   return type == other->type;
 }
 
-bool PrimitiveType::equals(NameType *other) {
-  return false;
-}
-
-bool PrimitiveType::equals(Type *other) {
-  return false;
-}
-
 std::string operator+=(std::string& str, PrimitiveType::Variant type)
 {
     switch(type)

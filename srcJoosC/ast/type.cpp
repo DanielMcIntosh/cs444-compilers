@@ -34,4 +34,16 @@ std::unique_ptr<Type> Type::create(const Parse::Tree *ptNode)
 	}
 }
 
+bool Type::equals(PrimitiveType *) {
+	return false;
+}
+
+bool Type::equals(NameType *) {
+	return false;
+}
+
+bool Type::equals(Type *) {
+	return false;
+}
+
 } //namespace AST

@@ -104,16 +104,8 @@ std::string NameType::toCode() const
 	return flatten();
 }
 
-bool NameType::equals(PrimitiveType *other) {
-  return false;
-}
-
 bool NameType::equals(NameType *other) {
   return declaration == other->declaration;
-}
-
-bool NameType::equals(Type *other) {
-  return false;
 }
 
 Semantic::SemanticErrorType NameType::resolve(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)

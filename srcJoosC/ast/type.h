@@ -24,9 +24,9 @@ public:
 
 	bool isArray = false;
 
-	virtual bool equals(PrimitiveType *) = 0;
-	virtual bool equals(NameType *) = 0;
-	virtual bool equals(Type *) = 0;
+	virtual bool equals(PrimitiveType *);
+	virtual bool equals(NameType *);
+	virtual bool equals(Type *);
 
 	virtual Semantic::SemanticErrorType resolve(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) = 0;
 protected:

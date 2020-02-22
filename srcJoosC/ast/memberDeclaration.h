@@ -28,10 +28,10 @@ public:
 
 	std::vector<std::unique_ptr<Modifier>> modifiers;
 
-	virtual bool equals(FieldDeclaration *) = 0;
-	virtual bool equals(MemberDeclaration *) = 0;
-	virtual bool equals(ConstructorDeclaration *) = 0;
-	virtual bool equals(MethodDeclaration *) = 0;
+	virtual bool equals(FieldDeclaration *);
+	virtual bool equals(MemberDeclaration *);
+	virtual bool equals(ConstructorDeclaration *);
+	virtual bool equals(MethodDeclaration *);
 
 	virtual Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) = 0;
 protected:

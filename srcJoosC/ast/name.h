@@ -40,9 +40,7 @@ public:
 
 	TypeDeclaration *declaration = nullptr;
 
-	virtual bool equals(PrimitiveType *) override;
 	virtual bool equals(NameType *) override;
-	virtual bool equals(Type *) override;
 
 	std::string toCode() const override;
 };

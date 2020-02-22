@@ -61,18 +61,6 @@ std::string MethodDeclaration::toCode() const {
 	return s;
 }
 
-bool MethodDeclaration::equals(FieldDeclaration *other) {
-	return false;
-}
-
-bool MethodDeclaration::equals(MemberDeclaration *other) {
-	return false;
-}
-
-bool MethodDeclaration::equals(ConstructorDeclaration *other) {
-	return false;
-}
-
 bool MethodDeclaration::equals(MethodDeclaration *other) {
 	if (parameters.size() != other->parameters.size())
 		return false;

@@ -61,14 +61,6 @@ std::string ConstructorDeclaration::toCode() const
 	return str;
 }
 
-bool ConstructorDeclaration::equals(FieldDeclaration *other) {
-	return false;
-}
-
-bool ConstructorDeclaration::equals(MemberDeclaration *other) {
-	return false;
-}
-
 bool ConstructorDeclaration::equals(ConstructorDeclaration *other) {
 	if (parameters.size() != other->parameters.size())
 		return false;
@@ -77,10 +69,6 @@ bool ConstructorDeclaration::equals(ConstructorDeclaration *other) {
 			return false;
 	}
 	return true;
-}
-
-bool ConstructorDeclaration::equals(MethodDeclaration *other) {
-	return false;
 }
 
 Semantic::SemanticErrorType ConstructorDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
