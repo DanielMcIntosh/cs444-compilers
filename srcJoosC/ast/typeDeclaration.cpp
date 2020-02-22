@@ -113,7 +113,7 @@ Semantic::SemanticErrorType TypeDeclaration::resolveSuperTypeNames(Semantic::Sem
 {
 	if (superClass)
 	{
-		if (auto [decl, error] = semantic.resolveType(superClass.get(), cpu, nullptr);
+		if (auto [decl, error] = semantic.resolveType(superClass.get(), cpu);
 			error != Semantic::SemanticErrorType::None)
 		{
 			return error;
@@ -126,7 +126,7 @@ Semantic::SemanticErrorType TypeDeclaration::resolveSuperTypeNames(Semantic::Sem
 
 	for (auto &intf: interfaces)
 	{
-		if (auto [decl, error] = semantic.resolveType(intf.get(), cpu, nullptr);
+		if (auto [decl, error] = semantic.resolveType(intf.get(), cpu);
 			error != Semantic::SemanticErrorType::None)
 		{
 			return error;
@@ -141,7 +141,26 @@ Semantic::SemanticErrorType TypeDeclaration::resolveSuperTypeNames(Semantic::Sem
 
 Semantic::SemanticErrorType TypeDeclaration::resolveBodyTypeNames(Semantic::SemanticDB const& semantic)
 {
-
+	// TODO: change this?
+	/*
+	for (auto *decl : methodSets.containSet)
+	{
+		if (Semantic::SemanticErrorType err = decl->resolveTypes(semantic, this);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+	/*/
+	for (auto &decl : members)
+	{
+		if (Semantic::SemanticErrorType err = decl->resolveTypes(semantic, this);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+	//*/
 	return Semantic::SemanticErrorType::None;
 }
 

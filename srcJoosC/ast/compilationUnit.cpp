@@ -29,26 +29,23 @@ CompilationUnit::CompilationUnit(const Parse::TCompilationUnit *ptNode)
 	package = Name::create((ptNode->packageDeclaration) ? ptNode->packageDeclaration->name : nullptr);
 	imports = std::move(NodeList<ImportDeclaration>(ptNode->importDeclarations).list);
 	typeDeclaration = TypeDeclaration::create(ptNode->typeDeclaration);
+
 	resolveEnclosingPackageAndApplyToTypeDecl();
 }
 
 void CompilationUnit::resolveEnclosingPackageAndApplyToTypeDecl() {
-  if (!typeDeclaration)
-    return;
+	if (!typeDeclaration)
+		return;
 
-  std::string thePackage;
-  if (!package)
-    thePackage = "java._global";
-  else {
-    for (const auto &s: package->prefix) {
-      thePackage.append(s);
-      thePackage.append(".");
-    }
-    thePackage.append(package->id);
-  }
+	std::string thePackage;
+	if (!package)
+		thePackage = "java._global";
+	else {
+		thePackage = package->flatten();
+	}
 
-  packageName = thePackage;
-  typeDeclaration->fqn = thePackage + "." + typeDeclaration->name;
+	packageName = thePackage;
+	typeDeclaration->fqn = thePackage + "." + typeDeclaration->name;
 	typeDeclaration->cpu = this;
 }
 

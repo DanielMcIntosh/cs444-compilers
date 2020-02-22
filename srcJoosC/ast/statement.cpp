@@ -7,6 +7,7 @@
 #include "ast/forStatement.h"
 #include "ast/ifThenElseStatement.h"
 #include "parse/parseTreeBase.h"
+#include "semantic/semantic.h"
 
 namespace AST
 {
@@ -44,6 +45,11 @@ std::unique_ptr<Statement> Statement::create(const Parse::Tree *ptNode)
 		default:
 			FAILED("inappropriate PT type for Statement: " + std::to_string((int)ptNode->type));
 	}
+}
+
+Semantic::SemanticErrorType Statement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *source)
+{
+	return Semantic::SemanticErrorType::None;
 }
 
 } //namespace AST

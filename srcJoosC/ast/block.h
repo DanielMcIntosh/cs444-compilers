@@ -12,10 +12,11 @@ class Block: public Statement
 public:
 	static std::unique_ptr<Block> create(const Parse::Tree *ptNode);
 	explicit Block(const Parse::TBlock *ptNode);
+	std::string toCode() const override;
 
 	std::vector<std::unique_ptr<Statement>> statements;
 
-	std::string toCode() const override;
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 };
 
 } //namespace AST

@@ -4,6 +4,12 @@
 
 #include <string>
 
+namespace Semantic
+{
+	struct SemanticDB;
+	enum class SemanticErrorType;
+}
+
 namespace AST
 {
 
@@ -17,13 +23,12 @@ public:
 	static std::unique_ptr<Type> create(const Parse::Tree *ptNode);
 
 	bool isArray = false;
-	TypeDeclaration *declaration = nullptr;
 
 	virtual bool equals(PrimitiveType *) = 0;
 	virtual bool equals(NameType *) = 0;
 	virtual bool equals(Type *) = 0;
 
-	void resolve(TypeDeclaration *decl);
+	virtual Semantic::SemanticErrorType resolve(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) = 0;
 protected:
 	Type() = default;
 };

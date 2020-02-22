@@ -34,10 +34,4 @@ std::unique_ptr<Type> Type::create(const Parse::Tree *ptNode)
 	}
 }
 
-void Type::resolve(TypeDeclaration *decl)
-{
-	assert(declaration == nullptr);
-	declaration = decl;
-}
-
 } //namespace AST

@@ -54,7 +54,8 @@ struct SemanticDB {
 
   enum SemanticErrorType error = SemanticErrorType::None;
 
-  std::tuple<AST::TypeDeclaration *, SemanticErrorType> resolveType(const AST::NameType *type, const AST::CompilationUnit *cpu, AST::TypeDeclaration *source) const;
+  std::tuple<AST::TypeDeclaration *, SemanticErrorType> resolveType(const AST::NameType *type, AST::TypeDeclaration *source) const;
+  std::tuple<AST::TypeDeclaration *, SemanticErrorType> resolveType(const AST::NameType *type, const AST::CompilationUnit *cpu) const;
   std::tuple<AST::TypeDeclaration *, SemanticErrorType> resolveSingleImport(const AST::CompilationUnit *cpu, const std::string &simpleName) const;
   std::tuple<AST::TypeDeclaration *, SemanticErrorType> resolveMultiImport(const AST::CompilationUnit *cpu, const std::string &simpleName) const;
 private:

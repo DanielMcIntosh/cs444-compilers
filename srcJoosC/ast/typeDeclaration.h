@@ -6,6 +6,8 @@
 #include "ast/type.h"
 #include "ast/modifier.h"
 #include "ast/memberDeclaration.h"
+#include "ast/methodDeclaration.h"
+#include "ast/fieldDeclaration.h"
 #include <memory>
 #include <vector>
 #include <string>

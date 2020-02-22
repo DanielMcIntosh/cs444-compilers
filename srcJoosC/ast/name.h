@@ -31,11 +31,14 @@ class NameType: public Type
 public:
 	static std::unique_ptr<NameType> create(const Parse::Tree *ptNode);
 	explicit NameType(Name&& other);
+
 	std::string flatten() const;
+	Semantic::SemanticErrorType resolve(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 
 	std::vector<std::string> prefix;
 	std::string id;
-	TypeDeclaration *decl;
+
+	TypeDeclaration *declaration = nullptr;
 
 	virtual bool equals(PrimitiveType *) override;
 	virtual bool equals(NameType *) override;

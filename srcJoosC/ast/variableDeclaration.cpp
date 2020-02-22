@@ -45,7 +45,12 @@ std::string VariableDeclaration::toCode() const {
 }
 
 bool VariableDeclaration::equals(VariableDeclaration *other) {
-  return identifier == other->identifier && type->equals(other->type.get());
+	return identifier == other->identifier && type->equals(other->type.get());
+}
+
+Semantic::SemanticErrorType VariableDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	return type->resolve(semantic, enclosingClass);
 }
 
 } //namespace AST

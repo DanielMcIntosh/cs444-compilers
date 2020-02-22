@@ -29,4 +29,9 @@ std::string LocalVariableDeclarationStatement::toCode() const
 	return declaration->toCode() + ";";
 }
 
+Semantic::SemanticErrorType LocalVariableDeclarationStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	return declaration->resolveTypes(semantic, enclosingClass);
+}
+
 } //namespace AST

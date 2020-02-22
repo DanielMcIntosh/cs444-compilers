@@ -107,10 +107,15 @@ SemanticDB::resolveMultiImport(const CompilationUnit *cpu, const string &simpleN
 }
 
 std::tuple<TypeDeclaration *, SemanticErrorType>
-SemanticDB::resolveType(const AST::NameType *type, const AST::CompilationUnit *cpu, AST::TypeDeclaration *source) const
+SemanticDB::resolveType(const AST::NameType *type, const AST::CompilationUnit *cpu) const
 {
-	assert(type);
-	return resolveTypeHelper(type, type->flatten(), cpu, source);
+	return resolveTypeHelper(type, type->flatten(), cpu, nullptr);
+}
+
+std::tuple<TypeDeclaration *, SemanticErrorType>
+SemanticDB::resolveType(const AST::NameType *type, AST::TypeDeclaration *source) const
+{
+	return resolveTypeHelper(type, type->flatten(), source->cpu, source);
 }
 
 std::tuple<TypeDeclaration *, SemanticErrorType>
@@ -333,6 +338,15 @@ void semanticDo(SemanticDB *sdb) {
 		return;
 	}
 
+	for (auto *typeDecl : allTypes)
+	{
+		if (SemanticErrorType err = typeDecl->resolveBodyTypeNames(*sdb);
+			err != SemanticErrorType::None)
+		{
+			sdb->error = err;
+			return;
+		}
+	}
 
 	//
 	{

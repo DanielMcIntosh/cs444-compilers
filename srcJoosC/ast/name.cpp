@@ -2,6 +2,7 @@
 #include "ast/expression.h"
 #include "ast/type.h"
 #include "parse/parseTree.h"
+#include "semantic/semantic.h"
 
 #include <memory>
 #include <vector>
@@ -108,11 +109,18 @@ bool NameType::equals(PrimitiveType *other) {
 }
 
 bool NameType::equals(NameType *other) {
-  return decl == other->decl;
+  return declaration == other->declaration;
 }
 
 bool NameType::equals(Type *other) {
   return false;
+}
+
+Semantic::SemanticErrorType NameType::resolve(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	auto [typeDecl, err] = semantic.resolveType(this, enclosingClass);
+	declaration = typeDecl;
+	return err;
 }
 
 NameExpression::NameExpression(Name &&other)

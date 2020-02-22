@@ -2,6 +2,7 @@
 #include "ast/conditionalStatement.h"
 #include "ast/statement.h"
 #include "parse/parseTree.h"
+#include "semantic/semantic.h"
 #include <memory>
 
 namespace AST
@@ -39,6 +40,17 @@ std::string ForStatement::toCode() const {
     return "for (" + (init ? init->toCode() : "")
         + " " + (condition ? condition->toCode() : "")
         + "; " + (increment ? increment->toCode() : "") + ")\n" + body->toCode();
+}
+
+Semantic::SemanticErrorType ForStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	if (init)
+	{
+		return init->resolveTypes(semantic, enclosingClass);
+	} else
+	{
+		return Semantic::SemanticErrorType::None;
+	}
 }
 
 } //namespace AST

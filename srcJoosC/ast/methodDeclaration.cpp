@@ -36,52 +36,80 @@ MethodDeclaration::MethodDeclaration(MethodHeader&& header, std::unique_ptr<Bloc
 {
 }
 MethodDeclaration::MethodDeclaration(const Parse::TAbstractMethodDeclaration *ptNode)
-  : MethodDeclaration(MethodHeader(ptNode->methodHeader), nullptr)
+	: MethodDeclaration(MethodHeader(ptNode->methodHeader), nullptr)
 {
 }
 MethodDeclaration::MethodDeclaration(const Parse::TMethodDeclaration *ptNode)
-  : MethodDeclaration(MethodHeader(ptNode->methodHeader), Block::create(ptNode->methodBody->block))
+	: MethodDeclaration(MethodHeader(ptNode->methodHeader), Block::create(ptNode->methodBody->block))
 {
 }
 std::string MethodDeclaration::toCode() const {
-    std::string s = returnType->toCode() + " " + identifier + "(";
-    for (const auto& p : parameters)
-    {
-    	s += p->toCode() + ", ";
-    }
-    if (!parameters.empty()) {
+	std::string s = returnType->toCode() + " " + identifier + "(";
+	for (const auto& p : parameters)
+	{
+		s += p->toCode() + ", ";
+	}
+	if (!parameters.empty()) {
 		s.pop_back();
 		s.pop_back();
 	}
-    s += ") ";
-    if (body)
-    {
-    	s += body->toCode();
-    }
-    return s;
+	s += ") ";
+	if (body)
+	{
+		s += body->toCode();
+	}
+	return s;
 }
 
 bool MethodDeclaration::equals(FieldDeclaration *other) {
-  return false;
+	return false;
 }
 
 bool MethodDeclaration::equals(MemberDeclaration *other) {
-  return false;
+	return false;
 }
 
 bool MethodDeclaration::equals(ConstructorDeclaration *other) {
-  return false;
+	return false;
 }
 
 bool MethodDeclaration::equals(MethodDeclaration *other) {
-  if (parameters.size() != other->parameters.size())
-    return false;
-  for (size_t i = 0; i < parameters.size(); ++i) {
-    if (!parameters[i]->equals(other->parameters[i].get()))
-      return false;
-  }
+	if (parameters.size() != other->parameters.size())
+		return false;
+	for (size_t i = 0; i < parameters.size(); ++i) {
+		if (!parameters[i]->equals(other->parameters[i].get()))
+			return false;
+	}
 
-  return identifier == other->identifier;
+	return identifier == other->identifier;
+}
+
+Semantic::SemanticErrorType MethodDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	if (Semantic::SemanticErrorType err = returnType->resolve(semantic, enclosingClass);
+		err != Semantic::SemanticErrorType::None)
+	{
+		return err;
+	}
+
+	for (auto &param: parameters)
+	{
+		if (Semantic::SemanticErrorType err = param->resolveTypes(semantic, enclosingClass);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+
+	if (body)
+	{
+		if (Semantic::SemanticErrorType err = body->resolveTypes(semantic, enclosingClass);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+	return Semantic::SemanticErrorType::None;
 }
 
 } //namespace AST

@@ -12,10 +12,11 @@ class LocalVariableDeclarationStatement: public Statement
 public:
 	static std::unique_ptr<LocalVariableDeclarationStatement> create(const Parse::Tree *ptNode);
 	explicit LocalVariableDeclarationStatement(const Parse::TLocalVariableDeclarationStatement *ptNode);
+	std::string toCode() const override;
 
 	std::unique_ptr<VariableDeclaration> declaration;
 
-	std::string toCode() const override;
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 };
 
 } //namespace AST

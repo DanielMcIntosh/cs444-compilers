@@ -22,6 +22,8 @@ public:
 	std::unique_ptr<Expression> initializer;
 
 	bool equals(VariableDeclaration *);
+
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
 };
 
 } //namespace AST

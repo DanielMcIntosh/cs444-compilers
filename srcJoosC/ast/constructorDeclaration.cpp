@@ -32,7 +32,7 @@ ConstructorDeclaration::ConstructorDeclaration(std::vector<std::unique_ptr<Modif
 {
 }
 ConstructorDeclaration::ConstructorDeclaration(const Parse::TConstructorDeclaration *ptNode)
-  : ConstructorDeclaration(std::move(NodeList<Modifier>(ptNode->modifiers).list),
+	: ConstructorDeclaration(std::move(NodeList<Modifier>(ptNode->modifiers).list),
 		MethodDeclarator(ptNode->constructorDeclarator), std::make_unique<Block>(ptNode->block))
 {
 }
@@ -56,31 +56,51 @@ std::string ConstructorDeclaration::toCode() const
 		str.pop_back();
 		str.pop_back();
 	}
-    str += ") ";
+		str += ") ";
 	str += body->toCode();
 	return str;
 }
 
 bool ConstructorDeclaration::equals(FieldDeclaration *other) {
-  return false;
+	return false;
 }
 
 bool ConstructorDeclaration::equals(MemberDeclaration *other) {
-  return false;
+	return false;
 }
 
 bool ConstructorDeclaration::equals(ConstructorDeclaration *other) {
-  if (parameters.size() != other->parameters.size())
-    return false;
-  for (size_t i = 0; i < parameters.size(); ++i) {
-    if (!parameters[i]->equals(other->parameters[i].get()))
-      return false;
-  }
-  return true;
+	if (parameters.size() != other->parameters.size())
+		return false;
+	for (size_t i = 0; i < parameters.size(); ++i) {
+		if (!parameters[i]->equals(other->parameters[i].get()))
+			return false;
+	}
+	return true;
 }
 
 bool ConstructorDeclaration::equals(MethodDeclaration *other) {
-  return false;
+	return false;
+}
+
+Semantic::SemanticErrorType ConstructorDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	for (auto &param: parameters)
+	{
+		if (Semantic::SemanticErrorType err = param->resolveTypes(semantic, enclosingClass);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+
+	if (Semantic::SemanticErrorType err = body->resolveTypes(semantic, enclosingClass);
+		err != Semantic::SemanticErrorType::None)
+	{
+		return err;
+	}
+
+	return Semantic::SemanticErrorType::None;
 }
 
 } //namespace AST

@@ -1,6 +1,7 @@
 #include "ast/primitiveType.h"
 #include "ast/type.h"
 #include "parse/parseTree.h"
+#include "semantic/semantic.h"
 #include <ostream>
 
 namespace AST
@@ -80,6 +81,11 @@ std::ostream& operator<<(std::ostream& os, PrimitiveType::Variant type)
 		return os;
 	}
 	return os << ("" + type);
+}
+
+Semantic::SemanticErrorType PrimitiveType::resolve(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	return Semantic::SemanticErrorType::None;
 }
 
 } //namespace AST

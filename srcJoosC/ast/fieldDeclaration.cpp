@@ -56,4 +56,9 @@ bool FieldDeclaration::equals(MethodDeclaration *) {
   return false;
 }
 
+Semantic::SemanticErrorType FieldDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	return declaration->resolveTypes(semantic, enclosingClass);
+}
+
 } //namespace AST
