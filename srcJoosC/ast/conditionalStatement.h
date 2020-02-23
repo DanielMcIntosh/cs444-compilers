@@ -16,6 +16,7 @@ public:
 	explicit ConditionalStatement(const Parse::TIfThenStatement *ptNode);
 	explicit ConditionalStatement(const Parse::TWhileStatement *ptNode);
 	explicit ConditionalStatement(const Parse::TWhileStatementNoShortIf *ptNode);
+	std::string toCode() const override;
 
 	enum class ConditionType {
 		If,
@@ -29,7 +30,7 @@ public:
 	std::unique_ptr<Expression> condition;
 	std::unique_ptr<Statement> body;
 
-	std::string toCode() const override;
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 protected:
 	ConditionalStatement(ConditionType type, std::unique_ptr<Expression> cond, std::unique_ptr<Statement> statement);
 };

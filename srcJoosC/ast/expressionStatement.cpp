@@ -27,4 +27,9 @@ std::string ExpressionStatement::toCode() const {
     return expression ? expression->toCode() + ";" : ";";
 }
 
+Semantic::SemanticErrorType ExpressionStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+    return expression->resolveTypes(semantic, enclosingClass);
+}
+
 } //namespace AST

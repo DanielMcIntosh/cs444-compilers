@@ -12,6 +12,7 @@
 #include "ast/methodInvocation.h"
 #include "ast/this.h"
 #include "parse/parseTreeBase.h"
+#include "semantic/semantic.h"
 #include <memory>
 
 namespace AST
@@ -64,6 +65,11 @@ std::unique_ptr<Expression> Expression::create(const Parse::Tree *ptNode)
 		default:
 			FAILED("inappropriate PT type for Expression: " + std::to_string((int)ptNode->type));
 	}
+}
+
+Semantic::SemanticErrorType Expression::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *source)
+{
+	return Semantic::SemanticErrorType::None;
 }
 
 } //namespace AST

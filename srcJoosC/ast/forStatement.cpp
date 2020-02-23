@@ -37,20 +37,23 @@ ForStatement::ForStatement(const Parse::TForStatementNoShortIf *ptNode)
 {
 }
 std::string ForStatement::toCode() const {
-    return "for (" + (init ? init->toCode() : "")
-        + " " + (condition ? condition->toCode() : "")
-        + "; " + (increment ? increment->toCode() : "") + ")\n" + body->toCode();
+    return "for (" + (init ? init->toCode() : "") + " "
+                   + (condition ? condition->toCode() : "") + "; "
+                   + (increment ? increment->toCode() : "") + ")\n"
+            + body->toCode();
 }
 
 Semantic::SemanticErrorType ForStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
 	if (init)
 	{
-		return init->resolveTypes(semantic, enclosingClass);
-	} else
-	{
-		return Semantic::SemanticErrorType::None;
+		if (Semantic::SemanticErrorType err = init->resolveTypes(semantic, enclosingClass);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
 	}
+	return ConditionalStatement::resolveTypes(semantic, enclosingClass);
 }
 
 } //namespace AST

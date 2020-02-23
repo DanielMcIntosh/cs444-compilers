@@ -12,11 +12,12 @@ class ExpressionStatement: public Statement
 public:
 	static std::unique_ptr<ExpressionStatement> create(const Parse::Tree *ptNode);
 	explicit ExpressionStatement(const Parse::TExpressionStatement *ptNode);
+	std::string toCode() const override;
 
 	// nullable
 	std::unique_ptr<Expression> expression;
 
-	std::string toCode() const override;
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 };
 
 } //namespace AST

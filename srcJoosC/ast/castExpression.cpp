@@ -52,4 +52,9 @@ std::string CastExpression::toCode() const {
     return "(" + type->toCode() + ")" + rhs->toCode();
 }
 
+Semantic::SemanticErrorType CastExpression::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+    return type->resolve(semantic, enclosingClass);
+}
+
 } //namespace AST

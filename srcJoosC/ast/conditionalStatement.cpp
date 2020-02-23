@@ -2,6 +2,7 @@
 #include "ast/statement.h"
 #include "ast/expression.h"
 #include "parse/parseTree.h"
+#include "semantic/semantic.h"
 #include <memory>
 #include <ostream>
 
@@ -58,6 +59,20 @@ std::string ConditionalStatement::toCode() const
 	str += body->toCode();
 	return str;
 }
+
+Semantic::SemanticErrorType ConditionalStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	if (body)
+	{
+		if (Semantic::SemanticErrorType err = body->resolveTypes(semantic, enclosingClass);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+	return Semantic::SemanticErrorType::None;
+}
+
 
 std::string operator+=(std::string& str, ConditionalStatement::ConditionType type)
 {

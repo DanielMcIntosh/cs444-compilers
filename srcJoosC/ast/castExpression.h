@@ -14,11 +14,12 @@ class CastExpression: public Expression
 public:
 	static std::unique_ptr<CastExpression> create(const Parse::Tree *ptNode);
 	explicit CastExpression(const Parse::TCastExpression *ptNode);
+	std::string toCode() const override;
 
 	std::unique_ptr<Type> type;
 	std::unique_ptr<Expression> rhs;
 
-	std::string toCode() const override;
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 };
 
 } //namespace AST
