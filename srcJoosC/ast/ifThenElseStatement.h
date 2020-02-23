@@ -13,10 +13,11 @@ public:
 	static std::unique_ptr<IfThenElseStatement> create(const Parse::Tree *ptNode);
 	explicit IfThenElseStatement(const Parse::TIfThenElseStatement *ptNode);
 	explicit IfThenElseStatement(const Parse::TIfThenElseStatementNoShortIf *ptNode);
+	std::string toCode() const override;
 
 	std::unique_ptr<Statement> elseBody;
 
-	std::string toCode() const override;
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 };
 
 } //namespace AST

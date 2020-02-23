@@ -2,6 +2,7 @@
 #include "ast/conditionalStatement.h"
 #include "ast/statement.h"
 #include "parse/parseTree.h"
+#include "semantic/semantic.h"
 #include <memory>
 
 namespace AST
@@ -31,6 +32,16 @@ IfThenElseStatement::IfThenElseStatement(const Parse::TIfThenElseStatementNoShor
   : ConditionalStatement(ConditionalStatement::ConditionType::If, Expression::create(ptNode->expression), Statement::create(ptNode->statementNoShortIf)),
 	elseBody(Statement::create(ptNode->statementNoShortIf2))
 {
+}
+
+Semantic::SemanticErrorType IfThenElseStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	if (Semantic::SemanticErrorType err = ConditionalStatement::resolveTypes(semantic, enclosingClass);
+		err != Semantic::SemanticErrorType::None)
+	{
+		return err;
+	}
+	return elseBody->resolveTypes(semantic, enclosingClass);
 }
 
 std::string IfThenElseStatement::toCode() const
