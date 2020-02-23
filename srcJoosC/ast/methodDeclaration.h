@@ -24,6 +24,7 @@ public:
 	// nullable
 	std::unique_ptr<Block> body;
 
+	using MemberDeclaration::equals;
 	virtual bool equals(MethodDeclaration *) override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;

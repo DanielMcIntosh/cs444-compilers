@@ -17,6 +17,7 @@ public:
 
 	std::string toCode() const override;
 
+	using MemberDeclaration::equals;
 	virtual bool equals(FieldDeclaration *) override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;

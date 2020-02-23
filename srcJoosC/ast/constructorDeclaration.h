@@ -20,6 +20,7 @@ public:
 	std::vector<std::unique_ptr<VariableDeclaration>> parameters;
 	std::unique_ptr<Block> body;
 
+	using MemberDeclaration::equals;
 	virtual bool equals(ConstructorDeclaration *) override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;

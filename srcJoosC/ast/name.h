@@ -40,6 +40,7 @@ public:
 
 	TypeDeclaration *declaration = nullptr;
 
+	using Type::equals;
 	virtual bool equals(NameType *) override;
 
 	std::string toCode() const override;
