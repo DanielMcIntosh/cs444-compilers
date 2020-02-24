@@ -31,6 +31,7 @@ public:
 	std::unique_ptr<Statement> body;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
 protected:
 	ConditionalStatement(ConditionType type, std::unique_ptr<Expression> cond, std::unique_ptr<Statement> statement);
 };

@@ -52,4 +52,9 @@ Semantic::SemanticErrorType Statement::resolveTypes(Semantic::SemanticDB const& 
 	return Semantic::SemanticErrorType::None;
 }
 
+Semantic::SemanticErrorType Statement::resolveExprs(Semantic::Scope &parentScope)
+{
+	return Semantic::SemanticErrorType::None;
+}
+
 } //namespace AST

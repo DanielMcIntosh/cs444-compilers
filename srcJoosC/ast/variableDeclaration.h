@@ -21,7 +21,9 @@ public:
 	// nullable
 	std::unique_ptr<Expression> initializer;
 
-	bool equals(VariableDeclaration *);
+	bool equals(const VariableDeclaration *) const;
+	[[gnu::pure]]
+	bool idEqual(const VariableDeclaration *other) const;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
 };

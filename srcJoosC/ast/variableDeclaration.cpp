@@ -44,8 +44,12 @@ std::string VariableDeclaration::toCode() const {
     }
 }
 
-bool VariableDeclaration::equals(VariableDeclaration *other) {
+bool VariableDeclaration::equals(const VariableDeclaration *other) const{
 	return identifier == other->identifier && type->equals(other->type.get());
+}
+
+bool VariableDeclaration::idEqual(const VariableDeclaration *other) const{
+	return identifier == other->identifier;
 }
 
 Semantic::SemanticErrorType VariableDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)

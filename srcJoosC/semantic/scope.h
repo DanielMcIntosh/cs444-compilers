@@ -1,15 +1,31 @@
 #pragma once
 
+#include <memory>
+#include <vector>
+
+namespace AST
+{
+	class VariableDeclaration;
+}
+
 namespace Semantic {
 
-// e.g. Scope<TypeDeclaration>, Scope<VariableDeclaration>, or Scope<MethodDeclaration>
-template<class Decl>
 class Scope {
 public:
 	Scope() = default;
-	Scope(Scope &parent);
+	explicit Scope(Scope &parent);
+
+	bool add(std::unique_ptr<AST::VariableDeclaration> const&);
+	bool add(const AST::VariableDeclaration *);
+	bool addField(std::unique_ptr<AST::VariableDeclaration> const&);
+	bool addField(const AST::VariableDeclaration *);
+	bool isRoot();
+
 	Scope &_parent = *this;
-	std::vector<Decl> declarations;
+	std::vector<const AST::VariableDeclaration *> _declarations;
+	std::vector<const AST::VariableDeclaration *> _fields;
+private:
+	bool doesConflict(const AST::VariableDeclaration *) const;
 };
 
 } // namespace Semantic

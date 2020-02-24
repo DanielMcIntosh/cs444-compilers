@@ -2,6 +2,7 @@
 #include "ast/memberDeclaration.h"
 #include "ast/methodHeader.h"
 #include "parse/parseTree.h"
+#include "semantic/scope.h"
 #include <memory>
 
 namespace AST
@@ -92,6 +93,28 @@ Semantic::SemanticErrorType MethodDeclaration::resolveTypes(Semantic::SemanticDB
 	if (body)
 	{
 		if (Semantic::SemanticErrorType err = body->resolveTypes(semantic, enclosingClass);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+	return Semantic::SemanticErrorType::None;
+}
+
+Semantic::SemanticErrorType MethodDeclaration::resolveExprs(Semantic::Scope &parentScope)
+{
+	Semantic::Scope scope(parentScope);
+	for (auto &param: parameters)
+	{
+		if (!scope.add(param))
+		{
+			return Semantic::SemanticErrorType::ExprResolution;
+		}
+	}
+
+	if (body)
+	{
+		if (Semantic::SemanticErrorType err = body->resolveExprs(scope);
 			err != Semantic::SemanticErrorType::None)
 		{
 			return err;

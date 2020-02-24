@@ -4,6 +4,7 @@
 #include "ast/methodDeclaration.h"
 #include "ast/nodeList.h"
 #include "parse/parseTreeBase.h"
+#include "semantic/semantic.h"
 
 namespace AST
 {
@@ -51,6 +52,11 @@ bool MemberDeclaration::equals(ConstructorDeclaration *) {
 
 bool MemberDeclaration::equals(MethodDeclaration *) {
 	return false;
+}
+
+Semantic::SemanticErrorType MemberDeclaration::initScope(Semantic::Scope &parentScope)
+{
+	return Semantic::SemanticErrorType::None;
 }
 
 } //namespace AST

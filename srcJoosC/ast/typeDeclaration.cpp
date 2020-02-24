@@ -7,6 +7,7 @@
 #include "ast/name.h"
 #include "parse/parseTree.h"
 #include "semantic/semantic.h"
+#include "semantic/scope.h"
 #include <memory>
 #include <vector>
 #include <string>
@@ -155,6 +156,48 @@ Semantic::SemanticErrorType TypeDeclaration::resolveBodyTypeNames(Semantic::Sema
 	for (auto &decl : members)
 	{
 		if (Semantic::SemanticErrorType err = decl->resolveTypes(semantic, this);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+	//*/
+	return Semantic::SemanticErrorType::None;
+}
+
+Semantic::SemanticErrorType TypeDeclaration::resolveBodyExprs()
+{
+	// TODO: change this?
+	Semantic::Scope scope;
+	/*
+	for (auto *decl : fieldSets.containSet)
+	{
+		if (Semantic::SemanticErrorType err = decl->resolveExprs(scope);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+	for (auto *decl : methodSets.containSet)
+	{
+		if (Semantic::SemanticErrorType err = decl->resolveExprs(scope);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+	/*/
+	for (auto &decl : members)
+	{
+		if (Semantic::SemanticErrorType err = decl->initScope(scope);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+	for (auto &decl : members)
+	{
+		if (Semantic::SemanticErrorType err = decl->resolveExprs(scope);
 			err != Semantic::SemanticErrorType::None)
 		{
 			return err;

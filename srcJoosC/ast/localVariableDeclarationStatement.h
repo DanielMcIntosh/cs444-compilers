@@ -17,6 +17,7 @@ public:
 	std::unique_ptr<VariableDeclaration> declaration;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
 };
 
 } //namespace AST

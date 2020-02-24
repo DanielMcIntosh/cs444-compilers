@@ -3,6 +3,7 @@
 #include "ast/statement.h"
 #include "parse/parseTree.h"
 #include "semantic/semantic.h"
+#include "semantic/scope.h"
 #include <memory>
 
 namespace AST
@@ -54,6 +55,20 @@ Semantic::SemanticErrorType ForStatement::resolveTypes(Semantic::SemanticDB cons
 		}
 	}
 	return ConditionalStatement::resolveTypes(semantic, enclosingClass);
+}
+
+Semantic::SemanticErrorType ForStatement::resolveExprs(Semantic::Scope &parentScope)
+{
+	Semantic::Scope scope(parentScope);
+	if (init)
+	{
+		if (Semantic::SemanticErrorType err = init->resolveExprs(scope);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+	return ConditionalStatement::resolveExprs(scope);
 }
 
 } //namespace AST

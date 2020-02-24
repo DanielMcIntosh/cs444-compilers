@@ -32,6 +32,7 @@ enum class SemanticErrorType {
 	TypeDeclarationClashImport,
 	PrefixNameIsType,
 	NotPackage,
+	ExprResolution,
 
 	Max
 };

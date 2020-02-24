@@ -3,6 +3,7 @@
 #include "ast/expression.h"
 #include "parse/parseTree.h"
 #include "semantic/semantic.h"
+#include "semantic/scope.h"
 #include <memory>
 #include <ostream>
 
@@ -73,6 +74,12 @@ Semantic::SemanticErrorType ConditionalStatement::resolveTypes(Semantic::Semanti
 	return Semantic::SemanticErrorType::None;
 }
 
+Semantic::SemanticErrorType ConditionalStatement::resolveExprs(Semantic::Scope &parentScope)
+{
+	// TODO: resolve condition
+	// TODO: override in "ForStatement"
+	return body->resolveExprs(parentScope);
+}
 
 std::string operator+=(std::string& str, ConditionalStatement::ConditionType type)
 {

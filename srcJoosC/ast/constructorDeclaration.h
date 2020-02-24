@@ -24,6 +24,7 @@ public:
 	virtual bool equals(ConstructorDeclaration *) override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
 private:
 	// not convinced this is the best way of dealing with needing 2 members from declarator
 	ConstructorDeclaration(std::vector<std::unique_ptr<Modifier>> mods, MethodDeclarator &&declarator, std::unique_ptr<Block> block);

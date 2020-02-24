@@ -3,6 +3,7 @@
 #include "ast/statement.h"
 #include "parse/parseTree.h"
 #include "semantic/semantic.h"
+#include "semantic/scope.h"
 #include <memory>
 
 namespace AST
@@ -43,6 +44,18 @@ Semantic::SemanticErrorType IfThenElseStatement::resolveTypes(Semantic::Semantic
 	}
 	return elseBody->resolveTypes(semantic, enclosingClass);
 }
+
+Semantic::SemanticErrorType IfThenElseStatement::resolveExprs(Semantic::Scope &parentScope)
+{
+	if (Semantic::SemanticErrorType err = ConditionalStatement::resolveExprs(parentScope);
+		err != Semantic::SemanticErrorType::None)
+	{
+		return err;
+	}
+	Semantic::Scope elseScope(parentScope);
+	return elseBody->resolveExprs(elseScope);
+}
+
 
 std::string IfThenElseStatement::toCode() const
 {

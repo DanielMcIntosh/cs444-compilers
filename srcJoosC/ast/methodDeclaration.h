@@ -28,6 +28,7 @@ public:
 	virtual bool equals(MethodDeclaration *) override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
 private:
 	MethodDeclaration(MethodHeader&& header, std::unique_ptr<Block> block);
 };

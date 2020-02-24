@@ -34,6 +34,7 @@ public:
 
 	Semantic::SemanticErrorType resolveSuperTypeNames(Semantic::SemanticDB const& semantic);
 	Semantic::SemanticErrorType resolveBodyTypeNames(Semantic::SemanticDB const& semantic);
+	Semantic::SemanticErrorType resolveBodyExprs();
 
 	bool isInterface;
 	std::vector<std::unique_ptr<Modifier>> modifiers;

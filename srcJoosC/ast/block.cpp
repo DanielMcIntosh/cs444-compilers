@@ -2,9 +2,8 @@
 #include "ast/statement.h"
 #include "ast/nodeList.h"
 #include "parse/parseTree.h"
+#include "semantic/scope.h"
 #include "semantic/semantic.h"
-
-#include "utility.h"
 
 #include <memory>
 
@@ -45,6 +44,20 @@ Semantic::SemanticErrorType Block::resolveTypes(Semantic::SemanticDB const& sema
 	for (auto &stmt: statements)
 	{
 		if (Semantic::SemanticErrorType err = stmt->resolveTypes(semantic, enclosingClass);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+	return Semantic::SemanticErrorType::None;
+}
+
+Semantic::SemanticErrorType Block::resolveExprs(Semantic::Scope &parentScope)
+{
+	Semantic::Scope scope(parentScope);
+	for (auto &stmt: statements)
+	{
+		if (Semantic::SemanticErrorType err = stmt->resolveExprs(scope);
 			err != Semantic::SemanticErrorType::None)
 		{
 			return err;

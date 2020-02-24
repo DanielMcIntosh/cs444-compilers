@@ -5,6 +5,8 @@
 #include "ast/variableDeclarator.h"
 #include "ast/nodeList.h"
 #include "parse/parseTree.h"
+#include "semantic/scope.h"
+#include "semantic/semantic.h"
 #include <memory>
 
 namespace AST
@@ -47,6 +49,22 @@ bool FieldDeclaration::equals(FieldDeclaration *other) {
 Semantic::SemanticErrorType FieldDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
 	return declaration->resolveTypes(semantic, enclosingClass);
+}
+
+// TODO: remove this when TypeDeclaration.fieldSets and TypeDeclaration.methodSets are implemented
+Semantic::SemanticErrorType FieldDeclaration::initScope(Semantic::Scope &parentScope)
+{
+	if (!parentScope.addField(declaration))
+	{
+		return Semantic::SemanticErrorType::ExprResolution;
+	}
+	return Semantic::SemanticErrorType::None;
+}
+
+// TODO: copy the implementation from FieldDeclaration::initScope when we remove FieldDeclaration::initScope
+Semantic::SemanticErrorType FieldDeclaration::resolveExprs(Semantic::Scope &parentScope)
+{
+	return Semantic::SemanticErrorType::None;
 }
 
 } //namespace AST

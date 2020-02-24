@@ -1,6 +1,8 @@
 #include "ast/localVariableDeclarationStatement.h"
 #include "ast/statement.h"
 #include "parse/parseTree.h"
+#include "semantic/scope.h"
+#include "semantic/semantic.h"
 #include <memory>
 
 namespace AST
@@ -32,6 +34,15 @@ std::string LocalVariableDeclarationStatement::toCode() const
 Semantic::SemanticErrorType LocalVariableDeclarationStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
 	return declaration->resolveTypes(semantic, enclosingClass);
+}
+
+Semantic::SemanticErrorType LocalVariableDeclarationStatement::resolveExprs(Semantic::Scope &parentScope)
+{
+	if (!parentScope.add(declaration))
+	{
+		return Semantic::SemanticErrorType::ExprResolution;
+	}
+	return Semantic::SemanticErrorType::None;
 }
 
 } //namespace AST

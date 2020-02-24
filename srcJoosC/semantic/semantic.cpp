@@ -31,6 +31,7 @@ const char *gSemanticErrorTypeName[] = {
 	"TypeDeclarationClashImport",
 	"PrefixNameIsType",
 	"NotPackage",
+	"ExprResolution",
 
 };
 
@@ -411,6 +412,16 @@ void semanticDo(SemanticDB *sdb) {
 			}
 
 
+		}
+	}
+
+	for (auto *typeDecl : allTypes)
+	{
+		if (SemanticErrorType err = typeDecl->resolveBodyExprs();
+			err != SemanticErrorType::None)
+		{
+			sdb->error = err;
+			return;
 		}
 	}
 }
