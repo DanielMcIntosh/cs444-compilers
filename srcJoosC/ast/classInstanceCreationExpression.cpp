@@ -5,6 +5,7 @@
 #include "parse/parseTree.h"
 #include <vector>
 #include <memory>
+#include <semantic/semantic.h>
 
 namespace AST
 {
@@ -46,5 +47,17 @@ std::string ClassInstanceCreationExpression::toCode() const
 	return str;
 }
 
+Semantic::SemanticErrorType
+ClassInstanceCreationExpression::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclaration *enclosingClass) {
+	auto error = type->resolve(semantic, enclosingClass);
+	if (error != Semantic::SemanticErrorType::None)
+		return error;
+	for (auto &expr : args) {
+		error = expr->resolveTypes(semantic, enclosingClass);
+		if (error != Semantic::SemanticErrorType::None)
+			return error;
+	}
+	return Semantic::SemanticErrorType::None;
+}
 
 } //namespace AST

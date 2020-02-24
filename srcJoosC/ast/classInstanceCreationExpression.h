@@ -18,6 +18,7 @@ public:
 	std::vector<std::unique_ptr<Expression>> args;
 
 	std::string toCode() const override;
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 };
 
 } //namespace AST

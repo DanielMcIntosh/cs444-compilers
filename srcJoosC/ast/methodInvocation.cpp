@@ -61,4 +61,19 @@ std::string MethodInvocation::toCode() const
 	return str;
 }
 
+Semantic::SemanticErrorType
+MethodInvocation::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclaration *enclosingClass) {
+	if (obj) {
+		auto error = obj->resolveTypes(semantic, enclosingClass);
+		if (error != Semantic::SemanticErrorType::None)
+			return error;
+	}
+	for (auto& arg : args) {
+		auto error = arg->resolveTypes(semantic, enclosingClass);
+		if (error != Semantic::SemanticErrorType::None)
+			return error;
+	}
+	return Semantic::SemanticErrorType::None;
+}
+
 } //namespace AST

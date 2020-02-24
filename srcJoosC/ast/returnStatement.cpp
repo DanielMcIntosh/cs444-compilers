@@ -31,4 +31,9 @@ std::string ReturnStatement::toCode() const
 	return "return " + (returnValue ? returnValue->toCode() : "") + ";";
 }
 
+Semantic::SemanticErrorType
+ReturnStatement::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclaration *enclosingClass) {
+	return returnValue->resolveTypes(semantic, enclosingClass);
+}
+
 } //namespace AST

@@ -338,7 +338,7 @@ void semanticDo(SemanticDB *sdb) {
 		sdb->error = SemanticErrorType::CycleInHierarchy;
 		return;
 	}
-
+	
 	for (auto *typeDecl : allTypes)
 	{
 		if (SemanticErrorType err = typeDecl->resolveBodyTypeNames(*sdb);
