@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include <filesystem>
 #include <string>
@@ -274,15 +275,15 @@ void batchTesting(JoosC* joosc,
 
   int numTests = topLevelFileList.size();
 	int numThreads = 12;
-	if (numTests < numThreads)
-		numThreads = 1;
+	numThreads =  ceil((double)numTests / (double)numThreads);
+	int testPerThread = ceil((double)numTests / (double)numThreads);
 
 	vector<thread> threads;
   vector<BatchTestResult> results(numTests);
 
   for (int i = 0; i < numThreads; ++i) {
-  	int beginIdx = numTests / numThreads * i;
-  	int endIdx = min(numTests, numTests / numThreads * (i + 1));
+  	int beginIdx = testPerThread * i;
+  	int endIdx = min(numTests, testPerThread * (i + 1));
 	  threads.push_back(thread(batchTestingThread,
 	  	BatchTestThreadCtx{joosc, &topLevelFileList, beginIdx, endIdx,
 		                     assignNum, &stdlibFrontendResult, &results}));
@@ -310,7 +311,7 @@ void batchTesting(JoosC* joosc,
 	  }
   }
 
-  LOGR("%d/%llu tests passed.", numPassed, topLevelFileList.size());
+  LOGR("%d/%lu tests passed.", numPassed, topLevelFileList.size());
 
   {
     // free stdlib frontend result separately
