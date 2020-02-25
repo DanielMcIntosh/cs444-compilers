@@ -25,24 +25,4 @@ public:
 	bool operator==(const Name &other);
 };
 
-class NameType: public Type
-{
-public:
-	static std::unique_ptr<NameType> create(const Parse::Tree *ptNode);
-	explicit NameType(Name&& other);
-
-	std::string flatten() const;
-	Semantic::SemanticErrorType resolve(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
-
-	std::vector<std::string> prefix;
-	std::string id;
-
-	TypeDeclaration *declaration = nullptr;
-
-	using Type::equals;
-	virtual bool equals(NameType *) override;
-
-	std::string toCode() const override;
-};
-
 } //namespace AST

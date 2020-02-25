@@ -6,7 +6,6 @@
 #include "ast/variableDeclaration.h"
 #include "ast/methodDeclarator.h"
 #include "parse/parseTree.h"
-#include "primitiveType.h"
 
 #include <vector>
 #include <memory>
