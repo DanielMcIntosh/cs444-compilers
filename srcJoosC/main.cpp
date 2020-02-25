@@ -176,7 +176,6 @@ void batchTestingThread(BatchTestThreadCtx ctx) {
 		BatchTestResult *caseResult = &(*ctx.result)[i];
 
 		fs::path dupPath = fs::path(topLevelName);
-		bool valid = true;
 
 		// stdlib frontend result is reused each time, so don't free them
 		vector<FrontendResult> frontendResults;
@@ -311,7 +310,7 @@ void batchTesting(JoosC* joosc,
 	  }
   }
 
-  LOGR("%d/%lld tests passed.", numPassed, topLevelFileList.size());
+  LOGR("%d/%llu tests passed.", numPassed, topLevelFileList.size());
 
   {
     // free stdlib frontend result separately
