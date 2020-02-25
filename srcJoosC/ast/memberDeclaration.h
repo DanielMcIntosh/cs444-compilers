@@ -27,8 +27,6 @@ class MemberDeclaration: public Node
 public:
 	static std::unique_ptr<MemberDeclaration> create(const Parse::Tree *ptNode);
 
-	std::vector<std::unique_ptr<Modifier>> modifiers;
-
 	virtual bool equals(FieldDeclaration *);
 	virtual bool equals(MemberDeclaration *);
 	virtual bool equals(ConstructorDeclaration *);
@@ -40,6 +38,8 @@ public:
 	virtual Semantic::SemanticErrorType initScope(Semantic::Scope &parentScope);
 protected:
 	MemberDeclaration(std::vector<std::unique_ptr<Modifier>> mods);
+
+	std::vector<std::unique_ptr<Modifier>> modifiers;
 };
 
 } //namespace AST

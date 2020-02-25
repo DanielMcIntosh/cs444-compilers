@@ -28,6 +28,9 @@ public:
 	explicit ConditionalStatement(const Parse::TForStatement *ptNode);
 	std::string toCode() const override;
 
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
+protected:
 	enum class ConditionType {
 		If,
 		While,
@@ -46,8 +49,9 @@ public:
 	// nullable
 	std::unique_ptr<Statement> elseBody;
 
-	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
-	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
+	friend std::string operator+(std::string, ConditionalStatement::ConditionType);
+	friend std::string operator+=(std::string&, ConditionalStatement::ConditionType);
+	friend std::ostream& operator<<(std::ostream&, ConditionalStatement::ConditionType);
 };
 
 std::string operator+(std::string str, ConditionalStatement::ConditionType type);

@@ -19,12 +19,12 @@ Semantic::SemanticErrorType NameType::resolve(Semantic::SemanticDB const& semant
 	auto [typeDecl, err] = semantic.resolveType(this, enclosingClass);
 	declaration = typeDecl;
 	return err;
-}  
+}
 
 Semantic::SemanticErrorType PrimitiveType::resolve(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
 	return Semantic::SemanticErrorType::None;
-}  
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -40,13 +40,13 @@ std::string NameType::toCode() const
 std::string PrimitiveType::toCode() const
 {
 	return "" + type;
-}  
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // create function
 //
-//////////////////////////////////////////////////////////////////////////////  
+//////////////////////////////////////////////////////////////////////////////
 
 // static
 std::unique_ptr<NameType> NameType::create(const Parse::Tree *ptNode)
@@ -117,7 +117,7 @@ std::unique_ptr<Type> Type::create(const Parse::Tree *ptNode)
 //
 // Constructor and others
 //
-//////////////////////////////////////////////////////////////////////////////  
+//////////////////////////////////////////////////////////////////////////////
 
 NameType::NameType(Name &&other)
 	: prefix(std::move(other.prefix)),
@@ -138,6 +138,13 @@ std::string NameType::flatten() const {
 bool NameType::equals(NameType *other) {
 	return declaration == other->declaration;
 }
+
+TypeDeclaration *NameType::getDeclaration()
+{
+	return declaration;
+}
+
+
 
 static_assert( (int)Parse::TPrimitiveTypeV::boolean	== (int)PrimitiveType::Variant::Boolean);
 static_assert( (int)Parse::TPrimitiveTypeV::byte   	== (int)PrimitiveType::Variant::Byte);

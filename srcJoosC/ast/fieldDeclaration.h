@@ -13,9 +13,6 @@ class FieldDeclaration: public MemberDeclaration
 public:
 	static std::unique_ptr<FieldDeclaration> create(const Parse::Tree *ptNode);
 	explicit FieldDeclaration(const Parse::TFieldDeclaration *ptNode);
-
-	std::unique_ptr<VariableDeclaration> declaration;
-
 	std::string toCode() const override;
 
 	using MemberDeclaration::equals;
@@ -25,6 +22,8 @@ public:
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
 	// TODO: remove this
 	Semantic::SemanticErrorType initScope(Semantic::Scope &parentScope) override;
+protected:
+	std::unique_ptr<VariableDeclaration> declaration;
 };
 
 } //namespace AST

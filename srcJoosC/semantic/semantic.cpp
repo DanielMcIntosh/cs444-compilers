@@ -47,16 +47,6 @@ void semanticInit(SemanticDB *db, const vector<FrontendResult> &frontendResult) 
 	}
 }
 
-string flatten(const vector<string> &list, const string &str) {
-	string res;
-	for (const auto &s : list) {
-		res.append(s);
-		res.append(".");
-	}
-	res.append(str);
-	return res;
-}
-
 std::tuple<TypeDeclaration *, SemanticErrorType>
 SemanticDB::resolveSingleImport(const CompilationUnit *cpu, const string &simpleName) const
 {
@@ -68,7 +58,7 @@ SemanticDB::resolveSingleImport(const CompilationUnit *cpu, const string &simple
 		if (imp->importName->id != simpleName)
 			continue;
 
-		string fullImp = flatten(imp->importName->prefix, imp->importName->id);
+		string fullImp = imp->importName->flatten();
 		auto it = typeMap.find(fullImp);
 		if (it == typeMap.end())
 			continue;
@@ -93,7 +83,7 @@ SemanticDB::resolveMultiImport(const CompilationUnit *cpu, const string &simpleN
 		if (!imp->multiImport)
 			continue;
 
-		string fullImp = flatten(imp->importName->prefix, imp->importName->id) + "." + simpleName;
+		string fullImp = imp->importName->flatten() + "." + simpleName;
 		auto it = typeMap.find(fullImp);
 		if (it == typeMap.end())
 			continue;
@@ -323,7 +313,7 @@ void semanticDo(SemanticDB *sdb) {
 			for (auto &import : cpu->imports) {
 				if (import->multiImport)
 					continue;
-				if (flatten(import->importName->prefix, import->importName->id) == typeDecl->fqn)
+				if (import->importName->flatten() == typeDecl->fqn)
 					continue;
 				if (import->importName->id == typeDecl->name) {
 					sdb->error = SemanticErrorType::TypeDeclarationClashImport;
@@ -342,7 +332,7 @@ void semanticDo(SemanticDB *sdb) {
 		sdb->error = SemanticErrorType::CycleInHierarchy;
 		return;
 	}
-	
+
 	for (auto *typeDecl : allTypes)
 	{
 		if (SemanticErrorType err = typeDecl->resolveBodyTypeNames(*sdb);
@@ -353,69 +343,13 @@ void semanticDo(SemanticDB *sdb) {
 		}
 	}
 
-	//
-	{
-
-		// Implements formal hierarchy checking algorithm.
-		for (auto *type : allTypes) {
-			TypeDeclaration *super = type->superClass ? type->superClass->declaration : nullptr;
-
-			//
-			// various extends
-			//
-			unordered_set<TypeDeclaration *> extends;
-			for (auto &itf : type->interfaces) {
-				assert(itf->declaration);
-				if (!itf->declaration->isInterface) {
-					sdb->error = SemanticErrorType::ImplementNonInterface;
-					return;
-				}
-
-				if (itf->declaration == super) {
-					sdb->error = SemanticErrorType::ExtendImplementSame;
-					return;
-				}
-
-				auto it = extends.find(itf->declaration);
-				if (it != extends.end()) {
-					sdb->error = SemanticErrorType::ImplementSameInterface;
-					return;
-				}
-
-				extends.insert(itf->declaration);
-			}
-
-			//
-			// populate initial super set
-			//
-			unordered_set<TypeDeclaration *> newSuper;
-			if (super) {
-				if (super->isInterface) {
-					sdb->error = SemanticErrorType::ExtendNonClass;
-					return;
-				}
-
-				for (auto &mod : super->modifiers) {
-					if (mod->type == Modifier::Variant::Final) {
-						sdb->error = SemanticErrorType::ExtendFinalClass;
-						return;
-					}
-				}
-
-				newSuper.insert(super);
-				for (TypeDeclaration *decl : super->superSet) {
-					newSuper.insert(decl);
-				}
-			}
-
-			for (auto *ext : extends) {
-				newSuper.insert(ext);
-				for (TypeDeclaration *decl : ext->superSet) {
-					newSuper.insert(decl);
-				}
-			}
-
-
+	// Implements formal hierarchy checking algorithm.
+	for (auto *typeDecl : allTypes) {
+		if (SemanticErrorType err = typeDecl->generateHeirarchySets();
+			err != SemanticErrorType::None)
+		{
+			sdb->error = err;
+			return;
 		}
 	}
 

@@ -44,10 +44,10 @@ public:
 	explicit Block(const Parse::TBlock *ptNode);
 	std::string toCode() const override;
 
-	std::vector<std::unique_ptr<Statement>> statements;
-
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
+protected:
+	std::vector<std::unique_ptr<Statement>> statements;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -63,10 +63,10 @@ public:
 	explicit ExpressionStatement(const Parse::TExpressionStatement *ptNode);
 	std::string toCode() const override;
 
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+protected:
 	// nullable
 	std::unique_ptr<Expression> expression;
-
-	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -80,12 +80,12 @@ class ReturnStatement: public Statement
 public:
 	static std::unique_ptr<ReturnStatement> create(const Parse::Tree *ptNode);
 	explicit ReturnStatement(const Parse::TReturnStatement *ptNode);
+	std::string toCode() const override;
 
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+protected:
 	// nullable
 	std::unique_ptr<Expression> returnValue;
-
-	std::string toCode() const override;
-	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -101,10 +101,10 @@ public:
 	explicit LocalVariableDeclarationStatement(const Parse::TLocalVariableDeclarationStatement *ptNode);
 	std::string toCode() const override;
 
-	std::unique_ptr<VariableDeclaration> declaration;
-
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
+protected:
+	std::unique_ptr<VariableDeclaration> declaration;
 };
 
 //////////////////////////////////////////////////////////////////////////////

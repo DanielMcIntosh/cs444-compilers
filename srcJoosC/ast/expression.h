@@ -44,11 +44,10 @@ class ArrayAccess: public Expression
 public:
 	static std::unique_ptr<ArrayAccess> create(const Parse::Tree *ptNode);
 	explicit ArrayAccess(const Parse::TArrayAccess *ptNode);
-
+	std::string toCode() const override;
+protected:
 	std::unique_ptr<Expression> array;
 	std::unique_ptr<Expression> index;
-
-	std::string toCode() const override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -62,12 +61,11 @@ class ArrayCreationExpression: public Expression
 public:
 	static std::unique_ptr<ArrayCreationExpression> create(const Parse::Tree *ptNode);
 	explicit ArrayCreationExpression(const Parse::TArrayCreationExpression *ptNode);
-
+	std::string toCode() const override;
+protected:
 	// IMPORTANT: during construction, we have to change type->isArray to true
 	std::unique_ptr<Type> type;
 	std::unique_ptr<Expression> size;
-
-	std::string toCode() const override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -81,11 +79,10 @@ class AssignmentExpression: public Expression
 public:
 	static std::unique_ptr<AssignmentExpression> create(const Parse::Tree *ptNode);
 	explicit AssignmentExpression(const Parse::TAssignment *ptNode);
-
+	std::string toCode() const override;
+protected:
 	std::unique_ptr<Expression> lhs;
 	std::unique_ptr<Expression> rhs;
-
-	std::string toCode() const override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -107,6 +104,7 @@ public:
 	explicit BinaryExpression(const Parse::TInclusiveOrExpression *ptNode);
 	explicit BinaryExpression(const Parse::TMultiplicativeExpression *ptNode);
 	explicit BinaryExpression(const Parse::TRelationalExpression *ptNode);
+	std::string toCode() const override;
 
 	enum class Variant {
 		Add,		// Accept Int, Return Int
@@ -126,13 +124,13 @@ public:
 		LazyAnd,
 		LazyOr,
 		Max
-	} op;
+	};
+protected:
+ 	Variant op;
 
 	std::unique_ptr<Expression> lhs;
 	// instanceof has a rhs that's a ReferenceType instead of an Expression
 	std::variant<std::unique_ptr<Expression>, std::unique_ptr<Type>> rhs;
-
-	std::string toCode() const override;
 };
 
 std::string operator+(std::string str, BinaryExpression::Variant op);
@@ -154,10 +152,10 @@ public:
 	explicit CastExpression(const Parse::TCastExpression *ptNode);
 	std::string toCode() const override;
 
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+protected:
 	std::unique_ptr<Type> type;
 	std::unique_ptr<Expression> rhs;
-
-	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -171,12 +169,12 @@ class ClassInstanceCreationExpression: public Expression
 public:
 	static std::unique_ptr<ClassInstanceCreationExpression> create(const Parse::Tree *ptNode);
 	explicit ClassInstanceCreationExpression(const Parse::TClassInstanceCreationExpression *ptNode);
+	std::string toCode() const override;
 
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+protected:
 	std::unique_ptr<Type> type;
 	std::vector<std::unique_ptr<Expression>> args;
-
-	std::string toCode() const override;
-	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -190,11 +188,10 @@ class FieldAccess: public Expression
 public:
 	static std::unique_ptr<FieldAccess> create(const Parse::Tree *ptNode);
 	explicit FieldAccess(const Parse::TFieldAccess *ptNode);
-
+	std::string toCode() const override;
+protected:
 	std::unique_ptr<Expression> object;
 	std::string member;
-
-	std::string toCode() const override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -208,10 +205,9 @@ class Literal: public Expression
 public:
 	static std::unique_ptr<Literal> create(const Parse::Tree *ptNode);
 	explicit Literal(const Parse::TLiteral *ptNode);
-
-	std::variant<unsigned int, bool, char, std::string, std::nullptr_t > value;
-
 	std::string toCode() const override;
+protected:
+	std::variant<unsigned int, bool, char, std::string, std::nullptr_t > value;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -225,15 +221,15 @@ class MethodInvocation: public Expression
 public:
 	static std::unique_ptr<MethodInvocation> create(const Parse::Tree *ptNode);
 	explicit MethodInvocation(const Parse::TMethodInvocation *ptNode);
+	std::string toCode() const override;
 
-	//TODO: clean this up a bit, not sure if it really reflects the structure we care about
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+protected:
+	//TODO: clean this up a bit? not sure if it really reflects the structure we care about
 	// nullable
 	std::unique_ptr<Expression> obj;
 	std::variant<std::unique_ptr<Name>, std::string> identifier;
 	std::vector<std::unique_ptr<Expression>> args;
-
-	std::string toCode() const override;
-	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -245,12 +241,11 @@ public:
 class NameExpression: public Expression
 {
 public:
+	explicit NameExpression(Name&& other);
+	std::string toCode() const override;
+protected:
 	std::vector<std::string> prefix;
 	std::string id;
-
-	explicit NameExpression(Name&& other);
-
-	std::string toCode() const override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -281,7 +276,8 @@ public:
 	static std::unique_ptr<UnaryExpression> create(const Parse::Tree *ptNode);
 	explicit UnaryExpression(const Parse::TUnaryExpression *ptNode);
 	explicit UnaryExpression(const Parse::TUnaryExpressionNotPlusMinus *ptNode);
-
+	std::string toCode() const override;
+protected:
 	enum class Variant
 	{
 		Minus,
@@ -291,7 +287,9 @@ public:
 
 	std::unique_ptr<Expression> expr;
 
-	std::string toCode() const override;
+	friend std::string operator+(std::string, UnaryExpression::Variant);
+	friend std::string operator+=(std::string&, UnaryExpression::Variant);
+	friend std::ostream& operator<<(std::ostream&, UnaryExpression::Variant);
 };
 
 std::string operator+(std::string str, UnaryExpression::Variant type);

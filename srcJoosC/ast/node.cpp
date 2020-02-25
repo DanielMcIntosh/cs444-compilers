@@ -47,8 +47,6 @@ std::unique_ptr<Node> Node::create(const Parse::Tree *ptNode)
 			return CompilationUnit                  	::create(static_cast<const Parse::TCompilationUnit*>(ptNode));
 		case Parse::NonTerminalType::ImportDeclarations:
 			return NodeList<ImportDeclaration>      	::create(static_cast<const Parse::TImportDeclarations*>(ptNode));
-		case Parse::NonTerminalType::PackageDeclaration:
-			return PackageDeclaration               	::create(static_cast<const Parse::TPackageDeclaration*>(ptNode));
 		case Parse::NonTerminalType::SingleTypeImportDeclaration:
 			return ImportDeclaration                	::create(static_cast<const Parse::TSingleTypeImportDeclaration*>(ptNode));
 		case Parse::NonTerminalType::TypeImportOnDemandDeclaration:
@@ -82,7 +80,7 @@ std::unique_ptr<Node> Node::create(const Parse::Tree *ptNode)
 		case Parse::NonTerminalType::FormalParameter:
 			return VariableDeclaration              	::create(static_cast<const Parse::TFormalParameter*>(ptNode));
 		case Parse::NonTerminalType::AbstractMethodBody:
-			return AbstractMethodBody               	::create(static_cast<const Parse::TAbstractMethodBody*>(ptNode));
+			return nullptr;
 		case Parse::NonTerminalType::ConstructorDeclaration:
 			return ConstructorDeclaration           	::create(static_cast<const Parse::TConstructorDeclaration*>(ptNode));
 		case Parse::NonTerminalType::ConstructorDeclarator:

@@ -28,7 +28,7 @@ static void dagSortHelper(TypeDeclaration *type, DagSortContext *ctx) {
 
 	ctx->tempVisited.insert(type);
 
-	for (auto *child : type->children) {
+	for (auto *child : type->getChildren()) {
 		dagSortHelper(child, ctx);
 	}
 

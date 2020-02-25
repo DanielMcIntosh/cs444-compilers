@@ -4,7 +4,6 @@
 #include "ast/expression.h"
 #include "ast/fieldDeclaration.h"
 #include "ast/importDeclaration.h"
-#include "ast/localVariableDeclarationStatement.h"
 #include "ast/memberDeclaration.h"
 #include "ast/methodDeclaration.h"
 #include "ast/modifier.h"

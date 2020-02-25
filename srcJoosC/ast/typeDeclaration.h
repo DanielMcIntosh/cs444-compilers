@@ -32,28 +32,34 @@ public:
 	explicit TypeDeclaration(const Parse::TTypeDeclaration *ptNode);
 	explicit TypeDeclaration(const Parse::TClassDeclaration *ptNode);
 	explicit TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode);
+	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveSuperTypeNames(Semantic::SemanticDB const& semantic);
 	Semantic::SemanticErrorType resolveBodyTypeNames(Semantic::SemanticDB const& semantic);
 	Semantic::SemanticErrorType resolveBodyExprs();
 
+	Semantic::SemanticErrorType	generateHeirarchySets();
+
+	std::vector<TypeDeclaration *> getChildren();
+
+	// Fully qualified name (with package string)
+	std::string fqn;
+	// The compilation unit in which this type is declared.
+	CompilationUnit *cpu;
+protected:
 	bool isInterface;
 	std::vector<std::unique_ptr<Modifier>> modifiers;
+public:
 	std::string name;
+protected:
 	// null for interfaces and classes without a superclass
 	std::unique_ptr<NameType> superClass;
 	// implements if we're a class, extends if we're an interface
 	std::vector<std::unique_ptr<NameType>> interfaces;
 	std::vector<std::unique_ptr<MemberDeclaration>> members;
 
-	std::string toCode() const override;
-
-	// Fully qualified name (with package string)
-	std::string fqn;
 	// Used in topological sort of class hierarchy.
 	std::vector<TypeDeclaration *> children;
-	// The compilation unit in which this type is declared.
-	CompilationUnit *cpu;
 
 	//
 	// Implements formal hierarchy checking
