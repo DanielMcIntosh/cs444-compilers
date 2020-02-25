@@ -101,12 +101,13 @@ void parserReadLR1(Parser* parser, const char* text) {
   {
     profileSection("load rules");
     int numRules = atoi(textPtr);
+    char *tokState;
     for (int i = 0; i < numRules; ++i) {
       lineHelperFast(&textPtr, &state);
-      char* token = strtok(textPtr, Spaces);
+      char* token = strtok_r(textPtr, Spaces, &tokState);
       string lhs(token);
       int rhsSize = 0;
-      while ((token = strtok(nullptr, Spaces))) {
+      while ((token = strtok_r(nullptr, Spaces, &tokState))) {
         ++rhsSize;
       }
       parser->rules.push_back({lhs, rhsSize});
@@ -121,12 +122,13 @@ void parserReadLR1(Parser* parser, const char* text) {
     profileSection("load transitions");
     lineHelperFast(&textPtr, &state);
     int numTransitions = atoi(textPtr);
+    char *tokState;
     for (int i = 0; i < numTransitions; ++i) {
       lineHelperFast(&textPtr, &state);
-      int stateNum = atoi(strtok(textPtr, Spaces));
-      string symbol(strtok(nullptr, Spaces));
-      string action(strtok(nullptr, Spaces));
-      int stateOrRuleNumber = atoi(strtok(nullptr, Spaces));
+      int stateNum = atoi(strtok_r(textPtr, Spaces, &tokState));
+      string symbol(strtok_r(nullptr, Spaces, &tokState));
+      string action(strtok_r(nullptr, Spaces, &tokState));
+      int stateOrRuleNumber = atoi(strtok_r(nullptr, Spaces, &tokState));
       parser->joos_dfa[stateNum][symbol] = {action == "shift" ? SHIFT : REDUCE,
                                             stateOrRuleNumber};
     }

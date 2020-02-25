@@ -1,3 +1,4 @@
+#include "../profiler.h"
 #include "dagSort.h"
 #include "ast/typeDeclaration.h"
 
@@ -37,6 +38,7 @@ static void dagSortHelper(TypeDeclaration *type, DagSortContext *ctx) {
 }
 
 bool dagSort(vector<TypeDeclaration *> &allTypes) {
+	profileSection("dag sort");
 	DagSortContext ctx;
 	for (auto *type : allTypes) {
 		if (ctx.visited.count(type))

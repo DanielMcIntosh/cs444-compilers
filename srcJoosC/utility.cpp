@@ -87,7 +87,7 @@ void globalInit() {
 }
 
 void globalFini() {
-  // profileReport();
+	//profileReport();
 #ifdef _MSC_VER
   fprintf(stderr, "Press enter to exit...\n");
   getchar();
@@ -126,6 +126,7 @@ char* getPrintableChar(char c) {
 }
 
 void getJavaFilesRecursive(vector<string>& fileList, const string& folder) {
+	profileSection("get file recursive");
   auto it = fs::directory_iterator(folder);
   for (const auto& e : it) {
     if (fs::is_directory(e)) {

@@ -333,7 +333,6 @@ void epsilonClosureFast(const NState* nstate, NStateBitField* bitfield) {
 
 DState* scannerCreateDStateFromNState(Scanner* scanner,
                                       const NStateBitField& nstates) {
-  profileSection("create dstate from nstate");
   scanner->dstates.push_back(make_unique<DState>());
 
   DState* dstate = scanner->dstates.back().get();
@@ -361,7 +360,6 @@ DState* scannerCreateDStateFromNState(Scanner* scanner,
 
 DState* scannerFindDStateFromNState(Scanner* scanner,
                                     const NStateBitField& nstates) {
-  profileSection("find dstate from nstate");
   u64 hashValue = arrayHash(nstates);
   auto itPair = scanner->dstateMap.equal_range(hashValue);
   s64 compares = 0;
@@ -378,7 +376,6 @@ DState* scannerFindDStateFromNState(Scanner* scanner,
 }
 
 void scannerNFAtoDFA(Scanner* scanner) {
-  profileSection("NFA to DFA");
   ASSERT(scanner->nstates.size() <= NStateFieldLen * 64);
 
   scanner->epsilonClosureCache =
@@ -396,7 +393,6 @@ void scannerNFAtoDFA(Scanner* scanner) {
 
   for (size_t curDStateIndex = 0; curDStateIndex < scanner->dstates.size();
        ++curDStateIndex) {
-    profileSection("dstate expand");
     DState* curDState = scanner->dstates[curDStateIndex].get();
     for (s32 letter = 0; letter < NumLetters; ++letter) {
       NStateBitField nextNStates{0};

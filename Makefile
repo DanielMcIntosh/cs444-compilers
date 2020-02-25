@@ -120,10 +120,16 @@ a2:
 a2Direct: joosc_debug
 	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=2; ./joosc_debug
 
-a6:
-	$(MAKE) a6 -j$(NPROC)
+a3:
+	$(MAKE) a3Direct -j$(NPROC)
 
-a6: joosc_debug
+a3Direct: joosc_debug
+	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=3; ./joosc_debug
+
+a6:
+	$(MAKE) a6Direct -j$(NPROC)
+
+a6Direct: joosc_debug
 	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=6; ./joosc_debug
 
 marmoset:

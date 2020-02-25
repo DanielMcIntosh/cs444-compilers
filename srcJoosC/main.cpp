@@ -5,17 +5,16 @@
 #include <filesystem>
 #include <string>
 #include <vector>
+#include <thread>
 
 #include "ast/ast.h"
 #include "ast/node.h"
 #include "ast/type.h"
 #include "middleend.h"
 #include "parse/parser.h"
-#include "platform.h"
 #include "profiler.h"
 #include "scanner.h"
 #include "semantic/semantic.h"
-#include "utility.h"
 #include "weeder.h"
 
 using namespace std;
@@ -50,7 +49,7 @@ void compileDumpSingleResult(char* baseOutputPath,
 
     // Scan::scannerDumpDebugInfo(singleResult.scanResult, baseOutputPath);
     // Parse::parserDumpDebugInfo(singleResult.parseResult, baseOutputPath);
-    AST::astDumpDebugInfo(singleResult.astResult, baseOutputPath);
+    // AST::astDumpDebugInfo(singleResult.astResult, baseOutputPath);
   }
 }
 
@@ -103,31 +102,26 @@ FrontendResult doFrontEndSingle(JoosC* joosc, const char* fileName) {
   fileResult.failedStage = FrontendStageType::Pass;
 
   strdecl256(baseOutputPath, "output/%s", fileName);
-  compileDumpSingleResult(baseOutputPath, fileResult);
+  //compileDumpSingleResult(baseOutputPath, fileResult);
 
   return fileResult;
 }
 
-MiddleendResult doMiddleend(JoosC* joosc,
-                            const vector<FrontendResult>& frontendResults) {
-  MiddleendResult result;
-
+void doMiddleend(JoosC* joosc,
+                 const vector<FrontendResult>& frontendResults, MiddleendResult *result) {
   using namespace Semantic;
-  semanticInit(&result.semanticDB, frontendResults);
-  semanticDo(&result.semanticDB);
+  semanticInit(&result->semanticDB, frontendResults);
+  semanticDo(&result->semanticDB);
 
-  if (result.semanticDB.error != SemanticErrorType::None) {
-    result.failedStage = MiddleendStageType::Semantic;
-    return result;
+  if (result->semanticDB.error != SemanticErrorType::None) {
+    result->failedStage = MiddleendStageType::Semantic;
   }
-
-  return result;
 }
 
 int compileMain(JoosC* joosc, const vector<string>& fileList) {
   vector<FrontendResult> frontendResult;
-  MiddleendResult middleend;
-  int retVal = 0;
+	MiddleendResult middleend;
+	int retVal = 0;
   for (const string& file : fileList) {
     frontendResult.emplace_back(doFrontEndSingle(joosc, file.c_str()));
 
@@ -138,7 +132,7 @@ int compileMain(JoosC* joosc, const vector<string>& fileList) {
     }
   }
 
-  middleend = doMiddleend(joosc, frontendResult);
+  doMiddleend(joosc, frontendResult, &middleend);
   if (middleend.failedStage != MiddleendStageType::Pass) {
     retVal = 42;
     goto cleanup;
@@ -151,6 +145,97 @@ cleanup : {  // clean ups
 }
 
   return retVal;
+}
+
+struct BatchTestResult {
+	FrontendStageType frontendStage;
+	MiddleendResult middleend;
+
+	BatchTestResult();
+};
+
+BatchTestResult::BatchTestResult(): frontendStage(FrontendStageType::Pass) {}
+
+struct BatchTestThreadCtx {
+	// input
+	JoosC* joosc;
+	const vector<string>* topLevel;
+	int begin;
+	int end;
+	int assgnNum;
+	const vector<FrontendResult>* stdlibFrontendResult;
+
+	// output
+	vector<BatchTestResult>* result;
+};
+
+void batchTestingThread(BatchTestThreadCtx ctx) {
+
+	for (int i = ctx.begin; i < ctx.end; ++i) {
+		const string& topLevelName = (*ctx.topLevel)[i];
+		BatchTestResult *caseResult = &(*ctx.result)[i];
+
+		fs::path dupPath = fs::path(topLevelName);
+		bool valid = true;
+
+		// stdlib frontend result is reused each time, so don't free them
+		vector<FrontendResult> frontendResults;
+		{
+			profileSection("copy stdlib frontend result");
+			frontendResults = *ctx.stdlibFrontendResult;
+		}
+
+		{
+			// regenerate ast, since ast contains per compilation fields
+			profileSection("stdlib ast regen");
+			for (auto& frontend : frontendResults) {
+				frontend.astResult = AST::buildAST(frontend.parseResult.treeRoot);
+			}
+		}
+
+		if (fs::is_regular_file(dupPath)) {
+			frontendResults.emplace_back(
+				doFrontEndSingle(ctx.joosc, topLevelName.c_str()));
+		} else {
+			ASSERT(fs::is_directory(dupPath));
+			vector<string> fileBundle;
+			getJavaFilesRecursive(fileBundle, topLevelName);
+			for (const string& file : fileBundle) {
+				frontendResults.emplace_back(doFrontEndSingle(ctx.joosc, file.c_str()));
+			}
+		}
+
+		{  // if there are any errors in frontend stage, find and report them
+			for (auto it = frontendResults.begin() + ctx.stdlibFrontendResult->size();
+			     it != frontendResults.end(); ++it) {
+				if (it->failedStage == FrontendStageType::Pass)
+					continue;
+
+				caseResult->frontendStage = it->failedStage;
+				goto cleanup;
+			}
+		}
+
+		if (ctx.assgnNum >= 2) {
+			profileSection("middleend");
+			// middle end
+			MiddleendResult *middleend = &caseResult->middleend;
+			doMiddleend(ctx.joosc, frontendResults, middleend);
+			if (middleend->failedStage != MiddleendStageType::Pass) {
+				goto cleanup;
+			}
+		}
+
+		cleanup:
+		{
+			// free frontend result except stdlib
+			profileSection("test case frontend result free");
+			for (auto it = frontendResults.begin() + ctx.stdlibFrontendResult->size();
+			     it != frontendResults.end(); ++it) {
+				frontendResultDelete(&(*it));
+			}
+		}
+	}
 }
 
 void batchTesting(JoosC* joosc,
@@ -188,87 +273,49 @@ void batchTesting(JoosC* joosc,
     sort(topLevelFileList.begin(), topLevelFileList.end());
   }
 
-  s32 numTests = 0;
-  s32 numPassed = 0;
-  for (const string& topLevelName : topLevelFileList) {
-    fs::path dupPath = fs::path(topLevelName);
-    bool valid = true;
+  int numTests = topLevelFileList.size();
+	int numThreads = 12;
+	if (numTests < numThreads)
+		numThreads = 1;
 
-    // stdlib frontend result is reused each time, so don't free them
-    vector<FrontendResult> frontendResults = stdlibFrontendResult;
+	vector<thread> threads;
+  vector<BatchTestResult> results(numTests);
 
-    {
-      // regenerate ast, since ast contains per compilation fields
-      //AST::Type::reset();
-      for (auto& frontend : frontendResults) {
-        frontend.astResult = AST::buildAST(frontend.parseResult.treeRoot);
-      }
-    }
-
-    MiddleendResult middleend;
-
-    if (fs::is_regular_file(dupPath)) {
-      frontendResults.emplace_back(
-          doFrontEndSingle(joosc, topLevelName.c_str()));
-    } else if (fs::is_directory(dupPath)) {
-      vector<string> fileBundle;
-      getJavaFilesRecursive(fileBundle, topLevelName);
-      for (const string& file : fileBundle) {
-        frontendResults.emplace_back(doFrontEndSingle(joosc, file.c_str()));
-      }
-    } else {
-      continue;
-    }
-
-    ++numTests;
-    gTestIndex = numTests;
-
-    {  // if there are any errors in frontend stage, find and report them
-      for (auto it = frontendResults.begin() + stdlibFrontendResult.size();
-           it != frontendResults.end(); ++it) {
-        if (it->failedStage == FrontendStageType::Pass)
-          continue;
-
-        valid = false;
-        goto cleanup;
-      }
-    }
-
-    if (assignNum >= 2) {
-      profileSection("middleend");
-      // middle end
-      middleend = doMiddleend(joosc, frontendResults);
-      if (middleend.failedStage != MiddleendStageType::Pass) {
-        valid = false;
-        goto cleanup;
-      }
-    }
-
-  cleanup:
-    if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
-      LOG_RED("%3d %s: (Semantic: %s)", numTests, topLevelName.c_str(),
-              Semantic::gSemanticErrorTypeName[static_cast<int>(
-                  middleend.semanticDB.error)]);
-    } else {
-      LOG_GREEN("%3d %s: (Semantic: %s)", numTests, topLevelName.c_str(),
-                Semantic::gSemanticErrorTypeName[static_cast<int>(
-                    middleend.semanticDB.error)]);
-      ++numPassed;
-    }
-
-    {
-      // free frontend result except stdlib
-      for (auto it = frontendResults.begin() + stdlibFrontendResult.size();
-           it != frontendResults.end(); ++it) {
-        frontendResultDelete(&(*it));
-      }
-    }
+  for (int i = 0; i < numThreads; ++i) {
+  	int beginIdx = numTests / numThreads * i;
+  	int endIdx = min(numTests, numTests / numThreads * (i + 1));
+	  threads.push_back(thread(batchTestingThread,
+	  	BatchTestThreadCtx{joosc, &topLevelFileList, beginIdx, endIdx,
+		                     assignNum, &stdlibFrontendResult, &results}));
   }
 
-  LOGR("%d/%d tests passed.", numPassed, numTests);
+  for (int i = 0; i < numThreads; ++i) {
+  	threads[i].join();
+  }
+
+  int numPassed = 0;
+  for (int i = 0; i < numTests; ++i) {
+  	const BatchTestResult& result = results[i];
+  	const string& topLevelName = topLevelFileList[i];
+	  bool valid = result.frontendStage == FrontendStageType::Pass &&
+	               result.middleend.failedStage == MiddleendStageType::Pass;
+	  if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
+		  LOG_RED("%3d %s: (Semantic: %s)", i, topLevelName.c_str(),
+		          Semantic::gSemanticErrorTypeName[static_cast<int>(
+			          result.middleend.semanticDB.error)]);
+	  } else {
+		  LOG_GREEN("%3d %s: (Semantic: %s)", i, topLevelName.c_str(),
+		          Semantic::gSemanticErrorTypeName[static_cast<int>(
+			          result.middleend.semanticDB.error)]);
+		  ++numPassed;
+	  }
+  }
+
+  LOGR("%d/%lld tests passed.", numPassed, topLevelFileList.size());
 
   {
     // free stdlib frontend result separately
+	  profileSection("stdlib frontend result free");
     for (auto& r : stdlibFrontendResult) {
       frontendResultDelete(&r);
     }

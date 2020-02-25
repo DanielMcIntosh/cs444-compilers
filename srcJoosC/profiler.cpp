@@ -1,12 +1,11 @@
 #include "profiler.h"
 
-#include <assert.h>
-
 #include <chrono>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <mutex>
 
 using namespace std;
 using namespace chrono;
@@ -34,6 +33,7 @@ struct Node {
 
 struct Manager {
   Node* curNode;
+  mutex mtx;
   duration<long long int, nano> overhead;
   vector<unique_ptr<Node>> nodeList;
 
@@ -74,7 +74,7 @@ void profileReport() {
 
     long long int nano = node->totalTime.count();
     double ftime = (double)nano / 1e6;
-    if (ftime < 100)
+    if (ftime < 5)
       continue;
 
     for (int i = 0; i < level; ++i) {
@@ -108,6 +108,8 @@ ProfileScopeImpl* profileSectionFunc(const char* file,
   string id(buffer);
 
   Manager* manager = Manager::Get();
+	scoped_lock lk(manager->mtx);
+
   Node* curNode = manager->curNode;
   auto it = curNode->children.find(id);
   Node* child = nullptr;
@@ -137,6 +139,8 @@ ProfileScopeImpl* profileSectionFunc(const char* file,
 void profileSectionEndFunc(ProfileScopeImpl* node) {
   auto endTime = high_resolution_clock::now();
   Manager* manager = Manager::Get();
+	scoped_lock lk(manager->mtx);
+
   Node* curNode = reinterpret_cast<Node*>(node);
   curNode->totalTime += endTime - curNode->startTime - curNode->overhead;
   curNode->parent->overhead += curNode->overhead;

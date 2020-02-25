@@ -116,5 +116,3 @@ struct FrontendResult {
 };
 
 void frontendResultDelete(FrontendResult* result);
-
-extern int gTestIndex;

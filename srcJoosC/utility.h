@@ -65,6 +65,7 @@ typedef int16_t s16;
 #else
 #define LOG_RED(_fmt, ...) LOGR("XXXXX " _fmt, ##__VA_ARGS__)
 #define LOG_GREEN(_fmt, ...) LOGR("      " _fmt, ##__VA_ARGS__)
+#define strtok_r strtok_s
 #endif
 
 #define UNIMPLEMENTED unimplementedImpl

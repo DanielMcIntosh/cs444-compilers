@@ -199,7 +199,8 @@ void semanticDo(SemanticDB *sdb) {
 		{
 			// build package trie
 			char *fqn = strdup(cpu->typeDeclaration->fqn.c_str());
-			char *component = strtok(fqn, ".");
+			char *state;
+			char *component = strtok_r(fqn, ".", &state);
 			Trie *trieHead = &sdb->packageTrie;
 			while (component) {
 				string name(component);
@@ -221,7 +222,7 @@ void semanticDo(SemanticDB *sdb) {
 					trieHead = trieHead->children.back().get();
 				}
 
-				component = strtok(nullptr, ".");
+				component = strtok_r(nullptr, ".", &state);
 			}
 
 			trieHead->theTypeDecl = cpu->typeDeclaration.get();

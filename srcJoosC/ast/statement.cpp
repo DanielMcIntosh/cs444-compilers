@@ -66,6 +66,8 @@ Semantic::SemanticErrorType Block::resolveTypes(Semantic::SemanticDB const& sema
 
 Semantic::SemanticErrorType ExpressionStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
+	if (!expression)
+		return Semantic::SemanticErrorType::None;
 	return expression->resolveTypes(semantic, enclosingClass);
 }
 
@@ -81,6 +83,8 @@ Semantic::SemanticErrorType LocalVariableDeclarationStatement::resolveTypes(Sema
 
 Semantic::SemanticErrorType
 ReturnStatement::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclaration *enclosingClass) {
+	if (!returnValue)
+		return Semantic::SemanticErrorType::None;
 	return returnValue->resolveTypes(semantic, enclosingClass);
 }  
     

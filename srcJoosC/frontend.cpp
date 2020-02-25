@@ -7,8 +7,6 @@ void frontendResultDelete(FrontendResult* result) {
   Parse::ptDelete(result->parseResult.treeRoot);
 }
 
-int gTestIndex;
-
 Scan::ScanResult::ScanResult() : valid(false), errorPosition(-1) {
 
 }
