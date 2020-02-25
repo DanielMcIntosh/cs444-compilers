@@ -110,17 +110,17 @@ std::unique_ptr<Node> Node::create(const Parse::Tree *ptNode)
 		case Parse::NonTerminalType::IfThenStatement:
 			return ConditionalStatement             	::create(static_cast<const Parse::TIfThenStatement*>(ptNode));
 		case Parse::NonTerminalType::IfThenElseStatement:
-			return IfThenElseStatement              	::create(static_cast<const Parse::TIfThenElseStatement*>(ptNode));
+			return ConditionalStatement             	::create(static_cast<const Parse::TIfThenElseStatement*>(ptNode));
 		case Parse::NonTerminalType::IfThenElseStatementNoShortIf:
-			return IfThenElseStatement              	::create(static_cast<const Parse::TIfThenElseStatementNoShortIf*>(ptNode));
+			return ConditionalStatement             	::create(static_cast<const Parse::TIfThenElseStatementNoShortIf*>(ptNode));
 		case Parse::NonTerminalType::WhileStatement:
 			return ConditionalStatement             	::create(static_cast<const Parse::TWhileStatement*>(ptNode));
 		case Parse::NonTerminalType::WhileStatementNoShortIf:
 			return ConditionalStatement             	::create(static_cast<const Parse::TWhileStatementNoShortIf*>(ptNode));
 		case Parse::NonTerminalType::ForStatement:
-			return ForStatement                     	::create(static_cast<const Parse::TForStatement*>(ptNode));
+			return ConditionalStatement             	::create(static_cast<const Parse::TForStatement*>(ptNode));
 		case Parse::NonTerminalType::ForStatementNoShortIf:
-			return ForStatement                     	::create(static_cast<const Parse::TForStatementNoShortIf*>(ptNode));
+			return ConditionalStatement             	::create(static_cast<const Parse::TForStatementNoShortIf*>(ptNode));
 		case Parse::NonTerminalType::ReturnStatement:
 			return ReturnStatement                  	::create(static_cast<const Parse::TReturnStatement*>(ptNode));
 		case Parse::NonTerminalType::This2:

@@ -13,7 +13,7 @@ namespace AST
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// resolveExprs 
+// resolveExprs
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -43,8 +43,8 @@ Semantic::SemanticErrorType LocalVariableDeclarationStatement::resolveExprs(Sema
 		return Semantic::SemanticErrorType::ExprResolution;
 	}
 	return Semantic::SemanticErrorType::None;
-}  
-  
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // resolveTypes
@@ -86,8 +86,8 @@ ReturnStatement::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclarat
 	if (!returnValue)
 		return Semantic::SemanticErrorType::None;
 	return returnValue->resolveTypes(semantic, enclosingClass);
-}  
-    
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // create functions
@@ -115,15 +115,13 @@ std::unique_ptr<Statement> Statement::create(const Parse::Tree *ptNode)
 		case Parse::NonTerminalType::ReturnStatement:
 			return ReturnStatement::create(ptNode);
 		case Parse::NonTerminalType::IfThenStatement:
-		case Parse::NonTerminalType::WhileStatement:
-		case Parse::NonTerminalType::WhileStatementNoShortIf:
-			return ConditionalStatement::create(ptNode);
-		case Parse::NonTerminalType::ForStatement:
-		case Parse::NonTerminalType::ForStatementNoShortIf:
-			return ForStatement::create(ptNode);
 		case Parse::NonTerminalType::IfThenElseStatement:
 		case Parse::NonTerminalType::IfThenElseStatementNoShortIf:
-			return IfThenElseStatement::create(ptNode);
+		case Parse::NonTerminalType::WhileStatement:
+		case Parse::NonTerminalType::WhileStatementNoShortIf:
+		case Parse::NonTerminalType::ForStatement:
+		case Parse::NonTerminalType::ForStatementNoShortIf:
+			return ConditionalStatement::create(ptNode);
 		default:
 			FAILED("inappropriate PT type for Statement: " + std::to_string((int)ptNode->type));
 	}
@@ -156,7 +154,7 @@ std::unique_ptr<ExpressionStatement> ExpressionStatement::create(const Parse::Tr
 			FAILED("inappropriate PT type for ExpressionStatement: " + std::to_string((int)ptNode->type));
 	}
 }
-  
+
 // static
 std::unique_ptr<LocalVariableDeclarationStatement> LocalVariableDeclarationStatement::create(const Parse::Tree *ptNode)
 {
@@ -221,7 +219,7 @@ std::string ReturnStatement::toCode() const
 // Constructors
 //
 //////////////////////////////////////////////////////////////////////////////
-  
+
 Block::Block(const Parse::TBlock *ptNode)
 	: statements(std::move(NodeList<Statement>(ptNode->blockStatements).list))
 {

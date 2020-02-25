@@ -22,6 +22,10 @@ public:
 	explicit ConditionalStatement(const Parse::TIfThenStatement *ptNode);
 	explicit ConditionalStatement(const Parse::TWhileStatement *ptNode);
 	explicit ConditionalStatement(const Parse::TWhileStatementNoShortIf *ptNode);
+	explicit ConditionalStatement(const Parse::TIfThenElseStatement *ptNode);
+	explicit ConditionalStatement(const Parse::TIfThenElseStatementNoShortIf *ptNode);
+	explicit ConditionalStatement(const Parse::TForStatementNoShortIf *ptNode);
+	explicit ConditionalStatement(const Parse::TForStatement *ptNode);
 	std::string toCode() const override;
 
 	enum class ConditionType {
@@ -32,61 +36,22 @@ public:
 	};
 
 	ConditionType condType;
+	// nullable
+	std::unique_ptr<Statement> init;
 	// nullable (empty for-loop condition)
 	std::unique_ptr<Expression> condition;
+	// nullable
+	std::unique_ptr<Expression> increment;
 	std::unique_ptr<Statement> body;
-
-	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
-	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
-protected:
-	ConditionalStatement(ConditionType type, std::unique_ptr<Expression> cond, std::unique_ptr<Statement> statement);
-};
-
-std::string operator+(std::string str, ConditionalStatement::ConditionType type);
-std::string operator+=(std::string& str, ConditionalStatement::ConditionType type);
-std::ostream& operator<<(std::ostream& os, ConditionalStatement::ConditionType type);
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// IfThenElseStatement
-//
-//////////////////////////////////////////////////////////////////////////////
-  
-class IfThenElseStatement: public ConditionalStatement
-{
-public:
-	static std::unique_ptr<IfThenElseStatement> create(const Parse::Tree *ptNode);
-	explicit IfThenElseStatement(const Parse::TIfThenElseStatement *ptNode);
-	explicit IfThenElseStatement(const Parse::TIfThenElseStatementNoShortIf *ptNode);
-	std::string toCode() const override;
-
+	// nullable
 	std::unique_ptr<Statement> elseBody;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// ForStatement
-//
-//////////////////////////////////////////////////////////////////////////////
-  
-class ForStatement: public ConditionalStatement
-{
-public:
-	static std::unique_ptr<ForStatement> create(const Parse::Tree *ptNode);
-	explicit ForStatement(const Parse::TForStatementNoShortIf *ptNode);
-	explicit ForStatement(const Parse::TForStatement *ptNode);
-	std::string toCode() const override;
-
-	// nullable
-	std::unique_ptr<Statement> init;
-	// nullable
-	std::unique_ptr<Expression> increment;
-
-	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
-	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
-};
+std::string operator+(std::string str, ConditionalStatement::ConditionType type);
+std::string operator+=(std::string& str, ConditionalStatement::ConditionType type);
+std::ostream& operator<<(std::ostream& os, ConditionalStatement::ConditionType type);
 
 } //namespace AST
