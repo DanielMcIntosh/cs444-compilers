@@ -30,11 +30,11 @@ struct Tree {
 
 typedef void (*ptFunc)(vector<Tree*>* stack);
 
-void ptDispatcher(vector<Tree*>* stack, int ruleID);
-void ptSetTopParents(vector<Tree*>* stack, int topN, Tree* parent);
-void ptPopulateChildrenList(Tree* tree, const vector<Tree*>& stack, int n);
-void ptDeleteStack(vector<Tree*>* stack);
-void ptDelete(Tree* root);
+EXPORT void ptDispatcher(vector<Tree*>* stack, int ruleID);
+EXPORT void ptSetTopParents(vector<Tree*>* stack, int topN, Tree* parent);
+EXPORT void ptPopulateChildrenList(Tree* tree, const vector<Tree*>& stack, int n);
+EXPORT void ptDeleteStack(vector<Tree*>* stack);
+EXPORT void ptDelete(Tree* root);
 
 template <typename T>
 vector<T*> __ptFindByType(Tree* root, enum NonTerminalType type) {

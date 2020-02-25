@@ -12,12 +12,13 @@ class Modifier;
 class VariableDeclaration;
 class MethodDeclarator;
 
-class MethodHeader: public Node
+class EXPORT MethodHeader: public Node
 {
 public:
-	static std::unique_ptr<MethodHeader> create(const Parse::Tree *ptNode);
-	explicit MethodHeader(const Parse::TMethodHeader *ptNode);
-	std::string toCode() const override;
+
+	EXPORT static std::unique_ptr<MethodHeader> create(const Parse::Tree *ptNode);
+	EXPORT explicit MethodHeader(const Parse::TMethodHeader *ptNode);
+	EXPORT std::string toCode() const override;
 protected:
 	std::vector<std::unique_ptr<Modifier>> modifiers;
 	std::unique_ptr<Type> returnType;
@@ -25,7 +26,7 @@ protected:
 	std::vector<std::unique_ptr<VariableDeclaration>> parameterList;
 	friend class MethodDeclaration;
 private:
-	MethodHeader(std::vector<std::unique_ptr<Modifier>> mods, std::unique_ptr<Type> ret, MethodDeclarator&& declarator);
+	EXPORT MethodHeader(std::vector<std::unique_ptr<Modifier>> mods, std::unique_ptr<Type> ret, MethodDeclarator&& declarator);
 };
 
 } //namespace AST

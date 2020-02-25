@@ -9,7 +9,7 @@
 
 namespace Scan {
 
-NState* scannerCreateNState(Scanner* scanner) {
+static NState* scannerCreateNState(Scanner* scanner) {
   scanner->nstates.push_back(make_unique<NState>());
 
   NState* state = scanner->nstates.back().get();
@@ -19,7 +19,7 @@ NState* scannerCreateNState(Scanner* scanner) {
   return state;
 }
 
-void scannerCreateToken(Scanner* scanner, const string& tokenS) {
+static void scannerCreateToken(Scanner* scanner, const string& tokenS) {
   ASSERT(!scanner->tokenMap.count(tokenS));
 
   scanner->tokens.push_back(make_unique<Token>());
@@ -36,7 +36,7 @@ void scannerCreateToken(Scanner* scanner, const string& tokenS) {
   scanner->tokenMap[tokenS] = token;
 }
 
-Token* scannerFindOrCreateToken(Scanner* scanner, const string& tokenS) {
+static Token* scannerFindOrCreateToken(Scanner* scanner, const string& tokenS) {
   auto it = scanner->tokenMap.find(tokenS);
   if (it == scanner->tokenMap.end()) {
     scannerCreateToken(scanner, tokenS);
@@ -293,7 +293,7 @@ u64 arrayHash(const array<u64, size>& a) {
   return result;
 }
 
-void arrayBitFieldTest() {
+static void arrayBitFieldTest() {
   NStateBitField bitfield{0};
 
   for (s32 i = 0; i < NStateFieldLen * 64; ++i) {
@@ -308,7 +308,7 @@ void arrayBitFieldTest() {
   }
 }
 
-void epsilonClosureFast(const NState* nstate, NStateBitField* bitfield) {
+static void epsilonClosureFast(const NState* nstate, NStateBitField* bitfield) {
   NStateBitField seenField{0};
 
   arrayBitFieldSet(&seenField, nstate->index);
@@ -331,7 +331,7 @@ void epsilonClosureFast(const NState* nstate, NStateBitField* bitfield) {
   *bitfield = seenField;
 }
 
-DState* scannerCreateDStateFromNState(Scanner* scanner,
+static DState* scannerCreateDStateFromNState(Scanner* scanner,
                                       const NStateBitField& nstates) {
   scanner->dstates.push_back(make_unique<DState>());
 
@@ -358,7 +358,7 @@ DState* scannerCreateDStateFromNState(Scanner* scanner,
   return dstate;
 }
 
-DState* scannerFindDStateFromNState(Scanner* scanner,
+static DState* scannerFindDStateFromNState(Scanner* scanner,
                                     const NStateBitField& nstates) {
   u64 hashValue = arrayHash(nstates);
   auto itPair = scanner->dstateMap.equal_range(hashValue);

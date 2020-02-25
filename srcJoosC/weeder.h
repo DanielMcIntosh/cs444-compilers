@@ -5,6 +5,6 @@
 
 namespace Weeder {
 
-WeederResult weederCheck(Parse::Tree* root, const char* fileName);
+EXPORT WeederResult weederCheck(Parse::Tree* root, const char* fileName);
 
 }  // namespace Weeder

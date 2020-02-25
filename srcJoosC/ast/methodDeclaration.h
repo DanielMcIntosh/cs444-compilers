@@ -14,9 +14,9 @@ class MethodHeader;
 class MethodDeclaration: public MemberDeclaration
 {
 public:
-	static std::unique_ptr<MethodDeclaration> create(const Parse::Tree *ptNode);
-	explicit MethodDeclaration(const Parse::TMethodDeclaration *ptNode);
-	explicit MethodDeclaration(const Parse::TAbstractMethodDeclaration *ptNode);
+	EXPORT static std::unique_ptr<MethodDeclaration> create(const Parse::Tree *ptNode);
+	EXPORT explicit MethodDeclaration(const Parse::TMethodDeclaration *ptNode);
+	EXPORT explicit MethodDeclaration(const Parse::TAbstractMethodDeclaration *ptNode);
 	std::string toCode() const override;
 
 	using MemberDeclaration::equals;

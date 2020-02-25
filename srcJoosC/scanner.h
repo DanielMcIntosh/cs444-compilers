@@ -92,11 +92,11 @@ struct Scanner {
   Statistic dfsStat;
 };
 
-void scannerRegularLanguageToNFA(Scanner* scanner, const char* text);
-void scannerNFAtoDFA(Scanner* scanner);
-void scannerDumpDFA(const Scanner* scanner);
-void scannerLoadJoosRule(Scanner* scanner);
-ScanResult scannerProcessText(const Scanner* scanner, const char* text);
-void scannerDumpDebugInfo(const ScanResult& result, const char* baseOutputPath);
+EXPORT void scannerRegularLanguageToNFA(Scanner* scanner, const char* text);
+EXPORT void scannerNFAtoDFA(Scanner* scanner);
+EXPORT void scannerDumpDFA(const Scanner* scanner);
+EXPORT void scannerLoadJoosRule(Scanner* scanner);
+EXPORT ScanResult scannerProcessText(const Scanner* scanner, const char* text);
+EXPORT void scannerDumpDebugInfo(const ScanResult& result, const char* baseOutputPath);
 
 }  // namespace Scan

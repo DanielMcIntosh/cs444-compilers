@@ -355,7 +355,7 @@ void ptgenOutputHeaders(PTGen* ptgen) {
         output->append(" ");
       }
       output->append("\n");
-      strAppend(output, "void pt%s_%s(%s) {\n", lhsName, rule->serial.c_str(),
+      strAppend(output, "static void pt%s_%s(%s) {\n", lhsName, rule->serial.c_str(),
                 "vector<Tree *> *stack");
       size_t captureSize = rule->captureIndices.size();
       unordered_map<string, int> captureOccr;

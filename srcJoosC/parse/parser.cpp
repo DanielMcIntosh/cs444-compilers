@@ -15,7 +15,7 @@ namespace Parse {
 const char* newLines = "\r\n";
 const char* Spaces = " ";
 
-bool can_parse(const vector<string>& input,
+static bool can_parse(const vector<string>& input,
                const vector<Rule>& rules,
                const DFA& joos_dfa) {
   vector<int> state_stack;
@@ -57,7 +57,7 @@ bool can_parse(const vector<string>& input,
   return true;
 }
 
-void lineHelper(char* buffer, const char** textPtr) {
+static void lineHelper(char* buffer, const char** textPtr) {
   profileSection("line helper");
   int len = strcspn(*textPtr, newLines);
   snprintf(buffer, len + 1, "%s", *textPtr);
@@ -65,7 +65,7 @@ void lineHelper(char* buffer, const char** textPtr) {
   *textPtr += strspn(*textPtr, newLines);
 }
 
-void lineHelperFast(char** textPtr, char** state) {
+static void lineHelperFast(char** textPtr, char** state) {
   profileSection("line helper fast");
 
   *textPtr = *state;
@@ -144,7 +144,7 @@ void parserReadJoosLR1(Parser* parser) {
   parserReadLR1(parser, text.get());
 }
 
-const string& lexTokenTranslate(const Scan::LexToken& lexToken) {
+static const string& lexTokenTranslate(const Scan::LexToken& lexToken) {
   static const unordered_set<string> gNameSet = {"IntegerLiteral",
                                                  "BooleanLiteral",
                                                  "CharacterLiteral",
@@ -167,7 +167,7 @@ const string& lexTokenTranslate(const Scan::LexToken& lexToken) {
   return gError;
 }
 
-string expandEscapeSequence(const string& str) {
+static string expandEscapeSequence(const string& str) {
   string result;
 
   string octBuffer;
@@ -244,7 +244,7 @@ string expandEscapeSequence(const string& str) {
   return result;
 }
 
-bool treeStackShiftTerminal(vector<Tree*>* stack, const Scan::LexToken& token) {
+static bool treeStackShiftTerminal(vector<Tree*>* stack, const Scan::LexToken& token) {
   if (token.name == "Identifier") {
     auto t = new TIdentifier;
     t->value = token.lexeme;
@@ -378,7 +378,7 @@ void parserDumpDebugInfo(const ParseResult& result,
   fclose(dump);
 }
 
-void parserTest() {
+static void parserTest() {
   Parser parser;
   s32 fileSize;
   unique_ptr<char[]> fileContents =

@@ -60,9 +60,13 @@ typedef int16_t s16;
 #define LOGIR(_level, _fmt, ...) LOGR("%*s" _fmt, _level, "", ##__VA_ARGS__)
 
 #ifndef _MSC_VER
+
+#define EXPORT __attribute__ ((visibility ("default"))) 
 #define LOG_RED(_fmt, ...) LOGR("\033[0;91m" _fmt "\033[0m", ##__VA_ARGS__)
 #define LOG_GREEN(_fmt, ...) LOGR("\033[0;92m" _fmt "\033[0m", ##__VA_ARGS__)
+
 #else
+
 #define LOG_RED(_fmt, ...) LOGR("XXXXX " _fmt, ##__VA_ARGS__)
 #define LOG_GREEN(_fmt, ...) LOGR("      " _fmt, ##__VA_ARGS__)
 #define strtok_r strtok_s
@@ -75,35 +79,35 @@ typedef int16_t s16;
 // Log and asserts
 //
 
-[[gnu::format(printf, 1, 5)]] void logImpl(const char* str,
+EXPORT [[gnu::format(printf, 1, 5)]] void logImpl(const char* str,
                                            const char* file,
                                            s32 line,
                                            const char* func,
                                            ...);
 
-[[gnu::format(printf, 1, 2)]] void logImplRaw(const char* str, ...);
-[[gnu::format(printf, 2, 3)]] void assertImpl(bool val, const char* str, ...);
-[[gnu::format(printf, 3, 4)]] void assertImpl_(bool val,
+EXPORT [[gnu::format(printf, 1, 2)]] void logImplRaw(const char* str, ...);
+EXPORT [[gnu::format(printf, 2, 3)]] void assertImpl(bool val, const char* str, ...);
+EXPORT [[gnu::format(printf, 3, 4)]] void assertImpl_(bool val,
                                                const char* str,
                                                const char* fmt,
                                                ...);
-[[noreturn]] void failedImpl(std::string str, const char* file, int line, const char* func);
+EXPORT [[noreturn]] void failedImpl(std::string str, const char* file, int line, const char* func);
 
-[[gnu::format(printf, 2, 3)]] void strAppend(std::string* str,
+EXPORT [[gnu::format(printf, 2, 3)]] void strAppend(std::string* str,
                                              const char* fmt,
                                              ...);
-void strFlushFILE(std::string* str, FILE* file);
-char* getPrintableChar(char c);
+EXPORT void strFlushFILE(std::string* str, FILE* file);
+EXPORT char* getPrintableChar(char c);
 
-void globalInit();
-void globalFini();
+EXPORT void globalInit();
+EXPORT void globalFini();
 
 //
 // File operations
 //
 
-std::unique_ptr<char[]> readEntireFile(const char* path, s32* size);
-void getJavaFilesRecursive(std::vector<std::string>& fileList,
+EXPORT std::unique_ptr<char[]> readEntireFile(const char* path, s32* size);
+EXPORT void getJavaFilesRecursive(std::vector<std::string>& fileList,
                            const std::string& folder);
 
 #pragma once

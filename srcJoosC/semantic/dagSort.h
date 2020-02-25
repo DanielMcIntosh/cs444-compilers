@@ -1,4 +1,6 @@
 #pragma once
+
+#include "utility.h"
 #include <vector>
 
 namespace AST {
@@ -7,7 +9,7 @@ namespace AST {
 
 namespace Semantic {
 
-bool dagSort(std::vector<AST::TypeDeclaration *> &allTypes);
+EXPORT bool dagSort(std::vector<AST::TypeDeclaration *> &allTypes);
 
 } // namespace Semantic
 

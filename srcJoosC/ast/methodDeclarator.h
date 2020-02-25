@@ -10,13 +10,13 @@ namespace AST
 
 class VariableDeclaration;
 
-class MethodDeclarator: public Node
+class EXPORT MethodDeclarator: public Node
 {
 public:
-	static std::unique_ptr<MethodDeclarator> create(const Parse::Tree *ptNode);
-	explicit MethodDeclarator(const Parse::TConstructorDeclarator *ptNode);
-	explicit MethodDeclarator(const Parse::TMethodDeclarator *ptNode);
-	std::string toCode() const override;
+	EXPORT static std::unique_ptr<MethodDeclarator> create(const Parse::Tree *ptNode);
+	EXPORT explicit MethodDeclarator(const Parse::TConstructorDeclarator *ptNode);
+	EXPORT explicit MethodDeclarator(const Parse::TMethodDeclarator *ptNode);
+	EXPORT std::string toCode() const override;
 protected:
 	std::string id;
 	std::vector<std::unique_ptr<VariableDeclaration>> parameterList;

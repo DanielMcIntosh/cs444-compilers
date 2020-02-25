@@ -22,7 +22,7 @@ struct ScanResult {
   s32 errorPosition;
   string detailedStep;
 
-  ScanResult();
+  EXPORT ScanResult();
 };
 
 }  // namespace Scan
@@ -34,7 +34,7 @@ struct ParseResult {
   s32 errorLexTokenIndex;
   bool valid;
 
-  ParseResult();
+  EXPORT ParseResult();
 };
 
 }  // namespace Parse
@@ -85,7 +85,7 @@ struct WeederResult {
   mutex* theMutex;
   vector<WeederViolation> violations;
 
-  WeederResult();
+  EXPORT WeederResult();
 };
 
 }  // namespace Weeder
@@ -115,4 +115,4 @@ struct FrontendResult {
   AST::ASTResult astResult;
 };
 
-void frontendResultDelete(FrontendResult* result);
+EXPORT void frontendResultDelete(FrontendResult* result);

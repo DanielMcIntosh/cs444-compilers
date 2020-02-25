@@ -8,6 +8,10 @@ joosc
 joosc.exe
 joosc_debug
 joosc_debug.exe
+joosc_release
+joosc_release.exe  
+libjc.so
+libjc.dll
 ptgen
 ptgen.exe
 DFA.txt
@@ -19,5 +23,3 @@ DFA.txt
 cmake-build-debug
 cmake-build-release
 output
-
-  

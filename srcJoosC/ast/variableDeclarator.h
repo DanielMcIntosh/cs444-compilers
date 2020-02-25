@@ -12,7 +12,7 @@ class Expression;
 class VariableDeclarator: public Node
 {
 public:
-	static std::unique_ptr<VariableDeclarator> create(const Parse::Tree *ptNode);
+	EXPORT static std::unique_ptr<VariableDeclarator> create(const Parse::Tree *ptNode);
 	explicit VariableDeclarator(const Parse::TVariableDeclarator *ptNode);
 	std::string toCode() const override { return "[VariableDeclarator]"; }
 protected:

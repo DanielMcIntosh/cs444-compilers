@@ -3,8 +3,7 @@
 
 namespace AST {
 
-void astDumpDebugInfo(ASTResult const& result, const char *baseOutputPath);
-ASTResult buildAST(const Parse::Tree *root);
-
+EXPORT void astDumpDebugInfo(ASTResult const& result, const char *baseOutputPath);
+EXPORT ASTResult buildAST(const Parse::Tree *root);
 
 } // namespace AST

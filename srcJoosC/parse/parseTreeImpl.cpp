@@ -7,7 +7,7 @@ namespace Parse {
 using namespace std;
 
 // Goal -> BOF CompilationUnit EOF 
-void ptGoal_BOFCompilationUnitEof(vector<Tree *> *stack) {
+static void ptGoal_BOFCompilationUnitEof(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::CompilationUnit);
@@ -22,7 +22,7 @@ void ptGoal_BOFCompilationUnitEof(vector<Tree *> *stack) {
 }
 
 // Literal -> IntegerLiteral 
-void ptLiteral_IntegerLiteral(vector<Tree *> *stack) {
+static void ptLiteral_IntegerLiteral(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::IntegerLiteral);
@@ -37,7 +37,7 @@ void ptLiteral_IntegerLiteral(vector<Tree *> *stack) {
 }
 
 // Literal -> BooleanLiteral 
-void ptLiteral_BooleanLiteral(vector<Tree *> *stack) {
+static void ptLiteral_BooleanLiteral(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::BooleanLiteral);
@@ -52,7 +52,7 @@ void ptLiteral_BooleanLiteral(vector<Tree *> *stack) {
 }
 
 // Literal -> CharacterLiteral 
-void ptLiteral_CharacterLiteral(vector<Tree *> *stack) {
+static void ptLiteral_CharacterLiteral(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::CharacterLiteral);
@@ -67,7 +67,7 @@ void ptLiteral_CharacterLiteral(vector<Tree *> *stack) {
 }
 
 // Literal -> StringLiteral 
-void ptLiteral_StringLiteral(vector<Tree *> *stack) {
+static void ptLiteral_StringLiteral(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::StringLiteral);
@@ -82,7 +82,7 @@ void ptLiteral_StringLiteral(vector<Tree *> *stack) {
 }
 
 // Literal -> NullLiteral 
-void ptLiteral_NullLiteral(vector<Tree *> *stack) {
+static void ptLiteral_NullLiteral(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::NullLiteral);
@@ -97,7 +97,7 @@ void ptLiteral_NullLiteral(vector<Tree *> *stack) {
 }
 
 // Type -> PrimitiveType 
-void ptType_PrimitiveType(vector<Tree *> *stack) {
+static void ptType_PrimitiveType(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::PrimitiveType);
@@ -112,7 +112,7 @@ void ptType_PrimitiveType(vector<Tree *> *stack) {
 }
 
 // Type -> ReferenceType 
-void ptType_ReferenceType(vector<Tree *> *stack) {
+static void ptType_ReferenceType(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ReferenceType);
@@ -127,7 +127,7 @@ void ptType_ReferenceType(vector<Tree *> *stack) {
 }
 
 // PrimitiveType -> boolean 
-void ptPrimitiveType_boolean(vector<Tree *> *stack) {
+static void ptPrimitiveType_boolean(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TPrimitiveType;
@@ -139,7 +139,7 @@ void ptPrimitiveType_boolean(vector<Tree *> *stack) {
 }
 
 // PrimitiveType -> byte 
-void ptPrimitiveType_byte(vector<Tree *> *stack) {
+static void ptPrimitiveType_byte(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TPrimitiveType;
@@ -151,7 +151,7 @@ void ptPrimitiveType_byte(vector<Tree *> *stack) {
 }
 
 // PrimitiveType -> short 
-void ptPrimitiveType_Short(vector<Tree *> *stack) {
+static void ptPrimitiveType_Short(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TPrimitiveType;
@@ -163,7 +163,7 @@ void ptPrimitiveType_Short(vector<Tree *> *stack) {
 }
 
 // PrimitiveType -> int 
-void ptPrimitiveType_Int(vector<Tree *> *stack) {
+static void ptPrimitiveType_Int(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TPrimitiveType;
@@ -175,7 +175,7 @@ void ptPrimitiveType_Int(vector<Tree *> *stack) {
 }
 
 // PrimitiveType -> char 
-void ptPrimitiveType_Char(vector<Tree *> *stack) {
+static void ptPrimitiveType_Char(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TPrimitiveType;
@@ -187,7 +187,7 @@ void ptPrimitiveType_Char(vector<Tree *> *stack) {
 }
 
 // ReferenceType -> ClassOrInterfaceType 
-void ptReferenceType_ClassOrInterfaceType(vector<Tree *> *stack) {
+static void ptReferenceType_ClassOrInterfaceType(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassOrInterfaceType);
@@ -202,7 +202,7 @@ void ptReferenceType_ClassOrInterfaceType(vector<Tree *> *stack) {
 }
 
 // ReferenceType -> ArrayType 
-void ptReferenceType_ArrayType(vector<Tree *> *stack) {
+static void ptReferenceType_ArrayType(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ArrayType);
@@ -217,7 +217,7 @@ void ptReferenceType_ArrayType(vector<Tree *> *stack) {
 }
 
 // ClassOrInterfaceType -> Name 
-void ptClassOrInterfaceType_Name(vector<Tree *> *stack) {
+static void ptClassOrInterfaceType_Name(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Name);
@@ -232,7 +232,7 @@ void ptClassOrInterfaceType_Name(vector<Tree *> *stack) {
 }
 
 // ClassType -> ClassOrInterfaceType 
-void ptClassType_ClassOrInterfaceType(vector<Tree *> *stack) {
+static void ptClassType_ClassOrInterfaceType(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassOrInterfaceType);
@@ -247,7 +247,7 @@ void ptClassType_ClassOrInterfaceType(vector<Tree *> *stack) {
 }
 
 // InterfaceType -> ClassOrInterfaceType 
-void ptInterfaceType_ClassOrInterfaceType(vector<Tree *> *stack) {
+static void ptInterfaceType_ClassOrInterfaceType(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassOrInterfaceType);
@@ -262,7 +262,7 @@ void ptInterfaceType_ClassOrInterfaceType(vector<Tree *> *stack) {
 }
 
 // ArrayType -> PrimitiveType [ ] 
-void ptArrayType_PrimitiveTypeLSBrRSBr(vector<Tree *> *stack) {
+static void ptArrayType_PrimitiveTypeLSBrRSBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::PrimitiveType);
@@ -277,7 +277,7 @@ void ptArrayType_PrimitiveTypeLSBrRSBr(vector<Tree *> *stack) {
 }
 
 // ArrayType -> Name [ ] 
-void ptArrayType_NameLSBrRSBr(vector<Tree *> *stack) {
+static void ptArrayType_NameLSBrRSBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Name);
@@ -292,7 +292,7 @@ void ptArrayType_NameLSBrRSBr(vector<Tree *> *stack) {
 }
 
 // Name -> Identifier 
-void ptName_Identifier(vector<Tree *> *stack) {
+static void ptName_Identifier(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Identifier);
@@ -307,7 +307,7 @@ void ptName_Identifier(vector<Tree *> *stack) {
 }
 
 // Name -> Name . Identifier 
-void ptName_NameDotIdentifier(vector<Tree *> *stack) {
+static void ptName_NameDotIdentifier(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Name);
@@ -325,11 +325,11 @@ void ptName_NameDotIdentifier(vector<Tree *> *stack) {
 }
 
 // CompilationUnit -> 
-void ptCompilationUnit_(vector<Tree *> *stack) {
+static void ptCompilationUnit_(vector<Tree *> *stack) {
 }
 
 // CompilationUnit -> PackageDeclaration 
-void ptCompilationUnit_PackageDeclaration(vector<Tree *> *stack) {
+static void ptCompilationUnit_PackageDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::PackageDeclaration);
@@ -344,7 +344,7 @@ void ptCompilationUnit_PackageDeclaration(vector<Tree *> *stack) {
 }
 
 // CompilationUnit -> ImportDeclarations 
-void ptCompilationUnit_ImportDeclarations(vector<Tree *> *stack) {
+static void ptCompilationUnit_ImportDeclarations(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ImportDeclarations);
@@ -359,7 +359,7 @@ void ptCompilationUnit_ImportDeclarations(vector<Tree *> *stack) {
 }
 
 // CompilationUnit -> PackageDeclaration ImportDeclarations 
-void ptCompilationUnit_PackageDeclarationImportDeclarations(vector<Tree *> *stack) {
+static void ptCompilationUnit_PackageDeclarationImportDeclarations(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::PackageDeclaration);
@@ -377,7 +377,7 @@ void ptCompilationUnit_PackageDeclarationImportDeclarations(vector<Tree *> *stac
 }
 
 // CompilationUnit -> TypeDeclaration 
-void ptCompilationUnit_TypeDeclaration(vector<Tree *> *stack) {
+static void ptCompilationUnit_TypeDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::TypeDeclaration);
@@ -392,7 +392,7 @@ void ptCompilationUnit_TypeDeclaration(vector<Tree *> *stack) {
 }
 
 // CompilationUnit -> PackageDeclaration TypeDeclaration 
-void ptCompilationUnit_PackageDeclarationTypeDeclaration(vector<Tree *> *stack) {
+static void ptCompilationUnit_PackageDeclarationTypeDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::PackageDeclaration);
@@ -410,7 +410,7 @@ void ptCompilationUnit_PackageDeclarationTypeDeclaration(vector<Tree *> *stack) 
 }
 
 // CompilationUnit -> ImportDeclarations TypeDeclaration 
-void ptCompilationUnit_ImportDeclarationsTypeDeclaration(vector<Tree *> *stack) {
+static void ptCompilationUnit_ImportDeclarationsTypeDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::ImportDeclarations);
@@ -428,7 +428,7 @@ void ptCompilationUnit_ImportDeclarationsTypeDeclaration(vector<Tree *> *stack) 
 }
 
 // CompilationUnit -> PackageDeclaration ImportDeclarations TypeDeclaration 
-void ptCompilationUnit_PackageDeclarationImportDeclarationsTypeDeclaration(vector<Tree *> *stack) {
+static void ptCompilationUnit_PackageDeclarationImportDeclarationsTypeDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::PackageDeclaration);
@@ -449,7 +449,7 @@ void ptCompilationUnit_PackageDeclarationImportDeclarationsTypeDeclaration(vecto
 }
 
 // ImportDeclarations -> ImportDeclaration 
-void ptImportDeclarations_ImportDeclaration(vector<Tree *> *stack) {
+static void ptImportDeclarations_ImportDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ImportDeclaration);
@@ -464,7 +464,7 @@ void ptImportDeclarations_ImportDeclaration(vector<Tree *> *stack) {
 }
 
 // ImportDeclarations -> ImportDeclarations ImportDeclaration 
-void ptImportDeclarations_ImportDeclarationsImportDeclaration(vector<Tree *> *stack) {
+static void ptImportDeclarations_ImportDeclarationsImportDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::ImportDeclarations);
@@ -482,7 +482,7 @@ void ptImportDeclarations_ImportDeclarationsImportDeclaration(vector<Tree *> *st
 }
 
 // PackageDeclaration -> package Name ; 
-void ptPackageDeclaration_packageNameSCol(vector<Tree *> *stack) {
+static void ptPackageDeclaration_packageNameSCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Name);
@@ -497,7 +497,7 @@ void ptPackageDeclaration_packageNameSCol(vector<Tree *> *stack) {
 }
 
 // ImportDeclaration -> SingleTypeImportDeclaration 
-void ptImportDeclaration_SingleTypeImportDeclaration(vector<Tree *> *stack) {
+static void ptImportDeclaration_SingleTypeImportDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::SingleTypeImportDeclaration);
@@ -512,7 +512,7 @@ void ptImportDeclaration_SingleTypeImportDeclaration(vector<Tree *> *stack) {
 }
 
 // ImportDeclaration -> TypeImportOnDemandDeclaration 
-void ptImportDeclaration_TypeImportOnDemandDeclaration(vector<Tree *> *stack) {
+static void ptImportDeclaration_TypeImportOnDemandDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::TypeImportOnDemandDeclaration);
@@ -527,7 +527,7 @@ void ptImportDeclaration_TypeImportOnDemandDeclaration(vector<Tree *> *stack) {
 }
 
 // SingleTypeImportDeclaration -> import Name ; 
-void ptSingleTypeImportDeclaration_importNameSCol(vector<Tree *> *stack) {
+static void ptSingleTypeImportDeclaration_importNameSCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Name);
@@ -542,7 +542,7 @@ void ptSingleTypeImportDeclaration_importNameSCol(vector<Tree *> *stack) {
 }
 
 // TypeImportOnDemandDeclaration -> import Name . * ; 
-void ptTypeImportOnDemandDeclaration_importNameDotStarSCol(vector<Tree *> *stack) {
+static void ptTypeImportOnDemandDeclaration_importNameDotStarSCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Name);
@@ -557,7 +557,7 @@ void ptTypeImportOnDemandDeclaration_importNameDotStarSCol(vector<Tree *> *stack
 }
 
 // TypeDeclaration -> ClassDeclaration 
-void ptTypeDeclaration_ClassDeclaration(vector<Tree *> *stack) {
+static void ptTypeDeclaration_ClassDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassDeclaration);
@@ -572,7 +572,7 @@ void ptTypeDeclaration_ClassDeclaration(vector<Tree *> *stack) {
 }
 
 // TypeDeclaration -> InterfaceDeclaration 
-void ptTypeDeclaration_InterfaceDeclaration(vector<Tree *> *stack) {
+static void ptTypeDeclaration_InterfaceDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceDeclaration);
@@ -587,7 +587,7 @@ void ptTypeDeclaration_InterfaceDeclaration(vector<Tree *> *stack) {
 }
 
 // TypeDeclaration -> ; 
-void ptTypeDeclaration_SCol(vector<Tree *> *stack) {
+static void ptTypeDeclaration_SCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TTypeDeclaration;
@@ -599,7 +599,7 @@ void ptTypeDeclaration_SCol(vector<Tree *> *stack) {
 }
 
 // Modifiers -> Modifier 
-void ptModifiers_Modifier(vector<Tree *> *stack) {
+static void ptModifiers_Modifier(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Modifier);
@@ -614,7 +614,7 @@ void ptModifiers_Modifier(vector<Tree *> *stack) {
 }
 
 // Modifiers -> Modifiers Modifier 
-void ptModifiers_ModifiersModifier(vector<Tree *> *stack) {
+static void ptModifiers_ModifiersModifier(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Modifiers);
@@ -632,7 +632,7 @@ void ptModifiers_ModifiersModifier(vector<Tree *> *stack) {
 }
 
 // Modifier -> public 
-void ptModifier_Public(vector<Tree *> *stack) {
+static void ptModifier_Public(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TModifier;
@@ -644,7 +644,7 @@ void ptModifier_Public(vector<Tree *> *stack) {
 }
 
 // Modifier -> protected 
-void ptModifier_Protected(vector<Tree *> *stack) {
+static void ptModifier_Protected(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TModifier;
@@ -656,7 +656,7 @@ void ptModifier_Protected(vector<Tree *> *stack) {
 }
 
 // Modifier -> static 
-void ptModifier_Static(vector<Tree *> *stack) {
+static void ptModifier_Static(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TModifier;
@@ -668,7 +668,7 @@ void ptModifier_Static(vector<Tree *> *stack) {
 }
 
 // Modifier -> abstract 
-void ptModifier_abstract(vector<Tree *> *stack) {
+static void ptModifier_abstract(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TModifier;
@@ -680,7 +680,7 @@ void ptModifier_abstract(vector<Tree *> *stack) {
 }
 
 // Modifier -> final 
-void ptModifier_final(vector<Tree *> *stack) {
+static void ptModifier_final(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TModifier;
@@ -692,7 +692,7 @@ void ptModifier_final(vector<Tree *> *stack) {
 }
 
 // Modifier -> native 
-void ptModifier_native(vector<Tree *> *stack) {
+static void ptModifier_native(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TModifier;
@@ -704,7 +704,7 @@ void ptModifier_native(vector<Tree *> *stack) {
 }
 
 // ClassDeclaration -> Modifiers class Identifier ClassBody 
-void ptClassDeclaration_ModifiersClassIdentifierClassBody(vector<Tree *> *stack) {
+static void ptClassDeclaration_ModifiersClassIdentifierClassBody(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::Modifiers);
@@ -725,7 +725,7 @@ void ptClassDeclaration_ModifiersClassIdentifierClassBody(vector<Tree *> *stack)
 }
 
 // ClassDeclaration -> Modifiers class Identifier extends ClassType ClassBody 
-void ptClassDeclaration_ModifiersClassIdentifierextendsClassTypeClassBody(vector<Tree *> *stack) {
+static void ptClassDeclaration_ModifiersClassIdentifierextendsClassTypeClassBody(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 4);
   assert((*stack)[n - 4]->type == NonTerminalType::Modifiers);
@@ -749,7 +749,7 @@ void ptClassDeclaration_ModifiersClassIdentifierextendsClassTypeClassBody(vector
 }
 
 // ClassDeclaration -> Modifiers class Identifier implements InterfaceTypeList ClassBody 
-void ptClassDeclaration_ModifiersClassIdentifierimplementsInterfaceTypeListClassBody(vector<Tree *> *stack) {
+static void ptClassDeclaration_ModifiersClassIdentifierimplementsInterfaceTypeListClassBody(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 4);
   assert((*stack)[n - 4]->type == NonTerminalType::Modifiers);
@@ -773,7 +773,7 @@ void ptClassDeclaration_ModifiersClassIdentifierimplementsInterfaceTypeListClass
 }
 
 // ClassDeclaration -> Modifiers class Identifier extends ClassType implements InterfaceTypeList ClassBody 
-void ptClassDeclaration_ModifiersClassIdentifierextendsClassTypeimplementsInterfaceTypeListClassBody(vector<Tree *> *stack) {
+static void ptClassDeclaration_ModifiersClassIdentifierextendsClassTypeimplementsInterfaceTypeListClassBody(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 5);
   assert((*stack)[n - 5]->type == NonTerminalType::Modifiers);
@@ -800,7 +800,7 @@ void ptClassDeclaration_ModifiersClassIdentifierextendsClassTypeimplementsInterf
 }
 
 // InterfaceTypeList -> InterfaceType 
-void ptInterfaceTypeList_InterfaceType(vector<Tree *> *stack) {
+static void ptInterfaceTypeList_InterfaceType(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceType);
@@ -815,7 +815,7 @@ void ptInterfaceTypeList_InterfaceType(vector<Tree *> *stack) {
 }
 
 // InterfaceTypeList -> InterfaceTypeList , InterfaceType 
-void ptInterfaceTypeList_InterfaceTypeListComInterfaceType(vector<Tree *> *stack) {
+static void ptInterfaceTypeList_InterfaceTypeListComInterfaceType(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::InterfaceTypeList);
@@ -833,7 +833,7 @@ void ptInterfaceTypeList_InterfaceTypeListComInterfaceType(vector<Tree *> *stack
 }
 
 // ClassBody -> { } 
-void ptClassBody_LCBrRCBr(vector<Tree *> *stack) {
+static void ptClassBody_LCBrRCBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TClassBody;
@@ -845,7 +845,7 @@ void ptClassBody_LCBrRCBr(vector<Tree *> *stack) {
 }
 
 // ClassBody -> { ClassMemberDeclarations } 
-void ptClassBody_LCBrClassMemberDeclarationsRCBr(vector<Tree *> *stack) {
+static void ptClassBody_LCBrClassMemberDeclarationsRCBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassMemberDeclarations);
@@ -860,7 +860,7 @@ void ptClassBody_LCBrClassMemberDeclarationsRCBr(vector<Tree *> *stack) {
 }
 
 // ClassMemberDeclarations -> ClassMemberDeclaration 
-void ptClassMemberDeclarations_ClassMemberDeclaration(vector<Tree *> *stack) {
+static void ptClassMemberDeclarations_ClassMemberDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassMemberDeclaration);
@@ -875,7 +875,7 @@ void ptClassMemberDeclarations_ClassMemberDeclaration(vector<Tree *> *stack) {
 }
 
 // ClassMemberDeclarations -> ClassMemberDeclarations ClassMemberDeclaration 
-void ptClassMemberDeclarations_ClassMemberDeclarationsClassMemberDeclaration(vector<Tree *> *stack) {
+static void ptClassMemberDeclarations_ClassMemberDeclarationsClassMemberDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::ClassMemberDeclarations);
@@ -893,7 +893,7 @@ void ptClassMemberDeclarations_ClassMemberDeclarationsClassMemberDeclaration(vec
 }
 
 // ClassMemberDeclaration -> FieldDeclaration 
-void ptClassMemberDeclaration_FieldDeclaration(vector<Tree *> *stack) {
+static void ptClassMemberDeclaration_FieldDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::FieldDeclaration);
@@ -908,7 +908,7 @@ void ptClassMemberDeclaration_FieldDeclaration(vector<Tree *> *stack) {
 }
 
 // ClassMemberDeclaration -> MethodDeclaration 
-void ptClassMemberDeclaration_MethodDeclaration(vector<Tree *> *stack) {
+static void ptClassMemberDeclaration_MethodDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::MethodDeclaration);
@@ -923,7 +923,7 @@ void ptClassMemberDeclaration_MethodDeclaration(vector<Tree *> *stack) {
 }
 
 // ClassMemberDeclaration -> ConstructorDeclaration 
-void ptClassMemberDeclaration_ConstructorDeclaration(vector<Tree *> *stack) {
+static void ptClassMemberDeclaration_ConstructorDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ConstructorDeclaration);
@@ -938,7 +938,7 @@ void ptClassMemberDeclaration_ConstructorDeclaration(vector<Tree *> *stack) {
 }
 
 // FieldDeclaration -> Modifiers VariableDeclaration ; 
-void ptFieldDeclaration_ModifiersVariableDeclarationSCol(vector<Tree *> *stack) {
+static void ptFieldDeclaration_ModifiersVariableDeclarationSCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Modifiers);
@@ -956,7 +956,7 @@ void ptFieldDeclaration_ModifiersVariableDeclarationSCol(vector<Tree *> *stack) 
 }
 
 // VariableDeclarator -> Identifier 
-void ptVariableDeclarator_Identifier(vector<Tree *> *stack) {
+static void ptVariableDeclarator_Identifier(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Identifier);
@@ -971,7 +971,7 @@ void ptVariableDeclarator_Identifier(vector<Tree *> *stack) {
 }
 
 // VariableDeclarator -> Identifier = Expression 
-void ptVariableDeclarator_IdentifierEqExpression(vector<Tree *> *stack) {
+static void ptVariableDeclarator_IdentifierEqExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Identifier);
@@ -989,7 +989,7 @@ void ptVariableDeclarator_IdentifierEqExpression(vector<Tree *> *stack) {
 }
 
 // MethodDeclaration -> MethodHeader MethodBody 
-void ptMethodDeclaration_MethodHeaderMethodBody(vector<Tree *> *stack) {
+static void ptMethodDeclaration_MethodHeaderMethodBody(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::MethodHeader);
@@ -1007,7 +1007,7 @@ void ptMethodDeclaration_MethodHeaderMethodBody(vector<Tree *> *stack) {
 }
 
 // MethodHeader -> Type MethodDeclarator 
-void ptMethodHeader_TypeMethodDeclarator(vector<Tree *> *stack) {
+static void ptMethodHeader_TypeMethodDeclarator(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Type);
@@ -1025,7 +1025,7 @@ void ptMethodHeader_TypeMethodDeclarator(vector<Tree *> *stack) {
 }
 
 // MethodHeader -> Modifiers Type MethodDeclarator 
-void ptMethodHeader_ModifiersTypeMethodDeclarator(vector<Tree *> *stack) {
+static void ptMethodHeader_ModifiersTypeMethodDeclarator(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::Modifiers);
@@ -1046,7 +1046,7 @@ void ptMethodHeader_ModifiersTypeMethodDeclarator(vector<Tree *> *stack) {
 }
 
 // MethodHeader -> void MethodDeclarator 
-void ptMethodHeader_VoidMethodDeclarator(vector<Tree *> *stack) {
+static void ptMethodHeader_VoidMethodDeclarator(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::MethodDeclarator);
@@ -1061,7 +1061,7 @@ void ptMethodHeader_VoidMethodDeclarator(vector<Tree *> *stack) {
 }
 
 // MethodHeader -> Modifiers void MethodDeclarator 
-void ptMethodHeader_ModifiersVoidMethodDeclarator(vector<Tree *> *stack) {
+static void ptMethodHeader_ModifiersVoidMethodDeclarator(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Modifiers);
@@ -1079,7 +1079,7 @@ void ptMethodHeader_ModifiersVoidMethodDeclarator(vector<Tree *> *stack) {
 }
 
 // MethodDeclarator -> Identifier ( ) 
-void ptMethodDeclarator_IdentifierLParRPar(vector<Tree *> *stack) {
+static void ptMethodDeclarator_IdentifierLParRPar(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Identifier);
@@ -1094,7 +1094,7 @@ void ptMethodDeclarator_IdentifierLParRPar(vector<Tree *> *stack) {
 }
 
 // MethodDeclarator -> Identifier ( FormalParameterList ) 
-void ptMethodDeclarator_IdentifierLParFormalParameterListRPar(vector<Tree *> *stack) {
+static void ptMethodDeclarator_IdentifierLParFormalParameterListRPar(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Identifier);
@@ -1112,7 +1112,7 @@ void ptMethodDeclarator_IdentifierLParFormalParameterListRPar(vector<Tree *> *st
 }
 
 // FormalParameterList -> FormalParameter 
-void ptFormalParameterList_FormalParameter(vector<Tree *> *stack) {
+static void ptFormalParameterList_FormalParameter(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::FormalParameter);
@@ -1127,7 +1127,7 @@ void ptFormalParameterList_FormalParameter(vector<Tree *> *stack) {
 }
 
 // FormalParameterList -> FormalParameterList , FormalParameter 
-void ptFormalParameterList_FormalParameterListComFormalParameter(vector<Tree *> *stack) {
+static void ptFormalParameterList_FormalParameterListComFormalParameter(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::FormalParameterList);
@@ -1145,7 +1145,7 @@ void ptFormalParameterList_FormalParameterListComFormalParameter(vector<Tree *> 
 }
 
 // FormalParameter -> Type Identifier 
-void ptFormalParameter_TypeIdentifier(vector<Tree *> *stack) {
+static void ptFormalParameter_TypeIdentifier(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Type);
@@ -1163,7 +1163,7 @@ void ptFormalParameter_TypeIdentifier(vector<Tree *> *stack) {
 }
 
 // MethodBody -> Block 
-void ptMethodBody_Block(vector<Tree *> *stack) {
+static void ptMethodBody_Block(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Block);
@@ -1178,7 +1178,7 @@ void ptMethodBody_Block(vector<Tree *> *stack) {
 }
 
 // MethodBody -> AbstractMethodBody 
-void ptMethodBody_AbstractMethodBody(vector<Tree *> *stack) {
+static void ptMethodBody_AbstractMethodBody(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::AbstractMethodBody);
@@ -1193,7 +1193,7 @@ void ptMethodBody_AbstractMethodBody(vector<Tree *> *stack) {
 }
 
 // AbstractMethodBody -> ; 
-void ptAbstractMethodBody_SCol(vector<Tree *> *stack) {
+static void ptAbstractMethodBody_SCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TAbstractMethodBody;
@@ -1205,7 +1205,7 @@ void ptAbstractMethodBody_SCol(vector<Tree *> *stack) {
 }
 
 // ConstructorDeclaration -> Modifiers ConstructorDeclarator Block 
-void ptConstructorDeclaration_ModifiersConstructorDeclaratorBlock(vector<Tree *> *stack) {
+static void ptConstructorDeclaration_ModifiersConstructorDeclaratorBlock(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::Modifiers);
@@ -1226,7 +1226,7 @@ void ptConstructorDeclaration_ModifiersConstructorDeclaratorBlock(vector<Tree *>
 }
 
 // ConstructorDeclarator -> Identifier ( ) 
-void ptConstructorDeclarator_IdentifierLParRPar(vector<Tree *> *stack) {
+static void ptConstructorDeclarator_IdentifierLParRPar(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Identifier);
@@ -1241,7 +1241,7 @@ void ptConstructorDeclarator_IdentifierLParRPar(vector<Tree *> *stack) {
 }
 
 // ConstructorDeclarator -> Identifier ( FormalParameterList ) 
-void ptConstructorDeclarator_IdentifierLParFormalParameterListRPar(vector<Tree *> *stack) {
+static void ptConstructorDeclarator_IdentifierLParFormalParameterListRPar(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Identifier);
@@ -1259,7 +1259,7 @@ void ptConstructorDeclarator_IdentifierLParFormalParameterListRPar(vector<Tree *
 }
 
 // InterfaceDeclaration -> interface Identifier InterfaceBody 
-void ptInterfaceDeclaration_interfaceIdentifierInterfaceBody(vector<Tree *> *stack) {
+static void ptInterfaceDeclaration_interfaceIdentifierInterfaceBody(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Identifier);
@@ -1277,7 +1277,7 @@ void ptInterfaceDeclaration_interfaceIdentifierInterfaceBody(vector<Tree *> *sta
 }
 
 // InterfaceDeclaration -> Modifiers interface Identifier InterfaceBody 
-void ptInterfaceDeclaration_ModifiersinterfaceIdentifierInterfaceBody(vector<Tree *> *stack) {
+static void ptInterfaceDeclaration_ModifiersinterfaceIdentifierInterfaceBody(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::Modifiers);
@@ -1298,7 +1298,7 @@ void ptInterfaceDeclaration_ModifiersinterfaceIdentifierInterfaceBody(vector<Tre
 }
 
 // InterfaceDeclaration -> interface Identifier ExtendsInterfaces InterfaceBody 
-void ptInterfaceDeclaration_interfaceIdentifierExtendsInterfacesInterfaceBody(vector<Tree *> *stack) {
+static void ptInterfaceDeclaration_interfaceIdentifierExtendsInterfacesInterfaceBody(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::Identifier);
@@ -1319,7 +1319,7 @@ void ptInterfaceDeclaration_interfaceIdentifierExtendsInterfacesInterfaceBody(ve
 }
 
 // InterfaceDeclaration -> Modifiers interface Identifier ExtendsInterfaces InterfaceBody 
-void ptInterfaceDeclaration_ModifiersinterfaceIdentifierExtendsInterfacesInterfaceBody(vector<Tree *> *stack) {
+static void ptInterfaceDeclaration_ModifiersinterfaceIdentifierExtendsInterfacesInterfaceBody(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 4);
   assert((*stack)[n - 4]->type == NonTerminalType::Modifiers);
@@ -1343,7 +1343,7 @@ void ptInterfaceDeclaration_ModifiersinterfaceIdentifierExtendsInterfacesInterfa
 }
 
 // ExtendsInterfaces -> extends InterfaceType 
-void ptExtendsInterfaces_extendsInterfaceType(vector<Tree *> *stack) {
+static void ptExtendsInterfaces_extendsInterfaceType(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceType);
@@ -1358,7 +1358,7 @@ void ptExtendsInterfaces_extendsInterfaceType(vector<Tree *> *stack) {
 }
 
 // ExtendsInterfaces -> ExtendsInterfaces , InterfaceType 
-void ptExtendsInterfaces_ExtendsInterfacesComInterfaceType(vector<Tree *> *stack) {
+static void ptExtendsInterfaces_ExtendsInterfacesComInterfaceType(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::ExtendsInterfaces);
@@ -1376,7 +1376,7 @@ void ptExtendsInterfaces_ExtendsInterfacesComInterfaceType(vector<Tree *> *stack
 }
 
 // InterfaceBody -> { } 
-void ptInterfaceBody_LCBrRCBr(vector<Tree *> *stack) {
+static void ptInterfaceBody_LCBrRCBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TInterfaceBody;
@@ -1388,7 +1388,7 @@ void ptInterfaceBody_LCBrRCBr(vector<Tree *> *stack) {
 }
 
 // InterfaceBody -> { InterfaceMemberDeclarations } 
-void ptInterfaceBody_LCBrInterfaceMemberDeclarationsRCBr(vector<Tree *> *stack) {
+static void ptInterfaceBody_LCBrInterfaceMemberDeclarationsRCBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceMemberDeclarations);
@@ -1403,7 +1403,7 @@ void ptInterfaceBody_LCBrInterfaceMemberDeclarationsRCBr(vector<Tree *> *stack) 
 }
 
 // InterfaceMemberDeclarations -> InterfaceMemberDeclaration 
-void ptInterfaceMemberDeclarations_InterfaceMemberDeclaration(vector<Tree *> *stack) {
+static void ptInterfaceMemberDeclarations_InterfaceMemberDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::InterfaceMemberDeclaration);
@@ -1418,7 +1418,7 @@ void ptInterfaceMemberDeclarations_InterfaceMemberDeclaration(vector<Tree *> *st
 }
 
 // InterfaceMemberDeclarations -> InterfaceMemberDeclarations InterfaceMemberDeclaration 
-void ptInterfaceMemberDeclarations_InterfaceMemberDeclarationsInterfaceMemberDeclaration(vector<Tree *> *stack) {
+static void ptInterfaceMemberDeclarations_InterfaceMemberDeclarationsInterfaceMemberDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::InterfaceMemberDeclarations);
@@ -1436,7 +1436,7 @@ void ptInterfaceMemberDeclarations_InterfaceMemberDeclarationsInterfaceMemberDec
 }
 
 // InterfaceMemberDeclaration -> AbstractMethodDeclaration 
-void ptInterfaceMemberDeclaration_AbstractMethodDeclaration(vector<Tree *> *stack) {
+static void ptInterfaceMemberDeclaration_AbstractMethodDeclaration(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::AbstractMethodDeclaration);
@@ -1451,7 +1451,7 @@ void ptInterfaceMemberDeclaration_AbstractMethodDeclaration(vector<Tree *> *stac
 }
 
 // AbstractMethodDeclaration -> MethodHeader ; 
-void ptAbstractMethodDeclaration_MethodHeaderSCol(vector<Tree *> *stack) {
+static void ptAbstractMethodDeclaration_MethodHeaderSCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::MethodHeader);
@@ -1466,7 +1466,7 @@ void ptAbstractMethodDeclaration_MethodHeaderSCol(vector<Tree *> *stack) {
 }
 
 // Block -> { } 
-void ptBlock_LCBrRCBr(vector<Tree *> *stack) {
+static void ptBlock_LCBrRCBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TBlock;
@@ -1478,7 +1478,7 @@ void ptBlock_LCBrRCBr(vector<Tree *> *stack) {
 }
 
 // Block -> { BlockStatements } 
-void ptBlock_LCBrBlockStatementsRCBr(vector<Tree *> *stack) {
+static void ptBlock_LCBrBlockStatementsRCBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::BlockStatements);
@@ -1493,7 +1493,7 @@ void ptBlock_LCBrBlockStatementsRCBr(vector<Tree *> *stack) {
 }
 
 // BlockStatements -> BlockStatement 
-void ptBlockStatements_BlockStatement(vector<Tree *> *stack) {
+static void ptBlockStatements_BlockStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::BlockStatement);
@@ -1508,7 +1508,7 @@ void ptBlockStatements_BlockStatement(vector<Tree *> *stack) {
 }
 
 // BlockStatements -> BlockStatements BlockStatement 
-void ptBlockStatements_BlockStatementsBlockStatement(vector<Tree *> *stack) {
+static void ptBlockStatements_BlockStatementsBlockStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::BlockStatements);
@@ -1526,7 +1526,7 @@ void ptBlockStatements_BlockStatementsBlockStatement(vector<Tree *> *stack) {
 }
 
 // BlockStatement -> LocalVariableDeclarationStatement 
-void ptBlockStatement_LocalVariableDeclarationStatement(vector<Tree *> *stack) {
+static void ptBlockStatement_LocalVariableDeclarationStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::LocalVariableDeclarationStatement);
@@ -1541,7 +1541,7 @@ void ptBlockStatement_LocalVariableDeclarationStatement(vector<Tree *> *stack) {
 }
 
 // BlockStatement -> Statement 
-void ptBlockStatement_Statement(vector<Tree *> *stack) {
+static void ptBlockStatement_Statement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Statement);
@@ -1556,7 +1556,7 @@ void ptBlockStatement_Statement(vector<Tree *> *stack) {
 }
 
 // LocalVariableDeclarationStatement -> VariableDeclaration ; 
-void ptLocalVariableDeclarationStatement_VariableDeclarationSCol(vector<Tree *> *stack) {
+static void ptLocalVariableDeclarationStatement_VariableDeclarationSCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::VariableDeclaration);
@@ -1571,7 +1571,7 @@ void ptLocalVariableDeclarationStatement_VariableDeclarationSCol(vector<Tree *> 
 }
 
 // VariableDeclaration -> Type VariableDeclarator 
-void ptVariableDeclaration_TypeVariableDeclarator(vector<Tree *> *stack) {
+static void ptVariableDeclaration_TypeVariableDeclarator(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Type);
@@ -1589,7 +1589,7 @@ void ptVariableDeclaration_TypeVariableDeclarator(vector<Tree *> *stack) {
 }
 
 // Statement -> StatementWithoutTrailingSubstatement 
-void ptStatement_StatementWithoutTrailingSubstatement(vector<Tree *> *stack) {
+static void ptStatement_StatementWithoutTrailingSubstatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementWithoutTrailingSubstatement);
@@ -1604,7 +1604,7 @@ void ptStatement_StatementWithoutTrailingSubstatement(vector<Tree *> *stack) {
 }
 
 // Statement -> IfThenStatement 
-void ptStatement_IfThenStatement(vector<Tree *> *stack) {
+static void ptStatement_IfThenStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::IfThenStatement);
@@ -1619,7 +1619,7 @@ void ptStatement_IfThenStatement(vector<Tree *> *stack) {
 }
 
 // Statement -> IfThenElseStatement 
-void ptStatement_IfThenElseStatement(vector<Tree *> *stack) {
+static void ptStatement_IfThenElseStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::IfThenElseStatement);
@@ -1634,7 +1634,7 @@ void ptStatement_IfThenElseStatement(vector<Tree *> *stack) {
 }
 
 // Statement -> WhileStatement 
-void ptStatement_WhileStatement(vector<Tree *> *stack) {
+static void ptStatement_WhileStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::WhileStatement);
@@ -1649,7 +1649,7 @@ void ptStatement_WhileStatement(vector<Tree *> *stack) {
 }
 
 // Statement -> ForStatement 
-void ptStatement_ForStatement(vector<Tree *> *stack) {
+static void ptStatement_ForStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ForStatement);
@@ -1664,7 +1664,7 @@ void ptStatement_ForStatement(vector<Tree *> *stack) {
 }
 
 // StatementNoShortIf -> StatementWithoutTrailingSubstatement 
-void ptStatementNoShortIf_StatementWithoutTrailingSubstatement(vector<Tree *> *stack) {
+static void ptStatementNoShortIf_StatementWithoutTrailingSubstatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementWithoutTrailingSubstatement);
@@ -1679,7 +1679,7 @@ void ptStatementNoShortIf_StatementWithoutTrailingSubstatement(vector<Tree *> *s
 }
 
 // StatementNoShortIf -> IfThenElseStatementNoShortIf 
-void ptStatementNoShortIf_IfThenElseStatementNoShortIf(vector<Tree *> *stack) {
+static void ptStatementNoShortIf_IfThenElseStatementNoShortIf(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::IfThenElseStatementNoShortIf);
@@ -1694,7 +1694,7 @@ void ptStatementNoShortIf_IfThenElseStatementNoShortIf(vector<Tree *> *stack) {
 }
 
 // StatementNoShortIf -> WhileStatementNoShortIf 
-void ptStatementNoShortIf_WhileStatementNoShortIf(vector<Tree *> *stack) {
+static void ptStatementNoShortIf_WhileStatementNoShortIf(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::WhileStatementNoShortIf);
@@ -1709,7 +1709,7 @@ void ptStatementNoShortIf_WhileStatementNoShortIf(vector<Tree *> *stack) {
 }
 
 // StatementNoShortIf -> ForStatementNoShortIf 
-void ptStatementNoShortIf_ForStatementNoShortIf(vector<Tree *> *stack) {
+static void ptStatementNoShortIf_ForStatementNoShortIf(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ForStatementNoShortIf);
@@ -1724,7 +1724,7 @@ void ptStatementNoShortIf_ForStatementNoShortIf(vector<Tree *> *stack) {
 }
 
 // StatementWithoutTrailingSubstatement -> Block 
-void ptStatementWithoutTrailingSubstatement_Block(vector<Tree *> *stack) {
+static void ptStatementWithoutTrailingSubstatement_Block(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Block);
@@ -1739,7 +1739,7 @@ void ptStatementWithoutTrailingSubstatement_Block(vector<Tree *> *stack) {
 }
 
 // StatementWithoutTrailingSubstatement -> ExpressionStatement 
-void ptStatementWithoutTrailingSubstatement_ExpressionStatement(vector<Tree *> *stack) {
+static void ptStatementWithoutTrailingSubstatement_ExpressionStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ExpressionStatement);
@@ -1754,7 +1754,7 @@ void ptStatementWithoutTrailingSubstatement_ExpressionStatement(vector<Tree *> *
 }
 
 // StatementWithoutTrailingSubstatement -> ReturnStatement 
-void ptStatementWithoutTrailingSubstatement_ReturnStatement(vector<Tree *> *stack) {
+static void ptStatementWithoutTrailingSubstatement_ReturnStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ReturnStatement);
@@ -1769,7 +1769,7 @@ void ptStatementWithoutTrailingSubstatement_ReturnStatement(vector<Tree *> *stac
 }
 
 // ExpressionStatement -> ; 
-void ptExpressionStatement_SCol(vector<Tree *> *stack) {
+static void ptExpressionStatement_SCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TExpressionStatement;
@@ -1781,7 +1781,7 @@ void ptExpressionStatement_SCol(vector<Tree *> *stack) {
 }
 
 // ExpressionStatement -> StatementExpression ; 
-void ptExpressionStatement_StatementExpressionSCol(vector<Tree *> *stack) {
+static void ptExpressionStatement_StatementExpressionSCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementExpression);
@@ -1796,7 +1796,7 @@ void ptExpressionStatement_StatementExpressionSCol(vector<Tree *> *stack) {
 }
 
 // StatementExpression -> Assignment 
-void ptStatementExpression_Assignment(vector<Tree *> *stack) {
+static void ptStatementExpression_Assignment(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Assignment);
@@ -1811,7 +1811,7 @@ void ptStatementExpression_Assignment(vector<Tree *> *stack) {
 }
 
 // StatementExpression -> MethodInvocation 
-void ptStatementExpression_MethodInvocation(vector<Tree *> *stack) {
+static void ptStatementExpression_MethodInvocation(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::MethodInvocation);
@@ -1826,7 +1826,7 @@ void ptStatementExpression_MethodInvocation(vector<Tree *> *stack) {
 }
 
 // StatementExpression -> ClassInstanceCreationExpression 
-void ptStatementExpression_ClassInstanceCreationExpression(vector<Tree *> *stack) {
+static void ptStatementExpression_ClassInstanceCreationExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassInstanceCreationExpression);
@@ -1841,7 +1841,7 @@ void ptStatementExpression_ClassInstanceCreationExpression(vector<Tree *> *stack
 }
 
 // IfThenStatement -> if ( Expression ) Statement 
-void ptIfThenStatement_IfLParExpressionRParStatement(vector<Tree *> *stack) {
+static void ptIfThenStatement_IfLParExpressionRParStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Expression);
@@ -1859,7 +1859,7 @@ void ptIfThenStatement_IfLParExpressionRParStatement(vector<Tree *> *stack) {
 }
 
 // IfThenElseStatement -> if ( Expression ) StatementNoShortIf else Statement 
-void ptIfThenElseStatement_IfLParExpressionRParStatementNoShortIfElseStatement(vector<Tree *> *stack) {
+static void ptIfThenElseStatement_IfLParExpressionRParStatementNoShortIfElseStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::Expression);
@@ -1880,7 +1880,7 @@ void ptIfThenElseStatement_IfLParExpressionRParStatementNoShortIfElseStatement(v
 }
 
 // IfThenElseStatementNoShortIf -> if ( Expression ) StatementNoShortIf else StatementNoShortIf 
-void ptIfThenElseStatementNoShortIf_IfLParExpressionRParStatementNoShortIfElseStatementNoShortIf(vector<Tree *> *stack) {
+static void ptIfThenElseStatementNoShortIf_IfLParExpressionRParStatementNoShortIfElseStatementNoShortIf(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::Expression);
@@ -1901,7 +1901,7 @@ void ptIfThenElseStatementNoShortIf_IfLParExpressionRParStatementNoShortIfElseSt
 }
 
 // WhileStatement -> while ( Expression ) Statement 
-void ptWhileStatement_WhileLParExpressionRParStatement(vector<Tree *> *stack) {
+static void ptWhileStatement_WhileLParExpressionRParStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Expression);
@@ -1919,7 +1919,7 @@ void ptWhileStatement_WhileLParExpressionRParStatement(vector<Tree *> *stack) {
 }
 
 // WhileStatementNoShortIf -> while ( Expression ) StatementNoShortIf 
-void ptWhileStatementNoShortIf_WhileLParExpressionRParStatementNoShortIf(vector<Tree *> *stack) {
+static void ptWhileStatementNoShortIf_WhileLParExpressionRParStatementNoShortIf(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Expression);
@@ -1937,7 +1937,7 @@ void ptWhileStatementNoShortIf_WhileLParExpressionRParStatementNoShortIf(vector<
 }
 
 // ForStatement -> for ( ForInit ; ) Statement 
-void ptForStatement_ForLParForInitSColRParStatement(vector<Tree *> *stack) {
+static void ptForStatement_ForLParForInitSColRParStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::ForInit);
@@ -1955,7 +1955,7 @@ void ptForStatement_ForLParForInitSColRParStatement(vector<Tree *> *stack) {
 }
 
 // ForStatement -> for ( ForInit Expression ; ) Statement 
-void ptForStatement_ForLParForInitExpressionSColRParStatement(vector<Tree *> *stack) {
+static void ptForStatement_ForLParForInitExpressionSColRParStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::ForInit);
@@ -1976,7 +1976,7 @@ void ptForStatement_ForLParForInitExpressionSColRParStatement(vector<Tree *> *st
 }
 
 // ForStatement -> for ( ForInit ; ForUpdate ) Statement 
-void ptForStatement_ForLParForInitSColForUpdateRParStatement(vector<Tree *> *stack) {
+static void ptForStatement_ForLParForInitSColForUpdateRParStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::ForInit);
@@ -1997,7 +1997,7 @@ void ptForStatement_ForLParForInitSColForUpdateRParStatement(vector<Tree *> *sta
 }
 
 // ForStatement -> for ( ForInit Expression ; ForUpdate ) Statement 
-void ptForStatement_ForLParForInitExpressionSColForUpdateRParStatement(vector<Tree *> *stack) {
+static void ptForStatement_ForLParForInitExpressionSColForUpdateRParStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 4);
   assert((*stack)[n - 4]->type == NonTerminalType::ForInit);
@@ -2021,7 +2021,7 @@ void ptForStatement_ForLParForInitExpressionSColForUpdateRParStatement(vector<Tr
 }
 
 // ForStatementNoShortIf -> for ( ForInit ; ) StatementNoShortIf 
-void ptForStatementNoShortIf_ForLParForInitSColRParStatementNoShortIf(vector<Tree *> *stack) {
+static void ptForStatementNoShortIf_ForLParForInitSColRParStatementNoShortIf(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::ForInit);
@@ -2039,7 +2039,7 @@ void ptForStatementNoShortIf_ForLParForInitSColRParStatementNoShortIf(vector<Tre
 }
 
 // ForStatementNoShortIf -> for ( ForInit Expression ; ) StatementNoShortIf 
-void ptForStatementNoShortIf_ForLParForInitExpressionSColRParStatementNoShortIf(vector<Tree *> *stack) {
+static void ptForStatementNoShortIf_ForLParForInitExpressionSColRParStatementNoShortIf(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::ForInit);
@@ -2060,7 +2060,7 @@ void ptForStatementNoShortIf_ForLParForInitExpressionSColRParStatementNoShortIf(
 }
 
 // ForStatementNoShortIf -> for ( ForInit ; ForUpdate ) StatementNoShortIf 
-void ptForStatementNoShortIf_ForLParForInitSColForUpdateRParStatementNoShortIf(vector<Tree *> *stack) {
+static void ptForStatementNoShortIf_ForLParForInitSColForUpdateRParStatementNoShortIf(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::ForInit);
@@ -2081,7 +2081,7 @@ void ptForStatementNoShortIf_ForLParForInitSColForUpdateRParStatementNoShortIf(v
 }
 
 // ForStatementNoShortIf -> for ( ForInit Expression ; ForUpdate ) StatementNoShortIf 
-void ptForStatementNoShortIf_ForLParForInitExpressionSColForUpdateRParStatementNoShortIf(vector<Tree *> *stack) {
+static void ptForStatementNoShortIf_ForLParForInitExpressionSColForUpdateRParStatementNoShortIf(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 4);
   assert((*stack)[n - 4]->type == NonTerminalType::ForInit);
@@ -2105,7 +2105,7 @@ void ptForStatementNoShortIf_ForLParForInitExpressionSColForUpdateRParStatementN
 }
 
 // ForInit -> ExpressionStatement 
-void ptForInit_ExpressionStatement(vector<Tree *> *stack) {
+static void ptForInit_ExpressionStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ExpressionStatement);
@@ -2120,7 +2120,7 @@ void ptForInit_ExpressionStatement(vector<Tree *> *stack) {
 }
 
 // ForInit -> LocalVariableDeclarationStatement 
-void ptForInit_LocalVariableDeclarationStatement(vector<Tree *> *stack) {
+static void ptForInit_LocalVariableDeclarationStatement(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::LocalVariableDeclarationStatement);
@@ -2135,7 +2135,7 @@ void ptForInit_LocalVariableDeclarationStatement(vector<Tree *> *stack) {
 }
 
 // ForUpdate -> StatementExpression 
-void ptForUpdate_StatementExpression(vector<Tree *> *stack) {
+static void ptForUpdate_StatementExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::StatementExpression);
@@ -2150,7 +2150,7 @@ void ptForUpdate_StatementExpression(vector<Tree *> *stack) {
 }
 
 // ReturnStatement -> return ; 
-void ptReturnStatement_ReturnSCol(vector<Tree *> *stack) {
+static void ptReturnStatement_ReturnSCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TReturnStatement;
@@ -2162,7 +2162,7 @@ void ptReturnStatement_ReturnSCol(vector<Tree *> *stack) {
 }
 
 // ReturnStatement -> return Expression ; 
-void ptReturnStatement_ReturnExpressionSCol(vector<Tree *> *stack) {
+static void ptReturnStatement_ReturnExpressionSCol(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Expression);
@@ -2177,7 +2177,7 @@ void ptReturnStatement_ReturnExpressionSCol(vector<Tree *> *stack) {
 }
 
 // Primary -> PrimaryNoNewArray 
-void ptPrimary_PrimaryNoNewArray(vector<Tree *> *stack) {
+static void ptPrimary_PrimaryNoNewArray(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::PrimaryNoNewArray);
@@ -2192,7 +2192,7 @@ void ptPrimary_PrimaryNoNewArray(vector<Tree *> *stack) {
 }
 
 // Primary -> ArrayCreationExpression 
-void ptPrimary_ArrayCreationExpression(vector<Tree *> *stack) {
+static void ptPrimary_ArrayCreationExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ArrayCreationExpression);
@@ -2207,7 +2207,7 @@ void ptPrimary_ArrayCreationExpression(vector<Tree *> *stack) {
 }
 
 // PrimaryNoNewArray -> Literal 
-void ptPrimaryNoNewArray_Literal(vector<Tree *> *stack) {
+static void ptPrimaryNoNewArray_Literal(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Literal);
@@ -2222,7 +2222,7 @@ void ptPrimaryNoNewArray_Literal(vector<Tree *> *stack) {
 }
 
 // PrimaryNoNewArray -> This2 
-void ptPrimaryNoNewArray_This2(vector<Tree *> *stack) {
+static void ptPrimaryNoNewArray_This2(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::This2);
@@ -2237,7 +2237,7 @@ void ptPrimaryNoNewArray_This2(vector<Tree *> *stack) {
 }
 
 // PrimaryNoNewArray -> ParenthesizedExpression 
-void ptPrimaryNoNewArray_ParenthesizedExpression(vector<Tree *> *stack) {
+static void ptPrimaryNoNewArray_ParenthesizedExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ParenthesizedExpression);
@@ -2252,7 +2252,7 @@ void ptPrimaryNoNewArray_ParenthesizedExpression(vector<Tree *> *stack) {
 }
 
 // PrimaryNoNewArray -> ClassInstanceCreationExpression 
-void ptPrimaryNoNewArray_ClassInstanceCreationExpression(vector<Tree *> *stack) {
+static void ptPrimaryNoNewArray_ClassInstanceCreationExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassInstanceCreationExpression);
@@ -2267,7 +2267,7 @@ void ptPrimaryNoNewArray_ClassInstanceCreationExpression(vector<Tree *> *stack) 
 }
 
 // PrimaryNoNewArray -> FieldAccess 
-void ptPrimaryNoNewArray_FieldAccess(vector<Tree *> *stack) {
+static void ptPrimaryNoNewArray_FieldAccess(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::FieldAccess);
@@ -2282,7 +2282,7 @@ void ptPrimaryNoNewArray_FieldAccess(vector<Tree *> *stack) {
 }
 
 // PrimaryNoNewArray -> MethodInvocation 
-void ptPrimaryNoNewArray_MethodInvocation(vector<Tree *> *stack) {
+static void ptPrimaryNoNewArray_MethodInvocation(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::MethodInvocation);
@@ -2297,7 +2297,7 @@ void ptPrimaryNoNewArray_MethodInvocation(vector<Tree *> *stack) {
 }
 
 // PrimaryNoNewArray -> ArrayAccess 
-void ptPrimaryNoNewArray_ArrayAccess(vector<Tree *> *stack) {
+static void ptPrimaryNoNewArray_ArrayAccess(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ArrayAccess);
@@ -2312,7 +2312,7 @@ void ptPrimaryNoNewArray_ArrayAccess(vector<Tree *> *stack) {
 }
 
 // This2 -> this 
-void ptThis2_This2(vector<Tree *> *stack) {
+static void ptThis2_This2(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 0);
   auto t = new TThis2;
@@ -2324,7 +2324,7 @@ void ptThis2_This2(vector<Tree *> *stack) {
 }
 
 // ParenthesizedExpression -> ( Expression ) 
-void ptParenthesizedExpression_LParExpressionRPar(vector<Tree *> *stack) {
+static void ptParenthesizedExpression_LParExpressionRPar(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Expression);
@@ -2339,7 +2339,7 @@ void ptParenthesizedExpression_LParExpressionRPar(vector<Tree *> *stack) {
 }
 
 // ClassInstanceCreationExpression -> new ClassType ( ) 
-void ptClassInstanceCreationExpression_NewClassTypeLParRPar(vector<Tree *> *stack) {
+static void ptClassInstanceCreationExpression_NewClassTypeLParRPar(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ClassType);
@@ -2354,7 +2354,7 @@ void ptClassInstanceCreationExpression_NewClassTypeLParRPar(vector<Tree *> *stac
 }
 
 // ClassInstanceCreationExpression -> new ClassType ( ArgumentList ) 
-void ptClassInstanceCreationExpression_NewClassTypeLParArgumentListRPar(vector<Tree *> *stack) {
+static void ptClassInstanceCreationExpression_NewClassTypeLParArgumentListRPar(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::ClassType);
@@ -2372,7 +2372,7 @@ void ptClassInstanceCreationExpression_NewClassTypeLParArgumentListRPar(vector<T
 }
 
 // ArgumentList -> Expression 
-void ptArgumentList_Expression(vector<Tree *> *stack) {
+static void ptArgumentList_Expression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Expression);
@@ -2387,7 +2387,7 @@ void ptArgumentList_Expression(vector<Tree *> *stack) {
 }
 
 // ArgumentList -> ArgumentList , Expression 
-void ptArgumentList_ArgumentListComExpression(vector<Tree *> *stack) {
+static void ptArgumentList_ArgumentListComExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::ArgumentList);
@@ -2405,7 +2405,7 @@ void ptArgumentList_ArgumentListComExpression(vector<Tree *> *stack) {
 }
 
 // ArrayCreationExpression -> new PrimitiveType [ Expression ] 
-void ptArrayCreationExpression_NewPrimitiveTypeLSBrExpressionRSBr(vector<Tree *> *stack) {
+static void ptArrayCreationExpression_NewPrimitiveTypeLSBrExpressionRSBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::PrimitiveType);
@@ -2423,7 +2423,7 @@ void ptArrayCreationExpression_NewPrimitiveTypeLSBrExpressionRSBr(vector<Tree *>
 }
 
 // ArrayCreationExpression -> new ClassOrInterfaceType [ Expression ] 
-void ptArrayCreationExpression_NewClassOrInterfaceTypeLSBrExpressionRSBr(vector<Tree *> *stack) {
+static void ptArrayCreationExpression_NewClassOrInterfaceTypeLSBrExpressionRSBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::ClassOrInterfaceType);
@@ -2441,7 +2441,7 @@ void ptArrayCreationExpression_NewClassOrInterfaceTypeLSBrExpressionRSBr(vector<
 }
 
 // FieldAccess -> Primary . Identifier 
-void ptFieldAccess_PrimaryDotIdentifier(vector<Tree *> *stack) {
+static void ptFieldAccess_PrimaryDotIdentifier(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Primary);
@@ -2459,7 +2459,7 @@ void ptFieldAccess_PrimaryDotIdentifier(vector<Tree *> *stack) {
 }
 
 // MethodInvocation -> Name ( ) 
-void ptMethodInvocation_NameLParRPar(vector<Tree *> *stack) {
+static void ptMethodInvocation_NameLParRPar(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Name);
@@ -2474,7 +2474,7 @@ void ptMethodInvocation_NameLParRPar(vector<Tree *> *stack) {
 }
 
 // MethodInvocation -> Name ( ArgumentList ) 
-void ptMethodInvocation_NameLParArgumentListRPar(vector<Tree *> *stack) {
+static void ptMethodInvocation_NameLParArgumentListRPar(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Name);
@@ -2492,7 +2492,7 @@ void ptMethodInvocation_NameLParArgumentListRPar(vector<Tree *> *stack) {
 }
 
 // MethodInvocation -> Primary . Identifier ( ) 
-void ptMethodInvocation_PrimaryDotIdentifierLParRPar(vector<Tree *> *stack) {
+static void ptMethodInvocation_PrimaryDotIdentifierLParRPar(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Primary);
@@ -2510,7 +2510,7 @@ void ptMethodInvocation_PrimaryDotIdentifierLParRPar(vector<Tree *> *stack) {
 }
 
 // MethodInvocation -> Primary . Identifier ( ArgumentList ) 
-void ptMethodInvocation_PrimaryDotIdentifierLParArgumentListRPar(vector<Tree *> *stack) {
+static void ptMethodInvocation_PrimaryDotIdentifierLParArgumentListRPar(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 3);
   assert((*stack)[n - 3]->type == NonTerminalType::Primary);
@@ -2531,7 +2531,7 @@ void ptMethodInvocation_PrimaryDotIdentifierLParArgumentListRPar(vector<Tree *> 
 }
 
 // ArrayAccess -> Name [ Expression ] 
-void ptArrayAccess_NameLSBrExpressionRSBr(vector<Tree *> *stack) {
+static void ptArrayAccess_NameLSBrExpressionRSBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Name);
@@ -2549,7 +2549,7 @@ void ptArrayAccess_NameLSBrExpressionRSBr(vector<Tree *> *stack) {
 }
 
 // ArrayAccess -> PrimaryNoNewArray [ Expression ] 
-void ptArrayAccess_PrimaryNoNewArrayLSBrExpressionRSBr(vector<Tree *> *stack) {
+static void ptArrayAccess_PrimaryNoNewArrayLSBrExpressionRSBr(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::PrimaryNoNewArray);
@@ -2567,7 +2567,7 @@ void ptArrayAccess_PrimaryNoNewArrayLSBrExpressionRSBr(vector<Tree *> *stack) {
 }
 
 // UnaryExpression -> - UnaryExpression 
-void ptUnaryExpression_MinusUnaryExpression(vector<Tree *> *stack) {
+static void ptUnaryExpression_MinusUnaryExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpression);
@@ -2582,7 +2582,7 @@ void ptUnaryExpression_MinusUnaryExpression(vector<Tree *> *stack) {
 }
 
 // UnaryExpression -> UnaryExpressionNotPlusMinus 
-void ptUnaryExpression_UnaryExpressionNotPlusMinus(vector<Tree *> *stack) {
+static void ptUnaryExpression_UnaryExpressionNotPlusMinus(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpressionNotPlusMinus);
@@ -2597,7 +2597,7 @@ void ptUnaryExpression_UnaryExpressionNotPlusMinus(vector<Tree *> *stack) {
 }
 
 // UnaryExpressionNotPlusMinus -> Primary 
-void ptUnaryExpressionNotPlusMinus_Primary(vector<Tree *> *stack) {
+static void ptUnaryExpressionNotPlusMinus_Primary(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Primary);
@@ -2612,7 +2612,7 @@ void ptUnaryExpressionNotPlusMinus_Primary(vector<Tree *> *stack) {
 }
 
 // UnaryExpressionNotPlusMinus -> Name 
-void ptUnaryExpressionNotPlusMinus_Name(vector<Tree *> *stack) {
+static void ptUnaryExpressionNotPlusMinus_Name(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Name);
@@ -2627,7 +2627,7 @@ void ptUnaryExpressionNotPlusMinus_Name(vector<Tree *> *stack) {
 }
 
 // UnaryExpressionNotPlusMinus -> ! UnaryExpression 
-void ptUnaryExpressionNotPlusMinus_BangUnaryExpression(vector<Tree *> *stack) {
+static void ptUnaryExpressionNotPlusMinus_BangUnaryExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpression);
@@ -2642,7 +2642,7 @@ void ptUnaryExpressionNotPlusMinus_BangUnaryExpression(vector<Tree *> *stack) {
 }
 
 // UnaryExpressionNotPlusMinus -> CastExpression 
-void ptUnaryExpressionNotPlusMinus_CastExpression(vector<Tree *> *stack) {
+static void ptUnaryExpressionNotPlusMinus_CastExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::CastExpression);
@@ -2657,7 +2657,7 @@ void ptUnaryExpressionNotPlusMinus_CastExpression(vector<Tree *> *stack) {
 }
 
 // CastExpression -> ( PrimitiveType ) UnaryExpression 
-void ptCastExpression_LParPrimitiveTypeRParUnaryExpression(vector<Tree *> *stack) {
+static void ptCastExpression_LParPrimitiveTypeRParUnaryExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::PrimitiveType);
@@ -2675,7 +2675,7 @@ void ptCastExpression_LParPrimitiveTypeRParUnaryExpression(vector<Tree *> *stack
 }
 
 // CastExpression -> ( PrimitiveType [ ] ) UnaryExpression 
-void ptCastExpression_LParPrimitiveTypeLSBrRSBrRParUnaryExpression(vector<Tree *> *stack) {
+static void ptCastExpression_LParPrimitiveTypeLSBrRSBrRParUnaryExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::PrimitiveType);
@@ -2693,7 +2693,7 @@ void ptCastExpression_LParPrimitiveTypeLSBrRSBrRParUnaryExpression(vector<Tree *
 }
 
 // CastExpression -> ( Expression ) UnaryExpressionNotPlusMinus 
-void ptCastExpression_LParExpressionRParUnaryExpressionNotPlusMinus(vector<Tree *> *stack) {
+static void ptCastExpression_LParExpressionRParUnaryExpressionNotPlusMinus(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Expression);
@@ -2711,7 +2711,7 @@ void ptCastExpression_LParExpressionRParUnaryExpressionNotPlusMinus(vector<Tree 
 }
 
 // CastExpression -> ( Name [ ] ) UnaryExpressionNotPlusMinus 
-void ptCastExpression_LParNameLSBrRSBrRParUnaryExpressionNotPlusMinus(vector<Tree *> *stack) {
+static void ptCastExpression_LParNameLSBrRSBrRParUnaryExpressionNotPlusMinus(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::Name);
@@ -2729,7 +2729,7 @@ void ptCastExpression_LParNameLSBrRSBrRParUnaryExpressionNotPlusMinus(vector<Tre
 }
 
 // MultiplicativeExpression -> UnaryExpression 
-void ptMultiplicativeExpression_UnaryExpression(vector<Tree *> *stack) {
+static void ptMultiplicativeExpression_UnaryExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::UnaryExpression);
@@ -2744,7 +2744,7 @@ void ptMultiplicativeExpression_UnaryExpression(vector<Tree *> *stack) {
 }
 
 // MultiplicativeExpression -> MultiplicativeExpression * UnaryExpression 
-void ptMultiplicativeExpression_MultiplicativeExpressionStarUnaryExpression(vector<Tree *> *stack) {
+static void ptMultiplicativeExpression_MultiplicativeExpressionStarUnaryExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::MultiplicativeExpression);
@@ -2762,7 +2762,7 @@ void ptMultiplicativeExpression_MultiplicativeExpressionStarUnaryExpression(vect
 }
 
 // MultiplicativeExpression -> MultiplicativeExpression / UnaryExpression 
-void ptMultiplicativeExpression_MultiplicativeExpressionRSlashUnaryExpression(vector<Tree *> *stack) {
+static void ptMultiplicativeExpression_MultiplicativeExpressionRSlashUnaryExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::MultiplicativeExpression);
@@ -2780,7 +2780,7 @@ void ptMultiplicativeExpression_MultiplicativeExpressionRSlashUnaryExpression(ve
 }
 
 // MultiplicativeExpression -> MultiplicativeExpression % UnaryExpression 
-void ptMultiplicativeExpression_MultiplicativeExpressionPercUnaryExpression(vector<Tree *> *stack) {
+static void ptMultiplicativeExpression_MultiplicativeExpressionPercUnaryExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::MultiplicativeExpression);
@@ -2798,7 +2798,7 @@ void ptMultiplicativeExpression_MultiplicativeExpressionPercUnaryExpression(vect
 }
 
 // AdditiveExpression -> MultiplicativeExpression 
-void ptAdditiveExpression_MultiplicativeExpression(vector<Tree *> *stack) {
+static void ptAdditiveExpression_MultiplicativeExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::MultiplicativeExpression);
@@ -2813,7 +2813,7 @@ void ptAdditiveExpression_MultiplicativeExpression(vector<Tree *> *stack) {
 }
 
 // AdditiveExpression -> AdditiveExpression + MultiplicativeExpression 
-void ptAdditiveExpression_AdditiveExpressionPlusMultiplicativeExpression(vector<Tree *> *stack) {
+static void ptAdditiveExpression_AdditiveExpressionPlusMultiplicativeExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::AdditiveExpression);
@@ -2831,7 +2831,7 @@ void ptAdditiveExpression_AdditiveExpressionPlusMultiplicativeExpression(vector<
 }
 
 // AdditiveExpression -> AdditiveExpression - MultiplicativeExpression 
-void ptAdditiveExpression_AdditiveExpressionMinusMultiplicativeExpression(vector<Tree *> *stack) {
+static void ptAdditiveExpression_AdditiveExpressionMinusMultiplicativeExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::AdditiveExpression);
@@ -2849,7 +2849,7 @@ void ptAdditiveExpression_AdditiveExpressionMinusMultiplicativeExpression(vector
 }
 
 // RelationalExpression -> AdditiveExpression 
-void ptRelationalExpression_AdditiveExpression(vector<Tree *> *stack) {
+static void ptRelationalExpression_AdditiveExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::AdditiveExpression);
@@ -2864,7 +2864,7 @@ void ptRelationalExpression_AdditiveExpression(vector<Tree *> *stack) {
 }
 
 // RelationalExpression -> RelationalExpression < AdditiveExpression 
-void ptRelationalExpression_RelationalExpressionLeAdditiveExpression(vector<Tree *> *stack) {
+static void ptRelationalExpression_RelationalExpressionLeAdditiveExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::RelationalExpression);
@@ -2882,7 +2882,7 @@ void ptRelationalExpression_RelationalExpressionLeAdditiveExpression(vector<Tree
 }
 
 // RelationalExpression -> RelationalExpression > AdditiveExpression 
-void ptRelationalExpression_RelationalExpressionGrAdditiveExpression(vector<Tree *> *stack) {
+static void ptRelationalExpression_RelationalExpressionGrAdditiveExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::RelationalExpression);
@@ -2900,7 +2900,7 @@ void ptRelationalExpression_RelationalExpressionGrAdditiveExpression(vector<Tree
 }
 
 // RelationalExpression -> RelationalExpression <= AdditiveExpression 
-void ptRelationalExpression_RelationalExpressionLeEqAdditiveExpression(vector<Tree *> *stack) {
+static void ptRelationalExpression_RelationalExpressionLeEqAdditiveExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::RelationalExpression);
@@ -2918,7 +2918,7 @@ void ptRelationalExpression_RelationalExpressionLeEqAdditiveExpression(vector<Tr
 }
 
 // RelationalExpression -> RelationalExpression >= AdditiveExpression 
-void ptRelationalExpression_RelationalExpressionGrEqAdditiveExpression(vector<Tree *> *stack) {
+static void ptRelationalExpression_RelationalExpressionGrEqAdditiveExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::RelationalExpression);
@@ -2936,7 +2936,7 @@ void ptRelationalExpression_RelationalExpressionGrEqAdditiveExpression(vector<Tr
 }
 
 // RelationalExpression -> RelationalExpression instanceof ReferenceType 
-void ptRelationalExpression_RelationalExpressioninstanceofReferenceType(vector<Tree *> *stack) {
+static void ptRelationalExpression_RelationalExpressioninstanceofReferenceType(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::RelationalExpression);
@@ -2954,7 +2954,7 @@ void ptRelationalExpression_RelationalExpressioninstanceofReferenceType(vector<T
 }
 
 // EqualityExpression -> RelationalExpression 
-void ptEqualityExpression_RelationalExpression(vector<Tree *> *stack) {
+static void ptEqualityExpression_RelationalExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::RelationalExpression);
@@ -2969,7 +2969,7 @@ void ptEqualityExpression_RelationalExpression(vector<Tree *> *stack) {
 }
 
 // EqualityExpression -> EqualityExpression == RelationalExpression 
-void ptEqualityExpression_EqualityExpressionEqEqRelationalExpression(vector<Tree *> *stack) {
+static void ptEqualityExpression_EqualityExpressionEqEqRelationalExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::EqualityExpression);
@@ -2987,7 +2987,7 @@ void ptEqualityExpression_EqualityExpressionEqEqRelationalExpression(vector<Tree
 }
 
 // EqualityExpression -> EqualityExpression != RelationalExpression 
-void ptEqualityExpression_EqualityExpressionBangEqRelationalExpression(vector<Tree *> *stack) {
+static void ptEqualityExpression_EqualityExpressionBangEqRelationalExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::EqualityExpression);
@@ -3005,7 +3005,7 @@ void ptEqualityExpression_EqualityExpressionBangEqRelationalExpression(vector<Tr
 }
 
 // AndExpression -> EqualityExpression 
-void ptAndExpression_EqualityExpression(vector<Tree *> *stack) {
+static void ptAndExpression_EqualityExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::EqualityExpression);
@@ -3020,7 +3020,7 @@ void ptAndExpression_EqualityExpression(vector<Tree *> *stack) {
 }
 
 // AndExpression -> AndExpression & EqualityExpression 
-void ptAndExpression_AndExpressionAmpEqualityExpression(vector<Tree *> *stack) {
+static void ptAndExpression_AndExpressionAmpEqualityExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::AndExpression);
@@ -3038,7 +3038,7 @@ void ptAndExpression_AndExpressionAmpEqualityExpression(vector<Tree *> *stack) {
 }
 
 // InclusiveOrExpression -> AndExpression 
-void ptInclusiveOrExpression_AndExpression(vector<Tree *> *stack) {
+static void ptInclusiveOrExpression_AndExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::AndExpression);
@@ -3053,7 +3053,7 @@ void ptInclusiveOrExpression_AndExpression(vector<Tree *> *stack) {
 }
 
 // InclusiveOrExpression -> InclusiveOrExpression | AndExpression 
-void ptInclusiveOrExpression_InclusiveOrExpressionOrAndExpression(vector<Tree *> *stack) {
+static void ptInclusiveOrExpression_InclusiveOrExpressionOrAndExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::InclusiveOrExpression);
@@ -3071,7 +3071,7 @@ void ptInclusiveOrExpression_InclusiveOrExpressionOrAndExpression(vector<Tree *>
 }
 
 // ConditionalAndExpression -> InclusiveOrExpression 
-void ptConditionalAndExpression_InclusiveOrExpression(vector<Tree *> *stack) {
+static void ptConditionalAndExpression_InclusiveOrExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::InclusiveOrExpression);
@@ -3086,7 +3086,7 @@ void ptConditionalAndExpression_InclusiveOrExpression(vector<Tree *> *stack) {
 }
 
 // ConditionalAndExpression -> ConditionalAndExpression && InclusiveOrExpression 
-void ptConditionalAndExpression_ConditionalAndExpressionAmpAmpInclusiveOrExpression(vector<Tree *> *stack) {
+static void ptConditionalAndExpression_ConditionalAndExpressionAmpAmpInclusiveOrExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::ConditionalAndExpression);
@@ -3104,7 +3104,7 @@ void ptConditionalAndExpression_ConditionalAndExpressionAmpAmpInclusiveOrExpress
 }
 
 // ConditionalOrExpression -> ConditionalAndExpression 
-void ptConditionalOrExpression_ConditionalAndExpression(vector<Tree *> *stack) {
+static void ptConditionalOrExpression_ConditionalAndExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ConditionalAndExpression);
@@ -3119,7 +3119,7 @@ void ptConditionalOrExpression_ConditionalAndExpression(vector<Tree *> *stack) {
 }
 
 // ConditionalOrExpression -> ConditionalOrExpression || ConditionalAndExpression 
-void ptConditionalOrExpression_ConditionalOrExpressionOrOrConditionalAndExpression(vector<Tree *> *stack) {
+static void ptConditionalOrExpression_ConditionalOrExpressionOrOrConditionalAndExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::ConditionalOrExpression);
@@ -3137,7 +3137,7 @@ void ptConditionalOrExpression_ConditionalOrExpressionOrOrConditionalAndExpressi
 }
 
 // AssignmentExpression -> ConditionalOrExpression 
-void ptAssignmentExpression_ConditionalOrExpression(vector<Tree *> *stack) {
+static void ptAssignmentExpression_ConditionalOrExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ConditionalOrExpression);
@@ -3152,7 +3152,7 @@ void ptAssignmentExpression_ConditionalOrExpression(vector<Tree *> *stack) {
 }
 
 // AssignmentExpression -> Assignment 
-void ptAssignmentExpression_Assignment(vector<Tree *> *stack) {
+static void ptAssignmentExpression_Assignment(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Assignment);
@@ -3167,7 +3167,7 @@ void ptAssignmentExpression_Assignment(vector<Tree *> *stack) {
 }
 
 // Assignment -> LeftHandSide = AssignmentExpression 
-void ptAssignment_LeftHandSideEqAssignmentExpression(vector<Tree *> *stack) {
+static void ptAssignment_LeftHandSideEqAssignmentExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
   assert((*stack)[n - 2]->type == NonTerminalType::LeftHandSide);
@@ -3185,7 +3185,7 @@ void ptAssignment_LeftHandSideEqAssignmentExpression(vector<Tree *> *stack) {
 }
 
 // LeftHandSide -> Name 
-void ptLeftHandSide_Name(vector<Tree *> *stack) {
+static void ptLeftHandSide_Name(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::Name);
@@ -3200,7 +3200,7 @@ void ptLeftHandSide_Name(vector<Tree *> *stack) {
 }
 
 // LeftHandSide -> FieldAccess 
-void ptLeftHandSide_FieldAccess(vector<Tree *> *stack) {
+static void ptLeftHandSide_FieldAccess(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::FieldAccess);
@@ -3215,7 +3215,7 @@ void ptLeftHandSide_FieldAccess(vector<Tree *> *stack) {
 }
 
 // LeftHandSide -> ArrayAccess 
-void ptLeftHandSide_ArrayAccess(vector<Tree *> *stack) {
+static void ptLeftHandSide_ArrayAccess(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::ArrayAccess);
@@ -3230,7 +3230,7 @@ void ptLeftHandSide_ArrayAccess(vector<Tree *> *stack) {
 }
 
 // Expression -> AssignmentExpression 
-void ptExpression_AssignmentExpression(vector<Tree *> *stack) {
+static void ptExpression_AssignmentExpression(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
   assert((*stack)[n - 1]->type == NonTerminalType::AssignmentExpression);

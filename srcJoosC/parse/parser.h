@@ -32,10 +32,8 @@ struct Parser {
   vector<Rule> rules;
 };
 
-void parserReadLR1(Parser* parser, const char* text);
-void parserReadJoosLR1(Parser* parser);
-void parserTest();
-ParseResult parserParse(Parser* parser, const vector<Scan::LexToken>& tokens);
-void parserDumpDebugInfo(const ParseResult& result, const char* baseOutputPath);
+EXPORT void parserReadJoosLR1(Parser* parser);
+EXPORT ParseResult parserParse(Parser* parser, const vector<Scan::LexToken>& tokens);
+EXPORT void parserDumpDebugInfo(const ParseResult& result, const char* baseOutputPath);
 
 }  // namespace Parse
