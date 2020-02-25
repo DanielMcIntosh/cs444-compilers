@@ -1,14 +1,14 @@
 #pragma once
 
 #include "ast/node.h"
-#include "ast/name.h"
-#include "ast/variableDeclaration.h"
 #include <vector>
 #include <memory>
 #include <string>
 
 namespace AST
 {
+
+class VariableDeclaration;
 
 class MethodDeclarator: public Node
 {

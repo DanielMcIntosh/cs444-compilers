@@ -1,14 +1,15 @@
 #pragma once
 
 #include "ast/memberDeclaration.h"
-#include "ast/type.h"
-#include "ast/variableDeclaration.h"
-#include "ast/methodHeader.h"
-#include "ast/block.h"
 #include <memory>
 
 namespace AST
 {
+
+class Type;
+class VariableDeclaration;
+class Block;
+class MethodHeader;
 
 class MethodDeclaration: public MemberDeclaration
 {

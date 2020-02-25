@@ -1,14 +1,15 @@
 #pragma once
 
 #include "ast/node.h"
-#include "ast/name.h"
-#include "ast/importDeclaration.h"
-#include "ast/typeDeclaration.h"
 #include <memory>
 #include <vector>
 
 namespace AST
 {
+
+class ImportDeclaration;
+class Name;
+class TypeDeclaration;
 
 class CompilationUnit: public Node
 {

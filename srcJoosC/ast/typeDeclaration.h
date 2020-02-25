@@ -3,11 +3,6 @@
  * Declaration of either a Class or Interface type
  */
 #include "ast/node.h"
-#include "ast/type.h"
-#include "ast/modifier.h"
-#include "ast/memberDeclaration.h"
-#include "ast/methodDeclaration.h"
-#include "ast/fieldDeclaration.h"
 #include <memory>
 #include <vector>
 #include <string>
@@ -20,6 +15,12 @@ namespace Semantic
 
 namespace AST
 {
+
+class FieldDeclaration;
+class MethodDeclaration;
+class Modifier;
+class NameType;
+class MemberDeclaration;
 
 class CompilationUnit;
 

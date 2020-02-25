@@ -3,6 +3,7 @@
 #include "ast/nodeList.h"
 #include "ast/modifier.h"
 #include "ast/type.h"
+#include "ast/variableDeclaration.h"
 #include "ast/methodDeclarator.h"
 #include "parse/parseTree.h"
 #include "primitiveType.h"

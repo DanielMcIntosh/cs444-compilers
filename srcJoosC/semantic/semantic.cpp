@@ -10,6 +10,9 @@ using namespace AST;
 #include "ast/fieldDeclaration.h"
 #include "ast/variableDeclaration.h"
 #include "ast/methodDeclaration.h"
+#include "ast/name.h"
+#include "ast/importDeclaration.h"
+#include "ast/modifier.h"
 #include "ast/constructorDeclaration.h"
 #include <unordered_set>
 

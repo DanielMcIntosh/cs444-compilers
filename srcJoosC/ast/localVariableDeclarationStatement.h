@@ -1,11 +1,12 @@
 #pragma once
 
 #include "ast/statement.h"
-#include "ast/variableDeclaration.h"
 #include <memory>
 
 namespace AST
 {
+
+class VariableDeclaration;
 
 class LocalVariableDeclarationStatement: public Statement
 {

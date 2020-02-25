@@ -1,11 +1,11 @@
 #include "ast/statement.h"
 #include "ast/block.h"
 #include "ast/expressionStatement.h"
+#include "ast/variableDeclaration.h"
 #include "ast/localVariableDeclarationStatement.h"
 #include "ast/returnStatement.h"
 #include "ast/conditionalStatement.h"
-#include "ast/forStatement.h"
-#include "ast/ifThenElseStatement.h"
+#include "ast/type.h"
 #include "parse/parseTreeBase.h"
 #include "semantic/semantic.h"
 

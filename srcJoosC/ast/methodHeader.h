@@ -1,13 +1,16 @@
 #pragma once
 
 #include "ast/node.h"
-#include "ast/modifier.h"
-#include "ast/methodDeclarator.h"
 #include <vector>
 #include <memory>
 
 namespace AST
 {
+
+class Type;
+class Modifier;
+class VariableDeclaration;
+class MethodDeclarator;
 
 class MethodHeader: public Node
 {

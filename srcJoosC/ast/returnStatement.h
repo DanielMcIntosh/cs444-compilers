@@ -1,11 +1,12 @@
 #pragma once
 
 #include "ast/statement.h"
-#include "ast/expression.h"
 #include <memory>
 
 namespace AST
 {
+
+class Expression;
 
 class ReturnStatement: public Statement
 {

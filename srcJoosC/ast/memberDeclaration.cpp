@@ -1,8 +1,11 @@
 #include "ast/memberDeclaration.h"
 #include "ast/fieldDeclaration.h"
 #include "ast/constructorDeclaration.h"
+#include "ast/variableDeclaration.h"
+#include "ast/type.h"
 #include "ast/methodDeclaration.h"
-#include "ast/nodeList.h"
+#include "ast/modifier.h"
+#include "ast/block.h"
 #include "parse/parseTreeBase.h"
 #include "semantic/semantic.h"
 

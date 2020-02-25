@@ -2,7 +2,6 @@
 
 #include "ast/expression.h"
 #include "ast/type.h"
-#include "semantic/semantic.h"
 #include <memory>
 #include <vector>
 #include <string>
@@ -42,17 +41,6 @@ public:
 
 	using Type::equals;
 	virtual bool equals(NameType *) override;
-
-	std::string toCode() const override;
-};
-
-class NameExpression: public Expression
-{
-public:
-	std::vector<std::string> prefix;
-	std::string id;
-
-	explicit NameExpression(Name&& other);
 
 	std::string toCode() const override;
 };

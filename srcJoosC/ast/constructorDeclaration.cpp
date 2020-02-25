@@ -3,9 +3,12 @@
 #include "ast/modifier.h"
 #include "ast/methodDeclarator.h"
 #include "ast/block.h"
+#include "ast/variableDeclaration.h"
 #include "ast/nodeList.h"
+#include "ast/type.h"
 #include "parse/parseTree.h"
 #include "semantic/scope.h"
+#include "semantic/semantic.h"
 #include <memory>
 
 namespace AST

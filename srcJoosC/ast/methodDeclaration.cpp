@@ -1,8 +1,13 @@
 #include "ast/methodDeclaration.h"
 #include "ast/memberDeclaration.h"
 #include "ast/methodHeader.h"
+#include "ast/type.h"
+#include "ast/variableDeclaration.h"
+#include "ast/block.h"
+#include "ast/modifier.h"
 #include "parse/parseTree.h"
 #include "semantic/scope.h"
+#include "semantic/semantic.h"
 #include <memory>
 
 namespace AST

@@ -10,6 +10,108 @@
 namespace AST
 {
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// resolveExprs
+//
+//////////////////////////////////////////////////////////////////////////////
+
+Semantic::SemanticErrorType ConditionalStatement::resolveExprs(Semantic::Scope &parentScope)
+{
+	// TODO: resolve condition
+	// TODO: override in "ForStatement"
+	return body->resolveExprs(parentScope);
+}
+
+Semantic::SemanticErrorType IfThenElseStatement::resolveExprs(Semantic::Scope &parentScope)
+{
+	if (Semantic::SemanticErrorType err = ConditionalStatement::resolveExprs(parentScope);
+		err != Semantic::SemanticErrorType::None)
+	{
+		return err;
+	}
+	Semantic::Scope elseScope(parentScope);
+	return elseBody->resolveExprs(elseScope);
+}
+
+Semantic::SemanticErrorType ForStatement::resolveExprs(Semantic::Scope &parentScope)
+{
+	Semantic::Scope scope(parentScope);
+	if (init)
+	{
+		if (Semantic::SemanticErrorType err = init->resolveExprs(scope);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+	return ConditionalStatement::resolveExprs(scope);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// resolveTypes
+//
+//////////////////////////////////////////////////////////////////////////////
+
+Semantic::SemanticErrorType ConditionalStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	if (body)
+	{
+		if (Semantic::SemanticErrorType err = body->resolveTypes(semantic, enclosingClass);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+	return Semantic::SemanticErrorType::None;
+}
+
+Semantic::SemanticErrorType ForStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	if (init)
+	{
+		if (Semantic::SemanticErrorType err = init->resolveTypes(semantic, enclosingClass);
+			err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+	return ConditionalStatement::resolveTypes(semantic, enclosingClass);
+}
+  
+Semantic::SemanticErrorType IfThenElseStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	if (Semantic::SemanticErrorType err = ConditionalStatement::resolveTypes(semantic, enclosingClass);
+		err != Semantic::SemanticErrorType::None)
+	{
+		return err;
+	}
+	return elseBody->resolveTypes(semantic, enclosingClass);
+}    
+  
+//////////////////////////////////////////////////////////////////////////////
+//
+// create functions
+//
+//////////////////////////////////////////////////////////////////////////////
+  
+// static
+std::unique_ptr<IfThenElseStatement> IfThenElseStatement::create(const Parse::Tree *ptNode)
+{
+	if (ptNode == nullptr) {
+		return nullptr;
+	}
+	switch(ptNode->type) {
+		case Parse::NonTerminalType::IfThenElseStatement:
+			return std::make_unique<IfThenElseStatement>(static_cast<const Parse::TIfThenElseStatement*>(ptNode));
+		case Parse::NonTerminalType::IfThenElseStatementNoShortIf:
+			return std::make_unique<IfThenElseStatement>(static_cast<const Parse::TIfThenElseStatementNoShortIf*>(ptNode));
+		default:
+			FAILED("inappropriate PT type for IfThenElseStatement: " + std::to_string((int)ptNode->type));
+	}
+}
+
 // static
 std::unique_ptr<ConditionalStatement> ConditionalStatement::create(const Parse::Tree *ptNode)
 {
@@ -27,6 +129,41 @@ std::unique_ptr<ConditionalStatement> ConditionalStatement::create(const Parse::
 		FAILED("inappropriate PT type for ConditionalStatement: " + std::to_string((int)ptNode->type));
 	}
 }
+
+// static
+std::unique_ptr<ForStatement> ForStatement::create(const Parse::Tree *ptNode)
+{
+	if (ptNode == nullptr) {
+		return nullptr;
+	}
+	switch(ptNode->type) {
+		case Parse::NonTerminalType::ForStatement:
+			return std::make_unique<ForStatement>(static_cast<const Parse::TForStatement*>(ptNode));
+		case Parse::NonTerminalType::ForStatementNoShortIf:
+			return std::make_unique<ForStatement>(static_cast<const Parse::TForStatementNoShortIf*>(ptNode));
+		default:
+			FAILED("inappropriate PT type for ForStatement: " + std::to_string((int)ptNode->type));
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Constructors
+//
+//////////////////////////////////////////////////////////////////////////////  
+  
+IfThenElseStatement::IfThenElseStatement(const Parse::TIfThenElseStatement *ptNode)
+	: ConditionalStatement(ConditionalStatement::ConditionType::If, Expression::create(ptNode->expression), Statement::create(ptNode->statementNoShortIf)),
+	  elseBody(Statement::create(ptNode->statement))
+{
+}
+IfThenElseStatement::IfThenElseStatement(const Parse::TIfThenElseStatementNoShortIf *ptNode)
+	: ConditionalStatement(ConditionalStatement::ConditionType::If, Expression::create(ptNode->expression), Statement::create(ptNode->statementNoShortIf)),
+	  elseBody(Statement::create(ptNode->statementNoShortIf2))
+{
+}
+
+
 ConditionalStatement::ConditionalStatement(const Parse::TIfThenStatement *ptNode)
   : condType(ConditionalStatement::ConditionType::If),
     condition(Expression::create(ptNode->expression)),
@@ -54,6 +191,25 @@ ConditionalStatement::ConditionalStatement(ConditionType type, std::unique_ptr<E
 {
 }
 
+ForStatement::ForStatement(const Parse::TForStatement *ptNode)
+	: ConditionalStatement(ConditionalStatement::ConditionType::For, Expression::create(ptNode->expression), Statement::create(ptNode->statement)),
+	  init(Statement::create(ptNode->forInit)),
+	  increment(Expression::create(ptNode->forUpdate))
+{
+}
+ForStatement::ForStatement(const Parse::TForStatementNoShortIf *ptNode)
+	: ConditionalStatement(ConditionalStatement::ConditionType::For, Expression::create(ptNode->expression), Statement::create(ptNode->statementNoShortIf)),
+	  init(Statement::create(ptNode->forInit)),
+	  increment(Expression::create(ptNode->forUpdate))
+{
+}  
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// toCode
+//
+//////////////////////////////////////////////////////////////////////////////
+
 std::string ConditionalStatement::toCode() const
 {
 	std::string str = "" + condType + "(" + condition->toCode() + ")\n";
@@ -61,25 +217,27 @@ std::string ConditionalStatement::toCode() const
 	return str;
 }
 
-Semantic::SemanticErrorType ConditionalStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
-{
-	if (body)
-	{
-		if (Semantic::SemanticErrorType err = body->resolveTypes(semantic, enclosingClass);
-			err != Semantic::SemanticErrorType::None)
-		{
-			return err;
-		}
-	}
-	return Semantic::SemanticErrorType::None;
+std::string ForStatement::toCode() const {
+	return "for (" + (init ? init->toCode() : "") + " "
+	       + (condition ? condition->toCode() : "") + "; "
+	       + (increment ? increment->toCode() : "") + ")\n"
+	       + body->toCode();
 }
 
-Semantic::SemanticErrorType ConditionalStatement::resolveExprs(Semantic::Scope &parentScope)
+std::string IfThenElseStatement::toCode() const
 {
-	// TODO: resolve condition
-	// TODO: override in "ForStatement"
-	return body->resolveExprs(parentScope);
+	std::string str = "if (" + condition->toCode() + ")\n";
+	str += body->toCode();
+	str += "\nelse\n";
+	str += elseBody->toCode();
+	return str;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Others
+//
+//////////////////////////////////////////////////////////////////////////////
 
 std::string operator+=(std::string& str, ConditionalStatement::ConditionType type)
 {

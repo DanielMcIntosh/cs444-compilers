@@ -1,11 +1,12 @@
 #pragma once
 
 #include "ast/node.h"
-#include "ast/name.h"
 #include <memory>
 
 namespace AST
 {
+
+class Name;
 
 class ImportDeclaration: public Node
 {

@@ -3,6 +3,9 @@
 #include "ast/importDeclaration.h"
 #include "ast/typeDeclaration.h"
 #include "ast/nodeList.h"
+#include "ast/modifier.h"
+#include "ast/name.h"
+#include "ast/memberDeclaration.h"
 #include "parse/parseTree.h"
 #include <memory>
 #include <vector>

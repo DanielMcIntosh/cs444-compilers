@@ -1,5 +1,7 @@
 #include "ast/methodDeclarator.h"
 #include "ast/nodeList.h"
+#include "ast/variableDeclaration.h"
+#include "ast/type.h"
 #include "parse/parseTree.h"
 #include <memory>
 #include <vector>

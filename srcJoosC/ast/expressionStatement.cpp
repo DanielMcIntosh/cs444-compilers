@@ -1,5 +1,6 @@
 #include "ast/expressionStatement.h"
 #include "ast/statement.h"
+#include "ast/expression.h"
 #include "parse/parseTree.h"
 #include <memory>
 

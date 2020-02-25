@@ -1,12 +1,13 @@
 #pragma once
 
 #include "ast/node.h"
-#include "ast/expression.h"
 #include <memory>
 #include <string>
 
 namespace AST
 {
+
+class Expression;
 
 class VariableDeclarator: public Node
 {

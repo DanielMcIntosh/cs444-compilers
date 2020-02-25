@@ -115,21 +115,4 @@ Semantic::SemanticErrorType NameType::resolve(Semantic::SemanticDB const& semant
 	return err;
 }
 
-NameExpression::NameExpression(Name &&other)
-  : prefix(std::move(other.prefix)),
-	id(std::move(other.id))
-{
-}
-
-std::string NameExpression::toCode() const
-{
-	std::string str;
-	for (auto &pre : prefix)
-	{
-		str += pre + ".";
-	}
-	str += id;
-	return str;
-}
-
 } //namespace AST

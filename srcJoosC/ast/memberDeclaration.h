@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ast/node.h"
-#include "ast/modifier.h"
 #include <vector>
 #include <memory>
 #include <string>
@@ -16,6 +15,7 @@ namespace Semantic
 namespace AST
 {
 
+class Modifier;
 class FieldDeclaration;
 class MemberDeclaration;
 class ConstructorDeclaration;

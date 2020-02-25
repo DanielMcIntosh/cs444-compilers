@@ -1,12 +1,13 @@
 #pragma once
 
 #include "ast/node.h"
-#include "ast/memberDeclaration.h"
 #include <memory>
 #include <vector>
 
 namespace AST
 {
+
+class MemberDeclaration;
 
 class TypeBody: public Node
 {

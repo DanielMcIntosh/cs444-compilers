@@ -1,4 +1,6 @@
 #include "ast/typeBody.h"
+#include "ast/memberDeclaration.h"
+#include "ast/modifier.h"
 #include "ast/nodeList.h"
 #include "parse/parseTree.h"
 

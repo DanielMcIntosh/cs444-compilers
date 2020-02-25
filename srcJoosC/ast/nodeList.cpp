@@ -1,17 +1,16 @@
 #include "ast/nodeList.h"
 #include "ast/importDeclaration.h"
 #include "ast/modifier.h"
-#include "ast/type.h"
+#include "ast/name.h"
 #include "ast/memberDeclaration.h"
 #include "ast/variableDeclaration.h"
 #include "ast/statement.h"
 #include "ast/expression.h"
+#include "ast/type.h"
 #include "parse/parseTreeBase.h"
 
 namespace AST
 {
-
-
 
 // static
 template<class NodeType>

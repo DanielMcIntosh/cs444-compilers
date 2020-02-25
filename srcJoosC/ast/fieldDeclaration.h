@@ -1,11 +1,12 @@
 #pragma once
 
 #include "ast/memberDeclaration.h"
-#include "ast/variableDeclaration.h"
 #include <memory>
 
 namespace AST
 {
+
+class VariableDeclaration;
 
 class FieldDeclaration: public MemberDeclaration
 {
