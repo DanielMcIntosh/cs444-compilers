@@ -1,12 +1,12 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #include <filesystem>
 #include <string>
-#include <vector>
 #include <thread>
+#include <vector>
 
 #include "ast/ast.h"
 #include "ast/node.h"
@@ -103,13 +103,13 @@ FrontendResult doFrontEndSingle(JoosC* joosc, const char* fileName) {
   fileResult.failedStage = FrontendStageType::Pass;
 
   strdecl256(baseOutputPath, "output/%s", fileName);
-  //compileDumpSingleResult(baseOutputPath, fileResult);
+  // compileDumpSingleResult(baseOutputPath, fileResult);
 
   return fileResult;
 }
 
-void doMiddleend(JoosC* joosc,
-                 const vector<FrontendResult>& frontendResults, MiddleendResult *result) {
+void doMiddleend(JoosC* joosc, const vector<FrontendResult>& frontendResults,
+                 MiddleendResult* result) {
   using namespace Semantic;
   semanticInit(&result->semanticDB, frontendResults);
   semanticDo(&result->semanticDB);
@@ -121,8 +121,8 @@ void doMiddleend(JoosC* joosc,
 
 int compileMain(JoosC* joosc, const vector<string>& fileList) {
   vector<FrontendResult> frontendResult;
-	MiddleendResult middleend;
-	int retVal = 0;
+  MiddleendResult middleend;
+  int retVal = 0;
   for (const string& file : fileList) {
     frontendResult.emplace_back(doFrontEndSingle(joosc, file.c_str()));
 
@@ -149,99 +149,94 @@ cleanup : {  // clean ups
 }
 
 struct BatchTestResult {
-	FrontendStageType frontendStage;
-	MiddleendResult middleend;
+  FrontendStageType frontendStage;
+  MiddleendResult middleend;
 
-	BatchTestResult();
+  BatchTestResult();
 };
 
-BatchTestResult::BatchTestResult(): frontendStage(FrontendStageType::Pass) {}
+BatchTestResult::BatchTestResult() : frontendStage(FrontendStageType::Pass) {}
 
 struct BatchTestThreadCtx {
-	// input
-	JoosC* joosc;
-	const vector<string>* topLevel;
-	int begin;
-	int end;
-	int assgnNum;
-	const vector<FrontendResult>* stdlibFrontendResult;
+  // input
+  JoosC* joosc;
+  const vector<string>* topLevel;
+  int begin;
+  int end;
+  int assgnNum;
+  const vector<FrontendResult>* stdlibFrontendResult;
 
-	// output
-	vector<BatchTestResult>* result;
+  // output
+  vector<BatchTestResult>* result;
 };
 
 void batchTestingThread(BatchTestThreadCtx ctx) {
+  for (int i = ctx.begin; i < ctx.end; ++i) {
+    const string& topLevelName = (*ctx.topLevel)[i];
+    BatchTestResult* caseResult = &(*ctx.result)[i];
 
-	for (int i = ctx.begin; i < ctx.end; ++i) {
-		const string& topLevelName = (*ctx.topLevel)[i];
-		BatchTestResult *caseResult = &(*ctx.result)[i];
+    fs::path dupPath = fs::path(topLevelName);
 
-		fs::path dupPath = fs::path(topLevelName);
+    // stdlib frontend result is reused each time, so don't free them
+    vector<FrontendResult> frontendResults;
+    {
+      profileSection("copy stdlib frontend result");
+      frontendResults = *ctx.stdlibFrontendResult;
+    }
 
-		// stdlib frontend result is reused each time, so don't free them
-		vector<FrontendResult> frontendResults;
-		{
-			profileSection("copy stdlib frontend result");
-			frontendResults = *ctx.stdlibFrontendResult;
-		}
+    {
+      // regenerate ast, since ast contains per compilation fields
+      profileSection("stdlib ast regen");
+      for (auto& frontend : frontendResults) {
+        frontend.astResult = AST::buildAST(frontend.parseResult.treeRoot);
+      }
+    }
 
-		{
-			// regenerate ast, since ast contains per compilation fields
-			profileSection("stdlib ast regen");
-			for (auto& frontend : frontendResults) {
-				frontend.astResult = AST::buildAST(frontend.parseResult.treeRoot);
-			}
-		}
+    if (fs::is_regular_file(dupPath)) {
+      frontendResults.emplace_back(
+          doFrontEndSingle(ctx.joosc, topLevelName.c_str()));
+    } else {
+      ASSERT(fs::is_directory(dupPath));
+      vector<string> fileBundle;
+      getJavaFilesRecursive(fileBundle, topLevelName);
+      for (const string& file : fileBundle) {
+        frontendResults.emplace_back(doFrontEndSingle(ctx.joosc, file.c_str()));
+      }
+    }
 
-		if (fs::is_regular_file(dupPath)) {
-			frontendResults.emplace_back(
-				doFrontEndSingle(ctx.joosc, topLevelName.c_str()));
-		} else {
-			ASSERT(fs::is_directory(dupPath));
-			vector<string> fileBundle;
-			getJavaFilesRecursive(fileBundle, topLevelName);
-			for (const string& file : fileBundle) {
-				frontendResults.emplace_back(doFrontEndSingle(ctx.joosc, file.c_str()));
-			}
-		}
+    {  // if there are any errors in frontend stage, find and report them
+      for (auto it = frontendResults.begin() + ctx.stdlibFrontendResult->size();
+           it != frontendResults.end(); ++it) {
+        if (it->failedStage == FrontendStageType::Pass) continue;
 
-		{  // if there are any errors in frontend stage, find and report them
-			for (auto it = frontendResults.begin() + ctx.stdlibFrontendResult->size();
-			     it != frontendResults.end(); ++it) {
-				if (it->failedStage == FrontendStageType::Pass)
-					continue;
+        caseResult->frontendStage = it->failedStage;
+        goto cleanup;
+      }
+    }
 
-				caseResult->frontendStage = it->failedStage;
-				goto cleanup;
-			}
-		}
+    if (ctx.assgnNum >= 2) {
+      profileSection("middleend");
+      // middle end
+      MiddleendResult* middleend = &caseResult->middleend;
+      doMiddleend(ctx.joosc, frontendResults, middleend);
+      if (middleend->failedStage != MiddleendStageType::Pass) {
+        goto cleanup;
+      }
+    }
 
-		if (ctx.assgnNum >= 2) {
-			profileSection("middleend");
-			// middle end
-			MiddleendResult *middleend = &caseResult->middleend;
-			doMiddleend(ctx.joosc, frontendResults, middleend);
-			if (middleend->failedStage != MiddleendStageType::Pass) {
-				goto cleanup;
-			}
-		}
-
-		cleanup:
-		{
-			// free frontend result except stdlib
-			profileSection("test case frontend result free");
-			for (auto it = frontendResults.begin() + ctx.stdlibFrontendResult->size();
-			     it != frontendResults.end(); ++it) {
-				frontendResultDelete(&(*it));
-			}
-		}
-	}
+  cleanup : {
+    // free frontend result except stdlib
+    profileSection("test case frontend result free");
+    for (auto it = frontendResults.begin() + ctx.stdlibFrontendResult->size();
+         it != frontendResults.end(); ++it) {
+      frontendResultDelete(&(*it));
+    }
+  }
+  }
 }
 
-void batchTesting(JoosC* joosc,
-                  const string& baseDir,
-                  const vector<string>& stdlib,
-                  int assignNum) {
+void batchTesting(JoosC* joosc, const string& baseDir,
+                  const vector<string>& stdlib, int assignNum) {
   profileSection("batch testing");
 
   // perform frontend compilation on stdlib only once to speed things up
@@ -274,48 +269,52 @@ void batchTesting(JoosC* joosc,
   }
 
   int numTests = topLevelFileList.size();
-	int numThreads = 12;
-	numThreads =  ceil((double)numTests / (double)numThreads);
-	int testPerThread = ceil((double)numTests / (double)numThreads);
+  int numThreads = 12;
 
-	vector<thread> threads;
+  vector<thread> threads;
   vector<BatchTestResult> results(numTests);
 
   for (int i = 0; i < numThreads; ++i) {
-  	int beginIdx = testPerThread * i;
-  	int endIdx = min(numTests, testPerThread * (i + 1));
-	  threads.push_back(thread(batchTestingThread,
-	  	BatchTestThreadCtx{joosc, &topLevelFileList, beginIdx, endIdx,
-		                     assignNum, &stdlibFrontendResult, &results}));
+    int beginIdx = numTests / numThreads * i;
+    int endIdx;
+    if (numTests / numThreads < 1 || i == numThreads - 1)
+      endIdx = numTests;
+    else
+      endIdx = numTests / numThreads * (i + 1);
+    threads.push_back(
+        thread(batchTestingThread,
+               BatchTestThreadCtx{joosc, &topLevelFileList, beginIdx, endIdx,
+                                  assignNum, &stdlibFrontendResult, &results}));
+    if (endIdx == numTests) break;
   }
 
-  for (int i = 0; i < numThreads; ++i) {
-  	threads[i].join();
+  for (auto& thr : threads) {
+    thr.join();
   }
 
   int numPassed = 0;
   for (int i = 0; i < numTests; ++i) {
-  	const BatchTestResult& result = results[i];
-  	const string& topLevelName = topLevelFileList[i];
-	  bool valid = result.frontendStage == FrontendStageType::Pass &&
-	               result.middleend.failedStage == MiddleendStageType::Pass;
-	  if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
-		  LOG_RED("%3d %s: (Semantic: %s)", i, topLevelName.c_str(),
-		          Semantic::gSemanticErrorTypeName[static_cast<int>(
-			          result.middleend.semanticDB.error)]);
-	  } else {
-		  LOG_GREEN("%3d %s: (Semantic: %s)", i, topLevelName.c_str(),
-		          Semantic::gSemanticErrorTypeName[static_cast<int>(
-			          result.middleend.semanticDB.error)]);
-		  ++numPassed;
-	  }
+    const BatchTestResult& result = results[i];
+    const string& topLevelName = topLevelFileList[i];
+    bool valid = result.frontendStage == FrontendStageType::Pass &&
+                 result.middleend.failedStage == MiddleendStageType::Pass;
+    if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
+      LOG_RED("%3d %s: (Semantic: %s)", i + 1, topLevelName.c_str(),
+              Semantic::gSemanticErrorTypeName[static_cast<int>(
+                  result.middleend.semanticDB.error)]);
+    } else {
+      LOG_GREEN("%3d %s: (Semantic: %s)", i + 1, topLevelName.c_str(),
+                Semantic::gSemanticErrorTypeName[static_cast<int>(
+                    result.middleend.semanticDB.error)]);
+      ++numPassed;
+    }
   }
 
   LOGR("%d/%lu tests passed.", numPassed, topLevelFileList.size());
 
   {
     // free stdlib frontend result separately
-	  profileSection("stdlib frontend result free");
+    profileSection("stdlib frontend result free");
     for (auto& r : stdlibFrontendResult) {
       frontendResultDelete(&r);
     }
@@ -325,11 +324,9 @@ void batchTesting(JoosC* joosc,
 void checkTestMode(JoosC* joosc) {
   profileSection("check test mode");
   const char* mode = getenv("JOOSC_TEST");
-  if (!mode)
-    return;
+  if (!mode) return;
   const char* assnNum = getenv("JOOSC_TEST_ASSN");
-  if (!assnNum)
-    return;
+  if (!assnNum) return;
 
   s32 num = atoi(assnNum);
   const char* assnBase = "tests/assignment_testcases";
@@ -346,20 +343,17 @@ void checkTestMode(JoosC* joosc) {
 
 void checkScanner() {
   const char* mode = getenv("JOOSC_SCANNER");
-  if (!mode)
-    return;
+  if (!mode) return;
 
   const char* file = getenv("JOOSC_SCANNER_FILE");
-  if (!file)
-    return;
+  if (!file) return;
 
   {
     using namespace Scan;
 
     s32 fileSize;
     std::unique_ptr<char[]> fileContents = readEntireFile(file, &fileSize);
-    if (!fileContents)
-      return;
+    if (!fileContents) return;
 
     Scanner scanner;
     scannerRegularLanguageToNFA(&scanner, fileContents.get());
@@ -397,8 +391,7 @@ int main(int argc, const char** argv) {
 
   {
     profileSection("compile main");
-    if (fileList.empty())
-      return 0;
+    if (fileList.empty()) return 0;
     return compileMain(&joosc, fileList);
   }
 }
