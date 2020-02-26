@@ -269,7 +269,7 @@ void batchTesting(JoosC* joosc, const string& baseDir,
   }
 
   int numTests = topLevelFileList.size();
-  int numThreads = 12;
+  int numThreads = 16;
 
   vector<thread> threads;
   vector<BatchTestResult> results(numTests);

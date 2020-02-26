@@ -3,9 +3,25 @@ project(cs444)
 
 set(CMAKE_CXX_STANDARD 17)
 
-aux_source_directory(./srcJoosC srcA)
-aux_source_directory(./srcJoosC/parse srcB)
-aux_source_directory(./srcJoosC/ast srcC)
-aux_source_directory(./srcJoosC/semantic srcd)
+file(STRINGS ./make/jc.txt jc_source)
+file(STRINGS ./make/joosc.txt joosc_source)
+
 include_directories(./srcJoosC)
-add_executable(cs444 ${srcA} ${srcB} ${srcC} ${srcd})
+
+add_library(
+        jc
+        SHARED
+        ${jc_source}
+)
+
+target_compile_options(jc PRIVATE -fvisibility=hidden -O3 -flto -fno-rtti -fno-exceptions)
+target_link_options(jc PRIVATE -fvisibility=hidden -flto -O3 -fno-rtti -fno-exceptions)
+
+add_executable(
+        cs444
+        ${joosc_source}
+        )
+
+target_link_libraries(cs444
+        jc
+        )

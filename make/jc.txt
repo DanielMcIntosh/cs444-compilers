@@ -1,0 +1,11 @@
+./srcJoosC/weeder.cpp
+./srcJoosC/utility.cpp
+./srcJoosC/scanner.cpp
+./srcJoosC/profiler.cpp
+./srcJoosC/platform.cpp
+./srcJoosC/frontend.cpp
+./srcJoosC/parse/parser.cpp
+./srcJoosC/parse/parseTreeBase.cpp
+./srcJoosC/parse/parseTreeImpl.cpp
+./srcJoosC/parse/parseTree.cpp
+

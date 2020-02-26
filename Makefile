@@ -48,25 +48,19 @@ LDFLAGS += -lstdc++
 endif
 
 ifeq ($(CXX),clang)
+LDFLAGS_STDCXX := -lstdc++
+CXXFLAGS_PIC :=
 WARNINGS := $(GLOBAL_WARNINGS) $(CLANG_WARNINGS)
 else
+LDFLAGS_STDCXX :=
+CXXFLAGS_PIC := -fPIC
 WARNINGS := $(GLOBAL_WARNINGS) $(GCC_WARNINGS)
 endif
 
 # Target : JoosC
 
 JOOSC_SRC_DIRS := ./srcJoosC
-JOOSC_SRCS := ./srcJoosC/main.cpp ./srcJoosC/semantic/scope.cpp ./srcJoosC/semantic/semantic.cpp \
-./srcJoosC/ast/compilationUnit.cpp ./srcJoosC/ast/conditionalStatement.cpp \
-./srcJoosC/ast/constructorDeclaration.cpp ./srcJoosC/ast/expression.cpp \
-./srcJoosC/ast/fieldDeclaration.cpp ./srcJoosC/ast/importDeclaration.cpp \
-./srcJoosC/ast/memberDeclaration.cpp \
-./srcJoosC/ast/methodDeclaration.cpp ./srcJoosC/ast/modifier.cpp \
-./srcJoosC/ast/name.cpp ./srcJoosC/ast/node.cpp \
-./srcJoosC/ast/statement.cpp ./srcJoosC/ast/typeDeclaration.cpp \
-./srcJoosC/ast/type.cpp ./srcJoosC/ast/variableDeclaration.cpp \
-./srcJoosC/ast/nodeList.cpp
-
+JOOSC_SRCS := $(shell cat ./make/joosc.txt)
 JOOSC_OBJS_DEBUG := $(JOOSC_SRCS:%=$(BUILD_DIR_DEBUG)/%.o)
 JOOSC_OBJS_RELEASE := $(JOOSC_SRCS:%=$(BUILD_DIR_RELEASE)/%.o)
 
@@ -82,14 +76,13 @@ PTGEN_DEPS := $(PTGEN_OBJS:.o=.d)
 
 # Target : Shared
 
-SHARED_SRCS := ./srcJoosC/weeder.cpp ./srcJoosC/utility.cpp	./srcJoosC/scanner.cpp \
-./srcJoosC/profiler.cpp ./srcJoosC/platform.cpp ./srcJoosC/frontend.cpp \
-./srcJoosC/parse/parser.cpp ./srcJoosC/parse/parseTreeBase.cpp \
-./srcJoosC/parse/parseTreeImpl.cpp ./srcJoosC/parse/parseTree.cpp \
-./srcJoosC/ast/methodDeclarator.cpp ./srcJoosC/ast/methodHeader.cpp \
-./srcJoosC/ast/typeBody.cpp ./srcJoosC/ast/variableDeclarator.cpp \
-./srcJoosC/ast/ast.cpp ./srcJoosC/semantic/dagSort.cpp
+ifeq ($(OS),Windows_NT)
+SHARED_NAME := libjc.dll
+else
+SHARED_NAME := libjc.so
+endif
 
+SHARED_SRCS := $(shell cat ./make/jc.txt)
 SHARED_OBJS := $(SHARED_SRCS:%=$(BUILD_DIR_SHARED)/%.o)
 SHARED_DEPS := $(SHARED_OBJS:.o=.d)
 
@@ -97,10 +90,10 @@ SHARED_DEPS := $(SHARED_OBJS:.o=.d)
 
 ## joosc
 
-joosc_release: libjc.so $(JOOSC_OBJS_RELEASE)
+joosc_release: $(SHARED_NAME) $(JOOSC_OBJS_RELEASE)
 	$(CXX) $(JOOSC_OBJS_RELEASE) -o $@ $(LDFLAGS) $(LDFLAGS_RELEASE) -L./ -ljc $(WARNINGS)
 
-joosc_debug: libjc.so $(JOOSC_OBJS_DEBUG)
+joosc_debug: $(SHARED_NAME) $(JOOSC_OBJS_DEBUG)
 	$(CXX) $(JOOSC_OBJS_DEBUG) -o $@ $(LDFLAGS) $(LDFLAGS_DEBUG) -L./ -ljc $(WARNINGS)
 
 ## ptgen
@@ -110,14 +103,14 @@ ptgen: $(PTGEN_OBJS)
 
 # shared
 
-libjc.so: $(SHARED_OBJS)
-	$(CXX) $(SHARED_OBJS) -shared -fvisibility=hidden -fno-exceptions -s -fPIC -O3 -flto -o $@
+$(SHARED_NAME): $(SHARED_OBJS)
+	$(CXX) $(SHARED_OBJS) $(CXXFLAGS_PIC) $(LDFLAGS_STDCXX) -shared -fvisibility=hidden -fno-exceptions -s -O3 -flto -o $@
 
 # Object files
 
 $(BUILD_DIR_SHARED)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
-	$(CXX) $(CXXFLAGS) -O3 -fPIC -fvisibility=hidden -fno-exceptions $(WARNINGS) -I$(JOOSC_SRC_DIRS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_PIC) -O3 -fvisibility=hidden -fno-exceptions $(WARNINGS) -I$(JOOSC_SRC_DIRS) -c $< -o $@
 
 $(BUILD_DIR_RELEASE)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
@@ -137,7 +130,7 @@ clean:
 	$(RM) -r $(BUILD_DIR_SHARED)
 	$(RM) joosc_release
 	$(RM) joosc_debug
-	$(RM) libjc.so
+	$(RM) $(SHARED_NAME)
 	$(RM) ptgen
 
 a1: joosc_debug
@@ -163,7 +156,7 @@ a6Direct: joosc_debug
 
 marmoset:
 	/u/cs_build/bin/marmoset_submit --username=-ddmcinto-q5an-whkuan- \
-	--zipargs=-r cs444 A2Code ./srcJoosC ./srcPTGen ./Makefile ./joos.lr1 ./joos.txt ./joosc
+	--zipargs=-r cs444 A2Code ./srcJoosC ./srcPTGen ./Makefile ./make ./joos.lr1 ./joos.txt ./joosc
 
 -include $(JOOSC_DEPS_DEBUG)
 -include $(JOOSC_DEPS_RELEASE)

@@ -79,21 +79,21 @@ typedef int16_t s16;
 // Log and asserts
 //
 
-EXPORT [[gnu::format(printf, 1, 5)]] void logImpl(const char* str,
+[[gnu::format(printf, 1, 5)]] EXPORT void logImpl(const char* str,
                                            const char* file,
                                            s32 line,
                                            const char* func,
                                            ...);
 
-EXPORT [[gnu::format(printf, 1, 2)]] void logImplRaw(const char* str, ...);
-EXPORT [[gnu::format(printf, 2, 3)]] void assertImpl(bool val, const char* str, ...);
-EXPORT [[gnu::format(printf, 3, 4)]] void assertImpl_(bool val,
+[[gnu::format(printf, 1, 2)]] EXPORT void logImplRaw(const char* str, ...);
+[[gnu::format(printf, 2, 3)]] EXPORT void assertImpl(bool val, const char* str, ...);
+[[gnu::format(printf, 3, 4)]] EXPORT void assertImpl_(bool val,
                                                const char* str,
                                                const char* fmt,
                                                ...);
-EXPORT [[noreturn]] void failedImpl(std::string str, const char* file, int line, const char* func);
+[[noreturn]] EXPORT void failedImpl(std::string str, const char* file, int line, const char* func);
 
-EXPORT [[gnu::format(printf, 2, 3)]] void strAppend(std::string* str,
+[[gnu::format(printf, 2, 3)]] EXPORT void strAppend(std::string* str,
                                              const char* fmt,
                                              ...);
 EXPORT void strFlushFILE(std::string* str, FILE* file);
