@@ -5,6 +5,7 @@
 #include "ast/type.h"
 #include "ast/variableDeclaration.h"
 #include "ast/methodDeclarator.h"
+#include "ast/expression.h"
 #include "parse/parseTree.h"
 
 #include <vector>

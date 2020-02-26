@@ -5,6 +5,7 @@
 #include "ast/variableDeclaration.h"
 #include "ast/modifier.h"
 #include "ast/statement.h"
+#include "ast/expression.h"
 #include "parse/parseTree.h"
 #include "semantic/scope.h"
 #include "semantic/semantic.h"

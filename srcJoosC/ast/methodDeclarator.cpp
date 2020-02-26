@@ -2,6 +2,7 @@
 #include "ast/nodeList.h"
 #include "ast/variableDeclaration.h"
 #include "ast/type.h"
+#include "ast/expression.h"
 #include "parse/parseTree.h"
 #include <memory>
 #include <vector>

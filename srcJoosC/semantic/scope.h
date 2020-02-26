@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <string>
 
 namespace AST
 {
@@ -20,6 +21,7 @@ public:
 	bool addField(std::unique_ptr<AST::VariableDeclaration> const&);
 	bool addField(const AST::VariableDeclaration *);
 	bool isRoot();
+	const AST::VariableDeclaration *findDecl(std::string id) const;
 
 	Scope &_parent = *this;
 	std::vector<const AST::VariableDeclaration *> _declarations;

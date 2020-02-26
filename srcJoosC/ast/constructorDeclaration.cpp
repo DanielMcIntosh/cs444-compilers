@@ -6,6 +6,7 @@
 #include "ast/nodeList.h"
 #include "ast/type.h"
 #include "ast/statement.h"
+#include "ast/expression.h"
 #include "parse/parseTree.h"
 #include "semantic/scope.h"
 #include "semantic/semantic.h"

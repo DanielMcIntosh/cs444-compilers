@@ -17,6 +17,7 @@ namespace AST
 class TypeDeclaration;
 class Type;
 class Name;
+class VariableDeclaration;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -47,7 +48,7 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
-	//Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 protected:
 	std::unique_ptr<Expression> array;
 	std::unique_ptr<Expression> index;
@@ -67,6 +68,7 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 protected:
 	// IMPORTANT: during construction, we have to change type->isArray to true
 	std::unique_ptr<Type> type;
@@ -87,6 +89,7 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 protected:
 	std::unique_ptr<Expression> lhs;
 	std::unique_ptr<Expression> rhs;
@@ -114,6 +117,7 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 
 	enum class Variant {
 		Add,		// Accept Int, Return Int
@@ -162,6 +166,7 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 protected:
 	std::unique_ptr<Type> type;
 	std::unique_ptr<Expression> rhs;
@@ -181,6 +186,7 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 protected:
 	std::unique_ptr<Type> type;
 	std::vector<std::unique_ptr<Expression>> args;
@@ -200,6 +206,7 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 protected:
 	std::unique_ptr<Expression> object;
 	std::string member;
@@ -235,6 +242,7 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 protected:
 	// nullable.
 	// Expression when non-static method, Type when static method, Name only before expression resolution
@@ -257,12 +265,15 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 protected:
 	std::vector<std::string> prefix;
 	std::string id;
 
+	// nullable
 	// pre-computed during type resolution in case expression-resolution reaches rule 3 and has to resolve a_1.a_2. ... a_k to a Type
 	std::unique_ptr<Type> typePrefix;
+
 
 };
 
@@ -278,8 +289,11 @@ class This: public Expression
 public:
 	static std::unique_ptr<This> create(const Parse::Tree *ptNode);
 	explicit This(const Parse::TThis2 *ptNode);
-
 	std::string toCode() const override;
+
+	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+protected:
+	const VariableDeclaration *declaration;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -297,6 +311,7 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 protected:
 	enum class Variant
 	{

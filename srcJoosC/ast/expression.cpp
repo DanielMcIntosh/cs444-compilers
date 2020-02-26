@@ -4,6 +4,7 @@
 #include "ast/nodeList.h"
 #include "parse/parseTree.h"
 #include "semantic/semantic.h"
+#include "semantic/scope.h"
 #include <memory>
 #include <ostream>
 
@@ -115,8 +116,7 @@ SemanticErrorType FieldAccess::resolveTypes(Semantic::SemanticDB const& semantic
 	return object->resolveTypes(semantic, enclosingClass);
 }
 
-SemanticErrorType
-MethodInvocation::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclaration *enclosingClass)
+SemanticErrorType MethodInvocation::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclaration *enclosingClass)
 {
 	{
 		SemanticErrorType error = std::visit(visitor {
@@ -173,6 +173,114 @@ SemanticErrorType UnaryExpression::resolveTypes(Semantic::SemanticDB const& sema
 SemanticErrorType Expression::resolve(Semantic::Scope const& scope)
 {
 	return SemanticErrorType::None;
+}
+
+SemanticErrorType ArrayAccess::resolve(Semantic::Scope const& scope)
+{
+	if (auto error = array->resolve(scope);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	if (auto error = index->resolve(scope);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	return SemanticErrorType::None;
+}
+SemanticErrorType ArrayCreationExpression::resolve(Semantic::Scope const& scope)
+{
+	return size->resolve(scope);
+}
+SemanticErrorType AssignmentExpression::resolve(Semantic::Scope const& scope)
+{
+	if (auto error = lhs->resolve(scope);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	if (auto error = rhs->resolve(scope);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	return SemanticErrorType::None;
+}
+SemanticErrorType BinaryExpression::resolve(Semantic::Scope const& scope)
+{
+	if (auto error = lhs->resolve(scope);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	if (op != Variant::InstanceOf)
+	{
+		return std::get<std::unique_ptr<Expression>>(rhs)->resolve(scope);
+	}
+	return SemanticErrorType::None;
+}
+SemanticErrorType CastExpression::resolve(Semantic::Scope const& scope)
+{
+	return rhs->resolve(scope);
+}
+SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const& scope)
+{
+	for (auto &expr : args) {
+		if (auto error = expr->resolve(scope);
+			error != SemanticErrorType::None)
+		{
+			return error;
+		}
+	}
+	return SemanticErrorType::None;
+}
+
+SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
+{
+	return object->resolve(scope);
+}
+
+SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
+{
+	{
+		SemanticErrorType error = std::visit(visitor {
+			[&scope](std::unique_ptr<Expression> &src)	{	return src ? src->resolve(scope)		: SemanticErrorType::None;	},
+			[&scope](std::unique_ptr<Type> &src) 		{	return SemanticErrorType::None;	},
+			[&scope](std::unique_ptr<Name> &src)		{	return src ? src->resolveExprs(scope)	: SemanticErrorType::None;	}
+		}, source);
+		if (error != SemanticErrorType::None)
+		{
+			return error;
+		}
+	}
+	for (auto& arg : args) {
+		if (auto error = arg->resolve(scope);
+			error != SemanticErrorType::None)
+		{
+			return error;
+		}
+	}
+	return SemanticErrorType::None;
+}
+
+SemanticErrorType This::resolve(Semantic::Scope const& scope)
+{
+	declaration = scope.findDecl("this");
+	//TODO: return an error on failure to find the declaration.
+	return SemanticErrorType::None;
+}
+
+SemanticErrorType NameExpression::resolve(Semantic::Scope const& scope)
+{
+	//TODO:
+	//declaration = scope.findDecl(prefix.empty() ? id : prefix[0]);
+	return SemanticErrorType::None;
+}
+
+SemanticErrorType UnaryExpression::resolve(Semantic::Scope const& scope)
+{
+	return expr->resolve(scope);
 }
 
 //////////////////////////////////////////////////////////////////////////////

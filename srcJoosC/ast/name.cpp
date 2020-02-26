@@ -93,6 +93,12 @@ SemanticErrorType Name::resolveTypes(Semantic::SemanticDB const& semantic, TypeD
 	return SemanticErrorType::None;
 }
 
+SemanticErrorType Name::resolveExprs(Semantic::Scope const& parentScope)
+{
+	// TODO:
+	return SemanticErrorType::None;
+}
+
 bool Name::operator==(const Name &other) {
 	return prefix == other.prefix && id == other.id;
 }

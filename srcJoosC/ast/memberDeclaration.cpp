@@ -5,6 +5,8 @@
 #include "ast/type.h"
 #include "ast/methodDeclaration.h"
 #include "ast/modifier.h"
+#include "ast/statement.h"
+#include "ast/expression.h"
 #include "parse/parseTreeBase.h"
 #include "semantic/semantic.h"
 

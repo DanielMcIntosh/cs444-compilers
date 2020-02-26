@@ -37,6 +37,7 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
+	Semantic::SemanticErrorType resolveExprs(Semantic::Scope const& parentScope);
 
 	bool operator==(const Name &other);
 };

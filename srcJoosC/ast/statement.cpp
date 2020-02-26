@@ -3,6 +3,7 @@
 #include "ast/conditionalStatement.h"
 #include "ast/nodeList.h"
 #include "ast/type.h"
+#include "ast/expression.h"
 #include "parse/parseTree.h"
 #include "semantic/scope.h"
 #include "semantic/semantic.h"

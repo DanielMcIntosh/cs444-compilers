@@ -1,13 +1,22 @@
 #pragma once
 
-#include "ast/expression.h"
+#include "ast/node.h"
 #include <memory>
 #include <string>
+
+namespace Semantic
+{
+	struct SemanticDB;
+	enum class SemanticErrorType;
+	class Scope;
+}
 
 namespace AST
 {
 
 class Type;
+class Expression;
+class TypeDeclaration;
 
 class VariableDeclaration: public Node
 {
@@ -20,6 +29,7 @@ public:
 	bool equals(const VariableDeclaration *) const;
 	[[gnu::pure]]
 	bool idEquals(const VariableDeclaration *other) const;
+	bool idEquals(std::string const& str) const;
 	bool typeEquals(const VariableDeclaration *other) const;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);

@@ -53,6 +53,10 @@ bool VariableDeclaration::equals(const VariableDeclaration *other) const {
 bool VariableDeclaration::idEquals(const VariableDeclaration *other) const {
 	return identifier == other->identifier;
 }
+bool VariableDeclaration::idEquals(std::string const& str) const
+{
+	return identifier == str;
+}
 
 bool VariableDeclaration::typeEquals(const VariableDeclaration *other) const {
 	return type->equals(other->type.get());

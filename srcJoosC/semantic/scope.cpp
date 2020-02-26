@@ -45,6 +45,25 @@ bool Scope::isRoot()
 	return &_parent == this;
 }
 
+const AST::VariableDeclaration *Scope::findDecl(std::string id) const
+{
+	for (auto *decl : _declarations)
+	{
+		if (decl->idEquals(id))
+		{
+			return decl;
+		}
+	}
+	for (auto *decl : _fields)
+	{
+		if (decl->idEquals(id))
+		{
+			return decl;
+		}
+	}
+	return nullptr;
+}
+
 bool Scope::doesConflict(const AST::VariableDeclaration *newDecl) const
 {
 	for (auto *decl : _declarations)
