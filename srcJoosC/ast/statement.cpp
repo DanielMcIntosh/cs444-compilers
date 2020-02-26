@@ -7,6 +7,8 @@
 #include "semantic/scope.h"
 #include "semantic/semantic.h"
 
+using Semantic::SemanticErrorType;
+
 namespace AST
 {
 
@@ -16,32 +18,52 @@ namespace AST
 //
 //////////////////////////////////////////////////////////////////////////////
 
-Semantic::SemanticErrorType Block::resolveExprs(Semantic::Scope &parentScope)
+SemanticErrorType Block::resolveExprs(Semantic::Scope &parentScope)
 {
 	Semantic::Scope scope(parentScope);
 	for (auto &stmt: statements)
 	{
-		if (Semantic::SemanticErrorType err = stmt->resolveExprs(scope);
-			err != Semantic::SemanticErrorType::None)
+		if (SemanticErrorType err = stmt->resolveExprs(scope);
+			err != SemanticErrorType::None)
 		{
 			return err;
 		}
 	}
-	return Semantic::SemanticErrorType::None;
+	return SemanticErrorType::None;
 }
 
-Semantic::SemanticErrorType Statement::resolveExprs(Semantic::Scope &parentScope)
+SemanticErrorType ExpressionStatement::resolveExprs(Semantic::Scope &parentScope)
 {
-	return Semantic::SemanticErrorType::None;
-}
-
-Semantic::SemanticErrorType LocalVariableDeclarationStatement::resolveExprs(Semantic::Scope &parentScope)
-{
-	if (!parentScope.add(declaration))
+	if (expression != nullptr)
 	{
-		return Semantic::SemanticErrorType::ExprResolution;
+		return expression->resolve(parentScope);
 	}
 	return Semantic::SemanticErrorType::None;
+}
+
+SemanticErrorType ReturnStatement::resolveExprs(Semantic::Scope &parentScope)
+{
+	if (returnValue != nullptr)
+	{
+		return returnValue->resolve(parentScope);
+	}
+	return Semantic::SemanticErrorType::None;
+}
+
+SemanticErrorType LocalVariableDeclarationStatement::resolveExprs(Semantic::Scope &parentScope)
+{
+	// resolve initializer if it exists
+	if (SemanticErrorType err = declaration->resolveExprs(parentScope);
+		err != SemanticErrorType::None)
+	{
+		return err;
+	}
+
+	if (!parentScope.add(declaration))
+	{
+		return SemanticErrorType::LocalVariableShadowing;
+	}
+	return SemanticErrorType::None;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -50,40 +72,40 @@ Semantic::SemanticErrorType LocalVariableDeclarationStatement::resolveExprs(Sema
 //
 //////////////////////////////////////////////////////////////////////////////
 
-Semantic::SemanticErrorType Block::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+SemanticErrorType Block::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
 	for (auto &stmt: statements)
 	{
-		if (Semantic::SemanticErrorType err = stmt->resolveTypes(semantic, enclosingClass);
-			err != Semantic::SemanticErrorType::None)
+		if (SemanticErrorType err = stmt->resolveTypes(semantic, enclosingClass);
+			err != SemanticErrorType::None)
 		{
 			return err;
 		}
 	}
-	return Semantic::SemanticErrorType::None;
+	return SemanticErrorType::None;
 }
 
-Semantic::SemanticErrorType ExpressionStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+SemanticErrorType ExpressionStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
 	if (!expression)
-		return Semantic::SemanticErrorType::None;
+		return SemanticErrorType::None;
 	return expression->resolveTypes(semantic, enclosingClass);
 }
 
-Semantic::SemanticErrorType Statement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *source)
+SemanticErrorType Statement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *source)
 {
-	return Semantic::SemanticErrorType::None;
+	return SemanticErrorType::None;
 }
 
-Semantic::SemanticErrorType LocalVariableDeclarationStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+SemanticErrorType LocalVariableDeclarationStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
 	return declaration->resolveTypes(semantic, enclosingClass);
 }
 
-Semantic::SemanticErrorType
+SemanticErrorType
 ReturnStatement::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclaration *enclosingClass) {
 	if (!returnValue)
-		return Semantic::SemanticErrorType::None;
+		return SemanticErrorType::None;
 	return returnValue->resolveTypes(semantic, enclosingClass);
 }
 

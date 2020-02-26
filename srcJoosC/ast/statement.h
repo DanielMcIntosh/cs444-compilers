@@ -28,7 +28,7 @@ public:
 	static std::unique_ptr<Statement> create(const Parse::Tree *ptNode);
 
 	virtual Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
-	virtual Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope);
+	virtual Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -64,6 +64,7 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
 protected:
 	// nullable
 	std::unique_ptr<Expression> expression;
@@ -83,6 +84,7 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
 protected:
 	// nullable
 	std::unique_ptr<Expression> returnValue;

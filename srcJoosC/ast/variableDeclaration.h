@@ -23,6 +23,7 @@ public:
 	bool typeEquals(const VariableDeclaration *other) const;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
+	Semantic::SemanticErrorType resolveExprs(Semantic::Scope const& parentScope);
 protected:
 	std::unique_ptr<Type> type;
 	std::string identifier;

@@ -30,7 +30,7 @@ public:
 	static std::unique_ptr<Expression> create(const Parse::Tree *ptNode);
 
 	virtual Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
-	//virtual Semantic::SemanticErrorType resolve(Semantic::Scope const& scope);
+	virtual Semantic::SemanticErrorType resolve(Semantic::Scope const& scope);
 };
 
 //////////////////////////////////////////////////////////////////////////////

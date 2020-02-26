@@ -3,6 +3,7 @@
 #include "ast/expression.h"
 #include "ast/type.h"
 #include "parse/parseTree.h"
+#include "semantic/semantic.h"
 #include <memory>
 
 namespace AST
@@ -60,6 +61,15 @@ bool VariableDeclaration::typeEquals(const VariableDeclaration *other) const {
 Semantic::SemanticErrorType VariableDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
 	return type->resolve(semantic, enclosingClass);
+}
+
+Semantic::SemanticErrorType VariableDeclaration::resolveExprs(Semantic::Scope const& parentScope)
+{
+	if (initializer != nullptr)
+	{
+		return initializer->resolve(parentScope);
+	}
+	return Semantic::SemanticErrorType::None;
 }
 
 } //namespace AST

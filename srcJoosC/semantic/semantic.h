@@ -32,6 +32,8 @@ enum class SemanticErrorType {
 	TypeDeclarationClashImport,
 	PrefixNameIsType,
 	NotPackage,
+	LocalVariableShadowing,
+	FieldIdConflict,
 	ExprResolution,
 	DuplicateFieldDeclaration,
 	DuplicateMethodDeclaration,

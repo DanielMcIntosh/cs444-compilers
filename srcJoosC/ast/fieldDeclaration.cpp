@@ -57,7 +57,7 @@ Semantic::SemanticErrorType FieldDeclaration::initScope(Semantic::Scope &parentS
 {
 	if (!parentScope.addField(declaration))
 	{
-		return Semantic::SemanticErrorType::ExprResolution;
+		return Semantic::SemanticErrorType::FieldIdConflict;
 	}
 	return Semantic::SemanticErrorType::None;
 }

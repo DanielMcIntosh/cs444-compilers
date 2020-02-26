@@ -114,7 +114,7 @@ Semantic::SemanticErrorType ConstructorDeclaration::resolveExprs(Semantic::Scope
 	{
 		if (!scope.add(param))
 		{
-			return Semantic::SemanticErrorType::ExprResolution;
+			return Semantic::SemanticErrorType::LocalVariableShadowing;
 		}
 	}
 

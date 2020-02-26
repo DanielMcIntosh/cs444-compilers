@@ -135,7 +135,7 @@ Semantic::SemanticErrorType MethodDeclaration::resolveExprs(Semantic::Scope &par
 	{
 		if (!scope.add(param))
 		{
-			return Semantic::SemanticErrorType::ExprResolution;
+			return Semantic::SemanticErrorType::LocalVariableShadowing;
 		}
 	}
 

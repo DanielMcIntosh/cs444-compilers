@@ -29,6 +29,8 @@ const char *gSemanticErrorTypeName[] = {
 	"TypeDeclarationClashImport",
 	"PrefixNameIsType",
 	"NotPackage",
+	"LocalVariableShadowing",
+	"FieldIdConflict",
 	"ExprResolution",
 	"DuplicateFieldDeclaration",
 	"DuplicateMethodDeclaration",
@@ -357,6 +359,18 @@ void semanticDo(SemanticDB *sdb) {
 			return;
 		}
 	}
+
+	/* TODO:
+	for (auto *typeDecl : allTypes)
+	{
+		if (SemanticErrorType err = typeDecl->resolveMethods();
+			err != SemanticErrorType::None)
+		{
+			sdb->error = err;
+			return;
+		}
+	}
+	*/
 
 	for (auto *typeDecl : allTypes)
 	{
