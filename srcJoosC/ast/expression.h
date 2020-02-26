@@ -252,6 +252,7 @@ protected:
 class NameExpression: public Expression
 {
 public:
+	static std::unique_ptr<NameExpression> create(const Parse::Tree *ptNode);
 	explicit NameExpression(Name&& other);
 	std::string toCode() const override;
 protected:

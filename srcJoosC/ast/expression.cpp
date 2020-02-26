@@ -171,7 +171,7 @@ std::unique_ptr<Expression> Expression::create(const Parse::Tree *ptNode)
 		case Parse::NonTerminalType::CastExpression:
 			return CastExpression::create(ptNode);
 		case Parse::NonTerminalType::Name:
-			return std::make_unique<NameExpression>(std::move(*Name::create(ptNode)));
+			return NameExpression::create(ptNode);
 		case Parse::NonTerminalType::UnaryExpression:
 		case Parse::NonTerminalType::UnaryExpressionNotPlusMinus:
 			return UnaryExpression::create(ptNode);
@@ -347,6 +347,24 @@ std::unique_ptr<MethodInvocation> MethodInvocation::create(const Parse::Tree *pt
 			return std::make_unique<MethodInvocation>(static_cast<const Parse::TMethodInvocation*>(ptNode));
 		default:
 			FAILED("inappropriate PT type for MethodInvocation: " + std::to_string((int)ptNode->type));
+	}
+}
+
+// static
+std::unique_ptr<NameExpression> NameExpression::create(const Parse::Tree *ptNode)
+{
+	if (ptNode == nullptr) {
+		return nullptr;
+	}
+	if (isSingleton(ptNode))
+	{
+		return NameExpression::create(ptNode->children[0]);
+	}
+	switch(ptNode->type) {
+		case Parse::NonTerminalType::Name:
+			return std::make_unique<NameExpression>(std::move(*Name::create(ptNode)));
+		default:
+			FAILED("inappropriate PT type for NameExpression: " + std::to_string((int)ptNode->type));
 	}
 }
 
