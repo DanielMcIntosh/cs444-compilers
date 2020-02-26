@@ -49,9 +49,6 @@ LocalVariableDeclarationStatement: Statement
 ReturnStatement: Statement
 ConditionalStatement: Statement
 
-ForStatement: ConditionalStatement
-IfThenElseStatement: ConditionalStatement
-
 AssignmentExpression: Expression
 BinaryExpression: Expression
 CastExpression: Expression
@@ -63,7 +60,7 @@ ClassInstanceCreationExpression: Expression
 FieldAccess: Expression
 Literal: Expression
 MethodInvocation: Expression
-This: Expression
+LocalVariableExpression: Expression
 NameExpression: Expression
 
 ====================GRAMMAR BASED AST DESCRIPTION====================
@@ -286,28 +283,28 @@ StatementExpression: -Expression(subclass of Node)
 	MethodInvocation
 	ClassInstanceCreationExpression
 
-IfThenStatement: ConditionalStatement?(subclass of Statement)
+IfThenStatement: ConditionalStatement(subclass of Statement)
 	</i>if<i> </i>(<i> Expression </i>)<i> Statement
 
-IfThenElseStatement: IfThenElseStatement?(subclass of ConditionalStatement)
+IfThenElseStatement: ConditionalStatement(subclass of ConditionalStatement)
 	</i>if<i> </i>(<i> Expression </i>)<i> StatementNoShortIf </i>else<i> Statement
 
-IfThenElseStatementNoShortIf: IfThenElseStatement?(subclass of ConditionalStatement)
+IfThenElseStatementNoShortIf: ConditionalStatement(subclass of ConditionalStatement)
 	</i>if<i> </i>(<i> Expression </i>)<i> StatementNoShortIf </i>else<i> StatementNoShortIf
 
-WhileStatement: ConditionalStatement?(subclass of Statement)
+WhileStatement: ConditionalStatement(subclass of Statement)
 	</i>while<i> </i>(<i> Expression </i>)<i> Statement
 
-WhileStatementNoShortIf: ConditionalStatement?(subclass of Statement)
+WhileStatementNoShortIf: ConditionalStatement(subclass of Statement)
 	</i>while<i> </i>(<i> Expression </i>)<i> StatementNoShortIf
 
-ForStatement: ForStatement?(subclass of ConditionalStatement)
+ForStatement: ConditionalStatement(subclass of ConditionalStatement)
 	</i>for<i> </i>(<i> ForInit </i>;<i> </i>)<i> Statement
 	</i>for<i> </i>(<i> ForInit Expression </i>;<i> </i>)<i> Statement
 	</i>for<i> </i>(<i> ForInit </i>;<i> ForUpdate </i>)<i> Statement
 	</i>for<i> </i>(<i> ForInit Expression </i>;<i> ForUpdate </i>)<i> Statement
 
-ForStatementNoShortIf: ForStatement?(subclass of ConditionalStatement)
+ForStatementNoShortIf: ConditionalStatement(subclass of ConditionalStatement)
 	</i>for<i> </i>(<i> ForInit </i>;<i> </i>)<i> StatementNoShortIf
 	</i>for<i> </i>(<i> ForInit Expression </i>;<i> </i>)<i> StatementNoShortIf
 	</i>for<i> </i>(<i> ForInit </i>;<i> ForUpdate </i>)<i> StatementNoShortIf
@@ -337,7 +334,7 @@ PrimaryNoNewArray: -Expression(subclass of Node)
 	MethodInvocation
 	ArrayAccess
 
-This: This(subclass of Expression)
+This: LocalVariableExpression(subclass of Expression)
 	</i>this<i>
 
 ParenthesizedExpression: .Expression(subclass of Node)
