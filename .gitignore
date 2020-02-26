@@ -4,8 +4,6 @@
 *.class
 *.exe
 build
-joosc
-joosc.exe
 joosc_debug
 joosc_debug.exe
 joosc_release
