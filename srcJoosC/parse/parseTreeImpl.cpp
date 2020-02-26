@@ -2458,34 +2458,73 @@ static void ptFieldAccess_PrimaryDotIdentifier(vector<Tree *> *stack) {
   stack->push_back(t);
 }
 
-// MethodInvocation -> Name ( ) 
-static void ptMethodInvocation_NameLParRPar(vector<Tree *> *stack) {
+// MethodInvocation -> Identifier ( ) 
+static void ptMethodInvocation_IdentifierLParRPar(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 1);
-  assert((*stack)[n - 1]->type == NonTerminalType::Name);
+  assert((*stack)[n - 1]->type == NonTerminalType::Identifier);
   auto t = new TMethodInvocation;
   ptSetTopParents(stack, 1, t);
   ptPopulateChildrenList(t, *stack, 1);
-  t->v = TMethodInvocationV::NameLParRPar;
+  t->v = TMethodInvocationV::IdentifierLParRPar;
   t->oneNt = false;
-  t->name = reinterpret_cast<TName *>((*stack)[n - 1]);
+  t->identifier = reinterpret_cast<TIdentifier *>((*stack)[n - 1]);
   stack->pop_back();
   stack->push_back(t);
 }
 
-// MethodInvocation -> Name ( ArgumentList ) 
-static void ptMethodInvocation_NameLParArgumentListRPar(vector<Tree *> *stack) {
+// MethodInvocation -> Identifier ( ArgumentList ) 
+static void ptMethodInvocation_IdentifierLParArgumentListRPar(vector<Tree *> *stack) {
   int n = stack->size();
   assert(n >= 2);
-  assert((*stack)[n - 2]->type == NonTerminalType::Name);
+  assert((*stack)[n - 2]->type == NonTerminalType::Identifier);
   assert((*stack)[n - 1]->type == NonTerminalType::ArgumentList);
   auto t = new TMethodInvocation;
   ptSetTopParents(stack, 2, t);
   ptPopulateChildrenList(t, *stack, 2);
-  t->v = TMethodInvocationV::NameLParArgumentListRPar;
+  t->v = TMethodInvocationV::IdentifierLParArgumentListRPar;
+  t->oneNt = false;
+  t->identifier = reinterpret_cast<TIdentifier *>((*stack)[n - 2]);
+  t->argumentList = reinterpret_cast<TArgumentList *>((*stack)[n - 1]);
+  stack->pop_back();
+  stack->pop_back();
+  stack->push_back(t);
+}
+
+// MethodInvocation -> Name . Identifier ( ) 
+static void ptMethodInvocation_NameDotIdentifierLParRPar(vector<Tree *> *stack) {
+  int n = stack->size();
+  assert(n >= 2);
+  assert((*stack)[n - 2]->type == NonTerminalType::Name);
+  assert((*stack)[n - 1]->type == NonTerminalType::Identifier);
+  auto t = new TMethodInvocation;
+  ptSetTopParents(stack, 2, t);
+  ptPopulateChildrenList(t, *stack, 2);
+  t->v = TMethodInvocationV::NameDotIdentifierLParRPar;
   t->oneNt = false;
   t->name = reinterpret_cast<TName *>((*stack)[n - 2]);
+  t->identifier = reinterpret_cast<TIdentifier *>((*stack)[n - 1]);
+  stack->pop_back();
+  stack->pop_back();
+  stack->push_back(t);
+}
+
+// MethodInvocation -> Name . Identifier ( ArgumentList ) 
+static void ptMethodInvocation_NameDotIdentifierLParArgumentListRPar(vector<Tree *> *stack) {
+  int n = stack->size();
+  assert(n >= 3);
+  assert((*stack)[n - 3]->type == NonTerminalType::Name);
+  assert((*stack)[n - 2]->type == NonTerminalType::Identifier);
+  assert((*stack)[n - 1]->type == NonTerminalType::ArgumentList);
+  auto t = new TMethodInvocation;
+  ptSetTopParents(stack, 3, t);
+  ptPopulateChildrenList(t, *stack, 3);
+  t->v = TMethodInvocationV::NameDotIdentifierLParArgumentListRPar;
+  t->oneNt = false;
+  t->name = reinterpret_cast<TName *>((*stack)[n - 3]);
+  t->identifier = reinterpret_cast<TIdentifier *>((*stack)[n - 2]);
   t->argumentList = reinterpret_cast<TArgumentList *>((*stack)[n - 1]);
+  stack->pop_back();
   stack->pop_back();
   stack->pop_back();
   stack->push_back(t);
@@ -3399,8 +3438,10 @@ void ptDispatcher(vector<Tree *> *stack, int ruleID) {
     ptArrayCreationExpression_NewPrimitiveTypeLSBrExpressionRSBr, 
     ptArrayCreationExpression_NewClassOrInterfaceTypeLSBrExpressionRSBr, 
     ptFieldAccess_PrimaryDotIdentifier, 
-    ptMethodInvocation_NameLParRPar, 
-    ptMethodInvocation_NameLParArgumentListRPar, 
+    ptMethodInvocation_IdentifierLParRPar, 
+    ptMethodInvocation_IdentifierLParArgumentListRPar, 
+    ptMethodInvocation_NameDotIdentifierLParRPar, 
+    ptMethodInvocation_NameDotIdentifierLParArgumentListRPar, 
     ptMethodInvocation_PrimaryDotIdentifierLParRPar, 
     ptMethodInvocation_PrimaryDotIdentifierLParArgumentListRPar, 
     ptArrayAccess_NameLSBrExpressionRSBr, 

@@ -236,10 +236,10 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 protected:
-	//TODO: clean this up a bit? not sure if it really reflects the structure we care about
-	// nullable
-	std::unique_ptr<Expression> obj;
-	std::variant<std::unique_ptr<Name>, std::string> identifier;
+	// nullable.
+	// Expression when non-static method, Type when static method, Name only before expression resolution
+	std::variant<std::unique_ptr<Expression>, std::unique_ptr<Type>, std::unique_ptr<Name>> source;
+	std::string methodName;
 	std::vector<std::unique_ptr<Expression>> args;
 };
 

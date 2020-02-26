@@ -872,8 +872,10 @@ struct TMethodHeader: public Tree {
 };
 
 enum class TMethodInvocationV {
-  NameLParRPar,  // Name ( ) 
-  NameLParArgumentListRPar,  // Name ( ArgumentList ) 
+  IdentifierLParRPar,  // Identifier ( ) 
+  IdentifierLParArgumentListRPar,  // Identifier ( ArgumentList ) 
+  NameDotIdentifierLParRPar,  // Name . Identifier ( ) 
+  NameDotIdentifierLParArgumentListRPar,  // Name . Identifier ( ArgumentList ) 
   PrimaryDotIdentifierLParRPar,  // Primary . Identifier ( ) 
   PrimaryDotIdentifierLParArgumentListRPar,  // Primary . Identifier ( ArgumentList ) 
   Max,
@@ -881,9 +883,9 @@ enum class TMethodInvocationV {
 
 struct TMethodInvocation: public Tree {
   enum TMethodInvocationV v;
-  TIdentifier* identifier;
   TPrimary* primary;
   TName* name;
+  TIdentifier* identifier;
   TArgumentList* argumentList;
 
   TMethodInvocation();

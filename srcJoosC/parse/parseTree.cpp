@@ -124,7 +124,7 @@ TMethodDeclarator::TMethodDeclarator(): Tree(NonTerminalType::MethodDeclarator),
 
 TMethodHeader::TMethodHeader(): Tree(NonTerminalType::MethodHeader), v(TMethodHeaderV::Max), modifiers(nullptr), methodDeclarator(nullptr), type(nullptr) {}
 
-TMethodInvocation::TMethodInvocation(): Tree(NonTerminalType::MethodInvocation), v(TMethodInvocationV::Max), identifier(nullptr), primary(nullptr), name(nullptr), argumentList(nullptr) {}
+TMethodInvocation::TMethodInvocation(): Tree(NonTerminalType::MethodInvocation), v(TMethodInvocationV::Max), primary(nullptr), name(nullptr), identifier(nullptr), argumentList(nullptr) {}
 
 TModifier::TModifier(): Tree(NonTerminalType::Modifier), v(TModifierV::Max) {}
 

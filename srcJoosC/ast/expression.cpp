@@ -117,9 +117,16 @@ SemanticErrorType FieldAccess::resolveTypes(Semantic::SemanticDB const& semantic
 
 SemanticErrorType
 MethodInvocation::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclaration *enclosingClass) {
-	if (obj) {
-		if (auto error = obj->resolveTypes(semantic, enclosingClass);
-			error != SemanticErrorType::None)
+	{
+		SemanticErrorType error = std::visit(visitor {
+			[&semantic, &enclosingClass](std::unique_ptr<Expression> &src) {
+				return src ? src->resolveTypes(semantic, enclosingClass)	: SemanticErrorType::None;	},
+			[&semantic, &enclosingClass](std::unique_ptr<Type> &src) {
+				return src ? src->resolve(semantic, enclosingClass) 		: SemanticErrorType::None;	},
+			[&semantic, &enclosingClass](std::unique_ptr<Name> &src) {
+				return src ? src->resolveTypes(semantic, enclosingClass)	: SemanticErrorType::None;	}
+		}, source);
+		if (error != SemanticErrorType::None)
 		{
 			return error;
 		}
@@ -473,15 +480,13 @@ std::string Literal::toCode() const {
 std::string MethodInvocation::toCode() const
 {
 	std::string str = "(";
-	if (obj)
-	{
-		str += obj->toCode() + ".";
-		str += std::get<std::string>(identifier);
-	} else
-	{
-		str += std::get<std::unique_ptr<Name>>(identifier)->toCode();
-	}
-	str += "(";
+	std::visit([&str](auto &src) {
+		if (src != nullptr)
+		{
+			str += src->toCode() + ".";
+		}
+	}, source);
+	str += methodName + "(";
 	for (auto &arg : args)
 	{
 		str += arg->toCode() + ", ";
@@ -735,16 +740,16 @@ Literal::Literal(const Parse::TLiteral *ptNode)
 //////////////////////////////////////////////////////////////////////////////
 
 MethodInvocation::MethodInvocation(const Parse::TMethodInvocation *ptNode)
-	: args(std::move(NodeList<Expression>(ptNode->argumentList).list))
+  :	methodName(ptNode->identifier->value),
+	args(std::move(NodeList<Expression>(ptNode->argumentList).list))
 {
 	if (ptNode->name != nullptr)
 	{
-		identifier = Name::create(ptNode->name);
-	} else
-	{
-		obj = Expression::create(ptNode->primary);
-		identifier = ptNode->identifier->value;
+		source = Name::create(ptNode->name);
 	}
+	// even if there is no prefix and ptNode->primary is null, we want to initialize the variant with
+	// a null unique_ptr<Expression>, since Expression is the simpler case (it has simpler expression resolution)
+	source = Expression::create(ptNode->primary);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -290,8 +290,10 @@ FieldAccess:
 	Primary </i>.<i> Identifier
 
 MethodInvocation:
-	Name </i>(<i> </i>)<i>
-	Name </i>(<i> ArgumentList </i>)<i>
+	Identifier </i>(<i> </i>)<i>
+	Identifier </i>(<i> ArgumentList </i>)<i>
+	Name </i>.<i> Identifier </i>(<i> </i>)<i>
+	Name </i>.<i> Identifier </i>(<i> ArgumentList </i>)<i>
 	Primary </i>.<i> Identifier </i>(<i> </i>)<i>
 	Primary </i>.<i> Identifier </i>(<i> ArgumentList </i>)<i>
 

@@ -6,8 +6,16 @@
 #include <vector>
 #include <string>
 
+namespace Semantic
+{
+	struct SemanticDB;
+	enum class SemanticErrorType;
+}
+
 namespace AST
 {
+
+class TypeDeclaration;
 
 class Name: public Node
 {
@@ -21,6 +29,8 @@ public:
 
 	std::string flatten() const;
 	std::string toCode() const override;
+
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
 
 	bool operator==(const Name &other);
 };

@@ -6,7 +6,8 @@
 
 #include <memory>
 #include <vector>
-#include <algorithm>
+
+using Semantic::SemanticErrorType;
 
 namespace AST
 {
@@ -54,6 +55,11 @@ std::string Name::flatten() const
 std::string Name::toCode() const
 {
 	return flatten();
+}
+
+SemanticErrorType Name::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	return SemanticErrorType::None;
 }
 
 bool Name::operator==(const Name &other) {
