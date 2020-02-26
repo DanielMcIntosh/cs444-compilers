@@ -43,6 +43,7 @@ const char *gSemanticErrorTypeName[] = {
 	"OverrideStatic",
 	"OverrideDifferentReturn",
 	"OverridePublic",
+	"OverrideFinal"
 };
 
 static_assert(static_cast<int>(SemanticErrorType::Max) == ARRAY_SIZE(gSemanticErrorTypeName));

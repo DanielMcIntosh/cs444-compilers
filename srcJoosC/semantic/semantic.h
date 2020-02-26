@@ -41,6 +41,7 @@ enum class SemanticErrorType {
 	OverrideStatic,
 	OverrideDifferentReturn,
 	OverridePublic,
+	OverrideFinal,
 	Max
 };
 

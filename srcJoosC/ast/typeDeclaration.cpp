@@ -321,8 +321,6 @@ SemanticErrorType TypeDeclaration::generateHierarchySets()
 					break;
 				}
 			}
-			if (!noDecl)
-				continue;
 			if (m->hasModifier(Modifier::Variant::Abstract)) {
 				bool allAbstract = true;
 				for (const auto &s : superSet) {
@@ -336,7 +334,7 @@ SemanticErrorType TypeDeclaration::generateHierarchySets()
 					if (!allAbstract)
 						break;
 				}
-				if (allAbstract) {
+				if (noDecl && allAbstract) {
 					// Hierarchy check 4: classes with abstract methods must be abstract
 					if (!hasModifier(Modifier::Variant::Abstract)) {
 						return SemanticErrorType::AbstractClassNotAbstract;
@@ -344,7 +342,9 @@ SemanticErrorType TypeDeclaration::generateHierarchySets()
 					methodSets.inheritSet.push_back(m);
 				}
 			} else {
-				methodSets.inheritSet.push_back(m);
+				if (noDecl) {
+					methodSets.inheritSet.push_back(m);
+				}
 			}
 		}
 	}
@@ -368,7 +368,7 @@ SemanticErrorType TypeDeclaration::generateHierarchySets()
 	// overriding methods in superclasses
 	for (const auto &s : superSet) {
 		for (const auto &m : methodSets.declareSet) {
-			for (const auto &n : s->methodSets.declareSet) {
+			for (const auto &n : s->methodSets.containSet) {
 				if (m->signatureEquals(n)) {
 					overrides.emplace_back(m, n);
 				}
@@ -389,6 +389,10 @@ SemanticErrorType TypeDeclaration::generateHierarchySets()
 		// Hierarchy check 7: Only public methods can override public methods
 		if (n->hasModifier(Modifier::Variant::Public) && !m->hasModifier(Modifier::Variant::Public)) {
 			return SemanticErrorType::OverridePublic;
+		}
+		// Hierarchy check 9: Cannot override final methods
+		if (n->hasModifier(Modifier::Variant::Final)) {
+			return SemanticErrorType::OverrideFinal;
 		}
 	}
 
