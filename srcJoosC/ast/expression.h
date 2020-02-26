@@ -45,6 +45,9 @@ public:
 	static std::unique_ptr<ArrayAccess> create(const Parse::Tree *ptNode);
 	explicit ArrayAccess(const Parse::TArrayAccess *ptNode);
 	std::string toCode() const override;
+
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	//Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 protected:
 	std::unique_ptr<Expression> array;
 	std::unique_ptr<Expression> index;
@@ -62,6 +65,8 @@ public:
 	static std::unique_ptr<ArrayCreationExpression> create(const Parse::Tree *ptNode);
 	explicit ArrayCreationExpression(const Parse::TArrayCreationExpression *ptNode);
 	std::string toCode() const override;
+
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 protected:
 	// IMPORTANT: during construction, we have to change type->isArray to true
 	std::unique_ptr<Type> type;
@@ -80,6 +85,8 @@ public:
 	static std::unique_ptr<AssignmentExpression> create(const Parse::Tree *ptNode);
 	explicit AssignmentExpression(const Parse::TAssignment *ptNode);
 	std::string toCode() const override;
+
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 protected:
 	std::unique_ptr<Expression> lhs;
 	std::unique_ptr<Expression> rhs;
@@ -105,6 +112,8 @@ public:
 	explicit BinaryExpression(const Parse::TMultiplicativeExpression *ptNode);
 	explicit BinaryExpression(const Parse::TRelationalExpression *ptNode);
 	std::string toCode() const override;
+
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 
 	enum class Variant {
 		Add,		// Accept Int, Return Int
@@ -189,6 +198,8 @@ public:
 	static std::unique_ptr<FieldAccess> create(const Parse::Tree *ptNode);
 	explicit FieldAccess(const Parse::TFieldAccess *ptNode);
 	std::string toCode() const override;
+
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 protected:
 	std::unique_ptr<Expression> object;
 	std::string member;
@@ -277,6 +288,8 @@ public:
 	explicit UnaryExpression(const Parse::TUnaryExpression *ptNode);
 	explicit UnaryExpression(const Parse::TUnaryExpressionNotPlusMinus *ptNode);
 	std::string toCode() const override;
+
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 protected:
 	enum class Variant
 	{

@@ -7,6 +7,7 @@
 #include <memory>
 #include <ostream>
 
+using Semantic::SemanticErrorType;
 namespace AST
 {
 
@@ -16,42 +17,126 @@ namespace AST
 //
 //////////////////////////////////////////////////////////////////////////////
 
-Semantic::SemanticErrorType
-ClassInstanceCreationExpression::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclaration *enclosingClass) {
-	auto error = type->resolve(semantic, enclosingClass);
-	if (error != Semantic::SemanticErrorType::None)
+SemanticErrorType Expression::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *source)
+{
+	return SemanticErrorType::None;
+}
+
+SemanticErrorType ArrayAccess::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	if (auto error = array->resolveTypes(semantic, enclosingClass);
+		error != SemanticErrorType::None)
+	{
 		return error;
-	for (auto &expr : args) {
-		error = expr->resolveTypes(semantic, enclosingClass);
-		if (error != Semantic::SemanticErrorType::None)
-			return error;
 	}
-	return Semantic::SemanticErrorType::None;
+	if (auto error = index->resolveTypes(semantic, enclosingClass);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	return SemanticErrorType::None;
 }
-
-Semantic::SemanticErrorType Expression::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *source)
+SemanticErrorType ArrayCreationExpression::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
-	return Semantic::SemanticErrorType::None;
+	if (auto error = type->resolve(semantic, enclosingClass);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	if (auto error = size->resolveTypes(semantic, enclosingClass);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	return SemanticErrorType::None;
 }
-
-Semantic::SemanticErrorType CastExpression::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+SemanticErrorType AssignmentExpression::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
-	return type->resolve(semantic, enclosingClass);
+	if (auto error = lhs->resolveTypes(semantic, enclosingClass);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	if (auto error = rhs->resolveTypes(semantic, enclosingClass);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	return SemanticErrorType::None;
+}
+SemanticErrorType BinaryExpression::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	if (auto error = lhs->resolveTypes(semantic, enclosingClass);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	if (op != Variant::InstanceOf)
+	{
+		return std::get<std::unique_ptr<Expression>>(rhs)->resolveTypes(semantic, enclosingClass);
+	} else
+	{
+		return std::get<std::unique_ptr<Type>>(rhs)->resolve(semantic, enclosingClass);
+	}
+}
+SemanticErrorType CastExpression::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	if (auto error = type->resolve(semantic, enclosingClass);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	if (auto error = rhs->resolveTypes(semantic, enclosingClass);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	return SemanticErrorType::None;
+}
+SemanticErrorType
+ClassInstanceCreationExpression::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclaration *enclosingClass) {
+	if (auto error = type->resolve(semantic, enclosingClass);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	for (auto &expr : args) {
+		if (auto error = expr->resolveTypes(semantic, enclosingClass);
+			error != SemanticErrorType::None)
+		{
+			return error;
+		}
+	}
+	return SemanticErrorType::None;
 }
 
-Semantic::SemanticErrorType
+SemanticErrorType FieldAccess::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	return object->resolveTypes(semantic, enclosingClass);
+}
+
+SemanticErrorType
 MethodInvocation::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclaration *enclosingClass) {
 	if (obj) {
-		auto error = obj->resolveTypes(semantic, enclosingClass);
-		if (error != Semantic::SemanticErrorType::None)
+		if (auto error = obj->resolveTypes(semantic, enclosingClass);
+			error != SemanticErrorType::None)
+		{
 			return error;
+		}
 	}
 	for (auto& arg : args) {
-		auto error = arg->resolveTypes(semantic, enclosingClass);
-		if (error != Semantic::SemanticErrorType::None)
+		if (auto error = arg->resolveTypes(semantic, enclosingClass);
+			error != SemanticErrorType::None)
+		{
 			return error;
+		}
 	}
-	return Semantic::SemanticErrorType::None;
+	return SemanticErrorType::None;
+}
+
+SemanticErrorType UnaryExpression::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	return expr->resolveTypes(semantic, enclosingClass);
 }
 
 //////////////////////////////////////////////////////////////////////////////
