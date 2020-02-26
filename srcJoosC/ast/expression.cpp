@@ -241,6 +241,13 @@ SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 	return object->resolve(scope);
 }
 
+SemanticErrorType LocalVariableExpression::resolve(Semantic::Scope const& scope)
+{
+	declaration = scope.findDecl(id);
+	//TODO: return an error on failure to find the declaration.
+	return SemanticErrorType::None;
+}
+
 SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 {
 	{
@@ -261,13 +268,6 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 			return error;
 		}
 	}
-	return SemanticErrorType::None;
-}
-
-SemanticErrorType This::resolve(Semantic::Scope const& scope)
-{
-	declaration = scope.findDecl("this");
-	//TODO: return an error on failure to find the declaration.
 	return SemanticErrorType::None;
 }
 
@@ -332,7 +332,7 @@ std::unique_ptr<Expression> Expression::create(const Parse::Tree *ptNode)
 		case Parse::NonTerminalType::MethodInvocation:
 			return MethodInvocation::create(ptNode);
 		case Parse::NonTerminalType::This2:
-			return This::create(ptNode);
+			return LocalVariableExpression::create(ptNode);
 		default:
 			FAILED("inappropriate PT type for Expression: " + std::to_string((int)ptNode->type));
 	}
@@ -473,6 +473,20 @@ std::unique_ptr<Literal> Literal::create(const Parse::Tree *ptNode)
 }
 
 // static
+std::unique_ptr<LocalVariableExpression> LocalVariableExpression::create(const Parse::Tree *ptNode)
+{
+	if (ptNode == nullptr) {
+		return nullptr;
+	}
+	switch(ptNode->type) {
+		case Parse::NonTerminalType::This2:
+			return std::make_unique<LocalVariableExpression>(static_cast<const Parse::TThis2*>(ptNode));
+		default:
+			FAILED("inappropriate PT type for LocalVariableExpression: " + std::to_string((int)ptNode->type));
+	}
+}
+
+// static
 std::unique_ptr<MethodInvocation> MethodInvocation::create(const Parse::Tree *ptNode)
 {
 	if (ptNode == nullptr) {
@@ -501,20 +515,6 @@ std::unique_ptr<NameExpression> NameExpression::create(const Parse::Tree *ptNode
 			return std::make_unique<NameExpression>(std::move(*Name::create(ptNode)));
 		default:
 			FAILED("inappropriate PT type for NameExpression: " + std::to_string((int)ptNode->type));
-	}
-}
-
-// static
-std::unique_ptr<This> This::create(const Parse::Tree *ptNode)
-{
-	if (ptNode == nullptr) {
-		return nullptr;
-	}
-	switch(ptNode->type) {
-		case Parse::NonTerminalType::This2:
-			return std::make_unique<This>(static_cast<const Parse::TThis2*>(ptNode));
-		default:
-			FAILED("inappropriate PT type for This: " + std::to_string((int)ptNode->type));
 	}
 }
 
@@ -606,6 +606,11 @@ std::string Literal::toCode() const {
 	}, value);
 }
 
+std::string LocalVariableExpression::toCode() const
+{
+	return id;
+}
+
 std::string MethodInvocation::toCode() const
 {
 	std::string str = "(";
@@ -639,11 +644,6 @@ std::string NameExpression::toCode() const
 	}
 	str += id;
 	return str;
-}
-
-std::string This::toCode() const
-{
-	return "this";
 }
 
 std::string UnaryExpression::toCode() const
@@ -894,6 +894,19 @@ Literal::Literal(const Parse::TLiteral *ptNode)
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// LocalVariableExpression
+//
+//////////////////////////////////////////////////////////////////////////////
+
+// mostly a dummy class - the equivalent of the Literal class, but for a "this" expression
+LocalVariableExpression::LocalVariableExpression(const Parse::TThis2 *ptNode)
+  : id("this")
+{
+	nodeType = NodeType::LocalVariableExpression;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // MethodInvocation
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -923,18 +936,6 @@ NameExpression::NameExpression(Name &&other)
 		id(std::move(other.id))
 {
 	nodeType = NodeType::NameExpression;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// This
-//
-//////////////////////////////////////////////////////////////////////////////
-
-// mostly a dummy class - the equivalent of the Literal class, but for a "this" expression
-This::This(const Parse::TThis2 *ptNode)
-{
-	nodeType = NodeType::This;
 }
 
 //////////////////////////////////////////////////////////////////////////////

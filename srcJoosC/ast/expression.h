@@ -230,6 +230,30 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// LocalVariableExpression
+//
+//////////////////////////////////////////////////////////////////////////////
+
+class LocalVariableExpression: public Expression
+{
+public:
+	static std::unique_ptr<LocalVariableExpression> create(const Parse::Tree *ptNode);
+	explicit LocalVariableExpression(const Parse::TThis2 *ptNode);
+	std::string toCode() const override;
+protected:
+	explicit LocalVariableExpression(std::string id);
+	friend class NameExpression;
+	friend class Name;
+
+public:
+	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+protected:
+	std::string id;
+	const VariableDeclaration *declaration;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // MethodInvocation
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -275,25 +299,6 @@ protected:
 	std::unique_ptr<Type> typePrefix;
 
 
-};
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// This
-//
-//////////////////////////////////////////////////////////////////////////////
-
-// mostly a dummy class - the equivalent of the Literal class, but for a "this" expression
-class This: public Expression
-{
-public:
-	static std::unique_ptr<This> create(const Parse::Tree *ptNode);
-	explicit This(const Parse::TThis2 *ptNode);
-	std::string toCode() const override;
-
-	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
-protected:
-	const VariableDeclaration *declaration;
 };
 
 //////////////////////////////////////////////////////////////////////////////

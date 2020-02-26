@@ -122,7 +122,7 @@ std::unique_ptr<Node> Node::create(const Parse::Tree *ptNode)
 		case Parse::NonTerminalType::ReturnStatement:
 			return ReturnStatement                  	::create(static_cast<const Parse::TReturnStatement*>(ptNode));
 		case Parse::NonTerminalType::This2:
-			return This                             	::create(static_cast<const Parse::TThis2*>(ptNode));
+			return LocalVariableExpression          	::create(static_cast<const Parse::TThis2*>(ptNode));
 		case Parse::NonTerminalType::ClassInstanceCreationExpression:
 			return ClassInstanceCreationExpression  	::create(static_cast<const Parse::TClassInstanceCreationExpression*>(ptNode));
 		case Parse::NonTerminalType::ArgumentList:

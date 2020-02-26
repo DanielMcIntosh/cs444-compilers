@@ -51,7 +51,7 @@ enum class NodeType {
 	FieldAccess,
 	Literal,
 	MethodInvocation,
-	This,
+	LocalVariableExpression,
 	NameExpression,
 	EXPRESSION_END,
 
