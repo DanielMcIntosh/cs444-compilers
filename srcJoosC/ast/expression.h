@@ -291,14 +291,8 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 protected:
-	std::vector<std::string> prefix;
+	std::unique_ptr<Name> base;
 	std::string id;
-
-	// nullable
-	// pre-computed during type resolution in case expression-resolution reaches rule 3 and has to resolve a_1.a_2. ... a_k to a Type
-	std::unique_ptr<Type> typePrefix;
-
-
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -144,18 +144,10 @@ SemanticErrorType MethodInvocation::resolveTypes(Semantic::SemanticDB const &sem
 
 SemanticErrorType NameExpression::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
-	if (!prefix.empty())
+	if (base != nullptr)
 	{
-		// leverage Name's type resolution
-		// note that we don't need to include id in this because we must evaluate to an expression,
-		// so id must be a field, and thus not part of typePrefix.
-		Name temp = Name(std::vector<std::string>(prefix.begin(), --prefix.end()), prefix.back());
-		// just as we can't return an error (see comment below), Name.resolveTypes also
-		// can't return an error, so there's no point in checking the return value
-		temp.resolveTypes(semantic, enclosingClass);
-		typePrefix = std::move(temp.typePrefix);
+		return base->resolveTypes(semantic, enclosingClass);
 	}
-	// even if we fail to resolve a type prefix, we can't return an error, because we might still be a valid expression
 	return SemanticErrorType::None;
 }
 
@@ -273,8 +265,14 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 
 SemanticErrorType NameExpression::resolve(Semantic::Scope const& scope)
 {
-	//TODO:
-	//declaration = scope.findDecl(prefix.empty() ? id : prefix[0]);
+	if (base != nullptr)
+	{
+		return base->resolveExprs(scope);
+	} else
+	{
+		//TODO:
+		//declaration = scope.findDecl(id);
+	}
 	return SemanticErrorType::None;
 }
 
@@ -637,13 +635,7 @@ std::string MethodInvocation::toCode() const
 
 std::string NameExpression::toCode() const
 {
-	std::string str;
-	for (auto &pre : prefix)
-	{
-		str += pre + ".";
-	}
-	str += id;
-	return str;
+	return (base ? base->toCode() + "." : "") + id;
 }
 
 std::string UnaryExpression::toCode() const
@@ -932,8 +924,8 @@ MethodInvocation::MethodInvocation(const Parse::TMethodInvocation *ptNode)
 //////////////////////////////////////////////////////////////////////////////
 
 NameExpression::NameExpression(Name &&other)
-	: prefix(std::move(other.prefix)),
-		id(std::move(other.id))
+  : base(other.prefix.empty() ? nullptr : std::make_unique<Name>(std::vector<std::string>(other.prefix.begin(), --other.prefix.end()), other.prefix.back())),
+	id(std::move(other.id))
 {
 	nodeType = NodeType::NameExpression;
 }
