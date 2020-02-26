@@ -24,4 +24,5 @@ add_executable(
 
 target_link_libraries(cs444
         jc
+        pthread
         )
