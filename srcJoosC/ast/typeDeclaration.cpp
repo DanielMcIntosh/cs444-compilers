@@ -64,6 +64,11 @@ TypeDeclaration::TypeDeclaration(const Parse::TClassDeclaration *ptNode)
 	members(std::move(TypeBody(ptNode->classBody).members))
 {
 	nodeType = NodeType::TypeDeclaration;
+	// assume there are no duplicates for now
+	// TODO: clarify what to do with duplicates
+	for (const auto &mod : modifiers) {
+		modifierSet[static_cast<size_t>(mod->type)] = true;
+	}
 }
 
 TypeDeclaration::TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode)
@@ -77,6 +82,11 @@ TypeDeclaration::TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode)
 	members(std::move(TypeBody(ptNode->interfaceBody).members))
 {
 	nodeType = NodeType::TypeDeclaration;
+	// assume there are no duplicates for now
+	// TODO: clarify what to do with duplicates
+	for (const auto &mod : modifiers) {
+		modifierSet[static_cast<size_t>(mod->type)] = true;
+	}
 }
 
 std::string TypeDeclaration::toCode() const
@@ -208,9 +218,23 @@ SemanticErrorType TypeDeclaration::resolveBodyExprs()
 	return SemanticErrorType::None;
 }
 
-SemanticErrorType TypeDeclaration::generateHeirarchySets()
+SemanticErrorType TypeDeclaration::generateHierarchySets()
 {
 	TypeDeclaration *super = superClass ? superClass->getDeclaration() : nullptr;
+
+	if (super) {
+		// A class must not extend an interface
+		if (super->isInterface) {
+			return SemanticErrorType::ExtendNonClass;
+		}
+
+		// A class must not extend a final class
+		for (auto &mod : super->modifiers) {
+			if (mod->type == Modifier::Variant::Final) {
+				return SemanticErrorType::ExtendFinalClass;
+			}
+		}
+	}
 
 	//
 	// various extends
@@ -218,14 +242,17 @@ SemanticErrorType TypeDeclaration::generateHeirarchySets()
 	std::unordered_set<TypeDeclaration *> extends;
 	for (auto &itf : interfaces) {
 		assert(itf->getDeclaration());
+		// A class must not implement a class
 		if (!itf->getDeclaration()->isInterface) {
 			return SemanticErrorType::ImplementNonInterface;
 		}
 
+		// Hierarchy check 1: A class cannot extend itself
 		if (itf->getDeclaration() == super) {
 			return SemanticErrorType::ExtendImplementSame;
 		}
 
+		// An interface must not be repeated in an implements clause, or in an extends clause of an interface
 		auto it = extends.find(itf->getDeclaration());
 		if (it != extends.end()) {
 			return SemanticErrorType::ImplementSameInterface;
@@ -239,16 +266,6 @@ SemanticErrorType TypeDeclaration::generateHeirarchySets()
 	//
 	std::unordered_set<TypeDeclaration *> newSuper;
 	if (super) {
-		if (super->isInterface) {
-			return SemanticErrorType::ExtendNonClass;
-		}
-
-		for (auto &mod : super->modifiers) {
-			if (mod->type == Modifier::Variant::Final) {
-				return SemanticErrorType::ExtendFinalClass;
-			}
-		}
-
 		newSuper.insert(super);
 		for (TypeDeclaration *decl : super->superSet) {
 			newSuper.insert(decl);
@@ -261,12 +278,105 @@ SemanticErrorType TypeDeclaration::generateHeirarchySets()
 			newSuper.insert(decl);
 		}
 	}
+
+	superSet.insert(superSet.end(), newSuper.begin(), newSuper.end());
+
+	// build declare sets
+	for (auto &member : members) {
+		if (member->getTypeId() == 0) {
+			auto f = static_cast<FieldDeclaration*>(member.get());
+			for (const auto &g : fieldSets.declareSet) {
+				// Hierarchy check 10: cannot declare multiple fields with the same name
+				if (f->idEquals(g)) {
+					return SemanticErrorType::DuplicateFieldDeclaration;
+				}
+			}
+			fieldSets.declareSet.push_back(f);
+		} else if (member->getTypeId() == 1) {
+			auto m = static_cast<MethodDeclaration*>(member.get());
+			for (const auto &n : methodSets.declareSet) {
+				// Hierarchy check 2: No duplicate methods
+				if (m->signatureEquals(n)) {
+					return SemanticErrorType::DuplicateMethodDeclaration;
+				}
+			}
+			methodSets.declareSet.push_back(m);
+		} else {
+			constructor = static_cast<ConstructorDeclaration*>(member.get());
+		}
+	}
+
+	// inheriting methods
+	for (const auto &s : superSet) {
+		for (const auto &m : s->methodSets.containSet) {
+			bool noDecl = true;
+			for (const auto &n : methodSets.declareSet) {
+				if (m->signatureEquals(n)) {
+					noDecl = false;
+					break;
+				}
+			}
+			if (!noDecl)
+				continue;
+			if (m->hasModifier(Modifier::Variant::Abstract)) {
+				bool allAbstract = true;
+				for (const auto &s : superSet) {
+					for (const auto &n : s->methodSets.containSet) {
+						if (m->signatureEquals(n) && !n->hasModifier(Modifier::Variant::Abstract)) {
+							allAbstract = false;
+							break;
+						}
+					}
+					if (!allAbstract)
+						break;
+				}
+				if (allAbstract) {
+					// Hierarchy check 4: classes with abstract methods must be abstract
+					if (!hasModifier(Modifier::Variant::Abstract)) {
+						return SemanticErrorType::AbstractClassNotAbstract;
+					}
+					methodSets.inheritSet.push_back(m);
+				}
+			} else {
+				methodSets.inheritSet.push_back(m);
+			}
+		}
+	}
+
+	// inheriting fields
+	for (const auto &s : superSet) {
+		for (const auto &f : s->fieldSets.containSet) {
+			bool unique = true;
+			for (const auto &g : fieldSets.declareSet) {
+				if (f->idEquals(g)) {
+					unique = false;
+					break;
+				}
+			}
+			if (unique) {
+				fieldSets.inheritSet.push_back(f);
+			}
+		}
+	}
+
+	// now that we have inherit, we can build the contain sets
+	methodSets.containSet.insert(methodSets.containSet.end(), methodSets.declareSet.begin(), methodSets.declareSet.end());
+	methodSets.containSet.insert(methodSets.containSet.end(), methodSets.inheritSet.begin(), methodSets.inheritSet.end());
+	fieldSets.containSet.insert(fieldSets.containSet.end(), fieldSets.declareSet.begin(), fieldSets.declareSet.end());
+	fieldSets.containSet.insert(fieldSets.containSet.end(), fieldSets.inheritSet.begin(), fieldSets.inheritSet.end());
+
+	// TODO: replace
+
 	return SemanticErrorType::None;
 }
 
 std::vector<TypeDeclaration *> TypeDeclaration::getChildren()
 {
 	return children;
+}
+
+bool TypeDeclaration::hasModifier(Modifier::Variant mod) const {
+	return modifierSet[static_cast<size_t>(mod)];
 }
 
 } //namespace AST

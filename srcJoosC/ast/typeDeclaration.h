@@ -3,6 +3,9 @@
  * Declaration of either a Class or Interface type
  */
 #include "ast/node.h"
+#include "ast/fieldDeclaration.h"
+#include "ast/methodDeclaration.h"
+#include "ast/constructorDeclaration.h"
 #include <memory>
 #include <vector>
 #include <string>
@@ -21,6 +24,7 @@ class MethodDeclaration;
 class Modifier;
 class NameType;
 class MemberDeclaration;
+class ConstructorDeclaration;
 
 class CompilationUnit;
 
@@ -38,17 +42,22 @@ public:
 	Semantic::SemanticErrorType resolveBodyTypeNames(Semantic::SemanticDB const& semantic);
 	Semantic::SemanticErrorType resolveBodyExprs();
 
-	Semantic::SemanticErrorType	generateHeirarchySets();
+	Semantic::SemanticErrorType	generateHierarchySets();
 
 	std::vector<TypeDeclaration *> getChildren();
+
+	bool hasModifier(Modifier::Variant) const;
 
 	// Fully qualified name (with package string)
 	std::string fqn;
 	// The compilation unit in which this type is declared.
-	CompilationUnit *cpu;
+	CompilationUnit *cpu = nullptr;
 protected:
 	bool isInterface;
 	std::vector<std::unique_ptr<Modifier>> modifiers;
+	// set for membership testing
+	std::array<bool,static_cast<size_t>(Modifier::Variant::Max)> modifierSet{};
+
 public:
 	std::string name;
 protected:
@@ -60,6 +69,8 @@ protected:
 
 	// Used in topological sort of class hierarchy.
 	std::vector<TypeDeclaration *> children;
+
+	ConstructorDeclaration *constructor = nullptr;
 
 	//
 	// Implements formal hierarchy checking
@@ -82,7 +93,7 @@ protected:
 		std::vector<DeclType *> inheritSet;
 
 		// Contain.
-		// Should be a concatination of declareSet and inheritSet above.
+		// Should be a concatenation of declareSet and inheritSet above.
 		std::vector<DeclType *> containSet;
 	};
 

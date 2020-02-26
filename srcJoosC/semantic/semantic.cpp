@@ -35,7 +35,9 @@ const char *gSemanticErrorTypeName[] = {
 	"PrefixNameIsType",
 	"NotPackage",
 	"ExprResolution",
-
+	"DuplicateFieldDeclaration",
+	"DuplicateMethodDeclaration",
+	"AbstractClassNotAbstract"
 };
 
 static_assert(static_cast<int>(SemanticErrorType::Max) == ARRAY_SIZE(gSemanticErrorTypeName));
@@ -341,9 +343,9 @@ void semanticDo(SemanticDB *sdb) {
 		}
 	}
 
-	// Implements formal hierarchy checking algorithm.
+	// Generate super, extends, declare
 	for (auto *typeDecl : allTypes) {
-		if (SemanticErrorType err = typeDecl->generateHeirarchySets();
+		if (SemanticErrorType err = typeDecl->generateHierarchySets();
 			err != SemanticErrorType::None)
 		{
 			sdb->error = err;

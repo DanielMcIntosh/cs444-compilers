@@ -31,7 +31,7 @@ bool Scope::addField(const AST::VariableDeclaration *newDecl)
 	assert(isRoot());
 	for (auto *decl : _fields)
 	{
-		if (newDecl->idEqual(decl))
+		if (newDecl->idEquals(decl))
 		{
 			return false;
 		}
@@ -49,7 +49,7 @@ bool Scope::doesConflict(const AST::VariableDeclaration *newDecl) const
 {
 	for (auto *decl : _declarations)
 	{
-		if (newDecl->idEqual(decl))
+		if (newDecl->idEquals(decl))
 		{
 			return true;
 		}

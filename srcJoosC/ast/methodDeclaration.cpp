@@ -41,11 +41,17 @@ MethodDeclaration::MethodDeclaration(MethodHeader&& header, std::unique_ptr<Bloc
 		body(std::move(block))
 {
 	nodeType = NodeType::MethodDeclaration;
+	for (const auto &mod : modifiers) {
+		modifierSet[static_cast<size_t>(mod->type)] = true;
+	}
 }
 MethodDeclaration::MethodDeclaration(const Parse::TAbstractMethodDeclaration *ptNode)
 	: MethodDeclaration(MethodHeader(ptNode->methodHeader), nullptr)
 {
 	nodeType = NodeType::MethodDeclaration;
+	for (const auto &mod : modifiers) {
+		modifierSet[static_cast<size_t>(mod->type)] = true;
+	}
 }
 MethodDeclaration::MethodDeclaration(const Parse::TMethodDeclaration *ptNode)
 	: MethodDeclaration(MethodHeader(ptNode->methodHeader), Block::create(ptNode->methodBody->block))
@@ -70,6 +76,19 @@ std::string MethodDeclaration::toCode() const {
 	return s;
 }
 
+bool MethodDeclaration::signatureEquals(MethodDeclaration *other) {
+	if (parameters.size() != other->parameters.size())
+		return false;
+	for (size_t i = 0; i < parameters.size(); ++i) {
+		// if (!parameters[i]->typeEquals(other->parameters[i].get()))
+		auto a = other->parameters[i].get();
+		auto b = parameters[i].get();
+		if (!b->typeEquals(a))
+			return false;
+	}
+	return identifier == other->identifier;
+}
+
 bool MethodDeclaration::equals(MethodDeclaration *other) {
 	if (parameters.size() != other->parameters.size())
 		return false;
@@ -77,7 +96,6 @@ bool MethodDeclaration::equals(MethodDeclaration *other) {
 		if (!parameters[i]->equals(other->parameters[i].get()))
 			return false;
 	}
-
 	return identifier == other->identifier;
 }
 

@@ -17,6 +17,9 @@ public:
 
 	using MemberDeclaration::equals;
 	virtual bool equals(FieldDeclaration *) override;
+	bool idEquals(FieldDeclaration *) const;
+
+	virtual int getTypeId() override { return 0; }
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;

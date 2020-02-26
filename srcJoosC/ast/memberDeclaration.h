@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ast/node.h"
+#include "ast/modifier.h"
 #include <vector>
 #include <memory>
 #include <string>
@@ -32,14 +33,21 @@ public:
 	virtual bool equals(ConstructorDeclaration *);
 	virtual bool equals(MethodDeclaration *);
 
+	// TODO: temporary, to remove
+	virtual int getTypeId() = 0;
+
 	virtual Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) = 0;
 	virtual Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) = 0;
 	// temporary - should be removed once we can rely on TypeDeclaration.fieldSets and TypeDeclaration.methodSets
 	virtual Semantic::SemanticErrorType initScope(Semantic::Scope &parentScope);
+
+	bool hasModifier(Modifier::Variant) const;
 protected:
 	MemberDeclaration(std::vector<std::unique_ptr<Modifier>> mods);
 
 	std::vector<std::unique_ptr<Modifier>> modifiers;
+	// set for membership testing
+	std::array<bool,static_cast<size_t>(Modifier::Variant::Max)> modifierSet{};
 };
 
 } //namespace AST

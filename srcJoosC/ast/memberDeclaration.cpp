@@ -39,6 +39,11 @@ std::unique_ptr<MemberDeclaration> MemberDeclaration::create(const Parse::Tree *
 MemberDeclaration::MemberDeclaration(std::vector<std::unique_ptr<Modifier>> mods)
   : modifiers(std::move(mods))
 {
+	// assume there are no duplicates for now
+	// TODO: clarify what to do with duplicates
+	for (const auto &mod : modifiers) {
+		modifierSet[static_cast<size_t>(mod->type)] = true;
+	}
 }
 
 bool MemberDeclaration::equals(FieldDeclaration *) {
@@ -60,6 +65,10 @@ bool MemberDeclaration::equals(MethodDeclaration *) {
 Semantic::SemanticErrorType MemberDeclaration::initScope(Semantic::Scope &parentScope)
 {
 	return Semantic::SemanticErrorType::None;
+}
+
+bool MemberDeclaration::hasModifier(Modifier::Variant mod) const {
+	return modifierSet[static_cast<size_t>(mod)];
 }
 
 } //namespace AST

@@ -20,7 +20,10 @@ public:
 	std::string toCode() const override;
 
 	using MemberDeclaration::equals;
+	bool signatureEquals(MethodDeclaration *other);
 	virtual bool equals(MethodDeclaration *) override;
+
+	virtual int getTypeId() override { return 1; }
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;

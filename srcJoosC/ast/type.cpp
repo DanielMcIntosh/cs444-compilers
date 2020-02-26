@@ -141,10 +141,6 @@ std::string NameType::flatten() const {
 	return str;
 }
 
-bool NameType::equals(NameType *other) {
-	return declaration == other->declaration;
-}
-
 TypeDeclaration *NameType::getDeclaration()
 {
 	return declaration;
@@ -165,10 +161,6 @@ PrimitiveType::PrimitiveType(std::nullptr_t null)
 	: type(Variant::Void)
 {
 	nodeType = NodeType::PrimitiveType;
-}
-
-bool PrimitiveType::equals(PrimitiveType *other) {
-	return type == other->type;
 }
 
 std::string operator+=(std::string& str, PrimitiveType::Variant type)
@@ -198,18 +190,6 @@ std::ostream& operator<<(std::ostream& os, PrimitiveType::Variant type)
 		return os;
 	}
 	return os << ("" + type);
-}
-
-bool Type::equals(PrimitiveType *) {
-	return false;
-}
-
-bool Type::equals(NameType *) {
-	return false;
-}
-
-bool Type::equals(Type *) {
-	return false;
 }
 
 } //namespace AST

@@ -33,7 +33,9 @@ enum class SemanticErrorType {
 	PrefixNameIsType,
 	NotPackage,
 	ExprResolution,
-
+	DuplicateFieldDeclaration,
+	DuplicateMethodDeclaration,
+	AbstractClassNotAbstract,
 	Max
 };
 

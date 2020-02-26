@@ -68,4 +68,8 @@ Semantic::SemanticErrorType FieldDeclaration::resolveExprs(Semantic::Scope &pare
 	return Semantic::SemanticErrorType::None;
 }
 
+bool FieldDeclaration::idEquals(FieldDeclaration *other) const {
+	return declaration->idEquals(other->declaration.get());
+}
+
 } //namespace AST

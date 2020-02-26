@@ -19,7 +19,8 @@ public:
 
 	bool equals(const VariableDeclaration *) const;
 	[[gnu::pure]]
-	bool idEqual(const VariableDeclaration *other) const;
+	bool idEquals(const VariableDeclaration *other) const;
+	bool typeEquals(const VariableDeclaration *other) const;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
 protected:

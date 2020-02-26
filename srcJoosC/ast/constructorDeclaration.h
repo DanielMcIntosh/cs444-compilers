@@ -20,6 +20,8 @@ public:
 	using MemberDeclaration::equals;
 	virtual bool equals(ConstructorDeclaration *) override;
 
+	virtual int getTypeId() override { return 2; }
+
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
 protected:
