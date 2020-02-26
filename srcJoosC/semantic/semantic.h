@@ -35,7 +35,12 @@ enum class SemanticErrorType {
 	ExprResolution,
 	DuplicateFieldDeclaration,
 	DuplicateMethodDeclaration,
+	DuplicateConstructorDeclaration,
 	AbstractClassNotAbstract,
+	AmbiguousReturnType,
+	OverrideStatic,
+	OverrideDifferentReturn,
+	OverridePublic,
 	Max
 };
 

@@ -55,7 +55,7 @@ public:
 protected:
 	bool isInterface;
 	std::vector<std::unique_ptr<Modifier>> modifiers;
-	// set for membership testing
+	// set for membership testing, including all implicit modifiers
 	std::array<bool,static_cast<size_t>(Modifier::Variant::Max)> modifierSet{};
 
 public:
@@ -70,7 +70,7 @@ protected:
 	// Used in topological sort of class hierarchy.
 	std::vector<TypeDeclaration *> children;
 
-	ConstructorDeclaration *constructor = nullptr;
+	std::vector<ConstructorDeclaration *> constructorSet;
 
 	//
 	// Implements formal hierarchy checking

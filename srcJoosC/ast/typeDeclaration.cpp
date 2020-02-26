@@ -1,7 +1,6 @@
 #include "ast/typeDeclaration.h"
 #include "ast/type.h"
 #include "ast/modifier.h"
-#include "ast/memberDeclaration.h"
 #include "ast/nodeList.h"
 #include "ast/typeBody.h"
 #include "ast/name.h"
@@ -87,6 +86,8 @@ TypeDeclaration::TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode)
 	for (const auto &mod : modifiers) {
 		modifierSet[static_cast<size_t>(mod->type)] = true;
 	}
+	// interfaces are implicitly abstract
+	modifierSet[static_cast<size_t>(Modifier::Variant::Abstract)] = true;
 }
 
 std::string TypeDeclaration::toCode() const
@@ -261,25 +262,16 @@ SemanticErrorType TypeDeclaration::generateHierarchySets()
 		extends.insert(itf->getDeclaration());
 	}
 
-	//
-	// populate initial super set
-	//
-	std::unordered_set<TypeDeclaration *> newSuper;
+	// build super set (only direct superclasses)
 	if (super) {
-		newSuper.insert(super);
-		for (TypeDeclaration *decl : super->superSet) {
-			newSuper.insert(decl);
-		}
+		superSet.push_back(super);
 	}
-
 	for (auto *ext : extends) {
-		newSuper.insert(ext);
+		superSet.push_back(ext);
 		for (TypeDeclaration *decl : ext->superSet) {
-			newSuper.insert(decl);
+			superSet.push_back(decl);
 		}
 	}
-
-	superSet.insert(superSet.end(), newSuper.begin(), newSuper.end());
 
 	// build declare sets
 	for (auto &member : members) {
@@ -299,12 +291,25 @@ SemanticErrorType TypeDeclaration::generateHierarchySets()
 				if (m->signatureEquals(n)) {
 					return SemanticErrorType::DuplicateMethodDeclaration;
 				}
+				// Hierarchy check 4: classes with abstract methods must be abstract
+				if (n->hasModifier(Modifier::Variant::Abstract) && !hasModifier(Modifier::Variant::Abstract)) {
+					return SemanticErrorType::AbstractClassNotAbstract;
+				}
 			}
 			methodSets.declareSet.push_back(m);
 		} else {
-			constructor = static_cast<ConstructorDeclaration*>(member.get());
+			auto c = static_cast<ConstructorDeclaration*>(member.get());
+			for (const auto &d : constructorSet) {
+				if (c->signatureEquals(d)) {
+					return SemanticErrorType::DuplicateConstructorDeclaration;
+				}
+			}
+			constructorSet.push_back(c);
 		}
 	}
+
+	// replace set for methods
+	std::vector<std::pair<MethodDeclaration *, MethodDeclaration *>> overrides;
 
 	// inheriting methods
 	for (const auto &s : superSet) {
@@ -324,7 +329,8 @@ SemanticErrorType TypeDeclaration::generateHierarchySets()
 					for (const auto &n : s->methodSets.containSet) {
 						if (m->signatureEquals(n) && !n->hasModifier(Modifier::Variant::Abstract)) {
 							allAbstract = false;
-							break;
+							// Replacing abstract with concrete method
+							overrides.emplace_back(n, m);
 						}
 					}
 					if (!allAbstract)
@@ -359,13 +365,46 @@ SemanticErrorType TypeDeclaration::generateHierarchySets()
 		}
 	}
 
-	// now that we have inherit, we can build the contain sets
+	// overriding methods in superclasses
+	for (const auto &s : superSet) {
+		for (const auto &m : methodSets.declareSet) {
+			for (const auto &n : s->methodSets.declareSet) {
+				if (m->signatureEquals(n)) {
+					overrides.emplace_back(m, n);
+				}
+			}
+		}
+	}
+
+	for (const auto &[m, n] : overrides) {
+		// Hierarchy check 5: Static methods can only override and be overriden by static methods
+		if ((m->hasModifier(Modifier::Variant::Static) && !n->hasModifier(Modifier::Variant::Static)) ||
+			(!m->hasModifier(Modifier::Variant::Static) && n->hasModifier(Modifier::Variant::Static))) {
+			return SemanticErrorType::OverrideStatic;
+		}
+		// Hierarchy check 6: Methods can only override methods with the same return type
+		if (!m->returnEquals(n)) {
+			return SemanticErrorType::OverrideDifferentReturn;
+		}
+		// Hierarchy check 7: Only public methods can override public methods
+		if (n->hasModifier(Modifier::Variant::Public) && !m->hasModifier(Modifier::Variant::Public)) {
+			return SemanticErrorType::OverridePublic;
+		}
+	}
+
 	methodSets.containSet.insert(methodSets.containSet.end(), methodSets.declareSet.begin(), methodSets.declareSet.end());
 	methodSets.containSet.insert(methodSets.containSet.end(), methodSets.inheritSet.begin(), methodSets.inheritSet.end());
 	fieldSets.containSet.insert(fieldSets.containSet.end(), fieldSets.declareSet.begin(), fieldSets.declareSet.end());
 	fieldSets.containSet.insert(fieldSets.containSet.end(), fieldSets.inheritSet.begin(), fieldSets.inheritSet.end());
 
-	// TODO: replace
+	// Hierarchy check 3: One return type per unique signature
+	for (const auto &m : methodSets.containSet) {
+		for (const auto &n : methodSets.containSet) {
+			if (m->signatureEquals(n) && !m->returnEquals(n)) {
+				return SemanticErrorType::AmbiguousReturnType;
+			}
+		}
+	}
 
 	return SemanticErrorType::None;
 }

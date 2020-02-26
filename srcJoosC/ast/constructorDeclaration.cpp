@@ -77,6 +77,16 @@ bool ConstructorDeclaration::equals(ConstructorDeclaration *other) {
 	return true;
 }
 
+bool ConstructorDeclaration::signatureEquals(ConstructorDeclaration *other) {
+	if (parameters.size() != other->parameters.size())
+		return false;
+	for (size_t i = 0; i < parameters.size(); ++i) {
+		if (!parameters[i]->typeEquals(other->parameters[i].get()))
+			return false;
+	}
+	return identifier == other->identifier;
+}
+
 Semantic::SemanticErrorType ConstructorDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
 	for (auto &param: parameters)

@@ -37,7 +37,12 @@ const char *gSemanticErrorTypeName[] = {
 	"ExprResolution",
 	"DuplicateFieldDeclaration",
 	"DuplicateMethodDeclaration",
-	"AbstractClassNotAbstract"
+	"DuplicateConstructorDeclaration",
+	"AbstractClassNotAbstract",
+	"AmbiguousReturnType",
+	"OverrideStatic",
+	"OverrideDifferentReturn",
+	"OverridePublic",
 };
 
 static_assert(static_cast<int>(SemanticErrorType::Max) == ARRAY_SIZE(gSemanticErrorTypeName));

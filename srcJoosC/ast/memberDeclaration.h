@@ -46,7 +46,7 @@ protected:
 	MemberDeclaration(std::vector<std::unique_ptr<Modifier>> mods);
 
 	std::vector<std::unique_ptr<Modifier>> modifiers;
-	// set for membership testing
+	// set for membership testing, including all implicit modifiers
 	std::array<bool,static_cast<size_t>(Modifier::Variant::Max)> modifierSet{};
 };
 

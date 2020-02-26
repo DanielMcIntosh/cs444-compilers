@@ -20,8 +20,9 @@ public:
 	std::string toCode() const override;
 
 	using MemberDeclaration::equals;
-	bool signatureEquals(MethodDeclaration *other);
 	virtual bool equals(MethodDeclaration *) override;
+	bool signatureEquals(MethodDeclaration *other);
+	bool returnEquals(MethodDeclaration *other);
 
 	virtual int getTypeId() override { return 1; }
 

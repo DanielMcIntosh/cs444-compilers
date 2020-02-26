@@ -52,6 +52,9 @@ MethodDeclaration::MethodDeclaration(const Parse::TAbstractMethodDeclaration *pt
 	for (const auto &mod : modifiers) {
 		modifierSet[static_cast<size_t>(mod->type)] = true;
 	}
+	// interface methods are implicitly public abstract
+	modifierSet[static_cast<size_t>(Modifier::Variant::Public)] = true;
+	modifierSet[static_cast<size_t>(Modifier::Variant::Abstract)] = true;
 }
 MethodDeclaration::MethodDeclaration(const Parse::TMethodDeclaration *ptNode)
 	: MethodDeclaration(MethodHeader(ptNode->methodHeader), Block::create(ptNode->methodBody->block))
@@ -80,13 +83,14 @@ bool MethodDeclaration::signatureEquals(MethodDeclaration *other) {
 	if (parameters.size() != other->parameters.size())
 		return false;
 	for (size_t i = 0; i < parameters.size(); ++i) {
-		// if (!parameters[i]->typeEquals(other->parameters[i].get()))
-		auto a = other->parameters[i].get();
-		auto b = parameters[i].get();
-		if (!b->typeEquals(a))
+		if (!parameters[i]->typeEquals(other->parameters[i].get()))
 			return false;
 	}
 	return identifier == other->identifier;
+}
+
+bool MethodDeclaration::returnEquals(MethodDeclaration *other) {
+	return returnType->equals(other->returnType.get());
 }
 
 bool MethodDeclaration::equals(MethodDeclaration *other) {
