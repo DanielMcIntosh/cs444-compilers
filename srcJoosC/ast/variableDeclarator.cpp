@@ -24,6 +24,7 @@ VariableDeclarator::VariableDeclarator(const Parse::TVariableDeclarator *ptNode)
   : id(ptNode->identifier->value),
 	initializer(Expression::create(ptNode->expression))
 {
+	nodeType = NodeType::VariableDeclarator;
 }
 
 

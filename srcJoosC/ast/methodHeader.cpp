@@ -33,11 +33,13 @@ MethodHeader::MethodHeader(std::vector<std::unique_ptr<Modifier>> mods, std::uni
 	id(std::move(declarator.id)),
 	parameterList(std::move(declarator.parameterList))
 {
+	nodeType = NodeType::MethodHeader;
 	assert(returnType);
 }
 MethodHeader::MethodHeader(const Parse::TMethodHeader *ptNode)
   : MethodHeader(std::move(NodeList<Modifier>(ptNode->modifiers).list), Type::create(ptNode->type), MethodDeclarator(ptNode->methodDeclarator))
 {
+	nodeType = NodeType::MethodHeader;
 }
 
 std::string MethodHeader::toCode() const

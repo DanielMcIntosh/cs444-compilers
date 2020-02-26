@@ -29,6 +29,7 @@ std::unique_ptr<CompilationUnit> CompilationUnit::create(const Parse::Tree *ptNo
 }
 CompilationUnit::CompilationUnit(const Parse::TCompilationUnit *ptNode)
 {
+	nodeType = NodeType::CompilationUnit;
 	package = Name::create((ptNode->packageDeclaration) ? ptNode->packageDeclaration->name : nullptr);
 	imports = std::move(NodeList<ImportDeclaration>(ptNode->importDeclarations).list);
 	typeDeclaration = TypeDeclaration::create(ptNode->typeDeclaration);

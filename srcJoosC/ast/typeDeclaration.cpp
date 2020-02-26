@@ -43,6 +43,7 @@ std::unique_ptr<TypeDeclaration> TypeDeclaration::create(const Parse::Tree *ptNo
 TypeDeclaration::TypeDeclaration(const Parse::TTypeDeclaration *ptNode)
   :	isInterface(false)
 {
+	nodeType = NodeType::TypeDeclaration;
 }
 
 TypeDeclaration::TypeDeclaration(const Parse::TClassDeclaration *ptNode)
@@ -62,6 +63,7 @@ TypeDeclaration::TypeDeclaration(const Parse::TClassDeclaration *ptNode)
 	// TypeBody itself. Instead we need to extract the relevant contents.
 	members(std::move(TypeBody(ptNode->classBody).members))
 {
+	nodeType = NodeType::TypeDeclaration;
 }
 
 TypeDeclaration::TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode)
@@ -74,6 +76,7 @@ TypeDeclaration::TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode)
 	interfaces(std::move(NodeList<NameType>(ptNode->extendsInterfaces).list)),
 	members(std::move(TypeBody(ptNode->interfaceBody).members))
 {
+	nodeType = NodeType::TypeDeclaration;
 }
 
 std::string TypeDeclaration::toCode() const

@@ -27,13 +27,14 @@ VariableDeclaration::VariableDeclaration(const Parse::TFormalParameter *ptNode)
 	: type(Type::create(ptNode->type)),
 	identifier(ptNode->identifier->value)
 {
-
+	nodeType = NodeType::VariableDeclaration;
 }
 VariableDeclaration::VariableDeclaration(const Parse::TVariableDeclaration *ptNode)
 	: type(Type::create(ptNode->type)),
 	identifier(ptNode->variableDeclarator->identifier->value),
     initializer(Expression::create(ptNode->variableDeclarator->expression))
 {
+	nodeType = NodeType::VariableDeclaration;
 }
 
 std::string VariableDeclaration::toCode() const {

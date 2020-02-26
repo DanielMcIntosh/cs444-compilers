@@ -164,4 +164,8 @@ std::unique_ptr<Node> Node::create(const Parse::Tree *ptNode)
 	}
 }
 
+Node::Node(): nodeType(NodeType::Undefined) {
+
+}
+
 }

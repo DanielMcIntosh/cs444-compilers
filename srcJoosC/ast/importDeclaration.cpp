@@ -30,10 +30,12 @@ std::unique_ptr<ImportDeclaration> ImportDeclaration::create(const Parse::Tree *
 ImportDeclaration::ImportDeclaration(const Parse::TSingleTypeImportDeclaration *ptNode):
 importName(Name::create(ptNode->name)), multiImport(false)
 {
+	nodeType = NodeType::ImportDeclaration;
 }
 ImportDeclaration::ImportDeclaration(const Parse::TTypeImportOnDemandDeclaration *ptNode):
 importName(Name::create(ptNode->name)), multiImport(true)
 {
+	nodeType = NodeType::ImportDeclaration;
 }
 
 std::string ImportDeclaration::toCode() const

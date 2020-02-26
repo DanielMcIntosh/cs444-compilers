@@ -123,6 +123,7 @@ NameType::NameType(Name &&other)
 	: prefix(std::move(other.prefix)),
 	  id(std::move(other.id))
 {
+	nodeType = NodeType::NameType;
 }
 NameType::NameType(Name const& other)
 	: prefix(other.prefix),
@@ -149,8 +150,6 @@ TypeDeclaration *NameType::getDeclaration()
 	return declaration;
 }
 
-
-
 static_assert( (int)Parse::TPrimitiveTypeV::boolean	== (int)PrimitiveType::Variant::Boolean);
 static_assert( (int)Parse::TPrimitiveTypeV::byte   	== (int)PrimitiveType::Variant::Byte);
 static_assert( (int)Parse::TPrimitiveTypeV::Short  	== (int)PrimitiveType::Variant::Short);
@@ -159,11 +158,13 @@ static_assert( (int)Parse::TPrimitiveTypeV::Char   	== (int)PrimitiveType::Varia
 PrimitiveType::PrimitiveType(const Parse::TPrimitiveType *ptNode)
 	: type{(int)ptNode->v}
 {
+	nodeType = NodeType::PrimitiveType;
 	assert(type <= Variant::Max && type != Variant::Void);
 }
 PrimitiveType::PrimitiveType(std::nullptr_t null)
 	: type(Variant::Void)
 {
+	nodeType = NodeType::PrimitiveType;
 }
 
 bool PrimitiveType::equals(PrimitiveType *other) {

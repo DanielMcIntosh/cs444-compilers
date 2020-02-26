@@ -222,21 +222,25 @@ std::string ReturnStatement::toCode() const
 Block::Block(const Parse::TBlock *ptNode)
 	: statements(std::move(NodeList<Statement>(ptNode->blockStatements).list))
 {
+	nodeType = NodeType::Block;
 }
 
 ExpressionStatement::ExpressionStatement(const Parse::TExpressionStatement *ptNode)
 	: expression(Expression::create(ptNode->statementExpression))
 {
+	nodeType = NodeType::ExpressionStatement;
 }
 
 LocalVariableDeclarationStatement::LocalVariableDeclarationStatement(const Parse::TLocalVariableDeclarationStatement *ptNode)
 	: declaration(std::make_unique<VariableDeclaration>(ptNode->variableDeclaration))
 {
+	nodeType = NodeType::LocalVariableDeclarationStatement;
 }
 
 ReturnStatement::ReturnStatement(const Parse::TReturnStatement *ptNode):
 	returnValue(Expression::create(ptNode->expression))
 {
+	nodeType = NodeType::ReturnStatement;
 }
 
 } //namespace AST

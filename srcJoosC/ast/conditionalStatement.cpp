@@ -124,6 +124,7 @@ ConditionalStatement::ConditionalStatement(const Parse::TIfThenStatement *ptNode
 	body(Statement::create(ptNode->statement)),
 	elseBody(nullptr)
 {
+	nodeType = NodeType::ConditionalStatement;
 }
 ConditionalStatement::ConditionalStatement(const Parse::TIfThenElseStatement *ptNode)
   :	condType(ConditionType::If),
@@ -133,6 +134,7 @@ ConditionalStatement::ConditionalStatement(const Parse::TIfThenElseStatement *pt
 	body(Statement::create(ptNode->statementNoShortIf)),
 	elseBody(Statement::create(ptNode->statement))
 {
+	nodeType = NodeType::ConditionalStatement;
 }
 ConditionalStatement::ConditionalStatement(const Parse::TIfThenElseStatementNoShortIf *ptNode)
   :	condType(ConditionType::If),
@@ -142,6 +144,7 @@ ConditionalStatement::ConditionalStatement(const Parse::TIfThenElseStatementNoSh
 	body(Statement::create(ptNode->statementNoShortIf)),
 	elseBody(Statement::create(ptNode->statementNoShortIf2))
 {
+	nodeType = NodeType::ConditionalStatement;
 }
 
 ConditionalStatement::ConditionalStatement(const Parse::TWhileStatement *ptNode)
@@ -152,6 +155,7 @@ ConditionalStatement::ConditionalStatement(const Parse::TWhileStatement *ptNode)
 	body(Statement::create(ptNode->statement)),
 	elseBody(nullptr)
 {
+	nodeType = NodeType::ConditionalStatement;
 }
 ConditionalStatement::ConditionalStatement(const Parse::TWhileStatementNoShortIf *ptNode)
   :	condType(ConditionType::While),
@@ -161,6 +165,7 @@ ConditionalStatement::ConditionalStatement(const Parse::TWhileStatementNoShortIf
 	body(Statement::create(ptNode->statementNoShortIf)),
 	elseBody(nullptr)
 {
+	nodeType = NodeType::ConditionalStatement;
 }
 
 ConditionalStatement::ConditionalStatement(const Parse::TForStatement *ptNode)
@@ -171,6 +176,7 @@ ConditionalStatement::ConditionalStatement(const Parse::TForStatement *ptNode)
 	body(Statement::create(ptNode->statement)),
 	elseBody(nullptr)
 {
+	nodeType = NodeType::ConditionalStatement;
 }
 ConditionalStatement::ConditionalStatement(const Parse::TForStatementNoShortIf *ptNode)
   :	condType(ConditionType::For),
@@ -180,6 +186,7 @@ ConditionalStatement::ConditionalStatement(const Parse::TForStatementNoShortIf *
 	body(Statement::create(ptNode->statementNoShortIf)),
 	elseBody(nullptr)
 {
+	nodeType = NodeType::ConditionalStatement;
 }
 
 //////////////////////////////////////////////////////////////////////////////

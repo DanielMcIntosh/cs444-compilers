@@ -25,10 +25,12 @@ std::unique_ptr<TypeBody> TypeBody::create(const Parse::Tree *ptNode)
 TypeBody::TypeBody(const Parse::TClassBody *ptNode)
   : members(std::move(NodeList<MemberDeclaration>(ptNode->classMemberDeclarations).list))
 {
+	nodeType = NodeType::TypeBody;
 }
 TypeBody::TypeBody(const Parse::TInterfaceBody *ptNode)
   : members(std::move(NodeList<MemberDeclaration>(ptNode->interfaceMemberDeclarations).list))
 {
+	nodeType = NodeType::TypeBody;
 }
 
 std::string TypeBody::toCode() const {

@@ -33,6 +33,7 @@ std::unique_ptr<Name> Name::create(const Parse::Tree *ptNode)
 Name::Name(const Parse::TName *ptNode)
   : id(ptNode->identifier->value)
 {
+	nodeType = NodeType::Name;
 	if (ptNode->name)
 	{
 		Name pre = Name(ptNode->name);

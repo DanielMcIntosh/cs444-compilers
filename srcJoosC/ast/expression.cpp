@@ -246,14 +246,6 @@ std::unique_ptr<ArrayCreationExpression> ArrayCreationExpression::create(const P
 			FAILED("inappropriate PT type for ArrayCreationExpression: " + std::to_string((int)ptNode->type));
 	}
 }
-ArrayCreationExpression::ArrayCreationExpression(const Parse::TArrayCreationExpression *ptNode)
-	: type(Type::create((ptNode->v == Parse::TArrayCreationExpressionV::NewPrimitiveTypeLSBrExpressionRSBr)
-											? (const Parse::Tree *)ptNode->primitiveType
-											: (const Parse::Tree *)ptNode->classOrInterfaceType)),
-		size(Expression::create(ptNode->expression))
-{
-	type->isArray = true;
-}
 
 // static
 std::unique_ptr<AssignmentExpression> AssignmentExpression::create(const Parse::Tree *ptNode)
@@ -540,18 +532,29 @@ std::string UnaryExpression::toCode() const
 	return "" + op + expr->toCode();
 }
 
-
-ArrayAccess::ArrayAccess(const Parse::TArrayAccess *ptNode)
-	: array(Expression::create(ptNode->expression)),
-		index(Expression::create(ptNode->expression))
-{
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //
 //										Constructors and other specific things
 //
 //////////////////////////////////////////////////////////////////////////////
+
+ArrayAccess::ArrayAccess(const Parse::TArrayAccess *ptNode)
+				: array(Expression::create(ptNode->expression)),
+				  index(Expression::create(ptNode->expression))
+{
+	nodeType = NodeType::ArrayAccess;
+}
+
+
+ArrayCreationExpression::ArrayCreationExpression(const Parse::TArrayCreationExpression *ptNode)
+				: type(Type::create((ptNode->v == Parse::TArrayCreationExpressionV::NewPrimitiveTypeLSBrExpressionRSBr)
+				                    ? (const Parse::Tree *)ptNode->primitiveType
+				                    : (const Parse::Tree *)ptNode->classOrInterfaceType)),
+				  size(Expression::create(ptNode->expression))
+{
+	nodeType = NodeType::ArrayCreationExpression;
+	type->isArray = true;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -563,6 +566,7 @@ AssignmentExpression::AssignmentExpression(const Parse::TAssignment *ptNode)
 	: lhs(Expression::create(ptNode->leftHandSide)),
 		rhs(Expression::create(ptNode->assignmentExpression))
 {
+	nodeType = NodeType::AssignmentExpression;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -577,6 +581,7 @@ BinaryExpression::BinaryExpression(const Parse::TAdditiveExpression *ptNode)
 		lhs(Expression::create(ptNode->additiveExpression)),
 		rhs(Expression::create(ptNode->multiplicativeExpression))
 {
+	nodeType = NodeType::BinaryExpression;
 }
 static_assert(BinaryExpression::Variant::Div == BinaryExpression::Variant::Mult + ((int)Parse::TMultiplicativeExpressionV::MultiplicativeExpressionRSlashUnaryExpression - (int)Parse::TMultiplicativeExpressionV::MultiplicativeExpressionStarUnaryExpression));
 static_assert(BinaryExpression::Variant::Mod == BinaryExpression::Variant::Mult + ((int)Parse::TMultiplicativeExpressionV::MultiplicativeExpressionPercUnaryExpression - (int)Parse::TMultiplicativeExpressionV::MultiplicativeExpressionStarUnaryExpression));
@@ -585,6 +590,7 @@ BinaryExpression::BinaryExpression(const Parse::TMultiplicativeExpression *ptNod
 		lhs(Expression::create(ptNode->multiplicativeExpression)),
 		rhs(Expression::create(ptNode->unaryExpression))
 {
+	nodeType = NodeType::BinaryExpression;
 }
 static_assert(BinaryExpression::Variant::Gt == BinaryExpression::Variant::Lt + ((int)Parse::TRelationalExpressionV::RelationalExpressionGrAdditiveExpression - (int)Parse::TRelationalExpressionV::RelationalExpressionLeAdditiveExpression));
 static_assert(BinaryExpression::Variant::LtEq == BinaryExpression::Variant::Lt + ((int)Parse::TRelationalExpressionV::RelationalExpressionLeEqAdditiveExpression - (int)Parse::TRelationalExpressionV::RelationalExpressionLeAdditiveExpression));
@@ -596,6 +602,7 @@ BinaryExpression::BinaryExpression(const Parse::TRelationalExpression *ptNode)
 	// will initialize to nullptr for instanceof
 		rhs(Expression::create(ptNode->additiveExpression))
 {
+	nodeType = NodeType::BinaryExpression;
 	if (op == Variant::InstanceOf)
 	{
 		rhs = Type::create(ptNode->referenceType);
@@ -607,30 +614,35 @@ BinaryExpression::BinaryExpression(const Parse::TEqualityExpression *ptNode)
 		lhs(Expression::create(ptNode->equalityExpression)),
 		rhs(Expression::create(ptNode->relationalExpression))
 {
+	nodeType = NodeType::BinaryExpression;
 }
 BinaryExpression::BinaryExpression(const Parse::TAndExpression *ptNode)
 	: op(Variant::EagerAnd),
 		lhs(Expression::create(ptNode->andExpression)),
 		rhs(Expression::create(ptNode->equalityExpression))
 {
+	nodeType = NodeType::BinaryExpression;
 }
 BinaryExpression::BinaryExpression(const Parse::TInclusiveOrExpression *ptNode)
 	: op(Variant::EagerOr),
 		lhs(Expression::create(ptNode->inclusiveOrExpression)),
 		rhs(Expression::create(ptNode->andExpression))
 {
+	nodeType = NodeType::BinaryExpression;
 }
 BinaryExpression::BinaryExpression(const Parse::TConditionalAndExpression *ptNode)
 	: op(Variant::LazyAnd),
 		lhs(Expression::create(ptNode->conditionalAndExpression)),
 		rhs(Expression::create(ptNode->inclusiveOrExpression))
 {
+	nodeType = NodeType::BinaryExpression;
 }
 BinaryExpression::BinaryExpression(const Parse::TConditionalOrExpression *ptNode)
 	: op(Variant::LazyOr),
 		lhs(Expression::create(ptNode->conditionalOrExpression)),
 		rhs(Expression::create(ptNode->conditionalAndExpression))
 {
+	nodeType = NodeType::BinaryExpression;
 }
 
 std::string operator+=(std::string& str, BinaryExpression::Variant op)
@@ -680,6 +692,7 @@ std::ostream& operator<<(std::ostream& os, BinaryExpression::Variant op)
 
 CastExpression::CastExpression(const Parse::TCastExpression *ptNode)
 {
+	nodeType = NodeType::CastExpression;
 	switch (ptNode->v) {
 		case Parse::TCastExpressionV::LParPrimitiveTypeRParUnaryExpression:
 			type = Type::create(ptNode->primitiveType);
@@ -714,12 +727,20 @@ ClassInstanceCreationExpression::ClassInstanceCreationExpression(const Parse::TC
 	: type(Type::create(ptNode->classType)),
 		args(std::move(NodeList<Expression>(ptNode->argumentList).list))
 {
+	nodeType = NodeType::ClassInstanceCreationExpression;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// FieldAccess
+//
+//////////////////////////////////////////////////////////////////////////////
 
 FieldAccess::FieldAccess(const Parse::TFieldAccess *ptNode)
 	: object(Expression::create(ptNode->primary)),
 		member(ptNode->identifier->value)
 {
+	nodeType = NodeType::FieldAccess;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -730,6 +751,7 @@ FieldAccess::FieldAccess(const Parse::TFieldAccess *ptNode)
 
 Literal::Literal(const Parse::TLiteral *ptNode)
 {
+	nodeType = NodeType::Literal;
 	switch (ptNode->v) {
 		case Parse::TLiteralV::IntegerLiteral:
 			value = static_cast<unsigned int>(ptNode->integerLiteral->value);
@@ -761,6 +783,7 @@ MethodInvocation::MethodInvocation(const Parse::TMethodInvocation *ptNode)
   :	methodName(ptNode->identifier->value),
 	args(std::move(NodeList<Expression>(ptNode->argumentList).list))
 {
+	nodeType = NodeType::MethodInvocation;
 	if (ptNode->name != nullptr)
 	{
 		source = Name::create(ptNode->name);
@@ -780,6 +803,7 @@ NameExpression::NameExpression(Name &&other)
 	: prefix(std::move(other.prefix)),
 		id(std::move(other.id))
 {
+	nodeType = NodeType::NameExpression;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -791,6 +815,7 @@ NameExpression::NameExpression(Name &&other)
 // mostly a dummy class - the equivalent of the Literal class, but for a "this" expression
 This::This(const Parse::TThis2 *ptNode)
 {
+	nodeType = NodeType::This;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -803,12 +828,14 @@ UnaryExpression::UnaryExpression(const Parse::TUnaryExpression *ptNode)
 	: op(Variant::Minus),
 		expr(Expression::create(ptNode->unaryExpression))
 {
+	nodeType = NodeType::UnaryExpression;
 }
 
 UnaryExpression::UnaryExpression(const Parse::TUnaryExpressionNotPlusMinus *ptNode)
 	: op(Variant::Bang),
 		expr(Expression::create(ptNode->unaryExpression))
 {
+	nodeType = NodeType::UnaryExpression;
 }
 
 

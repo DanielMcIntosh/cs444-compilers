@@ -27,6 +27,7 @@ protected:
 	std::string identifier;
 	// nullable
 	std::unique_ptr<Expression> initializer;
+
 };
 
 } //namespace AST

@@ -34,11 +34,13 @@ ConstructorDeclaration::ConstructorDeclaration(std::vector<std::unique_ptr<Modif
 	parameters(std::move(declarator.parameterList)),
 	body(std::move(block))
 {
+	nodeType = NodeType::ConstructorDeclaration;
 }
 ConstructorDeclaration::ConstructorDeclaration(const Parse::TConstructorDeclaration *ptNode)
 	: ConstructorDeclaration(std::move(NodeList<Modifier>(ptNode->modifiers).list),
 		MethodDeclarator(ptNode->constructorDeclarator), std::make_unique<Block>(ptNode->block))
 {
+	nodeType = NodeType::ConstructorDeclaration;
 }
 
 std::string ConstructorDeclaration::toCode() const

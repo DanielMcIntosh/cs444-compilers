@@ -29,6 +29,7 @@ static_assert( (int)Parse::TModifierV::native   	== (int)Modifier::Variant::Nati
 Modifier::Modifier(const Parse::TModifier *ptNode)
   : type{(int)ptNode->v}
 {
+	nodeType = NodeType::Modifier;
 	assert(type <= Variant::Max);
 }
 

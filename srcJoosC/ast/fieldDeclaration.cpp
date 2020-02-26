@@ -29,6 +29,7 @@ FieldDeclaration::FieldDeclaration(const Parse::TFieldDeclaration *ptNode)
   : MemberDeclaration(std::move(NodeList<Modifier>(ptNode->modifiers).list)),
 	declaration(std::make_unique<VariableDeclaration>(ptNode->variableDeclaration))
 {
+	nodeType = NodeType::FieldDeclaration;
 }
 
 std::string FieldDeclaration::toCode() const

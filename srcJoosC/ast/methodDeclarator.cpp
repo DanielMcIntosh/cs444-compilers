@@ -28,11 +28,13 @@ MethodDeclarator::MethodDeclarator(const Parse::TConstructorDeclarator *ptNode)
   : id(ptNode->identifier->value),
 	parameterList(std::move(NodeList<VariableDeclaration>(ptNode->formalParameterList).list))
 {
+	nodeType = NodeType::MethodDeclarator;
 }
 MethodDeclarator::MethodDeclarator(const Parse::TMethodDeclarator *ptNode)
   : id(ptNode->identifier->value),
 	parameterList(std::move(NodeList<VariableDeclaration>(ptNode->formalParameterList).list))
 {
+	nodeType = NodeType::MethodDeclarator;
 }
 
 std::string MethodDeclarator::toCode() const

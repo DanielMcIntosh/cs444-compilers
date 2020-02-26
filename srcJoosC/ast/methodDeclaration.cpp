@@ -40,14 +40,17 @@ MethodDeclaration::MethodDeclaration(MethodHeader&& header, std::unique_ptr<Bloc
 		parameters(std::move(header.parameterList)),
 		body(std::move(block))
 {
+	nodeType = NodeType::MethodDeclaration;
 }
 MethodDeclaration::MethodDeclaration(const Parse::TAbstractMethodDeclaration *ptNode)
 	: MethodDeclaration(MethodHeader(ptNode->methodHeader), nullptr)
 {
+	nodeType = NodeType::MethodDeclaration;
 }
 MethodDeclaration::MethodDeclaration(const Parse::TMethodDeclaration *ptNode)
 	: MethodDeclaration(MethodHeader(ptNode->methodHeader), Block::create(ptNode->methodBody->block))
 {
+	nodeType = NodeType::MethodDeclaration;
 }
 std::string MethodDeclaration::toCode() const {
 	std::string s = returnType->toCode() + " " + identifier + "(";
