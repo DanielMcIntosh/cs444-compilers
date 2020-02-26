@@ -124,6 +124,11 @@ NameType::NameType(Name &&other)
 	  id(std::move(other.id))
 {
 }
+NameType::NameType(Name const& other)
+	: prefix(other.prefix),
+	  id(other.id)
+{
+}
 
 std::string NameType::flatten() const {
 	std::string str;

@@ -242,9 +242,7 @@ void semanticDo(SemanticDB *sdb) {
 
 		{ // inject java.lang.* multiimport
 			auto imp = make_unique<ImportDeclaration>();
-			auto name = make_unique<Name>();
-			name->prefix.push_back("java");
-			name->id = "lang";
+			auto name = make_unique<Name>(std::vector<std::string>{"java"}, "lang");
 			imp->multiImport = true;
 			imp->importName = move(name);
 			cpu->imports.push_back(move(imp));

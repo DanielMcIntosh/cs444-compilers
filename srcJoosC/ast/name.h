@@ -22,11 +22,17 @@ class Name: public Node
 public:
 	static std::unique_ptr<Name> create(const Parse::Tree *ptNode);
 	explicit Name(const Parse::TName *ptNode);
-	Name() = default;
+	explicit Name(std::vector<std::string> pre, std::string identifier);
 
 	std::vector<std::string> prefix;
 	std::string id;
+protected:
+	// pre-computed during type resolution in case expression-resolution reaches rule 3 and has to resolve a_1.a_2. ... a_k to a Type
+	std::unique_ptr<Type> typePrefix;
 
+	friend class NameExpression;
+	friend class NameType;
+public:
 	std::string flatten() const;
 	std::string toCode() const override;
 

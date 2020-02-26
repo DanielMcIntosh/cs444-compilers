@@ -87,6 +87,7 @@ class NameType: public Type
 public:
 	static std::unique_ptr<NameType> create(const Parse::Tree *ptNode);
 	explicit NameType(Name&& other);
+	explicit NameType(Name const& other);
 	std::string toCode() const override;
 
 	std::string flatten() const;

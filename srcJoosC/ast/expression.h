@@ -255,9 +255,15 @@ public:
 	static std::unique_ptr<NameExpression> create(const Parse::Tree *ptNode);
 	explicit NameExpression(Name&& other);
 	std::string toCode() const override;
+
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 protected:
 	std::vector<std::string> prefix;
 	std::string id;
+
+	// pre-computed during type resolution in case expression-resolution reaches rule 3 and has to resolve a_1.a_2. ... a_k to a Type
+	std::unique_ptr<Type> typePrefix;
+
 };
 
 //////////////////////////////////////////////////////////////////////////////

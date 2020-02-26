@@ -41,6 +41,12 @@ Name::Name(const Parse::TName *ptNode)
 	}
 }
 
+Name::Name(std::vector<std::string> pre, std::string identifier)
+  :	prefix(std::move(pre)),
+	id(std::move(identifier))
+{
+}
+
 std::string Name::flatten() const
 {
 	std::string str;
@@ -57,8 +63,32 @@ std::string Name::toCode() const
 	return flatten();
 }
 
+// pre-compute typePrefix in case expression-resolution reaches rule 3 and has to resolve a_1.a_2. ... a_k to a Type
 SemanticErrorType Name::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
+	std::vector<std::string> curPrefix;
+	for (std::string str : prefix)
+	{
+		// leverage NameType's type resolution
+		auto temp = std::make_unique<NameType>(Name(curPrefix, str));
+		if (temp->resolve(semantic, enclosingClass) == SemanticErrorType::None)
+		{
+			typePrefix = std::move(temp);
+			return SemanticErrorType::None;
+		}
+
+		curPrefix.push_back(str);
+	}
+
+	// Nothing in prefix resolved to a type, try the whole thing
+	auto temp = std::make_unique<NameType>(*this);
+	if (temp->resolve(semantic, enclosingClass) == SemanticErrorType::None)
+	{
+		typePrefix = std::move(temp);
+		return SemanticErrorType::None;
+	}
+
+	// even if we fail to resolve a type prefix, we can't return an error, because we might still be a valid expression
 	return SemanticErrorType::None;
 }
 

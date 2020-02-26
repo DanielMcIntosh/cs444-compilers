@@ -116,7 +116,8 @@ SemanticErrorType FieldAccess::resolveTypes(Semantic::SemanticDB const& semantic
 }
 
 SemanticErrorType
-MethodInvocation::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclaration *enclosingClass) {
+MethodInvocation::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclaration *enclosingClass)
+{
 	{
 		SemanticErrorType error = std::visit(visitor {
 			[&semantic, &enclosingClass](std::unique_ptr<Expression> &src) {
@@ -138,6 +139,23 @@ MethodInvocation::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclara
 			return error;
 		}
 	}
+	return SemanticErrorType::None;
+}
+
+SemanticErrorType NameExpression::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	if (!prefix.empty())
+	{
+		// leverage Name's type resolution
+		// note that we don't need to include id in this because we must evaluate to an expression,
+		// so id must be a field, and thus not part of typePrefix.
+		Name temp = Name(std::vector<std::string>(prefix.begin(), --prefix.end()), prefix.back());
+		// just as we can't return an error (see comment below), Name.resolveTypes also
+		// can't return an error, so there's no point in checking the return value
+		temp.resolveTypes(semantic, enclosingClass);
+		typePrefix = std::move(temp.typePrefix);
+	}
+	// even if we fail to resolve a type prefix, we can't return an error, because we might still be a valid expression
 	return SemanticErrorType::None;
 }
 
