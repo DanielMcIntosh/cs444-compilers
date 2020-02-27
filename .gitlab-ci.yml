@@ -8,4 +8,4 @@ job cs444-build-and-test:
   tags:
     - main
   script:
-    - make a2
+    - make a3
