@@ -161,17 +161,6 @@ SemanticErrorType TypeDeclaration::resolveSuperTypeNames(Semantic::SemanticDB co
 
 SemanticErrorType TypeDeclaration::resolveBodyTypeNames(Semantic::SemanticDB const& semantic)
 {
-	// TODO: change this?
-	/*
-	for (auto *decl : methodSets.containSet)
-	{
-		if (SemanticErrorType err = decl->resolveTypes(semantic, this);
-			err != SemanticErrorType::None)
-		{
-			return err;
-		}
-	}
-	/*/
 	for (auto &decl : members)
 	{
 		if (SemanticErrorType err = decl->resolveTypes(semantic, this);
@@ -180,7 +169,6 @@ SemanticErrorType TypeDeclaration::resolveBodyTypeNames(Semantic::SemanticDB con
 			return err;
 		}
 	}
-	//*/
 	return SemanticErrorType::None;
 }
 
@@ -205,10 +193,8 @@ SemanticErrorType TypeDeclaration::resolveMethods()
 
 SemanticErrorType TypeDeclaration::resolveBodyExprs()
 {
-	// TODO: change this?
 	Semantic::Scope scope(this);
-	/*
-	for (auto *decl : fieldSets.containSet)
+	for (auto *decl : methodSets.declareSet)
 	{
 		if (SemanticErrorType err = decl->resolveExprs(scope);
 			err != SemanticErrorType::None)
@@ -216,7 +202,7 @@ SemanticErrorType TypeDeclaration::resolveBodyExprs()
 			return err;
 		}
 	}
-	for (auto *decl : methodSets.containSet)
+	for (auto *decl : constructorSet)
 	{
 		if (SemanticErrorType err = decl->resolveExprs(scope);
 			err != SemanticErrorType::None)
@@ -224,16 +210,6 @@ SemanticErrorType TypeDeclaration::resolveBodyExprs()
 			return err;
 		}
 	}
-	/*/
-	for (auto &decl : members)
-	{
-		if (SemanticErrorType err = decl->resolveExprs(scope);
-			err != SemanticErrorType::None)
-		{
-			return err;
-		}
-	}
-	//*/
 	return SemanticErrorType::None;
 }
 
