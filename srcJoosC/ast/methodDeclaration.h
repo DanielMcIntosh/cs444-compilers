@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ast/memberDeclaration.h"
+#include "ast/statement.h"
 #include <memory>
 
 namespace AST

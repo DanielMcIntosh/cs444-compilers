@@ -20,18 +20,25 @@ std::unique_ptr<Modifier> Modifier::create(const Parse::Tree *ptNode)
 	}
 }
 
+std::unique_ptr<Modifier> Modifier::create(Variant mod) {
+	return std::make_unique<Modifier>(mod);
+}
+
 static_assert( (int)Parse::TModifierV::Public   	== (int)Modifier::Variant::Public);
 static_assert( (int)Parse::TModifierV::Protected	== (int)Modifier::Variant::Protected);
 static_assert( (int)Parse::TModifierV::Static   	== (int)Modifier::Variant::Static);
 static_assert( (int)Parse::TModifierV::abstract 	== (int)Modifier::Variant::Abstract);
 static_assert( (int)Parse::TModifierV::final    	== (int)Modifier::Variant::Final);
 static_assert( (int)Parse::TModifierV::native   	== (int)Modifier::Variant::Native);
+
 Modifier::Modifier(const Parse::TModifier *ptNode)
   : type{(int)ptNode->v}
 {
 	nodeType = NodeType::Modifier;
 	assert(type <= Variant::Max);
 }
+
+Modifier::Modifier(Variant mod) : type(mod) {}
 
 std::string Modifier::toCode() const
 {

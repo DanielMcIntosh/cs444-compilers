@@ -5,15 +5,10 @@
 using namespace std;
 using namespace AST;
 
-#include "ast/compilationUnit.h"
 #include "ast/typeDeclaration.h"
-#include "ast/fieldDeclaration.h"
 #include "ast/variableDeclaration.h"
-#include "ast/methodDeclaration.h"
 #include "ast/name.h"
 #include "ast/importDeclaration.h"
-#include "ast/modifier.h"
-#include "ast/constructorDeclaration.h"
 #include <unordered_set>
 
 namespace Semantic {
@@ -349,9 +344,12 @@ void semanticDo(SemanticDB *sdb) {
 		}
 	}
 
+	auto object = sdb->typeMap["java.lang.Object"];
+	auto iObject = sdb->typeMap["java.lang.IObject"];
+
 	// Generate super, extends, declare
 	for (auto *typeDecl : allTypes) {
-		if (SemanticErrorType err = typeDecl->generateHierarchySets();
+		if (SemanticErrorType err = typeDecl->generateHierarchySets(object, iObject);
 			err != SemanticErrorType::None)
 		{
 			sdb->error = err;

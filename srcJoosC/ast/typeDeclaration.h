@@ -42,7 +42,7 @@ public:
 	Semantic::SemanticErrorType resolveBodyTypeNames(Semantic::SemanticDB const& semantic);
 	Semantic::SemanticErrorType resolveBodyExprs();
 
-	Semantic::SemanticErrorType	generateHierarchySets();
+	Semantic::SemanticErrorType	generateHierarchySets(TypeDeclaration *, TypeDeclaration *);
 
 	std::vector<TypeDeclaration *> getChildren();
 

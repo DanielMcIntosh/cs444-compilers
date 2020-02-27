@@ -1,4 +1,7 @@
 #include "ast/typeDeclaration.h"
+#include "ast/methodDeclaration.h"
+#include "ast/variableDeclaration.h"
+#include "ast/statement.h"
 #include "ast/type.h"
 #include "ast/modifier.h"
 #include "ast/nodeList.h"
@@ -219,10 +222,14 @@ SemanticErrorType TypeDeclaration::resolveBodyExprs()
 	return SemanticErrorType::None;
 }
 
-SemanticErrorType TypeDeclaration::generateHierarchySets()
+SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object, TypeDeclaration *iObject)
 {
 	TypeDeclaration *super = superClass ? superClass->getDeclaration() : nullptr;
 
+	// If this is a class without a superclass, extend java.lang.Object
+	if (!isInterface && !superClass && fqn != "java.lang.Object") {
+		super = object;
+	}
 	if (super) {
 		// A class must not extend an interface
 		if (super->isInterface) {
@@ -237,9 +244,7 @@ SemanticErrorType TypeDeclaration::generateHierarchySets()
 		}
 	}
 
-	//
-	// various extends
-	//
+	// build extends set
 	std::unordered_set<TypeDeclaration *> extends;
 	for (auto &itf : interfaces) {
 		assert(itf->getDeclaration());
@@ -268,11 +273,16 @@ SemanticErrorType TypeDeclaration::generateHierarchySets()
 	}
 	for (auto *ext : extends) {
 		superSet.push_back(ext);
-		for (TypeDeclaration *decl : ext->superSet) {
-			superSet.push_back(decl);
-		}
 	}
 
+	// If this is an interface without a superinterface, add IObject methods to declare set
+	if (isInterface && !superClass && fqn != "java.lang.IObject") {
+		for (auto &member : iObject->members) {
+			assert(member->getTypeId() == 1);
+			auto m = static_cast<MethodDeclaration*>(member.get());
+			methodSets.declareSet.push_back(m);
+		}
+	}
 	// build declare sets
 	for (auto &member : members) {
 		if (member->getTypeId() == 0) {
@@ -335,14 +345,16 @@ SemanticErrorType TypeDeclaration::generateHierarchySets()
 						break;
 				}
 				if (noDecl && allAbstract) {
+					// Inheriting abstract method
+					methodSets.inheritSet.push_back(m);
 					// Hierarchy check 4: classes with abstract methods must be abstract
 					if (!hasModifier(Modifier::Variant::Abstract)) {
 						return SemanticErrorType::AbstractClassNotAbstract;
 					}
-					methodSets.inheritSet.push_back(m);
 				}
 			} else {
 				if (noDecl) {
+					// Inheriting non-abstract method
 					methodSets.inheritSet.push_back(m);
 				}
 			}

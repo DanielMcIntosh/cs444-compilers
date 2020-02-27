@@ -15,7 +15,7 @@ void weederCheckClassNotAbstractAndFinal(Tree* root, WeederResult* result) {
   for (auto* cls : ptFindByType(root, ClassDeclaration)) {
     bool is_abstract = false;
     bool is_final = false;
-    for (auto* modifier : ptFindByType(cls, Modifier)) {
+    for (auto* modifier : ptFindByType(cls->modifiers, Modifier)) {
       is_abstract |= modifier->v == TModifierV::abstract;
       is_final |= modifier->v == TModifierV::final;
     }

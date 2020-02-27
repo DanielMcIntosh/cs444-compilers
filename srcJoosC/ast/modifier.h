@@ -9,9 +9,6 @@ namespace AST
 class Modifier: public Node
 {
 public:
-	static std::unique_ptr<Modifier> create(const Parse::Tree *ptNode);
-	explicit Modifier(const Parse::TModifier *ptNode);
-
 	enum class Variant
 	{
 		Public,
@@ -22,6 +19,11 @@ public:
 		Native,
 		Max
 	} type;
+
+	static std::unique_ptr<Modifier> create(const Parse::Tree *ptNode);
+	static std::unique_ptr<Modifier> create(Variant mod);
+	explicit Modifier(const Parse::TModifier *ptNode);
+	explicit Modifier(Variant mod);
 
 	std::string toCode() const override;
 };
