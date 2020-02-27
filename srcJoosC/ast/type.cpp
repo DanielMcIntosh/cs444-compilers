@@ -121,19 +121,17 @@ std::unique_ptr<Type> Type::create(const Parse::Tree *ptNode)
 //////////////////////////////////////////////////////////////////////////////
 
 NameType::NameType(Name &&other)
-	: prefix(std::move(other.prefix)),
-	  id(std::move(other.id))
+	: ids(std::move(other.ids))
 {
 	nodeType = NodeType::NameType;
 }
 NameType::NameType(Name const& other)
-	: prefix(other.prefix),
-	  id(other.id)
+	: ids(other.ids)
 {
 	nodeType = NodeType::NameType;
 }
 NameType::NameType(TypeDeclaration *decl, std::string name)
-  :	id(std::move(name)),
+  :	ids{std::move(name)},
 	declaration(decl)
 {
 	nodeType = NodeType::NameType;
@@ -141,11 +139,12 @@ NameType::NameType(TypeDeclaration *decl, std::string name)
 
 std::string NameType::flatten() const {
 	std::string str;
-	for (auto &pre : prefix)
+	for (auto &id : ids)
 	{
-		str += pre + ".";
+		str += id + ".";
 	}
-	str += id;
+	// pop off the trailing "."
+	str.pop_back();
 	return str;
 }
 

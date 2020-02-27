@@ -63,7 +63,7 @@ SemanticDB::resolveSingleImport(const CompilationUnit *cpu, const string &simple
 		if (imp->multiImport)
 			continue;
 
-		if (imp->importName->id != simpleName)
+		if (imp->importName->getId() != simpleName)
 			continue;
 
 		string fullImp = imp->importName->flatten();
@@ -250,7 +250,7 @@ void semanticDo(SemanticDB *sdb) {
 
 		{ // inject java.lang.* multiimport
 			auto imp = make_unique<ImportDeclaration>();
-			auto name = make_unique<Name>(std::vector<std::string>{"java"}, "lang");
+			auto name = make_unique<Name>(std::vector<std::string>{"java", "lang"});
 			imp->multiImport = true;
 			imp->importName = move(name);
 			cpu->imports.push_back(move(imp));
@@ -263,8 +263,7 @@ void semanticDo(SemanticDB *sdb) {
 			for (auto &imp : cpu->imports) {
 				Trie *trieHead = &sdb->packageTrie;
 
-				vector<string> iter = imp->importName->prefix;
-				iter.push_back(imp->importName->id);
+				vector<string> iter = imp->importName->ids;
 
 				for (auto &component : iter) {
 					bool found = false;
@@ -290,11 +289,11 @@ void semanticDo(SemanticDB *sdb) {
 			for (auto &imp : cpu->imports) {
 				if (imp->multiImport)
 					continue;
-				if (classes.count(imp->importName->id)) {
+				if (classes.count(imp->importName->getId())) {
 					sdb->error = SemanticErrorType::SingleImportAmbiguous;
 					return;
 				}
-				classes.insert(imp->importName->id);
+				classes.insert(imp->importName->getId());
 			}
 		}
 
@@ -322,7 +321,7 @@ void semanticDo(SemanticDB *sdb) {
 					continue;
 				if (import->importName->flatten() == typeDecl->fqn)
 					continue;
-				if (import->importName->id == typeDecl->name) {
+				if (import->importName->getId() == typeDecl->name) {
 					sdb->error = SemanticErrorType::TypeDeclarationClashImport;
 					return;
 				}

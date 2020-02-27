@@ -111,8 +111,7 @@ public:
 	virtual bool equalsDerived(NameType *other) override { return declaration == other->declaration; }
 
 protected:
-	std::vector<std::string> prefix;
-	std::string id;
+	std::vector<std::string> ids;
 public:
 	TypeDeclaration *declaration = nullptr;
 };

@@ -890,6 +890,7 @@ FieldAccess::FieldAccess(std::unique_ptr<NameType> type, std::string field)
 }
 
 
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Literal
@@ -966,8 +967,8 @@ MethodInvocation::MethodInvocation(const Parse::TMethodInvocation *ptNode)
 //////////////////////////////////////////////////////////////////////////////
 
 NameExpression::NameExpression(Name &&other)
-  : base(other.prefix.empty() ? nullptr : std::make_unique<Name>(std::vector<std::string>(other.prefix.begin(), --other.prefix.end()), other.prefix.back())),
-	id(std::move(other.id))
+  : base(other.ids.size() > 1 ? std::make_unique<Name>(std::vector<std::string>(other.ids.begin(), --other.ids.end())) : nullptr),
+	id(std::move(other.ids.back()))
 {
 	nodeType = NodeType::NameExpression;
 }
