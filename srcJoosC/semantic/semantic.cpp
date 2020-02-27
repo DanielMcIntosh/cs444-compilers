@@ -31,6 +31,7 @@ const char *gSemanticErrorTypeName[] = {
 	"NotPackage",
 	"LocalVariableShadowing",
 	"FieldIdConflict",
+	"LocalVariableDNE",
 	"ExprResolution",
 	"DuplicateFieldDeclaration",
 	"DuplicateMethodDeclaration",
@@ -360,7 +361,7 @@ void semanticDo(SemanticDB *sdb) {
 		}
 	}
 
-	/* TODO:
+	//* TODO:
 	for (auto *typeDecl : allTypes)
 	{
 		if (SemanticErrorType err = typeDecl->resolveMethods();
@@ -370,7 +371,7 @@ void semanticDo(SemanticDB *sdb) {
 			return;
 		}
 	}
-	*/
+	//*/
 
 	for (auto *typeDecl : allTypes)
 	{

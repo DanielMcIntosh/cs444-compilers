@@ -24,6 +24,7 @@ public:
 	static std::unique_ptr<VariableDeclaration> create(const Parse::Tree *ptNode);
 	explicit VariableDeclaration(const Parse::TFormalParameter *ptNode);
 	explicit VariableDeclaration(const Parse::TVariableDeclaration *ptNode);
+	explicit VariableDeclaration(std::unique_ptr<Type> t, std::string id, std::unique_ptr<Expression> init = nullptr);
 	std::string toCode() const override;
 
 	bool equals(const VariableDeclaration *) const;

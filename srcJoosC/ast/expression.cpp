@@ -236,8 +236,7 @@ SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 SemanticErrorType LocalVariableExpression::resolve(Semantic::Scope const& scope)
 {
 	declaration = scope.findDecl(id);
-	//TODO: return an error on failure to find the declaration.
-	return SemanticErrorType::None;
+	return declaration == nullptr ? SemanticErrorType::LocalVariableDNE : SemanticErrorType::None;
 }
 
 SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)

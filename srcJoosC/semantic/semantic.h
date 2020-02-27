@@ -34,6 +34,7 @@ enum class SemanticErrorType {
 	NotPackage,
 	LocalVariableShadowing,
 	FieldIdConflict,
+	LocalVariableDNE,
 	ExprResolution,
 	DuplicateFieldDeclaration,
 	DuplicateMethodDeclaration,

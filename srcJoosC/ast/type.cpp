@@ -129,6 +129,13 @@ NameType::NameType(Name const& other)
 	: prefix(other.prefix),
 	  id(other.id)
 {
+	nodeType = NodeType::NameType;
+}
+NameType::NameType(TypeDeclaration *decl, std::string name)
+  :	id(std::move(name)),
+	declaration(decl)
+{
+	nodeType = NodeType::NameType;
 }
 
 std::string NameType::flatten() const {

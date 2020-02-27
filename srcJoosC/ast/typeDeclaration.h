@@ -40,11 +40,13 @@ public:
 
 	Semantic::SemanticErrorType resolveSuperTypeNames(Semantic::SemanticDB const& semantic, TypeDeclaration *object);
 	Semantic::SemanticErrorType resolveBodyTypeNames(Semantic::SemanticDB const& semantic);
+	Semantic::SemanticErrorType resolveMethods();
 	Semantic::SemanticErrorType resolveBodyExprs();
 
 	Semantic::SemanticErrorType	generateHierarchySets(TypeDeclaration *, TypeDeclaration *);
 
 	std::vector<TypeDeclaration *> getChildren();
+	std::unique_ptr<NameType> asType();
 
 	bool hasModifier(Modifier::Variant) const;
 

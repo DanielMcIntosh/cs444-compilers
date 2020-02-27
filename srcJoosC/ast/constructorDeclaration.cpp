@@ -7,6 +7,7 @@
 #include "ast/type.h"
 #include "ast/statement.h"
 #include "ast/expression.h"
+#include "ast/typeDeclaration.h"
 #include "parse/parseTree.h"
 #include "semantic/scope.h"
 #include "semantic/semantic.h"
@@ -128,6 +129,14 @@ Semantic::SemanticErrorType ConstructorDeclaration::resolveExprs(Semantic::Scope
 		}
 	}
 	return Semantic::SemanticErrorType::None;
+}
+
+void ConstructorDeclaration::addThisParam(TypeDeclaration *decl)
+{
+	if (!hasModifier(Modifier::Variant::Static))
+	{
+		parameters.insert(parameters.begin(), std::make_unique<VariableDeclaration>(decl->asType(), "this"));
+	}
 }
 
 } //namespace AST

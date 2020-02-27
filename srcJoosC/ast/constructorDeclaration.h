@@ -26,6 +26,8 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
+
+	void addThisParam(TypeDeclaration *decl);
 protected:
 	std::string identifier;
 	std::vector<std::unique_ptr<VariableDeclaration>> parameters;

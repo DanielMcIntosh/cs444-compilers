@@ -37,6 +37,14 @@ VariableDeclaration::VariableDeclaration(const Parse::TVariableDeclaration *ptNo
 {
 	nodeType = NodeType::VariableDeclaration;
 }
+VariableDeclaration::VariableDeclaration(std::unique_ptr<Type> t, std::string id, std::unique_ptr<Expression> init)
+  :	type(std::move(t)),
+	identifier(std::move(id)),
+    initializer(std::move(init))
+{
+	nodeType = NodeType::VariableDeclaration;
+}
+
 
 std::string VariableDeclaration::toCode() const {
     if (initializer) {

@@ -7,6 +7,7 @@
 #include "ast/nodeList.h"
 #include "ast/typeBody.h"
 #include "ast/name.h"
+#include "ast/methodDeclaration.h"
 #include "parse/parseTree.h"
 #include "semantic/semantic.h"
 #include "semantic/scope.h"
@@ -180,6 +181,25 @@ SemanticErrorType TypeDeclaration::resolveBodyTypeNames(Semantic::SemanticDB con
 		}
 	}
 	//*/
+	return SemanticErrorType::None;
+}
+
+SemanticErrorType TypeDeclaration::resolveMethods()
+{
+	if (isInterface)
+	{
+		return SemanticErrorType::None;
+	}
+
+	// TODO: actually resolve methods first, THEN add the 'this' parameter
+	for (auto *decl : methodSets.declareSet)
+	{
+		decl->addThisParam(this);
+	}
+	for (auto *decl : constructorSet)
+	{
+		decl->addThisParam(this);
+	}
 	return SemanticErrorType::None;
 }
 
@@ -437,6 +457,11 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 std::vector<TypeDeclaration *> TypeDeclaration::getChildren()
 {
 	return children;
+}
+
+std::unique_ptr<NameType> TypeDeclaration::asType()
+{
+	return std::make_unique<NameType>(this, name);
 }
 
 bool TypeDeclaration::hasModifier(Modifier::Variant mod) const {
