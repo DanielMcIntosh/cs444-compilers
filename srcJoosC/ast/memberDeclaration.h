@@ -38,8 +38,6 @@ public:
 
 	virtual Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) = 0;
 	virtual Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) = 0;
-	// temporary - should be removed once we can rely on TypeDeclaration.fieldSets and TypeDeclaration.methodSets
-	virtual Semantic::SemanticErrorType initScope(Semantic::Scope &parentScope);
 
 	bool hasModifier(Modifier::Variant) const;
 protected:

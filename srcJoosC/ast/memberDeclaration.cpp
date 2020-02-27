@@ -63,11 +63,6 @@ bool MemberDeclaration::equals(MethodDeclaration *) {
 	return false;
 }
 
-Semantic::SemanticErrorType MemberDeclaration::initScope(Semantic::Scope &parentScope)
-{
-	return Semantic::SemanticErrorType::None;
-}
-
 bool MemberDeclaration::hasModifier(Modifier::Variant mod) const {
 	return modifierSet[static_cast<size_t>(mod)];
 }

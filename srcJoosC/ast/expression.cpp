@@ -2,6 +2,7 @@
 #include "ast/name.h"
 #include "ast/type.h"
 #include "ast/nodeList.h"
+#include "ast/typeDeclaration.h"
 #include "parse/parseTree.h"
 #include "semantic/semantic.h"
 #include "semantic/scope.h"

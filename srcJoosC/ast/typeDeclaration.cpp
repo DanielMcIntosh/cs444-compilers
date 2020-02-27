@@ -206,7 +206,7 @@ SemanticErrorType TypeDeclaration::resolveMethods()
 SemanticErrorType TypeDeclaration::resolveBodyExprs()
 {
 	// TODO: change this?
-	Semantic::Scope scope;
+	Semantic::Scope scope(this);
 	/*
 	for (auto *decl : fieldSets.containSet)
 	{
@@ -225,14 +225,6 @@ SemanticErrorType TypeDeclaration::resolveBodyExprs()
 		}
 	}
 	/*/
-	for (auto &decl : members)
-	{
-		if (SemanticErrorType err = decl->initScope(scope);
-			err != SemanticErrorType::None)
-		{
-			return err;
-		}
-	}
 	for (auto &decl : members)
 	{
 		if (SemanticErrorType err = decl->resolveExprs(scope);

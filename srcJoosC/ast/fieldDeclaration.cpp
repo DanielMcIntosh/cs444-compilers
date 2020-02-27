@@ -53,17 +53,6 @@ Semantic::SemanticErrorType FieldDeclaration::resolveTypes(Semantic::SemanticDB 
 	return declaration->resolveTypes(semantic, enclosingClass);
 }
 
-// TODO: remove this when TypeDeclaration.fieldSets and TypeDeclaration.methodSets are implemented
-Semantic::SemanticErrorType FieldDeclaration::initScope(Semantic::Scope &parentScope)
-{
-	if (!parentScope.addField(declaration))
-	{
-		return Semantic::SemanticErrorType::FieldIdConflict;
-	}
-	return Semantic::SemanticErrorType::None;
-}
-
-// TODO: copy the implementation from FieldDeclaration::initScope when we remove FieldDeclaration::initScope
 Semantic::SemanticErrorType FieldDeclaration::resolveExprs(Semantic::Scope &parentScope)
 {
 	return Semantic::SemanticErrorType::None;

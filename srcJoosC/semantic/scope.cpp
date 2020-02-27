@@ -3,8 +3,12 @@
 
 namespace Semantic {
 
+Scope::Scope(AST::TypeDeclaration *enclosingClass)
+  : _enclosingClass(enclosingClass)
+{
+}
 Scope::Scope(Scope &parent)
-  : _parent(parent), _declarations(parent._declarations), _fields(parent._fields)
+  : _parent(parent), _declarations(parent._declarations), _enclosingClass(parent._enclosingClass)
 {
 }
 
@@ -22,23 +26,6 @@ bool Scope::add(const AST::VariableDeclaration *newDecl)
 	_declarations.push_back(newDecl);
 	return true;
 }
-bool Scope::addField(std::unique_ptr<AST::VariableDeclaration> const& decl)
-{
-	return addField(decl.get());
-}
-bool Scope::addField(const AST::VariableDeclaration *newDecl)
-{
-	assert(isRoot());
-	for (auto *decl : _fields)
-	{
-		if (newDecl->idEquals(decl))
-		{
-			return false;
-		}
-	}
-	_fields.push_back(newDecl);
-	return true;
-}
 
 bool Scope::isRoot()
 {
@@ -48,13 +35,6 @@ bool Scope::isRoot()
 const AST::VariableDeclaration *Scope::findDecl(std::string id) const
 {
 	for (auto *decl : _declarations)
-	{
-		if (decl->idEquals(id))
-		{
-			return decl;
-		}
-	}
-	for (auto *decl : _fields)
 	{
 		if (decl->idEquals(id))
 		{
