@@ -337,6 +337,7 @@ void checkTestMode(JoosC* joosc) {
     const char* libBase = "tests/stdlib";
     strdecl256(libFolder, "%s/%d.0/", libBase, num);
     getJavaFilesRecursive(stdlib, string(libFolder));
+    stdlib.push_back("tests/stdlib/IObject.java");
   }
   batchTesting(joosc, string(progFolder), stdlib, num);
 }
@@ -392,6 +393,7 @@ int main(int argc, const char** argv) {
   {
     profileSection("compile main");
     if (fileList.empty()) return 0;
+    fileList.push_back("tests/stdlib/IObject.java");
     return compileMain(&joosc, fileList);
   }
 }
