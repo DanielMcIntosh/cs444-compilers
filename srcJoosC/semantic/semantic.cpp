@@ -295,8 +295,9 @@ void semanticDo(SemanticDB *sdb) {
 
 		TypeDeclaration *typeDecl = cpu->typeDeclaration.get();
 
+		auto object = sdb->typeMap["java.lang.Object"];
 		// resolve superclass and 'implements' types, and initialize TypeDeclaration::children
-		if (SemanticErrorType err = typeDecl->resolveSuperTypeNames(*sdb);
+		if (SemanticErrorType err = typeDecl->resolveSuperTypeNames(*sdb, object);
 			err != SemanticErrorType::None)
 		{
 			sdb->error = err;

@@ -38,7 +38,7 @@ public:
 	explicit TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode);
 	std::string toCode() const override;
 
-	Semantic::SemanticErrorType resolveSuperTypeNames(Semantic::SemanticDB const& semantic);
+	Semantic::SemanticErrorType resolveSuperTypeNames(Semantic::SemanticDB const& semantic, TypeDeclaration *object);
 	Semantic::SemanticErrorType resolveBodyTypeNames(Semantic::SemanticDB const& semantic);
 	Semantic::SemanticErrorType resolveBodyExprs();
 

@@ -49,9 +49,6 @@ MethodDeclaration::MethodDeclaration(const Parse::TAbstractMethodDeclaration *pt
 	: MethodDeclaration(MethodHeader(ptNode->methodHeader), nullptr)
 {
 	nodeType = NodeType::MethodDeclaration;
-	for (const auto &mod : modifiers) {
-		modifierSet[static_cast<size_t>(mod->type)] = true;
-	}
 	// interface methods are implicitly public abstract
 	modifierSet[static_cast<size_t>(Modifier::Variant::Public)] = true;
 	modifierSet[static_cast<size_t>(Modifier::Variant::Abstract)] = true;

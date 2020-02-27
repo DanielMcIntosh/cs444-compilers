@@ -131,8 +131,11 @@ std::string TypeDeclaration::toCode() const
 	return str;
 }
 
-SemanticErrorType TypeDeclaration::resolveSuperTypeNames(Semantic::SemanticDB const& semantic)
+SemanticErrorType TypeDeclaration::resolveSuperTypeNames(Semantic::SemanticDB const& semantic, TypeDeclaration* object)
 {
+	if (!superClass && !isInterface && fqn != "java.lang.Object") {
+		object->children.push_back(this);
+	}
 	if (superClass)
 	{
 		if (SemanticErrorType err = superClass->resolve(semantic, this);
@@ -347,10 +350,6 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 				if (noDecl && allAbstract) {
 					// Inheriting abstract method
 					methodSets.inheritSet.push_back(m);
-					// Hierarchy check 4: classes with abstract methods must be abstract
-					if (!hasModifier(Modifier::Variant::Abstract)) {
-						return SemanticErrorType::AbstractClassNotAbstract;
-					}
 				}
 			} else {
 				if (noDecl) {
@@ -412,6 +411,16 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 	methodSets.containSet.insert(methodSets.containSet.end(), methodSets.inheritSet.begin(), methodSets.inheritSet.end());
 	fieldSets.containSet.insert(fieldSets.containSet.end(), fieldSets.declareSet.begin(), fieldSets.declareSet.end());
 	fieldSets.containSet.insert(fieldSets.containSet.end(), fieldSets.inheritSet.begin(), fieldSets.inheritSet.end());
+
+	// Hierarchy check 4: classes with abstract methods must be abstract
+	for (const auto &m : methodSets.containSet) {
+		if (m->hasModifier(Modifier::Variant::Abstract)) {
+			if (!hasModifier(Modifier::Variant::Abstract)) {
+				return SemanticErrorType::AbstractClassNotAbstract;
+			}
+			break;
+		}
+	}
 
 	// Hierarchy check 3: One return type per unique signature
 	for (const auto &m : methodSets.containSet) {
