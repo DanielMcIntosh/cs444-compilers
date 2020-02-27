@@ -277,8 +277,10 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+private:
+	Semantic::SemanticErrorType disambiguateSource(Semantic::Scope const& scope);
 protected:
-	// nullable.
+	// nullable
 	// Expression when non-static method, NameType when static method, Name only before expression resolution
 	std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>, std::unique_ptr<Name>> source;
 	std::string methodName;

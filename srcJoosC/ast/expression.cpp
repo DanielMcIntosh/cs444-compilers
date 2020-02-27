@@ -264,13 +264,45 @@ SemanticErrorType LocalVariableExpression::resolve(Semantic::Scope const& scope)
 	return declaration == nullptr ? SemanticErrorType::LocalVariableDNE : SemanticErrorType::None;
 }
 
+SemanticErrorType MethodInvocation::disambiguateSource(Semantic::Scope const& scope)
+{
+	// TODO: if source is null, set the source to the implicit source
+	// (i.e. build the implicit source, and make it explicit)
+
+	if (std::holds_alternative<std::unique_ptr<Name>>(source))
+	{
+		auto &src = std::get<std::unique_ptr<Name>>(source);
+		if (auto error = src->disambiguate(scope);
+			error != SemanticErrorType::None)
+		{
+			return error;
+		}
+		auto error = std::visit(
+			[this](auto &converted) {
+				if (converted == nullptr)
+					return SemanticErrorType::ExprResolution;
+				source = std::move(converted);
+				return SemanticErrorType::None;
+			}, src->converted);
+		if (error != SemanticErrorType::None)
+		{
+			return error;
+		}
+	}
+}
+
 SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 {
+	if (auto error = disambiguateSource(scope);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
 	{
 		SemanticErrorType error = std::visit(visitor {
-			[&scope](std::unique_ptr<Expression> &src)	{	return src ? src->resolve(scope)		: SemanticErrorType::None;	},
+			[&scope](std::unique_ptr<Expression> &src)	{	return src ? src->resolve(scope) : SemanticErrorType::None; },
 			[&scope](std::unique_ptr<NameType> &src) 	{	return SemanticErrorType::None;	},
-			[&scope](std::unique_ptr<Name> &src)		{	return src ? src->resolveExprs(scope)	: SemanticErrorType::None;	}
+			[&scope](std::unique_ptr<Name> &src) -> SemanticErrorType {	assert(false);	}
 		}, source);
 		if (error != SemanticErrorType::None)
 		{
@@ -291,13 +323,59 @@ SemanticErrorType NameExpression::resolve(Semantic::Scope const& scope)
 {
 	if (base != nullptr)
 	{
-		return base->resolveExprs(scope);
+		// base has to resolve to either a Type or an Expression, because base.id has to be an expression
+		if (auto error = base->disambiguate(scope);
+			error != SemanticErrorType::None)
+		{
+			return error;
+		}
+		converted = std::visit(visitor {
+			[&id = id](std::unique_ptr<Expression> &expr)	{ return std::make_unique<FieldAccess>(std::move(expr), id); },
+			[&id = id](std::unique_ptr<NameType> &t)		{ return std::make_unique<FieldAccess>(std::move(t), id);	}
+		}, base->converted);
+		return converted->resolve(scope);
 	} else
 	{
-		//TODO:
-		//declaration = scope.findDecl(id);
+		// resolve to local variable
+		{
+			auto local = std::make_unique<LocalVariableExpression>(id);
+			if (local->resolve(scope) == SemanticErrorType::None)
+			{
+				converted = std::move(local);
+				return SemanticErrorType::None;
+			}
+		}
+
+		// resolve to field access
+		// in the process, we're going to make any implicit "this" or TypeName explicit
+		{
+			// if it's a non-static method, resolve(this) will succeed.
+			if (auto thisExpr = std::make_unique<LocalVariableExpression>("this");
+				thisExpr->resolve(scope) == SemanticErrorType::None)
+			{
+				// attempt construct a FieldAccess using the implicit "this"
+				auto field = std::make_unique<FieldAccess>(std::move(thisExpr), id);
+				if (field->resolve(scope) == SemanticErrorType::None)
+				{
+					converted = std::move(field);
+					return SemanticErrorType::None;
+				}
+			}
+			else
+			{
+				// attempt to construct a field access using the implicit TypeName
+				auto field = std::make_unique<FieldAccess>(scope._enclosingClass->asType(), id);
+				if (field->resolve(scope) == SemanticErrorType::None)
+				{
+					converted = std::move(field);
+					return SemanticErrorType::None;
+				}
+			}
+		}
+
+		// we have to resolve to an expression, and we've run out of options which would produce an expression
+		return SemanticErrorType::ExprResolution;
 	}
-	return SemanticErrorType::None;
 }
 
 SemanticErrorType UnaryExpression::resolve(Semantic::Scope const& scope)

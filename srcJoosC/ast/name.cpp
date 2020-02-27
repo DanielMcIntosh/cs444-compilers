@@ -72,18 +72,22 @@ std::string Name::getId() const
 	return ids.back();
 }
 
+bool Name::operator==(const Name &other) {
+	return ids == other.ids;
+}
+
 // pre-compute typePrefix in case expression-resolution reaches rule 3 and has to resolve a_1.a_2. ... a_k to a Type
 SemanticErrorType Name::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
 	std::vector<std::string> curPrefix;
-	for (std::string str : ids)
+	for (unsigned int i = 0; i < ids.size(); ++i)
 	{
-		curPrefix.push_back(str);
+		curPrefix.push_back(ids[i]);
 		// leverage NameType's type resolution
 		auto temp = std::make_unique<NameType>(Name(curPrefix));
 		if (temp->resolve(semantic, enclosingClass) == SemanticErrorType::None)
 		{
-			typePrefix = std::move(temp);
+			buildConverted(std::move(temp), i+1);
 			return SemanticErrorType::None;
 		}
 	}
@@ -92,14 +96,68 @@ SemanticErrorType Name::resolveTypes(Semantic::SemanticDB const& semantic, TypeD
 	return SemanticErrorType::None;
 }
 
-SemanticErrorType Name::resolveExprs(Semantic::Scope const& scope)
+SemanticErrorType Name::disambiguate(Semantic::Scope const& scope)
 {
-	// TODO:
-	return SemanticErrorType::None;
+	// resolve to local variable
+	{
+		auto local = std::make_unique<LocalVariableExpression>(ids[0]);
+		if (local->resolve(scope) == SemanticErrorType::None)
+		{
+			buildConverted(std::move(local), 1);
+			return SemanticErrorType::None;
+		}
+	}
+
+	// resolve to field access
+	// in the process, we're going to make any implicit "this" or TypeName explicit
+	{
+		// if we're in a non-static method, resolve(this) will succeed.
+		if (auto thisExpr = std::make_unique<LocalVariableExpression>("this");
+			thisExpr->resolve(scope) == SemanticErrorType::None)
+		{
+			// attempt construct a FieldAccess using the implicit "this"
+			auto field = std::make_unique<FieldAccess>(std::move(thisExpr), ids[0]);
+			if (field->resolve(scope) == SemanticErrorType::None)
+			{
+				buildConverted(std::move(field), 1);
+				return SemanticErrorType::None;
+			}
+		}
+		else
+		{
+			// attempt to construct a field access using the implicit TypeName
+			auto field = std::make_unique<FieldAccess>(scope._enclosingClass->asType(), ids[0]);
+			if (field->resolve(scope) == SemanticErrorType::None)
+			{
+				buildConverted(std::move(field), 1);
+				return SemanticErrorType::None;
+			}
+		}
+	}
+
+	// since we pre-computed during type resolution the result of rule3 of namespace disambiguation,
+	// converted should already be non-null. If it is null, that means rule3 failed.
+	return std::visit([](auto &expr){ return expr == nullptr; }, converted) ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
 }
 
-bool Name::operator==(const Name &other) {
-	return ids == other.ids;
+void Name::buildConverted(std::unique_ptr<Expression> expr, unsigned int idStart)
+{
+	for (unsigned int i = idStart; i < ids.size(); ++i)
+	{
+		expr = std::make_unique<FieldAccess>(std::move(expr), ids[i]);
+	}
+	converted = std::move(expr);
 }
+void Name::buildConverted(std::unique_ptr<NameType> type, unsigned int idStart)
+{
+	if (idStart >= ids.size())
+	{
+		converted = std::move(type);
+	} else
+	{
+		buildConverted(std::make_unique<FieldAccess>(std::move(type), ids[idStart]), idStart+1);
+	}
+}
+
 
 } //namespace AST

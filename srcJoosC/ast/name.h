@@ -31,21 +31,19 @@ public:
 	std::string toCode() const override;
 	std::string getId() const;
 
-	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
-	Semantic::SemanticErrorType resolveExprs(Semantic::Scope const& scope);
-
 	bool operator==(const Name &other);
 
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
+	Semantic::SemanticErrorType disambiguate(Semantic::Scope const& scope);
 
+private:
+	void buildConverted(std::unique_ptr<Expression> expr, unsigned int idStart);
+	void buildConverted(std::unique_ptr<NameType> type, unsigned int idStart);
+
+public:
 	std::vector<std::string> ids;
-protected:
-	// pre-computed during type resolution in case expression-resolution reaches rule 3 and has to resolve a_1.a_2. ... a_k to a Type
-	std::unique_ptr<NameType> typePrefix;
-
+	// we pre-compute during type resolution the result of rule3 of namespace disambiguation
 	std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> converted;
-
-	friend class NameExpression;
-	friend class NameType;
 };
 
 } //namespace AST
