@@ -81,7 +81,7 @@ SemanticErrorType Name::resolveTypes(Semantic::SemanticDB const& semantic, TypeD
 		curPrefix.push_back(str);
 	}
 
-	// Nothing in prefix resolved to a type, try the whole thing
+	// Nothing in prefix resolved to a type, try resolving the whole thing to a type
 	auto temp = std::make_unique<NameType>(*this);
 	if (temp->resolve(semantic, enclosingClass) == SemanticErrorType::None)
 	{

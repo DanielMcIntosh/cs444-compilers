@@ -16,8 +16,10 @@ namespace AST
 
 class TypeDeclaration;
 class Type;
+class NameType;
 class Name;
 class VariableDeclaration;
+class FieldDeclaration;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -32,6 +34,10 @@ public:
 
 	virtual Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
 	virtual Semantic::SemanticErrorType resolve(Semantic::Scope const& scope);
+
+	TypeDeclaration *exprType;
+protected:
+	//virtual Semantic::SemanticErrorType deduceType() = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -188,7 +194,7 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 protected:
-	std::unique_ptr<Type> type;
+	std::unique_ptr<NameType> type;
 	std::vector<std::unique_ptr<Expression>> args;
 };
 
@@ -203,13 +209,17 @@ class FieldAccess: public Expression
 public:
 	static std::unique_ptr<FieldAccess> create(const Parse::Tree *ptNode);
 	explicit FieldAccess(const Parse::TFieldAccess *ptNode);
+	explicit FieldAccess(std::unique_ptr<Expression> object, std::string field);
+	explicit FieldAccess(std::unique_ptr<NameType> type, std::string field);
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 protected:
-	std::unique_ptr<Expression> object;
+	std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> source;
 	std::string member;
+
+	const FieldDeclaration *decl;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -239,9 +249,9 @@ class LocalVariableExpression: public Expression
 public:
 	static std::unique_ptr<LocalVariableExpression> create(const Parse::Tree *ptNode);
 	explicit LocalVariableExpression(const Parse::TThis2 *ptNode);
+	explicit LocalVariableExpression(std::string identifier);
 	std::string toCode() const override;
 protected:
-	explicit LocalVariableExpression(std::string id);
 	friend class NameExpression;
 	friend class Name;
 
@@ -269,8 +279,8 @@ public:
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 protected:
 	// nullable.
-	// Expression when non-static method, Type when static method, Name only before expression resolution
-	std::variant<std::unique_ptr<Expression>, std::unique_ptr<Type>, std::unique_ptr<Name>> source;
+	// Expression when non-static method, NameType when static method, Name only before expression resolution
+	std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>, std::unique_ptr<Name>> source;
 	std::string methodName;
 	std::vector<std::unique_ptr<Expression>> args;
 };
@@ -293,6 +303,8 @@ public:
 protected:
 	std::unique_ptr<Name> base;
 	std::string id;
+
+	std::unique_ptr<Expression> converted;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,6 @@
 #include "ast/type.h"
 #include "ast/name.h"
+#include "ast/expression.h"
 #include "parse/parseTree.h"
 #include "semantic/semantic.h"
 #include <memory>

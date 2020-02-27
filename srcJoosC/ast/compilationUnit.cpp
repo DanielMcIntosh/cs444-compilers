@@ -5,6 +5,8 @@
 #include "ast/nodeList.h"
 #include "ast/modifier.h"
 #include "ast/name.h"
+#include "ast/type.h"
+#include "ast/expression.h"
 #include "ast/memberDeclaration.h"
 #include "parse/parseTree.h"
 #include <memory>

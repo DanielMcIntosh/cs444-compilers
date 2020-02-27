@@ -107,14 +107,14 @@ public:
 
 	using Type::equals;
 	virtual bool equals(Type *other) override { return other->equalsDerived(this); };
+	using Type::equalsDerived;
+	virtual bool equalsDerived(NameType *other) override { return declaration == other->declaration; }
 
 protected:
 	std::vector<std::string> prefix;
 	std::string id;
-
+public:
 	TypeDeclaration *declaration = nullptr;
-	using Type::equalsDerived;
-	virtual bool equalsDerived(NameType *other) override { return declaration == other->declaration; }
 };
 
 } //namespace AST

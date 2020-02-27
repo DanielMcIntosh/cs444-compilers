@@ -1,6 +1,8 @@
 #include "ast/importDeclaration.h"
 #include "ast/node.h"
 #include "ast/name.h"
+#include "ast/type.h"
+#include "ast/expression.h"
 #include "parse/parseTree.h"
 #include <memory>
 

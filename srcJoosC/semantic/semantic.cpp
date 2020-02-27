@@ -8,6 +8,8 @@ using namespace AST;
 #include "ast/typeDeclaration.h"
 #include "ast/variableDeclaration.h"
 #include "ast/name.h"
+#include "ast/type.h"
+#include "ast/expression.h"
 #include "ast/importDeclaration.h"
 #include <unordered_set>
 

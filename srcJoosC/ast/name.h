@@ -1,21 +1,24 @@
 #pragma once
 
-#include "ast/expression.h"
-#include "ast/type.h"
+#include "ast/node.h"
 #include <memory>
 #include <vector>
 #include <string>
+#include <variant>
 
 namespace Semantic
 {
 	struct SemanticDB;
 	enum class SemanticErrorType;
+	class Scope;
 }
 
 namespace AST
 {
 
 class TypeDeclaration;
+class Expression;
+class NameType;
 
 class Name: public Node
 {
@@ -28,7 +31,9 @@ public:
 	std::string id;
 protected:
 	// pre-computed during type resolution in case expression-resolution reaches rule 3 and has to resolve a_1.a_2. ... a_k to a Type
-	std::unique_ptr<Type> typePrefix;
+	std::unique_ptr<NameType> typePrefix;
+
+	std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> converted;
 
 	friend class NameExpression;
 	friend class NameType;

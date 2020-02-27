@@ -113,7 +113,10 @@ ClassInstanceCreationExpression::resolveTypes(Semantic::SemanticDB const &semant
 
 SemanticErrorType FieldAccess::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
-	return object->resolveTypes(semantic, enclosingClass);
+	return std::visit(visitor{
+		[&semantic, &enclosingClass](std::unique_ptr<Expression> &expr) { return expr->resolveTypes(semantic, enclosingClass); },
+		[&semantic, &enclosingClass](std::unique_ptr<NameType> &type) { return type->resolve(semantic, enclosingClass); }
+	}, source);
 }
 
 SemanticErrorType MethodInvocation::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclaration *enclosingClass)
@@ -122,7 +125,7 @@ SemanticErrorType MethodInvocation::resolveTypes(Semantic::SemanticDB const &sem
 		SemanticErrorType error = std::visit(visitor {
 			[&semantic, &enclosingClass](std::unique_ptr<Expression> &src) {
 				return src ? src->resolveTypes(semantic, enclosingClass)	: SemanticErrorType::None;	},
-			[&semantic, &enclosingClass](std::unique_ptr<Type> &src) {
+			[&semantic, &enclosingClass](std::unique_ptr<NameType> &src) {
 				return src ? src->resolve(semantic, enclosingClass) 		: SemanticErrorType::None;	},
 			[&semantic, &enclosingClass](std::unique_ptr<Name> &src) {
 				return src ? src->resolveTypes(semantic, enclosingClass)	: SemanticErrorType::None;	}
@@ -230,7 +233,28 @@ SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const
 
 SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 {
-	return object->resolve(scope);
+	TypeDeclaration *sourceDecl;
+	if (std::holds_alternative<std::unique_ptr<Expression>>(source))
+	{
+		auto &object = std::get<std::unique_ptr<Expression>>(source);
+		assert(object);
+		if (auto error = object->resolve(scope);
+			error != SemanticErrorType::None)
+		{
+			return error;
+		}
+		sourceDecl = object->exprType;
+	} else
+	{
+		auto &type = std::get<std::unique_ptr<NameType>>(source);
+		sourceDecl = type->declaration;
+	}
+	/* TODO: after type deduction is implemented
+	assert(object->exprType != nullptr);
+	decl = object->exprType->findField(member);
+	return decl == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
+	//*/
+	return SemanticErrorType::None;
 }
 
 SemanticErrorType LocalVariableExpression::resolve(Semantic::Scope const& scope)
@@ -244,7 +268,7 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 	{
 		SemanticErrorType error = std::visit(visitor {
 			[&scope](std::unique_ptr<Expression> &src)	{	return src ? src->resolve(scope)		: SemanticErrorType::None;	},
-			[&scope](std::unique_ptr<Type> &src) 		{	return SemanticErrorType::None;	},
+			[&scope](std::unique_ptr<NameType> &src) 	{	return SemanticErrorType::None;	},
 			[&scope](std::unique_ptr<Name> &src)		{	return src ? src->resolveExprs(scope)	: SemanticErrorType::None;	}
 		}, source);
 		if (error != SemanticErrorType::None)
@@ -590,7 +614,7 @@ std::string ClassInstanceCreationExpression::toCode() const
 
 std::string FieldAccess::toCode() const
 {
-	return "(" + object->toCode() + "." + member + ")";
+	return "(" + std::visit([this](auto &src) { return src->toCode(); }, source) + "." + member + ")";
 }
 
 std::string Literal::toCode() const {
@@ -834,7 +858,7 @@ CastExpression::CastExpression(const Parse::TCastExpression *ptNode)
 //////////////////////////////////////////////////////////////////////////////
 
 ClassInstanceCreationExpression::ClassInstanceCreationExpression(const Parse::TClassInstanceCreationExpression *ptNode)
-	: type(Type::create(ptNode->classType)),
+	: type(NameType::create(ptNode->classType)),
 		args(std::move(NodeList<Expression>(ptNode->argumentList).list))
 {
 	nodeType = NodeType::ClassInstanceCreationExpression;
@@ -847,11 +871,24 @@ ClassInstanceCreationExpression::ClassInstanceCreationExpression(const Parse::TC
 //////////////////////////////////////////////////////////////////////////////
 
 FieldAccess::FieldAccess(const Parse::TFieldAccess *ptNode)
-	: object(Expression::create(ptNode->primary)),
-		member(ptNode->identifier->value)
+  :	source(Expression::create(ptNode->primary)),
+	member(ptNode->identifier->value)
 {
 	nodeType = NodeType::FieldAccess;
 }
+FieldAccess::FieldAccess(std::unique_ptr<Expression> obj, std::string field)
+  :	source(std::move(obj)),
+	member(std::move(field))
+{
+	nodeType = NodeType::FieldAccess;
+}
+FieldAccess::FieldAccess(std::unique_ptr<NameType> type, std::string field)
+  :	source(std::move(type)),
+	member(std::move(field))
+{
+	nodeType = NodeType::FieldAccess;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -892,6 +929,12 @@ Literal::Literal(const Parse::TLiteral *ptNode)
 // mostly a dummy class - the equivalent of the Literal class, but for a "this" expression
 LocalVariableExpression::LocalVariableExpression(const Parse::TThis2 *ptNode)
   : id("this")
+{
+	nodeType = NodeType::LocalVariableExpression;
+}
+
+LocalVariableExpression::LocalVariableExpression(std::string identifier)
+  :	id(identifier)
 {
 	nodeType = NodeType::LocalVariableExpression;
 }
