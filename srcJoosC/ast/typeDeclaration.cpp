@@ -272,44 +272,53 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 		// If this is an interface without a superinterface, add IObject methods to declare set
 		if (isInterface && !superClass && fqn != "java.lang.IObject") {
 			for (auto &member : iObject->members) {
-				assert(member->getTypeId() == 1);
-				auto m = static_cast<MethodDeclaration *>(member.get());
+				ASSERT(member->nodeType == NodeType::MethodDeclaration);
+				auto m = static_cast<MethodDeclaration*>(member.get());
 				methodSets.declareSet.push_back(m);
 			}
 		}
 	}
 	// build declare sets
 	for (auto &member : members) {
-		if (member->getTypeId() == 0) {
-			auto f = static_cast<FieldDeclaration*>(member.get());
-			for (const auto &g : fieldSets.declareSet) {
-				// Hierarchy check 10: cannot declare multiple fields with the same name
-				if (f->idEquals(g)) {
-					return SemanticErrorType::DuplicateFieldDeclaration;
+		switch (member->nodeType) {
+			case NodeType::FieldDeclaration: {
+				auto f = static_cast<FieldDeclaration *>(member.get());
+				for (const auto &g : fieldSets.declareSet) {
+					// Hierarchy check 10: cannot declare multiple fields with the same name
+					if (f->idEquals(g)) {
+						return SemanticErrorType::DuplicateFieldDeclaration;
+					}
 				}
+				fieldSets.declareSet.push_back(f);
+				break;
 			}
-			fieldSets.declareSet.push_back(f);
-		} else if (member->getTypeId() == 1) {
-			auto m = static_cast<MethodDeclaration*>(member.get());
-			for (const auto &n : methodSets.declareSet) {
-				// Hierarchy check 2: No duplicate methods
-				if (m->signatureEquals(n)) {
-					return SemanticErrorType::DuplicateMethodDeclaration;
+			case NodeType::MethodDeclaration: {
+				auto m = static_cast<MethodDeclaration*>(member.get());
+				for (const auto &n : methodSets.declareSet) {
+					// Hierarchy check 2: No duplicate methods
+					if (m->signatureEquals(n)) {
+						return SemanticErrorType::DuplicateMethodDeclaration;
+					}
+					// Hierarchy check 4: classes with abstract methods must be abstract
+					if (n->hasModifier(Modifier::Variant::Abstract) && !hasModifier(Modifier::Variant::Abstract)) {
+						return SemanticErrorType::AbstractClassNotAbstract;
+					}
 				}
-				// Hierarchy check 4: classes with abstract methods must be abstract
-				if (n->hasModifier(Modifier::Variant::Abstract) && !hasModifier(Modifier::Variant::Abstract)) {
-					return SemanticErrorType::AbstractClassNotAbstract;
-				}
+				methodSets.declareSet.push_back(m);
+				break;
 			}
-			methodSets.declareSet.push_back(m);
-		} else {
-			auto c = static_cast<ConstructorDeclaration*>(member.get());
-			for (const auto &d : constructorSet) {
-				if (c->signatureEquals(d)) {
-					return SemanticErrorType::DuplicateConstructorDeclaration;
+			case NodeType::ConstructorDeclaration: {
+				auto c = static_cast<ConstructorDeclaration*>(member.get());
+				for (const auto &d : constructorSet) {
+					if (c->signatureEquals(d)) {
+						return SemanticErrorType::DuplicateConstructorDeclaration;
+					}
 				}
+				constructorSet.push_back(c);
+				break;
 			}
-			constructorSet.push_back(c);
+			default:
+				ASSERT(false);
 		}
 	}
 

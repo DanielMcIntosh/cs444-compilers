@@ -37,15 +37,12 @@ public:
 	[[gnu::pure]]
 	virtual bool equals(const MethodDeclaration *) const;
 
-	// TODO: temporary, to remove
-	virtual int getTypeId() = 0;
-
 	virtual Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) = 0;
 	virtual Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) = 0;
 
 	bool hasModifier(Modifier::Variant) const;
 protected:
-	MemberDeclaration(std::vector<std::unique_ptr<Modifier>> mods);
+	explicit MemberDeclaration(std::vector<std::unique_ptr<Modifier>> mods);
 
 	std::vector<std::unique_ptr<Modifier>> modifiers;
 	// set for membership testing, including all implicit modifiers
