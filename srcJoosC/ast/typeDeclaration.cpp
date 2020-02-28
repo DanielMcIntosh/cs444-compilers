@@ -172,11 +172,6 @@ SemanticErrorType TypeDeclaration::resolveBodyTypeNames(Semantic::SemanticDB con
 	return SemanticErrorType::None;
 }
 
-SemanticErrorType TypeDeclaration::resolveMethods()
-{
-	return SemanticErrorType::None;
-}
-
 SemanticErrorType TypeDeclaration::resolveBodyExprs()
 {
 	if (!isInterface)

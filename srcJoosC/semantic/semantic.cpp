@@ -362,18 +362,6 @@ void semanticDo(SemanticDB *sdb) {
 		}
 	}
 
-	//* TODO:
-	for (auto *typeDecl : allTypes)
-	{
-		if (SemanticErrorType err = typeDecl->resolveMethods();
-			err != SemanticErrorType::None)
-		{
-			sdb->error = err;
-			return;
-		}
-	}
-	//*/
-
 	for (auto *typeDecl : allTypes)
 	{
 		if (SemanticErrorType err = typeDecl->resolveBodyExprs();

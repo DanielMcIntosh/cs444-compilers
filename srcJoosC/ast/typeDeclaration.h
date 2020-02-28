@@ -40,10 +40,13 @@ public:
 
 	Semantic::SemanticErrorType resolveSuperTypeNames(Semantic::SemanticDB const& semantic, TypeDeclaration *object);
 	Semantic::SemanticErrorType resolveBodyTypeNames(Semantic::SemanticDB const& semantic);
-	Semantic::SemanticErrorType resolveMethods();
 	Semantic::SemanticErrorType resolveBodyExprs();
 
 	Semantic::SemanticErrorType	generateHierarchySets(TypeDeclaration *, TypeDeclaration *);
+
+	ConstructorDeclaration *findConstructor(ClassInstanceCreationExpression *invocation);
+	MethodDeclaration *findMethod(MethodInvocation *invocation);
+	FieldDeclaration *findField(FieldAccess *access);
 
 	std::vector<TypeDeclaration *> getChildren();
 	std::unique_ptr<NameType> asType();

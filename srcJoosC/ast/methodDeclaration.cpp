@@ -88,13 +88,31 @@ bool MethodDeclaration::signatureEquals(MethodDeclaration *other) {
 	return identifier == other->identifier;
 }
 bool MethodDeclaration::signatureEquals(MethodInvocation *invocation) {
-	if (parameters.size() != invocation->args.size())
-		return false;
-	for (size_t i = 0; i < parameters.size(); ++i) {
-		if (!parameters[i]->typeEquals(invocation->args[i]->exprType))
-			return false;
-	}
-	return identifier == invocation->methodName;
+	return std::visit(visitor {
+			[&invocation, this](std::unique_ptr<Expression> &src) {
+				// account for extra "this" parameter
+				if (invocation->args.size() + 1 != parameters.size())
+					return false;
+				// this check is reduntant, but helps with clarity
+				if (!parameters[0]->typeEquals(src->exprType))
+					return false;
+				for (size_t i = 1; i < parameters.size(); ++i) {
+					if (!parameters[i]->typeEquals(invocation->args[i-1]->exprType))
+						return false;
+				}
+				return identifier == invocation->methodName;
+			},
+			[&invocation, this](std::unique_ptr<NameType> &src) {
+				if (parameters.size() != invocation->args.size())
+					return false;
+				for (size_t i = 0; i < parameters.size(); ++i) {
+					if (!parameters[i]->typeEquals(invocation->args[i]->exprType))
+						return false;
+				}
+				return identifier == invocation->methodName;
+			},
+			[](std::unique_ptr<Name> &src) { return false; }
+		}, invocation->source);
 }
 
 bool MethodDeclaration::returnEquals(MethodDeclaration *other) {

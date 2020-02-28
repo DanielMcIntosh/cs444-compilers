@@ -253,6 +253,10 @@ SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const
 			return error;
 		}
 	}
+	/* TODO: uncomment after type deduction is implemented
+	decl = type.getDeclaration()->findConstructor(this);
+	return decl == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
+	//*/
 	return SemanticErrorType::None;
 }
 
@@ -269,8 +273,11 @@ SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 		}
 	}, source);
 	/* TODO: uncomment after type deduction is implemented
-	assert(sourceDecl != nullptr);
-	decl = sourceDecl->findField(member);
+	if (sourceDecl.nodeType != NodeType::NameType)
+	{
+		return SemanticErrorType::ExprResolution;
+	}
+	decl = static_cast<NameType &>(sourceDecl).getDeclaration()->findField(this);
 	return decl == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
 	//*/
 	return SemanticErrorType::None;
@@ -330,6 +337,7 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 	{
 		return error;
 	}
+
 	{
 		SemanticErrorType error = std::visit(visitor {
 			[&scope](std::unique_ptr<Expression> &src)	{	return src->resolveAndDeduce(scope); },
@@ -341,6 +349,7 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 			return error;
 		}
 	}
+
 	for (auto& arg : args) {
 		if (auto error = arg->resolveAndDeduce(scope);
 			error != SemanticErrorType::None)
@@ -348,6 +357,22 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 			return error;
 		}
 	}
+
+	// find method declaration
+	Type &sourceDecl = std::visit(visitor{
+		[&scope](std::unique_ptr<Expression> &src) -> Type&	{	return *(src->exprType); },
+		[&scope](std::unique_ptr<NameType> &src) -> Type&	{	return *src;	},
+		[&scope](std::unique_ptr<Name> &src) -> Type& 		{	assert(false);	}
+	}, source);
+	/* TODO: uncomment after type deduction is implemented
+	if (sourceDecl.nodeType != NodeType::NameType)
+	{
+		return SemanticErrorType::ExprResolution;
+	}
+	declaration = static_cast<NameType &>(sourceDecl).getDeclaration()->findMethod(this);
+	return declaration == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
+	//*/
+
 	return SemanticErrorType::None;
 }
 
