@@ -34,7 +34,7 @@ enum class TypePrimitive
 	Char,
 	Void,
 	Max
-} type;
+};
 
 struct TypeResult {
 	bool isPrimitive;
@@ -59,6 +59,7 @@ public:
 	Semantic::SemanticErrorType resolveAndDeduce(Semantic::Scope const& scope);
 
 	TypeResult *typeResult;
+	std::unique_ptr<Type> exprType;
 protected:
 	virtual Semantic::SemanticErrorType deduceType();
 };
