@@ -83,7 +83,7 @@ Semantic::SemanticErrorType VariableDeclaration::resolveExprs(Semantic::Scope co
 {
 	if (initializer != nullptr)
 	{
-		return initializer->resolve(parentScope);
+		return initializer->resolveAndDeduce(parentScope);
 	}
 	return Semantic::SemanticErrorType::None;
 }

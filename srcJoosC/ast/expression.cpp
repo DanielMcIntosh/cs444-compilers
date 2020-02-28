@@ -396,7 +396,7 @@ SemanticErrorType NameExpression::resolve(Semantic::Scope const& scope)
 
 SemanticErrorType UnaryExpression::resolve(Semantic::Scope const& scope)
 {
-	return expr->resolve(scope);
+	return expr->resolveAndDeduce(scope);
 }
 
 //////////////////////////////////////////////////////////////////////////////

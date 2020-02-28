@@ -28,8 +28,22 @@ Semantic::SemanticErrorType ConditionalStatement::resolveExprs(Semantic::Scope &
 			return err;
 		}
 	}
-	// TODO: resolve condition
-	// TODO: resolve increment
+	if (condition)
+	{
+		if (Semantic::SemanticErrorType err = condition->resolveAndDeduce(mainScope);
+			err != Semantic::SemanticErrorType::None)
+		{
+			throw err;
+		}
+	}
+	if (increment)
+	{
+		if (Semantic::SemanticErrorType err = increment->resolveAndDeduce(mainScope);
+			err != Semantic::SemanticErrorType::None)
+		{
+			throw err;
+		}
+	}
 	if (Semantic::SemanticErrorType err = body->resolveExprs(mainScope);
 		err != Semantic::SemanticErrorType::None)
 	{

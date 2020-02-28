@@ -37,7 +37,7 @@ SemanticErrorType ExpressionStatement::resolveExprs(Semantic::Scope &parentScope
 {
 	if (expression != nullptr)
 	{
-		return expression->resolve(parentScope);
+		return expression->resolveAndDeduce(parentScope);
 	}
 	return Semantic::SemanticErrorType::None;
 }
@@ -46,7 +46,7 @@ SemanticErrorType ReturnStatement::resolveExprs(Semantic::Scope &parentScope)
 {
 	if (returnValue != nullptr)
 	{
-		return returnValue->resolve(parentScope);
+		return returnValue->resolveAndDeduce(parentScope);
 	}
 	return Semantic::SemanticErrorType::None;
 }
