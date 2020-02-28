@@ -7,6 +7,7 @@ namespace AST
 {
 
 class VariableDeclaration;
+class FieldAccess;
 
 class FieldDeclaration: public MemberDeclaration
 {
@@ -18,6 +19,7 @@ public:
 	using MemberDeclaration::equals;
 	virtual bool equals(FieldDeclaration *) override;
 	bool idEquals(FieldDeclaration *) const;
+	bool idEquals(const FieldAccess *) const;
 
 	virtual int getTypeId() override { return 0; }
 

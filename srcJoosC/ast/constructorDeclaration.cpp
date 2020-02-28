@@ -88,6 +88,19 @@ bool ConstructorDeclaration::signatureEquals(ConstructorDeclaration *other) {
 	}
 	return identifier == other->identifier;
 }
+bool ConstructorDeclaration::signatureEquals(ClassInstanceCreationExpression *invocation) {
+	// account for extra "this" parameter
+	if (invocation->args.size() + 1 != parameters.size())
+		return false;
+	// this check is reduntant, but helps with clarity
+	if (!parameters[0]->typeEquals(invocation->type.get()))
+		return false;
+	for (size_t i = 1; i < parameters.size(); ++i) {
+		if (!parameters[i]->typeEquals(invocation->args[i-1]->exprType.get()))
+			return false;
+	}
+	return true;
+}
 
 Semantic::SemanticErrorType ConstructorDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {

@@ -38,10 +38,10 @@ protected:
 
 	// double dispatch for correct equals behaviour
 public:
-	virtual bool equals(Type *) = 0;
+	virtual bool equals(const Type *) const = 0;
 protected:
-	virtual bool equalsDerived(PrimitiveType *) { return false; };
-	virtual bool equalsDerived(NameType *) { return false; };
+	virtual bool equalsDerived(const PrimitiveType *) const { return false; };
+	virtual bool equalsDerived(const NameType *) const { return false; };
 	friend class NameType;
 	friend class PrimitiveType;
 };
@@ -74,12 +74,12 @@ public:
 	Semantic::SemanticErrorType resolve(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 
 	using Type::equals;
-	virtual bool equals(Type *other) override { return other->equalsDerived(this); };
+	virtual bool equals(const Type *other) const override { return other->equalsDerived(this); };
 	std::string toCode() const override;
 
 protected:
 	using Type::equalsDerived;
-	virtual bool equalsDerived(PrimitiveType *other) override { return type == other->type; }
+	virtual bool equalsDerived(const PrimitiveType *other) const override { return type == other->type; }
 };
 
 std::string operator+(std::string str, PrimitiveType::Variant type);
@@ -107,9 +107,9 @@ public:
 	TypeDeclaration *getDeclaration();
 
 	using Type::equals;
-	virtual bool equals(Type *other) override { return other->equalsDerived(this); };
+	virtual bool equals(const Type *other) const override { return other->equalsDerived(this); };
 	using Type::equalsDerived;
-	virtual bool equalsDerived(NameType *other) override { return declaration == other->declaration; }
+	virtual bool equalsDerived(const NameType *other) const override { return declaration == other->declaration; }
 
 protected:
 	std::vector<std::string> ids;

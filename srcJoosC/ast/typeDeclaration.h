@@ -19,12 +19,15 @@ namespace Semantic
 namespace AST
 {
 
+class MemberDeclaration;
 class FieldDeclaration;
+class ConstructorDeclaration;
 class MethodDeclaration;
 class Modifier;
 class NameType;
-class MemberDeclaration;
-class ConstructorDeclaration;
+class ClassInstanceCreationExpression;
+class MethodInvocation;
+class FieldAccess;
 
 class CompilationUnit;
 

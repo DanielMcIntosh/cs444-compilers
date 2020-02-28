@@ -21,6 +21,7 @@ class Name;
 class VariableDeclaration;
 class FieldDeclaration;
 class MethodDeclaration;
+class ConstructorDeclaration;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -198,6 +199,7 @@ public:
 protected:
 	std::unique_ptr<NameType> type;
 	std::vector<std::unique_ptr<Expression>> args;
+	friend class ConstructorDeclaration;
 
 	const ConstructorDeclaration *declaration;
 };
@@ -222,6 +224,7 @@ public:
 protected:
 	std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> source;
 	std::string member;
+	friend class FieldDeclaration;
 
 	const FieldDeclaration *decl;
 };

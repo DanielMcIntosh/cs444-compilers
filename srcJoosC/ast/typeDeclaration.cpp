@@ -415,6 +415,49 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 	return SemanticErrorType::None;
 }
 
+ConstructorDeclaration *TypeDeclaration::findConstructor(ClassInstanceCreationExpression *invocation)
+{
+	ConstructorDeclaration *ret = nullptr;
+	for (ConstructorDeclaration *decl : constructorSet)
+	{
+		if (decl->signatureEquals(invocation))
+		{
+			if (ret != nullptr)
+				return nullptr;
+			ret = decl;
+		}
+	}
+	return ret;
+}
+MethodDeclaration *TypeDeclaration::findMethod(MethodInvocation *invocation)
+{
+	MethodDeclaration *ret = nullptr;
+	for (auto *decl : methodSets.containSet)
+	{
+		if (decl->signatureEquals(invocation))
+		{
+			if (ret != nullptr)
+				return nullptr;
+			ret = decl;
+		}
+	}
+	return ret;
+}
+FieldDeclaration *TypeDeclaration::findField(FieldAccess *access)
+{
+	FieldDeclaration *ret = nullptr;
+	for (auto *decl : fieldSets.containSet)
+	{
+		if (decl->idEquals(access))
+		{
+			if (ret != nullptr)
+				return nullptr;
+			ret = decl;
+		}
+	}
+	return ret;
+}
+
 std::vector<TypeDeclaration *> TypeDeclaration::getChildren()
 {
 	return children;

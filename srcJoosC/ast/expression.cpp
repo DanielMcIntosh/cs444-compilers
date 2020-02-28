@@ -254,8 +254,8 @@ SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const
 		}
 	}
 	/* TODO: uncomment after type deduction is implemented
-	decl = type.getDeclaration()->findConstructor(this);
-	return decl == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
+	declaration = type->getDeclaration()->findConstructor(this);
+	return declaration == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
 	//*/
 	return SemanticErrorType::None;
 }

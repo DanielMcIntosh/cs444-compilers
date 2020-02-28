@@ -9,6 +9,7 @@ namespace AST
 class Block;
 class VariableDeclaration;
 class MethodDeclarator;
+class ClassInstanceCreationExpression;
 
 class ConstructorDeclaration: public MemberDeclaration
 {
@@ -21,6 +22,7 @@ public:
 	virtual bool equals(ConstructorDeclaration *) override;
 	// TODO: turn into template function to remove duplication in methodDeclaration
 	bool signatureEquals(ConstructorDeclaration *);
+	bool signatureEquals(ClassInstanceCreationExpression *);
 
 	virtual int getTypeId() override { return 2; }
 

@@ -90,23 +90,27 @@ bool MethodDeclaration::signatureEquals(MethodDeclaration *other) {
 bool MethodDeclaration::signatureEquals(MethodInvocation *invocation) {
 	return std::visit(visitor {
 			[&invocation, this](std::unique_ptr<Expression> &src) {
+				if (hasModifier(Modifier::Variant::Static))
+					return false;
 				// account for extra "this" parameter
 				if (invocation->args.size() + 1 != parameters.size())
 					return false;
 				// this check is reduntant, but helps with clarity
-				if (!parameters[0]->typeEquals(src->exprType))
+				if (!parameters[0]->typeEquals(src->exprType.get()))
 					return false;
 				for (size_t i = 1; i < parameters.size(); ++i) {
-					if (!parameters[i]->typeEquals(invocation->args[i-1]->exprType))
+					if (!parameters[i]->typeEquals(invocation->args[i-1]->exprType.get()))
 						return false;
 				}
 				return identifier == invocation->methodName;
 			},
 			[&invocation, this](std::unique_ptr<NameType> &src) {
+				if (!hasModifier(Modifier::Variant::Static))
+					return false;
 				if (parameters.size() != invocation->args.size())
 					return false;
 				for (size_t i = 0; i < parameters.size(); ++i) {
-					if (!parameters[i]->typeEquals(invocation->args[i]->exprType))
+					if (!parameters[i]->typeEquals(invocation->args[i]->exprType.get()))
 						return false;
 				}
 				return identifier == invocation->methodName;

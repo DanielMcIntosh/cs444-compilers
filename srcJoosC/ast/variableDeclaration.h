@@ -32,7 +32,7 @@ public:
 	bool idEquals(const VariableDeclaration *other) const;
 	bool idEquals(std::string const& str) const;
 	bool typeEquals(const VariableDeclaration *other) const;
-	bool typeEquals(std::unique_ptr<Type> const& other) const;
+	bool typeEquals(const Type *other) const;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope const& parentScope);

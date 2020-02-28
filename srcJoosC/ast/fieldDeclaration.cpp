@@ -48,6 +48,15 @@ bool FieldDeclaration::equals(FieldDeclaration *other) {
   return declaration->equals(other->declaration.get());
 }
 
+bool FieldDeclaration::idEquals(FieldDeclaration *other) const {
+	return declaration->idEquals(other->declaration.get());
+}
+bool FieldDeclaration::idEquals(const FieldAccess *other) const
+{
+	return declaration->idEquals(other->member)
+	&& (hasModifier(Modifier::Variant::Static) == std::holds_alternative<std::unique_ptr<NameType>>(other->source));
+}
+
 Semantic::SemanticErrorType FieldDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
 	return declaration->resolveTypes(semantic, enclosingClass);
@@ -56,10 +65,6 @@ Semantic::SemanticErrorType FieldDeclaration::resolveTypes(Semantic::SemanticDB 
 Semantic::SemanticErrorType FieldDeclaration::resolveExprs(Semantic::Scope &parentScope)
 {
 	return declaration->resolveExprs(parentScope);
-}
-
-bool FieldDeclaration::idEquals(FieldDeclaration *other) const {
-	return declaration->idEquals(other->declaration.get());
 }
 
 } //namespace AST
