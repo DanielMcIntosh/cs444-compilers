@@ -174,25 +174,23 @@ SemanticErrorType TypeDeclaration::resolveBodyTypeNames(Semantic::SemanticDB con
 
 SemanticErrorType TypeDeclaration::resolveMethods()
 {
-	if (isInterface)
-	{
-		return SemanticErrorType::None;
-	}
-
-	// TODO: actually resolve methods first, THEN add the 'this' parameter
-	for (auto *decl : methodSets.declareSet)
-	{
-		decl->addThisParam(this);
-	}
-	for (auto *decl : constructorSet)
-	{
-		decl->addThisParam(this);
-	}
 	return SemanticErrorType::None;
 }
 
 SemanticErrorType TypeDeclaration::resolveBodyExprs()
 {
+	if (!isInterface)
+	{
+		for (auto *decl : methodSets.declareSet)
+		{
+			decl->addThisParam(this);
+		}
+		for (auto *decl : constructorSet)
+		{
+			decl->addThisParam(this);
+		}
+	}
+
 	Semantic::Scope scope(this);
 	for (auto *decl : methodSets.declareSet)
 	{

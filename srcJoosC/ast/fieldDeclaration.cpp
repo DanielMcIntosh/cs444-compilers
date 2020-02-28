@@ -55,7 +55,7 @@ Semantic::SemanticErrorType FieldDeclaration::resolveTypes(Semantic::SemanticDB 
 
 Semantic::SemanticErrorType FieldDeclaration::resolveExprs(Semantic::Scope &parentScope)
 {
-	return Semantic::SemanticErrorType::None;
+	return declaration->resolveExprs(parentScope);
 }
 
 bool FieldDeclaration::idEquals(FieldDeclaration *other) const {

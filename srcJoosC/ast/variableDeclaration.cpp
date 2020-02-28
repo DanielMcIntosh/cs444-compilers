@@ -69,6 +69,10 @@ bool VariableDeclaration::idEquals(std::string const& str) const
 bool VariableDeclaration::typeEquals(const VariableDeclaration *other) const {
 	return type->equals(other->type.get());
 }
+bool VariableDeclaration::typeEquals(std::unique_ptr<Type> const& other) const {
+	return type->equals(other.get());
+}
+
 
 Semantic::SemanticErrorType VariableDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {

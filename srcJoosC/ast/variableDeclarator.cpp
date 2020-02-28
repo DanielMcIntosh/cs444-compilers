@@ -1,6 +1,7 @@
 #include "ast/variableDeclarator.h"
 #include "ast/node.h"
 #include "ast/expression.h"
+#include "ast/type.h"
 #include "parse/parseTree.h"
 #include <memory>
 

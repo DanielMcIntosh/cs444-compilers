@@ -11,6 +11,7 @@ class Type;
 class VariableDeclaration;
 class Block;
 class MethodHeader;
+class MethodInvocation;
 
 class MethodDeclaration: public MemberDeclaration
 {
@@ -23,6 +24,7 @@ public:
 	using MemberDeclaration::equals;
 	virtual bool equals(MethodDeclaration *) override;
 	bool signatureEquals(MethodDeclaration *other);
+	bool signatureEquals(MethodInvocation *invocation);
 	bool returnEquals(MethodDeclaration *other);
 
 	virtual int getTypeId() override { return 1; }

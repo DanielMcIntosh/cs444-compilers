@@ -258,25 +258,19 @@ SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const
 
 SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 {
-	TypeDeclaration *sourceDecl;
-	if (std::holds_alternative<std::unique_ptr<Expression>>(source))
-	{
-		auto &object = std::get<std::unique_ptr<Expression>>(source);
-		assert(object);
-		if (auto error = object->resolveAndDeduce(scope);
-			error != SemanticErrorType::None)
-		{
-			return error;
+	SemanticErrorType ret = SemanticErrorType::None;
+	Type &sourceDecl = std::visit(visitor{
+		[&ret, &scope](std::unique_ptr<Expression> &expr) -> Type& {
+			ret = expr->resolveAndDeduce(scope);
+			return *(expr->exprType);
+		},
+		[](std::unique_ptr<NameType> &t) -> Type& {
+			return *t;
 		}
-		sourceDecl = object->exprType;
-	} else
-	{
-		auto &type = std::get<std::unique_ptr<NameType>>(source);
-		sourceDecl = type->declaration;
-	}
-	/* TODO: after type deduction is implemented
-	assert(object->exprType != nullptr);
-	decl = object->exprType->findField(member);
+	}, source);
+	/* TODO: uncomment after type deduction is implemented
+	assert(sourceDecl != nullptr);
+	decl = sourceDecl->findField(member);
 	return decl == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
 	//*/
 	return SemanticErrorType::None;
@@ -290,10 +284,23 @@ SemanticErrorType LocalVariableExpression::resolve(Semantic::Scope const& scope)
 
 SemanticErrorType MethodInvocation::disambiguateSource(Semantic::Scope const& scope)
 {
-	// TODO: if source is null, set the source to the implicit source
-	// (i.e. build the implicit source, and make it explicit)
-
-	if (std::holds_alternative<std::unique_ptr<Name>>(source))
+	// if no source, make the implicit source explicit.
+	if (std::visit([](auto &src) { return src == nullptr; }, source))
+	{
+		// if we're in a non-static method, resolve(this) will succeed.
+		if (auto thisExpr = std::make_unique<LocalVariableExpression>("this");
+			thisExpr->resolve(scope) == SemanticErrorType::None)
+		{
+			// implicit TypeName is not permitted in joos non-static methods. We can safely assume the source is thisExpr.
+			// https://www.student.cs.uwaterloo.ca/~cs444/features/implicitthisclassforstaticmethods.html
+			source = std::move(thisExpr);
+		}
+		else
+		{
+			source = scope._enclosingClass->asType();
+		}
+	}
+	else if (std::holds_alternative<std::unique_ptr<Name>>(source))
 	{
 		auto &src = std::get<std::unique_ptr<Name>>(source);
 		if (auto error = src->disambiguate(scope);
@@ -313,6 +320,7 @@ SemanticErrorType MethodInvocation::disambiguateSource(Semantic::Scope const& sc
 			return error;
 		}
 	}
+	return SemanticErrorType::None;
 }
 
 SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
@@ -324,7 +332,7 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 	}
 	{
 		SemanticErrorType error = std::visit(visitor {
-			[&scope](std::unique_ptr<Expression> &src)	{	return src ? src->resolveAndDeduce(scope) : SemanticErrorType::None; },
+			[&scope](std::unique_ptr<Expression> &src)	{	return src->resolveAndDeduce(scope); },
 			[&scope](std::unique_ptr<NameType> &src) 	{	return SemanticErrorType::None;	},
 			[&scope](std::unique_ptr<Name> &src) -> SemanticErrorType {	assert(false);	}
 		}, source);
@@ -595,7 +603,7 @@ std::unique_ptr<NameExpression> NameExpression::create(const Parse::Tree *ptNode
 	}
 	switch(ptNode->type) {
 		case Parse::NonTerminalType::Name:
-			return std::make_unique<NameExpression>(std::move(*Name::create(ptNode)));
+			return std::make_unique<NameExpression>(Name::create(ptNode));
 		default:
 			FAILED("inappropriate PT type for NameExpression: " + std::to_string((int)ptNode->type));
 	}
@@ -1028,7 +1036,7 @@ MethodInvocation::MethodInvocation(const Parse::TMethodInvocation *ptNode)
 //
 //////////////////////////////////////////////////////////////////////////////
 
-NameExpression::NameExpression(Name &&other)
+NameExpression::NameExpression(std::unique_ptr<Name> other)
   : unresolved(std::move(other))
 {
 	nodeType = NodeType::NameExpression;

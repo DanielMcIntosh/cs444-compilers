@@ -87,6 +87,15 @@ bool MethodDeclaration::signatureEquals(MethodDeclaration *other) {
 	}
 	return identifier == other->identifier;
 }
+bool MethodDeclaration::signatureEquals(MethodInvocation *invocation) {
+	if (parameters.size() != invocation->args.size())
+		return false;
+	for (size_t i = 0; i < parameters.size(); ++i) {
+		if (!parameters[i]->typeEquals(invocation->args[i]->exprType))
+			return false;
+	}
+	return identifier == invocation->methodName;
+}
 
 bool MethodDeclaration::returnEquals(MethodDeclaration *other) {
 	return returnType->equals(other->returnType.get());

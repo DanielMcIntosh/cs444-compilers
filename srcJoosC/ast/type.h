@@ -8,6 +8,7 @@ namespace Semantic
 {
 	struct SemanticDB;
 	enum class SemanticErrorType;
+	class Type;
 }
 
 namespace AST

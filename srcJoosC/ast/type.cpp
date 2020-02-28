@@ -153,6 +153,7 @@ TypeDeclaration *NameType::getDeclaration()
 	return declaration;
 }
 
+
 static_assert( (int)Parse::TPrimitiveTypeV::boolean	== (int)PrimitiveType::Variant::Boolean);
 static_assert( (int)Parse::TPrimitiveTypeV::byte   	== (int)PrimitiveType::Variant::Byte);
 static_assert( (int)Parse::TPrimitiveTypeV::Short  	== (int)PrimitiveType::Variant::Short);

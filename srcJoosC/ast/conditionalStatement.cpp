@@ -1,6 +1,7 @@
 #include "ast/conditionalStatement.h"
 #include "ast/statement.h"
 #include "ast/expression.h"
+#include "ast/type.h"
 #include "parse/parseTree.h"
 #include "semantic/semantic.h"
 #include "semantic/scope.h"
