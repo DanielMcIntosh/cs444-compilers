@@ -36,8 +36,9 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope const& parentScope);
-protected:
+
 	std::unique_ptr<Type> type;
+protected:
 	std::string identifier;
 	// nullable
 	std::unique_ptr<Expression> initializer;

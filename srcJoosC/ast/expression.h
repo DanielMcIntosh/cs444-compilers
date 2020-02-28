@@ -43,6 +43,7 @@ struct TypeResult {
 	TypeDeclaration *userDefinedType;
 
 	TypeResult();
+	TypeResult(Type const& type);
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -201,6 +202,7 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+	Semantic::SemanticErrorType deduceType() override;
 protected:
 	std::unique_ptr<Type> type;
 	std::unique_ptr<Expression> rhs;
@@ -221,6 +223,7 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+	Semantic::SemanticErrorType deduceType() override;
 protected:
 	std::unique_ptr<NameType> type;
 	std::vector<std::unique_ptr<Expression>> args;
@@ -246,6 +249,7 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+	Semantic::SemanticErrorType deduceType() override;
 protected:
 	std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> source;
 	std::string member;

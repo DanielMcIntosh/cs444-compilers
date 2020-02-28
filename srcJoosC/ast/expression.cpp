@@ -3,6 +3,7 @@
 #include "ast/type.h"
 #include "ast/nodeList.h"
 #include "ast/typeDeclaration.h"
+#include "ast/variableDeclaration.h"
 #include "parse/parseTree.h"
 #include "semantic/semantic.h"
 #include "semantic/scope.h"
@@ -172,6 +173,23 @@ SemanticErrorType Expression::resolveAndDeduce(Semantic::Scope const& scope)
 	return deduceType();
 }
 
+TypeResult::TypeResult(Type const& type)
+  : isPrimitive(type.nodeType == NodeType::PrimitiveType),
+	isArray(type.isArray)
+{
+	if (isPrimitive)
+	{
+		PrimitiveType const& primitive = static_cast<PrimitiveType const&>(type);
+		primitiveType = (TypePrimitive)(primitive.type);
+		userDefinedType = nullptr;
+	} else
+	{
+		NameType const& name = static_cast<NameType const&>(type);
+		primitiveType = TypePrimitive::Max;
+		userDefinedType = name.declaration;
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // deduceType
@@ -181,6 +199,24 @@ SemanticErrorType Expression::resolveAndDeduce(Semantic::Scope const& scope)
 // TODO: remove this, and implement it properly in subclasses
 SemanticErrorType Expression::deduceType()
 {
+	return SemanticErrorType::None;
+}
+
+SemanticErrorType CastExpression::deduceType()
+{
+	typeResult = TypeResult(*type);
+	return SemanticErrorType::None;
+}
+SemanticErrorType ClassInstanceCreationExpression::deduceType()
+{
+	typeResult = TypeResult(*type);
+	return SemanticErrorType::None;
+}
+SemanticErrorType FieldAccess::deduceType()
+{
+	/* TODO: uncomment after type deduction is implemented
+	typeResult = TypeResult(*(decl->declaration->type));
+	//*/
 	return SemanticErrorType::None;
 }
 
