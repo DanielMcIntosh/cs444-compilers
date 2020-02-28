@@ -39,8 +39,10 @@ enum class TypePrimitive
 struct TypeResult {
 	bool isPrimitive;
 	bool isArray;
-	PrimitiveType::Variant primitiveType;
+	TypePrimitive primitiveType;
 	TypeDeclaration *userDefinedType;
+
+	TypeResult();
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -58,7 +60,7 @@ public:
 	virtual Semantic::SemanticErrorType resolve(Semantic::Scope const& scope);
 	Semantic::SemanticErrorType resolveAndDeduce(Semantic::Scope const& scope);
 
-	TypeResult *typeResult;
+	TypeResult typeResult;
 	std::unique_ptr<Type> exprType;
 protected:
 	virtual Semantic::SemanticErrorType deduceType();
@@ -99,6 +101,8 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+
+
 protected:
 	// IMPORTANT: during construction, we have to change type->isArray to true
 	std::unique_ptr<Type> type;

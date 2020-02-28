@@ -1113,4 +1113,7 @@ std::ostream& operator<<(std::ostream& os, UnaryExpression::Variant type)
 	return os << ("" + type);
 }
 
+TypeResult::TypeResult(): isPrimitive(true), isArray(false), primitiveType(TypePrimitive::Max), userDefinedType(nullptr) {
+
+}
 } //namespace AST
