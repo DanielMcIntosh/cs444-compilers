@@ -63,6 +63,7 @@ public:
 		Int,
 		Char,
 		Void,
+		Null,
 		Max
 	} type;
 

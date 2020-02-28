@@ -14,6 +14,8 @@ using Semantic::SemanticErrorType;
 namespace AST
 {
 
+thread_local TypeDeclaration *Literal::stringDecl;
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // ResolveTypes
@@ -121,6 +123,15 @@ SemanticErrorType FieldAccess::resolveTypes(Semantic::SemanticDB const& semantic
 	}, source);
 }
 
+SemanticErrorType Literal::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+{
+	if (enclosingClass->fqn == "java.lang.String")
+	{
+		Literal::stringDecl = enclosingClass;
+	}
+	return SemanticErrorType::None;
+}
+
 SemanticErrorType MethodInvocation::resolveTypes(Semantic::SemanticDB const &semantic, TypeDeclaration *enclosingClass)
 {
 	{
@@ -217,6 +228,17 @@ SemanticErrorType FieldAccess::deduceType()
 	/* TODO: uncomment after type deduction is implemented
 	typeResult = TypeResult(*(decl->declaration->type));
 	//*/
+	return SemanticErrorType::None;
+}
+SemanticErrorType Literal::deduceType()
+{
+	typeResult = std::visit(visitor {
+		[](unsigned int)	{ return TypeResult{false, TypePrimitive::Int}; },
+		[](bool)			{ return TypeResult{false, TypePrimitive::Boolean}; },
+		[](char)			{ return TypeResult{false, TypePrimitive::Char}; },
+		[](std::string) 	{ return TypeResult(*(Literal::stringDecl->asType())); },
+		[](std::nullptr_t)	{ return TypeResult{false, TypePrimitive::Null}; }
+	}, value);
 	return SemanticErrorType::None;
 }
 

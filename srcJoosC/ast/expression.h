@@ -33,6 +33,7 @@ enum class TypePrimitive
 	Int,
 	Char,
 	Void,
+	Null,
 	Max
 };
 
@@ -44,6 +45,8 @@ struct TypeResult {
 
 	TypeResult();
 	TypeResult(Type const& type);
+	TypeResult(bool arr, TypePrimitive primT)
+		: isPrimitive(true), isArray(arr), primitiveType(primT), userDefinedType(nullptr) {}
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -270,8 +273,12 @@ public:
 	static std::unique_ptr<Literal> create(const Parse::Tree *ptNode);
 	explicit Literal(const Parse::TLiteral *ptNode);
 	std::string toCode() const override;
+
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+	Semantic::SemanticErrorType deduceType() override;
 protected:
 	std::variant<unsigned int, bool, char, std::string, std::nullptr_t > value;
+	static thread_local TypeDeclaration *stringDecl;
 };
 
 //////////////////////////////////////////////////////////////////////////////
