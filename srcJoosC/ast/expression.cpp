@@ -148,16 +148,40 @@ SemanticErrorType MethodInvocation::resolveTypes(Semantic::SemanticDB const &sem
 
 SemanticErrorType NameExpression::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
-	if (base != nullptr)
-	{
-		return base->resolveTypes(semantic, enclosingClass);
-	}
-	return SemanticErrorType::None;
+	return unresolved->resolveTypes(semantic, enclosingClass);
 }
 
 SemanticErrorType UnaryExpression::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
 	return expr->resolveTypes(semantic, enclosingClass);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// resolveAndDeduce
+//
+//////////////////////////////////////////////////////////////////////////////
+
+SemanticErrorType Expression::resolveAndDeduce(Semantic::Scope const& scope)
+{
+	if (auto error = resolve(scope);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	return deduceType();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// deduceType
+//
+//////////////////////////////////////////////////////////////////////////////
+
+// TODO: remove this, and implement it properly in subclasses
+SemanticErrorType Expression::deduceType()
+{
+	return SemanticErrorType::None;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -173,12 +197,12 @@ SemanticErrorType Expression::resolve(Semantic::Scope const& scope)
 
 SemanticErrorType ArrayAccess::resolve(Semantic::Scope const& scope)
 {
-	if (auto error = array->resolve(scope);
+	if (auto error = array->resolveAndDeduce(scope);
 		error != SemanticErrorType::None)
 	{
 		return error;
 	}
-	if (auto error = index->resolve(scope);
+	if (auto error = index->resolveAndDeduce(scope);
 		error != SemanticErrorType::None)
 	{
 		return error;
@@ -187,16 +211,16 @@ SemanticErrorType ArrayAccess::resolve(Semantic::Scope const& scope)
 }
 SemanticErrorType ArrayCreationExpression::resolve(Semantic::Scope const& scope)
 {
-	return size->resolve(scope);
+	return size->resolveAndDeduce(scope);
 }
 SemanticErrorType AssignmentExpression::resolve(Semantic::Scope const& scope)
 {
-	if (auto error = lhs->resolve(scope);
+	if (auto error = lhs->resolveAndDeduce(scope);
 		error != SemanticErrorType::None)
 	{
 		return error;
 	}
-	if (auto error = rhs->resolve(scope);
+	if (auto error = rhs->resolveAndDeduce(scope);
 		error != SemanticErrorType::None)
 	{
 		return error;
@@ -205,25 +229,25 @@ SemanticErrorType AssignmentExpression::resolve(Semantic::Scope const& scope)
 }
 SemanticErrorType BinaryExpression::resolve(Semantic::Scope const& scope)
 {
-	if (auto error = lhs->resolve(scope);
+	if (auto error = lhs->resolveAndDeduce(scope);
 		error != SemanticErrorType::None)
 	{
 		return error;
 	}
 	if (op != Variant::InstanceOf)
 	{
-		return std::get<std::unique_ptr<Expression>>(rhs)->resolve(scope);
+		return std::get<std::unique_ptr<Expression>>(rhs)->resolveAndDeduce(scope);
 	}
 	return SemanticErrorType::None;
 }
 SemanticErrorType CastExpression::resolve(Semantic::Scope const& scope)
 {
-	return rhs->resolve(scope);
+	return rhs->resolveAndDeduce(scope);
 }
 SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const& scope)
 {
 	for (auto &expr : args) {
-		if (auto error = expr->resolve(scope);
+		if (auto error = expr->resolveAndDeduce(scope);
 			error != SemanticErrorType::None)
 		{
 			return error;
@@ -239,7 +263,7 @@ SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 	{
 		auto &object = std::get<std::unique_ptr<Expression>>(source);
 		assert(object);
-		if (auto error = object->resolve(scope);
+		if (auto error = object->resolveAndDeduce(scope);
 			error != SemanticErrorType::None)
 		{
 			return error;
@@ -300,7 +324,7 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 	}
 	{
 		SemanticErrorType error = std::visit(visitor {
-			[&scope](std::unique_ptr<Expression> &src)	{	return src ? src->resolve(scope) : SemanticErrorType::None; },
+			[&scope](std::unique_ptr<Expression> &src)	{	return src ? src->resolveAndDeduce(scope) : SemanticErrorType::None; },
 			[&scope](std::unique_ptr<NameType> &src) 	{	return SemanticErrorType::None;	},
 			[&scope](std::unique_ptr<Name> &src) -> SemanticErrorType {	assert(false);	}
 		}, source);
@@ -310,7 +334,7 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 		}
 	}
 	for (auto& arg : args) {
-		if (auto error = arg->resolve(scope);
+		if (auto error = arg->resolveAndDeduce(scope);
 			error != SemanticErrorType::None)
 		{
 			return error;
@@ -321,61 +345,20 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 
 SemanticErrorType NameExpression::resolve(Semantic::Scope const& scope)
 {
-	if (base != nullptr)
+	if (auto error = unresolved->disambiguate(scope);
+		error != SemanticErrorType::None)
 	{
-		// base has to resolve to either a Type or an Expression, because base.id has to be an expression
-		if (auto error = base->disambiguate(scope);
-			error != SemanticErrorType::None)
-		{
-			return error;
-		}
-		converted = std::visit(visitor {
-			[&id = id](std::unique_ptr<Expression> &expr)	{ return std::make_unique<FieldAccess>(std::move(expr), id); },
-			[&id = id](std::unique_ptr<NameType> &t)		{ return std::make_unique<FieldAccess>(std::move(t), id);	}
-		}, base->converted);
-		return converted->resolve(scope);
-	} else
+		return error;
+	}
+	converted = std::visit(visitor {
+		[](std::unique_ptr<Expression> &expr)							{ return std::move(expr); },
+		[](std::unique_ptr<NameType> &t) -> std::unique_ptr<Expression> { return nullptr; }
+	}, unresolved->converted);
+	if (converted == nullptr)
 	{
-		// resolve to local variable
-		{
-			auto local = std::make_unique<LocalVariableExpression>(id);
-			if (local->resolve(scope) == SemanticErrorType::None)
-			{
-				converted = std::move(local);
-				return SemanticErrorType::None;
-			}
-		}
-
-		// resolve to field access
-		// in the process, we're going to make any implicit "this" or TypeName explicit
-		{
-			// if it's a non-static method, resolve(this) will succeed.
-			if (auto thisExpr = std::make_unique<LocalVariableExpression>("this");
-				thisExpr->resolve(scope) == SemanticErrorType::None)
-			{
-				// attempt construct a FieldAccess using the implicit "this"
-				auto field = std::make_unique<FieldAccess>(std::move(thisExpr), id);
-				if (field->resolve(scope) == SemanticErrorType::None)
-				{
-					converted = std::move(field);
-					return SemanticErrorType::None;
-				}
-			}
-			else
-			{
-				// attempt to construct a field access using the implicit TypeName
-				auto field = std::make_unique<FieldAccess>(scope._enclosingClass->asType(), id);
-				if (field->resolve(scope) == SemanticErrorType::None)
-				{
-					converted = std::move(field);
-					return SemanticErrorType::None;
-				}
-			}
-		}
-
-		// we have to resolve to an expression, and we've run out of options which would produce an expression
 		return SemanticErrorType::ExprResolution;
 	}
+	return converted->resolveAndDeduce(scope);
 }
 
 SemanticErrorType UnaryExpression::resolve(Semantic::Scope const& scope)
@@ -737,7 +720,7 @@ std::string MethodInvocation::toCode() const
 
 std::string NameExpression::toCode() const
 {
-	return (base ? base->toCode() + "." : "") + id;
+	return converted ? converted->toCode() : unresolved->toCode();
 }
 
 std::string UnaryExpression::toCode() const
@@ -1046,8 +1029,7 @@ MethodInvocation::MethodInvocation(const Parse::TMethodInvocation *ptNode)
 //////////////////////////////////////////////////////////////////////////////
 
 NameExpression::NameExpression(Name &&other)
-  : base(other.ids.size() > 1 ? std::make_unique<Name>(std::vector<std::string>(other.ids.begin(), --other.ids.end())) : nullptr),
-	id(std::move(other.ids.back()))
+  : unresolved(std::move(other))
 {
 	nodeType = NodeType::NameExpression;
 }

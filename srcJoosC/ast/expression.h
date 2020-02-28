@@ -34,10 +34,11 @@ public:
 
 	virtual Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
 	virtual Semantic::SemanticErrorType resolve(Semantic::Scope const& scope);
+	Semantic::SemanticErrorType resolveAndDeduce(Semantic::Scope const& scope);
 
 	TypeDeclaration *exprType;
 protected:
-	//virtual Semantic::SemanticErrorType deduceType() = 0;
+	virtual Semantic::SemanticErrorType deduceType();
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -303,9 +304,7 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 protected:
-	std::unique_ptr<Name> base;
-	std::string id;
-
+	std::unique_ptr<Name> unresolved;
 	std::unique_ptr<Expression> converted;
 };
 
