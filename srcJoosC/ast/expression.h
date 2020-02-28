@@ -1,8 +1,10 @@
 #pragma once
 
 #include "ast/node.h"
+#include "ast/type.h"
 
 #include <variant>
+
 
 namespace Semantic
 {
@@ -23,6 +25,24 @@ class FieldDeclaration;
 class MethodDeclaration;
 class ConstructorDeclaration;
 
+enum class TypePrimitive
+{
+	Boolean,
+	Byte,
+	Short,
+	Int,
+	Char,
+	Void,
+	Max
+} type;
+
+struct TypeResult {
+	bool isPrimitive;
+	bool isArray;
+	PrimitiveType::Variant primitiveType;
+	TypeDeclaration *userDefinedType;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Expression
@@ -38,7 +58,7 @@ public:
 	virtual Semantic::SemanticErrorType resolve(Semantic::Scope const& scope);
 	Semantic::SemanticErrorType resolveAndDeduce(Semantic::Scope const& scope);
 
-	std::unique_ptr<Type> exprType;
+	TypeResult *typeResult;
 protected:
 	virtual Semantic::SemanticErrorType deduceType();
 };
