@@ -182,6 +182,10 @@ SemanticDB::resolveTypeHelper(const NameType *type, const string &typeName, cons
 	return {nullptr, SemanticErrorType::NotFoundImport};
 }
 
+SemanticDB::SemanticDB(): error(SemanticErrorType::None) {
+
+}
+
 void semanticDo(SemanticDB *sdb) {
 	for (auto *cpu : sdb->cpus) {
 		if (!cpu->typeDeclaration)

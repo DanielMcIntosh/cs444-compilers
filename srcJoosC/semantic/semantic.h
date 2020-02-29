@@ -64,8 +64,10 @@ struct SemanticDB {
   std::vector<AST::CompilationUnit *> cpus;
   std::unordered_map<std::string, AST::TypeDeclaration *> typeMap;
   Trie packageTrie;
+  SemanticErrorType error;
 
-  enum SemanticErrorType error = SemanticErrorType::None;
+  SemanticDB();
+  ~SemanticDB() = default;
 
   std::tuple<AST::TypeDeclaration *, SemanticErrorType> resolveType(const AST::NameType *type, AST::TypeDeclaration *source) const;
   std::tuple<AST::TypeDeclaration *, SemanticErrorType> resolveType(const AST::NameType *type, const AST::CompilationUnit *cpu) const;

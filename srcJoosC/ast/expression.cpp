@@ -243,10 +243,6 @@ SemanticErrorType Literal::deduceType() {
 }
 
 Semantic::SemanticErrorType ArrayAccess::deduceType() {
-	auto err = array->deduceType();
-	GOFAIL_IF_ERR(err);
-	err = index->deduceType();
-	GOFAIL_IF_ERR(err);
 	if (!array->typeResult.isArray)
 		GOFAIL();
 
@@ -259,13 +255,10 @@ Semantic::SemanticErrorType ArrayAccess::deduceType() {
 	OK();
 
 	fail:
-	err = Semantic::SemanticErrorType::TypeCheck;
-	return err;
+	return Semantic::SemanticErrorType::TypeCheck;
 }
 
 SemanticErrorType ArrayCreationExpression::deduceType() {
-	auto err = size->deduceType();
-	GOFAIL_IF_ERR(err);
 	if (!size->typeResult.isNum())
 		GOFAIL();
 
@@ -285,21 +278,15 @@ SemanticErrorType ArrayCreationExpression::deduceType() {
 	OK();
 
 	fail:
-	err = SemanticErrorType::TypeCheck;
-	return err;
+	return SemanticErrorType::TypeCheck;
 }
 
 SemanticErrorType AssignmentExpression::deduceType() {
-	auto err = lhs->deduceType();
-	GOFAIL_IF_ERR(err);
-	err = rhs->deduceType();
-	GOFAIL_IF_ERR(err);
 
 	OK();
 
 	fail:
-	err = Semantic::SemanticErrorType::TypeCheck;
-	return err;
+	return Semantic::SemanticErrorType::TypeCheck;
 }
 
 bool IsArithmeticOp(BinaryExpression::Variant op) {
@@ -370,15 +357,9 @@ std::tuple<TypeResult, bool> BinExprHelper(Expression* lhs, Expression* rhs,
 }
 
 SemanticErrorType BinaryExpression::deduceType() {
-	auto err = lhs->deduceType();
-	GOFAIL_IF_ERR(err);
-
+	Semantic::SemanticErrorType err = SemanticErrorType::None;
 	std::visit(visitor {
 					[&](std::unique_ptr<Expression> &rexpr) {
-						err = rexpr->deduceType();
-						if (err != SemanticErrorType::None)
-							return;
-
 						auto [res, valid] = BinExprHelper(lhs.get(), rexpr.get(), op);
 						if (valid)
 							typeResult = res;
@@ -402,7 +383,6 @@ SemanticErrorType BinaryExpression::deduceType() {
 	OK();
 
 	fail:
-	err = Semantic::SemanticErrorType::TypeCheck;
 	return err;
 }
 

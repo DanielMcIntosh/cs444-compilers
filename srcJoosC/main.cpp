@@ -341,14 +341,23 @@ void batchTesting(JoosC* joosc, const string& baseDir,
   }
 }
 
-void checkTestMode(JoosC* joosc) {
-  profileSection("check test mode");
-  const char* mode = getenv("JOOSC_TEST");
-  if (!mode) return;
-  const char* assnNum = getenv("JOOSC_TEST_ASSN");
-  if (!assnNum) return;
+int checkEnvForTest() {
+	const char* mode = getenv("JOOSC_TEST");
+	if (!mode) return 0;
+	const char* assnNum = getenv("JOOSC_TEST_ASSN");
+	if (!assnNum) return 0;
+	return atoi(assnNum);
+}
 
-  s32 num = atoi(assnNum);
+void checkTestMode(JoosC* joosc, const char *argv1) {
+  profileSection("check test mode");
+
+  int num = checkEnvForTest();
+  if (!num) {
+  	if (argv1 && strlen(argv1) == 1) num = atoi(argv1);
+  }
+  if (!num) return;
+
   const char* assnBase = "tests/assignment_testcases";
   strdecl256(progFolder, "%s/a%d/", assnBase, num);
 
@@ -410,7 +419,10 @@ int main(int argc, const char** argv) {
     parserReadJoosLR1(&joosc.parser);
   }
 
-  checkTestMode(&joosc);
+  const char *argv1 = nullptr;
+	if (argc > 1)
+		argv1 = argv[1];
+  checkTestMode(&joosc, argv1);
 
   {
     profileSection("compile main");
