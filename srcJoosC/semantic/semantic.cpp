@@ -357,9 +357,11 @@ void semanticDo(SemanticDB *sdb) {
 		}
 	}
 
-	auto object = sdb->typeMap["java.lang.Object"];
-	auto iObject = sdb->typeMap["java.lang.IObject"];
-
+	TypeDeclaration *object = nullptr, *iObject = nullptr;
+	if (!gStandAloneMode) {
+		object = sdb->typeMap["java.lang.Object"];
+		iObject = sdb->typeMap["java.lang.IObject"];
+	}
 	// Generate super, extends, declare
 	for (auto *typeDecl : allTypes) {
 		if (SemanticErrorType err = typeDecl->generateHierarchySets(object, iObject);

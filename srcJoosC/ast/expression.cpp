@@ -220,14 +220,27 @@ SemanticErrorType Expression::deduceType()
 
 SemanticErrorType CastExpression::deduceType()
 {
-	typeResult = TypeResult(*type);
-	return SemanticErrorType::None;
+	// first allow all numeric casts
+	auto lhs = TypeResult(*type);
+	typeResult = lhs;
+	if (lhs.isNumOrArrayNum() && rhs->typeResult.isNumOrArrayNum())
+		OK();
+
+	// then try assignability
+	if (lhs.canAssignToMe(rhs->typeResult))
+		OK();
+
+	GOFAIL(); // to print error
+	fail:
+	return SemanticErrorType::TypeCheck;
 }
+
 SemanticErrorType ClassInstanceCreationExpression::deduceType()
 {
 	typeResult = TypeResult(*type);
 	return SemanticErrorType::None;
 }
+
 SemanticErrorType FieldAccess::deduceType()
 {
 	/* TODO: uncomment after type deduction is implemented
@@ -235,6 +248,7 @@ SemanticErrorType FieldAccess::deduceType()
 	//*/
 	return SemanticErrorType::None;
 }
+
 SemanticErrorType Literal::deduceType() {
 	typeResult = std::visit(visitor{
 					[](unsigned int) { return TypeResult{false, TypePrimitive::Int}; },
@@ -295,31 +309,8 @@ SemanticErrorType ArrayCreationExpression::deduceType() {
 
 SemanticErrorType AssignmentExpression::deduceType() {
 	typeResult = rhs->typeResult;
-	// same type on both sides
-	if (lhs->typeResult == rhs->typeResult)
+	if (lhs->typeResult.canAssignToMe(rhs->typeResult))
 		OK();
-	// short <- byte or short[] <- byte[]
-	if (lhs->typeResult.primitiveType == TypePrimitive::Short &&
-	    rhs->typeResult.primitiveType == TypePrimitive::Byte)
-		OK();
-	// int <- char or int[] <- char []
-	if (lhs->typeResult.primitiveType == TypePrimitive::Int &&
-	    rhs->typeResult.primitiveType == TypePrimitive::Char)
-		OK();
-	// C := null where C is a class TODO can an array be null also?
-	if (!lhs->typeResult.isPrimitive && !lhs->typeResult.isArray &&
-	     rhs->typeResult.isPrimitiveType(TypePrimitive::Null))
-		OK();
-	// both are (either single or array of) objects
-	if (!lhs->typeResult.isPrimitive && !rhs->typeResult.isPrimitive) {
-		// same type on both sides is handled at the top
-		for (auto *decl : rhs->typeResult.userDefinedType->superSet) {
-			// assigning to super class
-			if (lhs->typeResult.userDefinedType == decl)
-				OK();
-		}
-	}
-
 	GOFAIL(); // to print error
 	fail:
 	return Semantic::SemanticErrorType::TypeCheck;
@@ -1360,27 +1351,59 @@ TypeResult::TypeResult(): isPrimitive(true), isArray(false), primitiveType(TypeP
 
 }
 
-bool TypeResult::isNum() {
-	return !isArray && isPrimitive && (primitiveType == TypePrimitive::Int ||
-	                       primitiveType == TypePrimitive::Short ||
-	                       primitiveType == TypePrimitive::Byte ||
-	                       primitiveType == TypePrimitive::Char);
+bool TypeResult::isNum() const {
+	return !isArray && isNumOrArrayNum();
 
 }
 
-bool TypeResult::isJavaString() {
+bool TypeResult::isJavaString() const  {
 	return !isPrimitive && !isArray && Literal::isJavaString(userDefinedType);
 }
 
-bool TypeResult::isPrimitiveType(TypePrimitive primitive) {
+bool TypeResult::isPrimitiveType(TypePrimitive primitive) const {
 	return isPrimitive && !isArray && primitiveType == primitive;
 }
 
-bool TypeResult::operator==(const TypeResult &other) {
+bool TypeResult::operator==(const TypeResult &other) const {
 	return isPrimitive == other.isPrimitive &&
 	       isArray == other.isArray &&
 					(isPrimitive ? primitiveType == other.primitiveType :
 					               userDefinedType == other.userDefinedType);
+}
+
+bool TypeResult::isNumOrArrayNum() const {
+	return isPrimitive && (primitiveType == TypePrimitive::Int ||
+	                       primitiveType == TypePrimitive::Short ||
+	                       primitiveType == TypePrimitive::Byte ||
+	                       primitiveType == TypePrimitive::Char);
+}
+
+bool TypeResult::canAssignToMe(const TypeResult &other) const {
+	// same type on both sides
+	if (*this == other)
+		return true;
+	// short <- byte or short[] <- byte[]
+	if (primitiveType == TypePrimitive::Short &&
+	    other.primitiveType == TypePrimitive::Byte)
+		return true;
+	// int <- char or int[] <- char []
+	if (primitiveType == TypePrimitive::Int &&
+	    other.primitiveType == TypePrimitive::Char)
+		return true;
+	// C := null where C is a class TODO can an array be null also?
+	if (!isPrimitive && !isArray &&
+	    other.isPrimitiveType(TypePrimitive::Null))
+		return true;
+	// both are (either single or array of) objects
+	if (!isPrimitive && !other.isPrimitive) {
+		// same type on both sides is handled at the top
+		for (auto *decl : other.userDefinedType->superSet) {
+			// assigning to super class
+			if (userDefinedType == decl)
+				return true;
+		}
+	}
+	return false;
 }
 
 } //namespace AST

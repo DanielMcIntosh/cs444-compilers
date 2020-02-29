@@ -151,11 +151,19 @@ cleanup : {  // clean ups
 struct BatchTestResult {
   FrontendStageType frontendStage;
   MiddleendResult middleend;
+  const char *singleSource;
 
   BatchTestResult();
+  ~BatchTestResult();
 };
 
-BatchTestResult::BatchTestResult() : frontendStage(FrontendStageType::Pass) {}
+BatchTestResult::BatchTestResult() : frontendStage(FrontendStageType::Pass),
+                                     singleSource(nullptr)
+{}
+
+BatchTestResult::~BatchTestResult() {
+	if (singleSource) free((void *)singleSource);
+}
 
 struct BatchTestThreadCtx {
   // input
@@ -196,8 +204,12 @@ void batchTestingThread(BatchTestThreadCtx ctx) {
 	  }
 
     if (fs::is_regular_file(dupPath)) {
+    	ASSERT(topLevelName.find(".java") != string::npos);
       frontendResults.emplace_back(
           doFrontEndSingle(ctx.joosc, topLevelName.c_str()));
+      // copy source text if it is a single file
+	    // have to copy because frontend results don't persist
+	    caseResult->singleSource = strdup(frontendResults.back().fileContent);
     } else {
       ASSERT(fs::is_directory(dupPath));
       vector<string> fileBundle;
@@ -297,7 +309,7 @@ void batchTesting(JoosC* joosc, const string& baseDir,
 
   int numPassed = 0;
   for (int i = 0; i < numTests; ++i) {
-    const BatchTestResult& result = results[i];
+    BatchTestResult& result = results[i];
     const string& topLevelName = topLevelFileList[i];
     bool valid = result.frontendStage == FrontendStageType::Pass &&
                  result.middleend.failedStage == MiddleendStageType::Pass;
@@ -310,7 +322,7 @@ void batchTesting(JoosC* joosc, const string& baseDir,
 	  const char *semanticError = Semantic::gSemanticErrorTypeName[static_cast<int>(
 					  result.middleend.semanticDB.error)];
 
-    #define logFmt "%3d %s:1 FT: %s, Semantic: %s, %s"
+    #define logFmt "%3d %s:1 FT: %s, Semantic: %s %s"
 
     if (!gStandAloneMode) {
 	    if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
@@ -325,6 +337,10 @@ void batchTesting(JoosC* joosc, const string& baseDir,
 	        Semantic::SemanticErrorType::NotFoundImport) {
 		    if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
 			    LOG_RED(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError, sdb->errMsg.c_str());
+			    // also print source code if it is a single .java file
+			    if (result.singleSource) {
+			    	fwrite(result.singleSource, strlen(result.singleSource), 1, stderr);
+			    }
 		    } else {
 			    LOG_GREEN(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError, sdb->errMsg.c_str());
 		    }

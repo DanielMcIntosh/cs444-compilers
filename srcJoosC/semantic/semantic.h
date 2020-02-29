@@ -84,7 +84,7 @@ void semanticDo(SemanticDB *sdb);
 #define GOFAIL() { \
 if (!Expression::gError.hasError) { \
 char buffer[2048]; \
-snprintf(buffer, ARRAY_SIZE(buffer), "%s \n%s:%d\n", __PRETTY_FUNCTION__, __FILE__, __LINE__); \
+snprintf(buffer, ARRAY_SIZE(buffer), "\n%s\n%s:%d\n", __PRETTY_FUNCTION__, __FILE__, __LINE__); \
 Expression::gError.hasError = true; \
 Expression::gError.function = std::string(buffer); } \
 goto fail;}

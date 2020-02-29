@@ -47,10 +47,18 @@ struct TypeResult {
 	TypeResult(Type const& type);
 	TypeResult(bool arr, TypePrimitive primT)
 		: isPrimitive(true), isArray(arr), primitiveType(primT), userDefinedType(nullptr) {}
-	bool isNum();
-	bool isJavaString();
-	bool isPrimitiveType(TypePrimitive primitive);
-	bool operator==(const TypeResult&other);
+  // is non array numeric type
+	bool isNum() const;
+	// is array or non array numeric type
+	bool isNumOrArrayNum() const;
+	// is java string
+	bool isJavaString() const;
+	// is non array primitive type
+	bool isPrimitiveType(TypePrimitive primitive) const;
+	bool operator==(const TypeResult&other) const;
+
+	// assignability (JLS 5), used in more than one place
+	bool canAssignToMe(const TypeResult &other) const ;
 };
 
 struct TypeDeduceError {
