@@ -45,6 +45,7 @@ enum class SemanticErrorType {
 	OverrideDifferentReturn,
 	OverridePublic,
 	OverrideFinal,
+	TypeCheck,
 	Max
 };
 
@@ -76,6 +77,10 @@ private:
 
 void semanticInit(SemanticDB *db, const std::vector<FrontendResult> &frontendResult);
 void semanticDo(SemanticDB *sdb);
+
+#define GOFAIL() {LOG("==%d==", gTestIndex); goto fail;}
+#define GOFAIL_IF_ERR(_err) if ((_err) != Semantic::SemanticErrorType::None) GOFAIL()
+#define OK() return Semantic::SemanticErrorType::None
 
 } // namespace Semantic
 

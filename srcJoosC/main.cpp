@@ -174,23 +174,26 @@ void batchTestingThread(BatchTestThreadCtx ctx) {
   for (int i = ctx.begin; i < ctx.end; ++i) {
     const string& topLevelName = (*ctx.topLevel)[i];
     BatchTestResult* caseResult = &(*ctx.result)[i];
+    gTestIndex = i + 1;
 
     fs::path dupPath = fs::path(topLevelName);
 
     // stdlib frontend result is reused each time, so don't free them
     vector<FrontendResult> frontendResults;
-    {
-      profileSection("copy stdlib frontend result");
-      frontendResults = *ctx.stdlibFrontendResult;
-    }
+	  {
+		  {
+			  profileSection("copy stdlib frontend result");
+			  frontendResults = *ctx.stdlibFrontendResult;
+		  }
 
-    {
-      // regenerate ast, since ast contains per compilation fields
-      profileSection("stdlib ast regen");
-      for (auto& frontend : frontendResults) {
-        frontend.astResult = AST::buildAST(frontend.parseResult.treeRoot);
-      }
-    }
+		  {
+			  // regenerate ast, since ast contains per compilation fields
+			  profileSection("stdlib ast regen");
+			  for (auto& frontend : frontendResults) {
+				  frontend.astResult = AST::buildAST(frontend.parseResult.treeRoot);
+			  }
+		  }
+	  }
 
     if (fs::is_regular_file(dupPath)) {
       frontendResults.emplace_back(
@@ -241,7 +244,7 @@ void batchTesting(JoosC* joosc, const string& baseDir,
 
   // perform frontend compilation on stdlib only once to speed things up
   vector<FrontendResult> stdlibFrontendResult;
-  {
+  if (!gStandAloneMode) {
     profileSection("stdlib frontend");
     for (const auto& libName : stdlib) {
       stdlibFrontendResult.emplace_back(
@@ -269,7 +272,7 @@ void batchTesting(JoosC* joosc, const string& baseDir,
   }
 
   int numTests = topLevelFileList.size();
-  int numThreads = 16;
+  int numThreads = 1;
 
   vector<thread> threads;
   vector<BatchTestResult> results(numTests);
@@ -298,15 +301,32 @@ void batchTesting(JoosC* joosc, const string& baseDir,
     const string& topLevelName = topLevelFileList[i];
     bool valid = result.frontendStage == FrontendStageType::Pass &&
                  result.middleend.failedStage == MiddleendStageType::Pass;
-    if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
-      LOG_RED("%3d %s: (Semantic: %s)", i + 1, topLevelName.c_str(),
-              Semantic::gSemanticErrorTypeName[static_cast<int>(
-                  result.middleend.semanticDB.error)]);
+	  if (valid == isProgramValidFromFileName(topLevelName.c_str())) {
+		  ++numPassed;
+	  }
+	  const char *frontEndStageName = gFrontendStageName[static_cast<int>(result.frontendStage)];
+	  const char *semanticError = Semantic::gSemanticErrorTypeName[static_cast<int>(
+					  result.middleend.semanticDB.error)];
+
+    #define logFmt "%3d %s: (FT: %s, Semantic: %s)"
+
+    if (!gStandAloneMode) {
+	    if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
+		    LOG_RED(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError);
+	    } else {
+		    LOG_GREEN(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError);
+	    }
     } else {
-      LOG_GREEN("%3d %s: (Semantic: %s)", i + 1, topLevelName.c_str(),
-                Semantic::gSemanticErrorTypeName[static_cast<int>(
-                    result.middleend.semanticDB.error)]);
-      ++numPassed;
+    	// In standalone mode,
+    	// ignore NotFoundImport error
+    	if (result.middleend.semanticDB.error !=
+	        Semantic::SemanticErrorType::NotFoundImport) {
+		    if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
+			    LOG_RED(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError);
+		    } else {
+			    LOG_GREEN(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError);
+		    }
+	    }
     }
   }
 
@@ -333,12 +353,14 @@ void checkTestMode(JoosC* joosc) {
   strdecl256(progFolder, "%s/a%d/", assnBase, num);
 
   vector<string> stdlib;
-  if (num >= 2) {
+  if (num >= 2 && num <= 5) {
     const char* libBase = "tests/stdlib";
     strdecl256(libFolder, "%s/%d.0/", libBase, num);
     getJavaFilesRecursive(stdlib, string(libFolder));
     stdlib.push_back("tests/stdlib/IObject.java");
   }
+  if (num >= 6||num == 3)
+  	gStandAloneMode = true;
   batchTesting(joosc, string(progFolder), stdlib, num);
 }
 

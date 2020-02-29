@@ -47,6 +47,9 @@ struct TypeResult {
 	TypeResult(Type const& type);
 	TypeResult(bool arr, TypePrimitive primT)
 		: isPrimitive(true), isArray(arr), primitiveType(primT), userDefinedType(nullptr) {}
+	bool isNum();
+	bool isJavaString();
+	bool isPrimitiveType(TypePrimitive primitive);
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -66,8 +69,9 @@ public:
 
 	TypeResult typeResult;
 	std::unique_ptr<Type> exprType;
-protected:
 	virtual Semantic::SemanticErrorType deduceType();
+protected:
+
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -85,6 +89,7 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+	Semantic::SemanticErrorType deduceType() override;
 protected:
 	std::unique_ptr<Expression> array;
 	std::unique_ptr<Expression> index;
@@ -105,8 +110,7 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
-
-
+	Semantic::SemanticErrorType deduceType() override;
 protected:
 	// IMPORTANT: during construction, we have to change type->isArray to true
 	std::unique_ptr<Type> type;
@@ -128,6 +132,8 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+	Semantic::SemanticErrorType deduceType() override;
+
 protected:
 	std::unique_ptr<Expression> lhs;
 	std::unique_ptr<Expression> rhs;
@@ -156,6 +162,7 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+	Semantic::SemanticErrorType deduceType() override;
 
 	enum class Variant {
 		Add,		// Accept Int, Return Int

@@ -43,7 +43,8 @@ const char *gSemanticErrorTypeName[] = {
 	"OverrideStatic",
 	"OverrideDifferentReturn",
 	"OverridePublic",
-	"OverrideFinal"
+	"OverrideFinal",
+	"TypeCheck",
 };
 
 static_assert(static_cast<int>(SemanticErrorType::Max) == ARRAY_SIZE(gSemanticErrorTypeName));
@@ -248,7 +249,7 @@ void semanticDo(SemanticDB *sdb) {
 		if (!cpu->typeDeclaration)
 			continue;
 
-		{ // inject java.lang.* multiimport
+		if (!gStandAloneMode) { // inject java.lang.* multiimport
 			auto imp = make_unique<ImportDeclaration>();
 			auto name = make_unique<Name>(std::vector<std::string>{"java", "lang"});
 			imp->multiImport = true;
@@ -299,7 +300,10 @@ void semanticDo(SemanticDB *sdb) {
 
 		TypeDeclaration *typeDecl = cpu->typeDeclaration.get();
 
-		auto object = sdb->typeMap["java.lang.Object"];
+		TypeDeclaration *object = nullptr;
+		if (!gStandAloneMode) {
+			object = sdb->typeMap["java.lang.Object"];
+		}
 		// resolve superclass and 'implements' types, and initialize TypeDeclaration::children
 		if (SemanticErrorType err = typeDecl->resolveSuperTypeNames(*sdb, object);
 			err != SemanticErrorType::None)

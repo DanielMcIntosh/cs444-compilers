@@ -116,3 +116,9 @@ struct FrontendResult {
 };
 
 EXPORT void frontendResultDelete(FrontendResult* result);
+
+// disable all assumptions about availability of external java files (java.lang.*)
+// for testing
+EXPORT extern bool gStandAloneMode;
+// 1'based test index
+EXPORT extern thread_local int gTestIndex;

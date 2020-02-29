@@ -19,3 +19,6 @@ Parse::ParseResult::ParseResult() : treeRoot(nullptr), errorLexTokenIndex(-1),
 Weeder::WeederResult::WeederResult(): valid(false), theMutex(nullptr) {
 
 }
+
+bool gStandAloneMode;
+thread_local int gTestIndex;

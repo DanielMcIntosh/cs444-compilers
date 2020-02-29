@@ -20,45 +20,34 @@ namespace AST
 Semantic::SemanticErrorType ConditionalStatement::resolveExprs(Semantic::Scope &parentScope)
 {
 	Semantic::Scope mainScope(parentScope);
+	Semantic::SemanticErrorType err;
 	if (init)
 	{
-		if (Semantic::SemanticErrorType err = init->resolveExprs(mainScope);
-			err != Semantic::SemanticErrorType::None)
-		{
-			return err;
-		}
+		err = init->resolveExprs(mainScope);
+		GOFAIL_IF_ERR(err);
 	}
 	if (condition)
 	{
-		if (Semantic::SemanticErrorType err = condition->resolveAndDeduce(mainScope);
-			err != Semantic::SemanticErrorType::None)
-		{
-			throw err;
-		}
+		err = condition->resolveAndDeduce(mainScope);
+		GOFAIL_IF_ERR(err);
 	}
 	if (increment)
 	{
-		if (Semantic::SemanticErrorType err = increment->resolveAndDeduce(mainScope);
-			err != Semantic::SemanticErrorType::None)
-		{
-			throw err;
-		}
+		err = increment->resolveAndDeduce(mainScope);
+		GOFAIL_IF_ERR(err);
 	}
-	if (Semantic::SemanticErrorType err = body->resolveExprs(mainScope);
-		err != Semantic::SemanticErrorType::None)
-	{
-		return err;
-	}
+	err = body->resolveExprs(mainScope);
+	GOFAIL_IF_ERR(err);
 	if (elseBody)
 	{
 		Semantic::Scope elseScope(parentScope);
-		if (Semantic::SemanticErrorType err = elseBody->resolveExprs(elseScope);
-			err != Semantic::SemanticErrorType::None)
-		{
-			return err;
-		}
+		err = elseBody->resolveExprs(elseScope);
+		GOFAIL_IF_ERR(err);
 	}
-	return Semantic::SemanticErrorType::None;
+	OK();
+
+	fail:
+	return err;
 }
 
 //////////////////////////////////////////////////////////////////////////////

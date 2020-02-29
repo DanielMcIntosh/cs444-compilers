@@ -78,6 +78,8 @@ public:
 	virtual bool equals(const Type *other) const override { return other->equalsDerived(this); };
 	std::string toCode() const override;
 
+	static thread_local int val;
+
 protected:
 	using Type::equalsDerived;
 	virtual bool equalsDerived(const PrimitiveType *other) const override { return type == other->type; }

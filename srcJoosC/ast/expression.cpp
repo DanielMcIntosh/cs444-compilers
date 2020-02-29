@@ -230,16 +230,180 @@ SemanticErrorType FieldAccess::deduceType()
 	//*/
 	return SemanticErrorType::None;
 }
-SemanticErrorType Literal::deduceType()
-{
-	typeResult = std::visit(visitor {
-		[](unsigned int)	{ return TypeResult{false, TypePrimitive::Int}; },
-		[](bool)			{ return TypeResult{false, TypePrimitive::Boolean}; },
-		[](char)			{ return TypeResult{false, TypePrimitive::Char}; },
-		[](std::string) 	{ return TypeResult(*(Literal::stringDecl->asType())); },
-		[](std::nullptr_t)	{ return TypeResult{false, TypePrimitive::Null}; }
+SemanticErrorType Literal::deduceType() {
+	typeResult = std::visit(visitor{
+					[](unsigned int) { return TypeResult{false, TypePrimitive::Int}; },
+					[](bool) { return TypeResult{false, TypePrimitive::Boolean}; },
+					[](char) { return TypeResult{false, TypePrimitive::Char}; },
+					[](std::string&) {
+						return !gStandAloneMode ? TypeResult(*(Literal::stringDecl->asType())) : TypeResult(); },
+					[](std::nullptr_t) { return TypeResult{false, TypePrimitive::Null}; }
 	}, value);
 	return SemanticErrorType::None;
+}
+
+Semantic::SemanticErrorType ArrayAccess::deduceType() {
+	auto err = array->deduceType();
+	GOFAIL_IF_ERR(err);
+	err = index->deduceType();
+	GOFAIL_IF_ERR(err);
+	if (!array->typeResult.isArray)
+		GOFAIL();
+
+	if (!index->typeResult.isNum())
+		GOFAIL();
+
+	typeResult = array->typeResult;
+	typeResult.isArray = false;
+
+	OK();
+
+	fail:
+	err = Semantic::SemanticErrorType::TypeCheck;
+	return err;
+}
+
+SemanticErrorType ArrayCreationExpression::deduceType() {
+	auto err = size->deduceType();
+	GOFAIL_IF_ERR(err);
+	if (!size->typeResult.isNum())
+		GOFAIL();
+
+	typeResult.isArray = true;
+	if (type->nodeType == NodeType::PrimitiveType) {
+		auto item = (PrimitiveType*)type.get();
+		typeResult.isPrimitive = true;
+		typeResult.primitiveType = static_cast<TypePrimitive>(item->type);
+	} else if (type->nodeType == NodeType::NameType) {
+		auto item = (NameType*)type.get();
+		typeResult.isPrimitive = false;
+		typeResult.userDefinedType = item->declaration;
+	} else {
+		ASSERT(false);
+	}
+
+	OK();
+
+	fail:
+	err = SemanticErrorType::TypeCheck;
+	return err;
+}
+
+SemanticErrorType AssignmentExpression::deduceType() {
+	auto err = lhs->deduceType();
+	GOFAIL_IF_ERR(err);
+	err = rhs->deduceType();
+	GOFAIL_IF_ERR(err);
+
+	OK();
+
+	fail:
+	err = Semantic::SemanticErrorType::TypeCheck;
+	return err;
+}
+
+bool IsArithmeticOp(BinaryExpression::Variant op) {
+	return (op == BinaryExpression::Variant::Add ||
+	        op == BinaryExpression::Variant::Sub ||
+	        op == BinaryExpression::Variant::Mult ||
+	        op == BinaryExpression::Variant::Div ||
+	        op == BinaryExpression::Variant::Mod);
+}
+
+bool IsNumCompare(BinaryExpression::Variant op) {
+	return (op == BinaryExpression::Variant::Lt ||
+	        op == BinaryExpression::Variant::Gt ||
+	        op == BinaryExpression::Variant::LtEq ||
+	        op == BinaryExpression::Variant::GtEq);
+}
+
+bool IsBooleanOp(BinaryExpression::Variant op) {
+	return (op == BinaryExpression::Variant::EagerAnd ||
+	        op == BinaryExpression::Variant::EagerOr ||
+	        op == BinaryExpression::Variant::LazyAnd ||
+	        op == BinaryExpression::Variant::LazyOr);
+}
+
+std::tuple<TypeResult, bool> BinExprHelper(Expression* lhs, Expression* rhs,
+                                           BinaryExpression::Variant op) {
+	TypeResult result;
+	result.isPrimitive = true;
+	result.isArray = false;
+
+	bool bothNum = lhs->typeResult.isNum() && rhs->typeResult.isNum();
+	bool bothBool = lhs->typeResult.isPrimitiveType(TypePrimitive::Boolean) &&
+	                rhs->typeResult.isPrimitiveType(TypePrimitive::Boolean);
+
+	if (bothNum && IsArithmeticOp(op)) {
+		result.primitiveType = TypePrimitive::Int;
+		return std::make_tuple(result, true);
+	}
+
+	if (bothNum && IsNumCompare(op)) {
+		result.primitiveType = TypePrimitive::Boolean;
+		return std::make_tuple(result, true);
+	}
+
+	if (bothBool && IsBooleanOp(op)) {
+		result.primitiveType = TypePrimitive::Boolean;
+		return std::make_tuple(result, true);
+	}
+
+	if ((bothBool || bothNum) &&
+	    (op == BinaryExpression::Variant::Eq || op == BinaryExpression::Variant::NEq)) {
+		result.primitiveType = TypePrimitive::Boolean;
+		return std::make_tuple(result, true);
+	}
+
+	Expression *theStr = nullptr;
+	if (lhs->typeResult.isJavaString() && !rhs->typeResult.isArray &&
+	    rhs->typeResult.isPrimitive && rhs->typeResult.primitiveType != TypePrimitive::Void)
+		theStr = lhs;
+	else if (rhs->typeResult.isJavaString() && !lhs->typeResult.isArray &&
+	         lhs->typeResult.isPrimitive && lhs->typeResult.primitiveType != TypePrimitive::Void)
+		theStr = rhs;
+
+	if (!theStr)
+		return std::make_tuple(result, false);
+
+	return std::make_tuple(theStr->typeResult, true);
+}
+
+SemanticErrorType BinaryExpression::deduceType() {
+	auto err = lhs->deduceType();
+	GOFAIL_IF_ERR(err);
+
+	std::visit(visitor {
+					[&](std::unique_ptr<Expression> &rexpr) {
+						err = rexpr->deduceType();
+						if (err != SemanticErrorType::None)
+							return;
+
+						auto [res, valid] = BinExprHelper(lhs.get(), rexpr.get(), op);
+						if (valid)
+							typeResult = res;
+						else
+							err = Semantic::SemanticErrorType::TypeCheck;
+
+					},
+					[&](std::unique_ptr<Type> &type) {
+						if (lhs->typeResult.isPrimitive || op != BinaryExpression::Variant::InstanceOf) {
+							err = Semantic::SemanticErrorType::TypeCheck;
+							return;
+						}
+
+						typeResult.isArray = false;
+						typeResult.isPrimitive = true;
+						typeResult.primitiveType = TypePrimitive::Boolean;
+					}
+	}, rhs);
+
+	GOFAIL_IF_ERR(err);
+	OK();
+
+	fail:
+	err = Semantic::SemanticErrorType::TypeCheck;
+	return err;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -832,7 +996,6 @@ ArrayAccess::ArrayAccess(const Parse::TArrayAccess *ptNode)
 	nodeType = NodeType::ArrayAccess;
 }
 
-
 ArrayCreationExpression::ArrayCreationExpression(const Parse::TArrayCreationExpression *ptNode)
 				: type(Type::create((ptNode->v == Parse::TArrayCreationExpressionV::NewPrimitiveTypeLSBrExpressionRSBr)
 				                    ? (const Parse::Tree *)ptNode->primitiveType
@@ -1174,4 +1337,21 @@ std::ostream& operator<<(std::ostream& os, UnaryExpression::Variant type)
 TypeResult::TypeResult(): isPrimitive(true), isArray(false), primitiveType(TypePrimitive::Max), userDefinedType(nullptr) {
 
 }
+
+bool TypeResult::isNum() {
+	return !isArray && isPrimitive && (primitiveType == TypePrimitive::Int ||
+	                       primitiveType == TypePrimitive::Short ||
+	                       primitiveType == TypePrimitive::Byte ||
+	                       primitiveType == TypePrimitive::Char);
+
+}
+
+bool TypeResult::isJavaString() {
+	return !isPrimitive && !isArray && (false);
+}
+
+bool TypeResult::isPrimitiveType(TypePrimitive primitive) {
+	return isPrimitive && !isArray && primitiveType == primitive;
+}
+
 } //namespace AST

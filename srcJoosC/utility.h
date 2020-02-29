@@ -52,9 +52,9 @@ typedef int16_t s16;
 #define ASSERT2(_exp, _fmt, ...) \
   assertImpl_((bool)(_exp), #_exp, _fmt, ##__VA_ARGS__)
 #define FAILED(_str) \
-  failedImpl(_str, __FILE__, __LINE__, __func__)
+  failedImpl(_str, __FILE__, __LINE__, __PRETTY_FUNCTION__)
 #define LOG(fmt, ...) \
-  logImpl((fmt), __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+  logImpl((fmt), __FILE__, __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__)
 #define LOGR(fmt, ...) logImplRaw((fmt), ##__VA_ARGS__)
 #define LOGI(_level, _fmt, ...) LOG("%*s" _fmt, _level, "", ##__VA_ARGS__)
 #define LOGIR(_level, _fmt, ...) LOGR("%*s" _fmt, _level, "", ##__VA_ARGS__)

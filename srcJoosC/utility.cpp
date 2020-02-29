@@ -66,10 +66,13 @@ void logImpl(const char* str,
   getCivicTime(&info);
 
   char logHeader[TWO_TO_EIGHT];
+  /*
   snprintf(logHeader, ARRAY_SIZE(logHeader),
-           "%d/%d %2d:%02d:%02d.%03d %s:%4d:\n", info.month, info.day,
-           info.hour, info.minute, info.second, info.millisecond, file, line);
-
+           "%d/%d %2d:%02d:%02d.%03d %s %s:%d:\n", info.month, info.day,
+           info.hour, info.minute, info.second, info.millisecond, func, file, line);
+*/
+  snprintf(logHeader, ARRAY_SIZE(logHeader),
+           "%s %s:%d:", func, file, line);
   fprintf(stderr, "%s", logHeader);
 
   char logEntry[TWO_TO_EIGHT];
@@ -78,7 +81,7 @@ void logImpl(const char* str,
   vsnprintf(logEntry, ARRAY_SIZE(logEntry), str, arg);
   va_end(arg);
 
-  fprintf(stderr, "%s", logEntry);
+  fprintf(stderr, "%s\n", logEntry);
 }
 
 void globalInit() {

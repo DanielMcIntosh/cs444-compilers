@@ -134,8 +134,10 @@ std::string TypeDeclaration::toCode() const
 
 SemanticErrorType TypeDeclaration::resolveSuperTypeNames(Semantic::SemanticDB const& semantic, TypeDeclaration* object)
 {
-	if (!superClass && !isInterface && fqn != "java.lang.Object") {
-		object->children.push_back(this);
+	if (!gStandAloneMode) {
+		if (!superClass && !isInterface && fqn != "java.lang.Object") {
+			object->children.push_back(this);
+		}
 	}
 	if (superClass)
 	{
@@ -210,9 +212,11 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 {
 	TypeDeclaration *super = superClass ? superClass->getDeclaration() : nullptr;
 
-	// If this is a class without a superclass, extend java.lang.Object
-	if (!isInterface && !superClass && fqn != "java.lang.Object") {
-		super = object;
+	if (!gStandAloneMode) {
+		// If this is a class without a superclass, extend java.lang.Object
+		if (!isInterface && !superClass && fqn != "java.lang.Object") {
+			super = object;
+		}
 	}
 	if (super) {
 		// A class must not extend an interface
@@ -259,12 +263,14 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 		superSet.push_back(ext);
 	}
 
-	// If this is an interface without a superinterface, add IObject methods to declare set
-	if (isInterface && !superClass && fqn != "java.lang.IObject") {
-		for (auto &member : iObject->members) {
-			assert(member->getTypeId() == 1);
-			auto m = static_cast<MethodDeclaration*>(member.get());
-			methodSets.declareSet.push_back(m);
+	if (!gStandAloneMode) {
+		// If this is an interface without a superinterface, add IObject methods to declare set
+		if (isInterface && !superClass && fqn != "java.lang.IObject") {
+			for (auto &member : iObject->members) {
+				assert(member->getTypeId() == 1);
+				auto m = static_cast<MethodDeclaration *>(member.get());
+				methodSets.declareSet.push_back(m);
+			}
 		}
 	}
 	// build declare sets
