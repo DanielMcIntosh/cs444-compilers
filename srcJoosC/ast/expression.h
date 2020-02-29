@@ -50,6 +50,12 @@ struct TypeResult {
 	bool isNum();
 	bool isJavaString();
 	bool isPrimitiveType(TypePrimitive primitive);
+	bool operator==(const TypeResult&other);
+};
+
+struct TypeDeduceError {
+	bool hasError;
+	std::string function;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -70,6 +76,9 @@ public:
 	TypeResult typeResult;
 	std::unique_ptr<Type> exprType;
 	virtual Semantic::SemanticErrorType deduceType();
+
+	static void resetError();
+	static thread_local TypeDeduceError gError;
 protected:
 
 };
@@ -283,6 +292,7 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType deduceType() override;
+	static bool isJavaString(TypeDeclaration *decl);
 protected:
 	std::variant<unsigned int, bool, char, std::string, std::nullptr_t > value;
 	static thread_local TypeDeclaration *stringDecl;

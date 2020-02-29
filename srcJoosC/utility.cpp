@@ -48,7 +48,7 @@ void strFlushFILE(std::string* output, FILE* file) {
 }
 
 void logImplRaw(const char* str, ...) {
-  char logEntry[TWO_TO_EIGHT];
+  char logEntry[1024];
   va_list arg;
   va_start(arg, str);
   vsnprintf(logEntry, ARRAY_SIZE(logEntry), str, arg);
@@ -65,7 +65,7 @@ void logImpl(const char* str,
   CivicTimeInfo info;
   getCivicTime(&info);
 
-  char logHeader[TWO_TO_EIGHT];
+  char logHeader[1024];
   /*
   snprintf(logHeader, ARRAY_SIZE(logHeader),
            "%d/%d %2d:%02d:%02d.%03d %s %s:%d:\n", info.month, info.day,
@@ -75,7 +75,7 @@ void logImpl(const char* str,
            "%s %s:%d:", func, file, line);
   fprintf(stderr, "%s", logHeader);
 
-  char logEntry[TWO_TO_EIGHT];
+  char logEntry[1024];
   va_list arg;
   va_start(arg, func);
   vsnprintf(logEntry, ARRAY_SIZE(logEntry), str, arg);

@@ -8,6 +8,7 @@
 #include "ast/typeBody.h"
 #include "ast/name.h"
 #include "ast/methodDeclaration.h"
+#include "ast/expression.h"
 #include "parse/parseTree.h"
 #include "semantic/semantic.h"
 #include "semantic/scope.h"

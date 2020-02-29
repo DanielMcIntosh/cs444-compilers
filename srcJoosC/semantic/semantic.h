@@ -65,6 +65,7 @@ struct SemanticDB {
   std::unordered_map<std::string, AST::TypeDeclaration *> typeMap;
   Trie packageTrie;
   SemanticErrorType error;
+  std::string errMsg;
 
   SemanticDB();
   ~SemanticDB() = default;
@@ -80,7 +81,14 @@ private:
 void semanticInit(SemanticDB *db, const std::vector<FrontendResult> &frontendResult);
 void semanticDo(SemanticDB *sdb);
 
-#define GOFAIL() {LOG("==%d==", gTestIndex); goto fail;}
+#define GOFAIL() { \
+if (!Expression::gError.hasError) { \
+char buffer[2048]; \
+snprintf(buffer, ARRAY_SIZE(buffer), "%s \n%s:%d\n", __PRETTY_FUNCTION__, __FILE__, __LINE__); \
+Expression::gError.hasError = true; \
+Expression::gError.function = std::string(buffer); } \
+goto fail;}
+
 #define GOFAIL_IF_ERR(_err) if ((_err) != Semantic::SemanticErrorType::None) GOFAIL()
 #define OK() return Semantic::SemanticErrorType::None
 

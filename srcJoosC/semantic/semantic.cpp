@@ -370,12 +370,14 @@ void semanticDo(SemanticDB *sdb) {
 		}
 	}
 
+	Expression::resetError();
 	for (auto *typeDecl : allTypes)
 	{
 		if (SemanticErrorType err = typeDecl->resolveBodyExprs();
 			err != SemanticErrorType::None)
 		{
 			sdb->error = err;
+			sdb->errMsg = Expression::gError.function;
 			return;
 		}
 	}

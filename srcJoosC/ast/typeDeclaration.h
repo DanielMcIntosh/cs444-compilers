@@ -68,7 +68,7 @@ protected:
 
 public:
 	std::string name;
-protected:
+
 	// null for interfaces and classes without a superclass
 	std::unique_ptr<NameType> superClass;
 	// implements if we're a class, extends if we're an interface

@@ -13,8 +13,13 @@
 using Semantic::SemanticErrorType;
 namespace AST
 {
-
 thread_local TypeDeclaration *Literal::stringDecl;
+thread_local TypeDeduceError Expression::gError;
+
+void Expression::resetError() {
+	gError.hasError = false;
+	gError.function.clear();
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -243,12 +248,15 @@ SemanticErrorType Literal::deduceType() {
 }
 
 Semantic::SemanticErrorType ArrayAccess::deduceType() {
+	// array must be array type
 	if (!array->typeResult.isArray)
 		GOFAIL();
 
+	// index must be numerical type
 	if (!index->typeResult.isNum())
 		GOFAIL();
 
+	// resulting type is the type of the array with array dropped
 	typeResult = array->typeResult;
 	typeResult.isArray = false;
 
@@ -259,15 +267,19 @@ Semantic::SemanticErrorType ArrayAccess::deduceType() {
 }
 
 SemanticErrorType ArrayCreationExpression::deduceType() {
+	// size must be numerical type
 	if (!size->typeResult.isNum())
 		GOFAIL();
 
+	// result will be of array type
 	typeResult.isArray = true;
 	if (type->nodeType == NodeType::PrimitiveType) {
 		auto item = (PrimitiveType*)type.get();
+		// array of primitive value
 		typeResult.isPrimitive = true;
 		typeResult.primitiveType = static_cast<TypePrimitive>(item->type);
 	} else if (type->nodeType == NodeType::NameType) {
+		// array of objects of a user-defined type
 		auto item = (NameType*)type.get();
 		typeResult.isPrimitive = false;
 		typeResult.userDefinedType = item->declaration;
@@ -282,9 +294,33 @@ SemanticErrorType ArrayCreationExpression::deduceType() {
 }
 
 SemanticErrorType AssignmentExpression::deduceType() {
+	typeResult = rhs->typeResult;
+	// same type on both sides
+	if (lhs->typeResult == rhs->typeResult)
+		OK();
+	// short <- byte or short[] <- byte[]
+	if (lhs->typeResult.primitiveType == TypePrimitive::Short &&
+	    rhs->typeResult.primitiveType == TypePrimitive::Byte)
+		OK();
+	// int <- char or int[] <- char []
+	if (lhs->typeResult.primitiveType == TypePrimitive::Int &&
+	    rhs->typeResult.primitiveType == TypePrimitive::Char)
+		OK();
+	// C := null where C is a class TODO can an array be null also?
+	if (!lhs->typeResult.isPrimitive && !lhs->typeResult.isArray &&
+	     rhs->typeResult.isPrimitiveType(TypePrimitive::Null))
+		OK();
+	// both are (either single or array of) objects
+	if (!lhs->typeResult.isPrimitive && !rhs->typeResult.isPrimitive) {
+		// same type on both sides is handled at the top
+		for (auto *decl : rhs->typeResult.userDefinedType->superSet) {
+			// assigning to super class
+			if (lhs->typeResult.userDefinedType == decl)
+				OK();
+		}
+	}
 
-	OK();
-
+	GOFAIL(); // to print error
 	fail:
 	return Semantic::SemanticErrorType::TypeCheck;
 }
@@ -342,16 +378,15 @@ std::tuple<TypeResult, bool> BinExprHelper(Expression* lhs, Expression* rhs,
 		return std::make_tuple(result, true);
 	}
 
+	// At this point, only string concatenation remains
 	Expression *theStr = nullptr;
-	if (lhs->typeResult.isJavaString() && !rhs->typeResult.isArray &&
-	    rhs->typeResult.isPrimitive && rhs->typeResult.primitiveType != TypePrimitive::Void)
+	if (lhs->typeResult.isJavaString() && !rhs->typeResult.isPrimitiveType(TypePrimitive::Void))
 		theStr = lhs;
-	else if (rhs->typeResult.isJavaString() && !lhs->typeResult.isArray &&
-	         lhs->typeResult.isPrimitive && lhs->typeResult.primitiveType != TypePrimitive::Void)
+	else if (rhs->typeResult.isJavaString() && !lhs->typeResult.isPrimitiveType(TypePrimitive::Void))
 		theStr = rhs;
 
 	if (!theStr)
-		return std::make_tuple(result, false);
+		return std::make_tuple(TypeResult(), false);
 
 	return std::make_tuple(theStr->typeResult, true);
 }
@@ -368,7 +403,9 @@ SemanticErrorType BinaryExpression::deduceType() {
 
 					},
 					[&](std::unique_ptr<Type> &type) {
-						if (lhs->typeResult.isPrimitive || op != BinaryExpression::Variant::InstanceOf) {
+						if (lhs->typeResult.isPrimitive ||
+						    lhs->typeResult.isArray ||
+						    op != BinaryExpression::Variant::InstanceOf) {
 							err = Semantic::SemanticErrorType::TypeCheck;
 							return;
 						}
@@ -464,6 +501,7 @@ SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const
 
 SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 {
+
 	SemanticErrorType ret = SemanticErrorType::None;
 	Type &sourceDecl = std::visit(visitor{
 		[&ret, &scope](std::unique_ptr<Expression> &expr) -> Type& {
@@ -1217,6 +1255,10 @@ Literal::Literal(const Parse::TLiteral *ptNode)
 	}
 }
 
+bool Literal::isJavaString(TypeDeclaration *decl) {
+	return decl == stringDecl;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // LocalVariableExpression
@@ -1327,11 +1369,18 @@ bool TypeResult::isNum() {
 }
 
 bool TypeResult::isJavaString() {
-	return !isPrimitive && !isArray && (false);
+	return !isPrimitive && !isArray && Literal::isJavaString(userDefinedType);
 }
 
 bool TypeResult::isPrimitiveType(TypePrimitive primitive) {
 	return isPrimitive && !isArray && primitiveType == primitive;
+}
+
+bool TypeResult::operator==(const TypeResult &other) {
+	return isPrimitive == other.isPrimitive &&
+	       isArray == other.isArray &&
+					(isPrimitive ? primitiveType == other.primitiveType :
+					               userDefinedType == other.userDefinedType);
 }
 
 } //namespace AST

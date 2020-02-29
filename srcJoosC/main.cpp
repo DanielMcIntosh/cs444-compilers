@@ -304,17 +304,19 @@ void batchTesting(JoosC* joosc, const string& baseDir,
 	  if (valid == isProgramValidFromFileName(topLevelName.c_str())) {
 		  ++numPassed;
 	  }
+
+	  const Semantic::SemanticDB *sdb = &result.middleend.semanticDB;
 	  const char *frontEndStageName = gFrontendStageName[static_cast<int>(result.frontendStage)];
 	  const char *semanticError = Semantic::gSemanticErrorTypeName[static_cast<int>(
 					  result.middleend.semanticDB.error)];
 
-    #define logFmt "%3d %s: (FT: %s, Semantic: %s)"
+    #define logFmt "%3d %s:1 FT: %s, Semantic: %s, %s"
 
     if (!gStandAloneMode) {
 	    if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
-		    LOG_RED(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError);
+		    LOG_RED(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError, sdb->errMsg.c_str());
 	    } else {
-		    LOG_GREEN(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError);
+		    LOG_GREEN(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError, sdb->errMsg.c_str());
 	    }
     } else {
     	// In standalone mode,
@@ -322,9 +324,9 @@ void batchTesting(JoosC* joosc, const string& baseDir,
     	if (result.middleend.semanticDB.error !=
 	        Semantic::SemanticErrorType::NotFoundImport) {
 		    if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
-			    LOG_RED(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError);
+			    LOG_RED(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError, sdb->errMsg.c_str());
 		    } else {
-			    LOG_GREEN(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError);
+			    LOG_GREEN(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError, sdb->errMsg.c_str());
 		    }
 	    }
     }
@@ -358,15 +360,15 @@ void checkTestMode(JoosC* joosc, const char *argv1) {
   }
   if (!num) return;
 
-  const char* assnBase = "tests/assignment_testcases";
+  const char* assnBase = "./tests/assignment_testcases";
   strdecl256(progFolder, "%s/a%d/", assnBase, num);
 
   vector<string> stdlib;
   if (num >= 2 && num <= 5) {
-    const char* libBase = "tests/stdlib";
+    const char* libBase = "./tests/stdlib";
     strdecl256(libFolder, "%s/%d.0/", libBase, num);
     getJavaFilesRecursive(stdlib, string(libFolder));
-    stdlib.push_back("tests/stdlib/IObject.java");
+    stdlib.push_back("./tests/stdlib/IObject.java");
   }
   if (num >= 6||num == 3)
   	gStandAloneMode = true;
@@ -427,7 +429,7 @@ int main(int argc, const char** argv) {
   {
     profileSection("compile main");
     if (fileList.empty()) return 0;
-    fileList.push_back("tests/stdlib/IObject.java");
+    fileList.push_back("./tests/stdlib/IObject.java");
     return compileMain(&joosc, fileList);
   }
 }
