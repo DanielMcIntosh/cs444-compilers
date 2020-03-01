@@ -44,11 +44,11 @@ std::string FieldDeclaration::toCode() const
 	return str;
 }
 
-bool FieldDeclaration::equals(FieldDeclaration *other) {
+bool FieldDeclaration::equals(const FieldDeclaration *other) const {
   return declaration->equals(other->declaration.get());
 }
 
-bool FieldDeclaration::idEquals(FieldDeclaration *other) const {
+bool FieldDeclaration::idEquals(const FieldDeclaration *other) const {
 	return declaration->idEquals(other->declaration.get());
 }
 bool FieldDeclaration::idEquals(const FieldAccess *other) const

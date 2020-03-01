@@ -19,6 +19,7 @@ public:
 
 	bool add(std::unique_ptr<AST::VariableDeclaration> const&);
 	bool add(const AST::VariableDeclaration *);
+	[[gnu::pure]]
 	bool isRoot();
 	const AST::VariableDeclaration *findDecl(std::string id) const;
 
@@ -27,6 +28,7 @@ protected:
 	Scope &_parent = *this;
 	std::vector<const AST::VariableDeclaration *> _declarations;
 private:
+	[[gnu::pure]]
 	bool doesConflict(const AST::VariableDeclaration *) const;
 };
 

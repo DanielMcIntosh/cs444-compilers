@@ -47,19 +47,19 @@ MemberDeclaration::MemberDeclaration(std::vector<std::unique_ptr<Modifier>> mods
 	}
 }
 
-bool MemberDeclaration::equals(FieldDeclaration *) {
+bool MemberDeclaration::equals(const FieldDeclaration *) const {
 	return false;
 }
 
-bool MemberDeclaration::equals(MemberDeclaration *) {
+bool MemberDeclaration::equals(const MemberDeclaration *) const {
 	return false;
 }
 
-bool MemberDeclaration::equals(ConstructorDeclaration *) {
+bool MemberDeclaration::equals(const ConstructorDeclaration *) const {
 	return false;
 }
 
-bool MemberDeclaration::equals(MethodDeclaration *) {
+bool MemberDeclaration::equals(const MethodDeclaration *) const {
 	return false;
 }
 

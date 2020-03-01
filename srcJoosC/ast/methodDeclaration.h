@@ -22,10 +22,14 @@ public:
 	std::string toCode() const override;
 
 	using MemberDeclaration::equals;
-	virtual bool equals(MethodDeclaration *) override;
-	bool signatureEquals(MethodDeclaration *other);
-	bool signatureEquals(MethodInvocation *invocation);
-	bool returnEquals(MethodDeclaration *other);
+	[[gnu::pure]]
+	virtual bool equals(const MethodDeclaration *) const override;
+	[[gnu::pure]]
+	bool signatureEquals(const MethodDeclaration *other) const;
+	[[gnu::pure]]
+	bool signatureEquals(const MethodInvocation *invocation) const;
+	[[gnu::pure]]
+	bool returnEquals(const MethodDeclaration *other) const;
 
 	virtual int getTypeId() override { return 1; }
 

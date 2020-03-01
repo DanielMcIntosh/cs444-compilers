@@ -90,6 +90,9 @@ public:
 	// Need to contain all top level parents
 	std::vector<TypeDeclaration *> superSet;
 
+	// Contains indirect and direct parents
+	std::vector<TypeDeclaration *> hyperSet;
+
 	template <class DeclType>
 	struct MemberSets{
 		// Declare.

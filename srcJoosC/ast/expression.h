@@ -47,13 +47,17 @@ struct TypeResult {
 	TypeResult(Type const& type);
 	TypeResult(bool arr, TypePrimitive primT)
 		: isPrimitive(true), isArray(arr), primitiveType(primT), userDefinedType(nullptr) {}
-  // is non array numeric type
+ 	// is non array numeric type
+	[[gnu::pure]]
 	bool isNum() const;
 	// is array or non array numeric type
+	[[gnu::pure]]
 	bool isNumOrArrayNum() const;
 	// is java string
+	[[gnu::pure]]
 	bool isJavaString() const;
 	// is non array primitive type
+	[[gnu::pure]]
 	bool isPrimitiveType(TypePrimitive primitive) const;
 	bool operator==(const TypeResult&other) const;
 

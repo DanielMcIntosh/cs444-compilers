@@ -69,7 +69,7 @@ std::string ConstructorDeclaration::toCode() const
 	return str;
 }
 
-bool ConstructorDeclaration::equals(ConstructorDeclaration *other) {
+bool ConstructorDeclaration::equals(const ConstructorDeclaration *other) const {
 	if (parameters.size() != other->parameters.size())
 		return false;
 	for (size_t i = 0; i < parameters.size(); ++i) {
@@ -79,7 +79,7 @@ bool ConstructorDeclaration::equals(ConstructorDeclaration *other) {
 	return true;
 }
 
-bool ConstructorDeclaration::signatureEquals(ConstructorDeclaration *other) {
+bool ConstructorDeclaration::signatureEquals(const ConstructorDeclaration *other) const {
 	if (parameters.size() != other->parameters.size())
 		return false;
 	for (size_t i = 0; i < parameters.size(); ++i) {
@@ -88,7 +88,7 @@ bool ConstructorDeclaration::signatureEquals(ConstructorDeclaration *other) {
 	}
 	return identifier == other->identifier;
 }
-bool ConstructorDeclaration::signatureEquals(ClassInstanceCreationExpression *invocation) {
+bool ConstructorDeclaration::signatureEquals(const ClassInstanceCreationExpression *invocation) const {
 	// account for extra "this" parameter
 	if (invocation->args.size() + 1 != parameters.size())
 		return false;

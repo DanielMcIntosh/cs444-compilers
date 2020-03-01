@@ -28,10 +28,14 @@ class MemberDeclaration: public Node
 public:
 	static std::unique_ptr<MemberDeclaration> create(const Parse::Tree *ptNode);
 
-	virtual bool equals(FieldDeclaration *);
-	virtual bool equals(MemberDeclaration *);
-	virtual bool equals(ConstructorDeclaration *);
-	virtual bool equals(MethodDeclaration *);
+	[[gnu::pure]]
+	virtual bool equals(const FieldDeclaration *) const;
+	[[gnu::pure]]
+	virtual bool equals(const MemberDeclaration *) const;
+	[[gnu::pure]]
+	virtual bool equals(const ConstructorDeclaration *) const;
+	[[gnu::pure]]
+	virtual bool equals(const MethodDeclaration *) const;
 
 	// TODO: temporary, to remove
 	virtual int getTypeId() = 0;

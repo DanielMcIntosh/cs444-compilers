@@ -19,10 +19,10 @@ public:
 	std::string toCode() const override;
 
 	using MemberDeclaration::equals;
-	virtual bool equals(ConstructorDeclaration *) override;
+	virtual bool equals(const ConstructorDeclaration *) const override;
 	// TODO: turn into template function to remove duplication in methodDeclaration
-	bool signatureEquals(ConstructorDeclaration *);
-	bool signatureEquals(ClassInstanceCreationExpression *);
+	bool signatureEquals(const ConstructorDeclaration *) const;
+	bool signatureEquals(const ClassInstanceCreationExpression *) const;
 
 	virtual int getTypeId() override { return 2; }
 

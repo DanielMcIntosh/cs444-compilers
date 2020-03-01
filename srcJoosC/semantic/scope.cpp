@@ -8,7 +8,7 @@ Scope::Scope(AST::TypeDeclaration *enclosingClass)
 {
 }
 Scope::Scope(Scope &parent)
-  : _parent(parent), _declarations(parent._declarations), _enclosingClass(parent._enclosingClass)
+  : _enclosingClass(parent._enclosingClass), _parent(parent), _declarations(parent._declarations)
 {
 }
 

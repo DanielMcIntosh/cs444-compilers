@@ -78,7 +78,7 @@ std::string MethodDeclaration::toCode() const {
 	return s;
 }
 
-bool MethodDeclaration::signatureEquals(MethodDeclaration *other) {
+bool MethodDeclaration::signatureEquals(const MethodDeclaration *other) const {
 	if (parameters.size() != other->parameters.size())
 		return false;
 	for (size_t i = 0; i < parameters.size(); ++i) {
@@ -87,9 +87,9 @@ bool MethodDeclaration::signatureEquals(MethodDeclaration *other) {
 	}
 	return identifier == other->identifier;
 }
-bool MethodDeclaration::signatureEquals(MethodInvocation *invocation) {
+bool MethodDeclaration::signatureEquals(const MethodInvocation *invocation) const {
 	return std::visit(visitor {
-			[&invocation, this](std::unique_ptr<Expression> &src) {
+			[&invocation, this](const std::unique_ptr<Expression> &src) {
 				if (hasModifier(Modifier::Variant::Static))
 					return false;
 				// account for extra "this" parameter
@@ -104,7 +104,7 @@ bool MethodDeclaration::signatureEquals(MethodInvocation *invocation) {
 				}
 				return identifier == invocation->methodName;
 			},
-			[&invocation, this](std::unique_ptr<NameType> &src) {
+			[&invocation, this](const std::unique_ptr<NameType> &src) {
 				if (!hasModifier(Modifier::Variant::Static))
 					return false;
 				if (parameters.size() != invocation->args.size())
@@ -115,15 +115,15 @@ bool MethodDeclaration::signatureEquals(MethodInvocation *invocation) {
 				}
 				return identifier == invocation->methodName;
 			},
-			[](std::unique_ptr<Name> &src) { return false; }
+			[](const std::unique_ptr<Name> &src) { return false; }
 		}, invocation->source);
 }
 
-bool MethodDeclaration::returnEquals(MethodDeclaration *other) {
+bool MethodDeclaration::returnEquals(const MethodDeclaration *other) const {
 	return returnType->equals(other->returnType.get());
 }
 
-bool MethodDeclaration::equals(MethodDeclaration *other) {
+bool MethodDeclaration::equals(const MethodDeclaration *other) const {
 	if (parameters.size() != other->parameters.size())
 		return false;
 	for (size_t i = 0; i < parameters.size(); ++i) {

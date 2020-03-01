@@ -27,11 +27,15 @@ public:
 	explicit VariableDeclaration(std::unique_ptr<Type> t, std::string id, std::unique_ptr<Expression> init = nullptr);
 	std::string toCode() const override;
 
+	[[gnu::pure]]
 	bool equals(const VariableDeclaration *) const;
 	[[gnu::pure]]
 	bool idEquals(const VariableDeclaration *other) const;
+	[[gnu::pure]]
 	bool idEquals(std::string const& str) const;
+	[[gnu::pure]]
 	bool typeEquals(const VariableDeclaration *other) const;
+	[[gnu::pure]]
 	bool typeEquals(const Type *other) const;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);

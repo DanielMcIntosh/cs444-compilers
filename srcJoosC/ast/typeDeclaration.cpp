@@ -256,12 +256,16 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 		extends.insert(itf->getDeclaration());
 	}
 
-	// build super set (only direct superclasses)
+	// build super set and hyper set
 	if (super) {
 		superSet.push_back(super);
+		hyperSet = super->hyperSet;
+		hyperSet.push_back(super);
 	}
 	for (auto *ext : extends) {
 		superSet.push_back(ext);
+		hyperSet.insert(hyperSet.end(), ext->hyperSet.begin(), ext->hyperSet.end());
+		hyperSet.push_back(ext);
 	}
 
 	if (!gStandAloneMode) {

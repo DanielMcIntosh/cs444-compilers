@@ -31,7 +31,7 @@ GLOBAL_WARNINGS := -Wall -Wextra -Wformat=2 -Wcast-align -Wcast-qual -Wdisabled-
   -Wwrite-strings -Wfloat-conversion -Wnull-dereference -Wzero-as-null-pointer-constant \
   -Wctor-dtor-privacy -Wnon-virtual-dtor -Woverloaded-virtual -Wno-unused-parameter -Wfatal-errors
 
-GCC_WARNINGS := -Wlogical-op -Wstrict-aliasing=3 -Wsuggest-attribute=pure -Wsuggest-attribute=const \
+GCC_WARNINGS := -Wlogical-op -Wstrict-aliasing=3 \
   -Wsuggest-attribute=noreturn -Wsuggest-attribute=format
 
 CLANG_WARNINGS := -fcolor-diagnostics

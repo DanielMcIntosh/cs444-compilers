@@ -17,8 +17,11 @@ public:
 	std::string toCode() const override;
 
 	using MemberDeclaration::equals;
-	virtual bool equals(FieldDeclaration *) override;
-	bool idEquals(FieldDeclaration *) const;
+	[[gnu::pure]]
+	virtual bool equals(const FieldDeclaration *) const override;
+	[[gnu::pure]]
+	bool idEquals(const FieldDeclaration *) const;
+	[[gnu::pure]]
 	bool idEquals(const FieldAccess *) const;
 
 	virtual int getTypeId() override { return 0; }

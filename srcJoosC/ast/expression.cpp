@@ -8,6 +8,7 @@
 #include "semantic/semantic.h"
 #include "semantic/scope.h"
 #include <memory>
+#include <optional>
 #include <ostream>
 
 using Semantic::SemanticErrorType;
@@ -229,6 +230,8 @@ SemanticErrorType CastExpression::deduceType()
 	// then try assignability
 	if (lhs.canAssignToMe(rhs->typeResult))
 		OK();
+	else if (rhs->typeResult.canAssignToMe(lhs))
+		OK();
 
 	GOFAIL(); // to print error
 	fail:
@@ -338,72 +341,58 @@ bool IsBooleanOp(BinaryExpression::Variant op) {
 	        op == BinaryExpression::Variant::LazyOr);
 }
 
-std::tuple<TypeResult, bool> BinExprHelper(Expression* lhs, Expression* rhs,
+std::optional<TypeResult> BinExprHelper(Expression* lhs, Expression* rhs,
                                            BinaryExpression::Variant op) {
-	TypeResult result;
-	result.isPrimitive = true;
-	result.isArray = false;
-
 	bool bothNum = lhs->typeResult.isNum() && rhs->typeResult.isNum();
 	bool bothBool = lhs->typeResult.isPrimitiveType(TypePrimitive::Boolean) &&
 	                rhs->typeResult.isPrimitiveType(TypePrimitive::Boolean);
 
 	if (bothNum && IsArithmeticOp(op)) {
-		result.primitiveType = TypePrimitive::Int;
-		return std::make_tuple(result, true);
+		return TypeResult(false, TypePrimitive::Int);
 	}
 
 	if (bothNum && IsNumCompare(op)) {
-		result.primitiveType = TypePrimitive::Boolean;
-		return std::make_tuple(result, true);
+		return TypeResult(false, TypePrimitive::Boolean);
 	}
 
 	if (bothBool && IsBooleanOp(op)) {
-		result.primitiveType = TypePrimitive::Boolean;
-		return std::make_tuple(result, true);
+		return TypeResult(false, TypePrimitive::Boolean);
 	}
 
 	if ((bothBool || bothNum) &&
 	    (op == BinaryExpression::Variant::Eq || op == BinaryExpression::Variant::NEq)) {
-		result.primitiveType = TypePrimitive::Boolean;
-		return std::make_tuple(result, true);
+		return TypeResult(false, TypePrimitive::Boolean);
 	}
 
 	// At this point, only string concatenation remains
-	Expression *theStr = nullptr;
 	if (lhs->typeResult.isJavaString() && !rhs->typeResult.isPrimitiveType(TypePrimitive::Void))
-		theStr = lhs;
+		return lhs->typeResult;
 	else if (rhs->typeResult.isJavaString() && !lhs->typeResult.isPrimitiveType(TypePrimitive::Void))
-		theStr = rhs;
+		return rhs->typeResult;
 
-	if (!theStr)
-		return std::make_tuple(TypeResult(), false);
-
-	return std::make_tuple(theStr->typeResult, true);
+	return std::nullopt;
 }
 
 SemanticErrorType BinaryExpression::deduceType() {
-	Semantic::SemanticErrorType err = SemanticErrorType::None;
+	SemanticErrorType err = SemanticErrorType::None;
 	std::visit(visitor {
 					[&](std::unique_ptr<Expression> &rexpr) {
-						auto [res, valid] = BinExprHelper(lhs.get(), rexpr.get(), op);
-						if (valid)
-							typeResult = res;
+						auto res = BinExprHelper(lhs.get(), rexpr.get(), op);
+						if (res)
+							typeResult = *res;
 						else
-							err = Semantic::SemanticErrorType::TypeCheck;
+							err = SemanticErrorType::TypeCheck;
 
 					},
 					[&](std::unique_ptr<Type> &type) {
 						if (lhs->typeResult.isPrimitive ||
 						    lhs->typeResult.isArray ||
 						    op != BinaryExpression::Variant::InstanceOf) {
-							err = Semantic::SemanticErrorType::TypeCheck;
+							err = SemanticErrorType::TypeCheck;
 							return;
 						}
 
-						typeResult.isArray = false;
-						typeResult.isPrimitive = true;
-						typeResult.primitiveType = TypePrimitive::Boolean;
+						typeResult = TypeResult(false, TypePrimitive::Boolean);
 					}
 	}, rhs);
 
@@ -1397,7 +1386,7 @@ bool TypeResult::canAssignToMe(const TypeResult &other) const {
 	// both are (either single or array of) objects
 	if (!isPrimitive && !other.isPrimitive) {
 		// same type on both sides is handled at the top
-		for (auto *decl : other.userDefinedType->superSet) {
+		for (auto *decl : other.userDefinedType->hyperSet) {
 			// assigning to super class
 			if (userDefinedType == decl)
 				return true;

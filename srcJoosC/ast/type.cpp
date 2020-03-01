@@ -181,6 +181,7 @@ std::string operator+=(std::string& str, PrimitiveType::Variant type)
 		case PrimitiveType::Variant::Int:    	return str += "int";
 		case PrimitiveType::Variant::Char:   	return str += "char";
 		case PrimitiveType::Variant::Void:   	return str += "void";
+		case PrimitiveType::Variant::Null:   	return str += "null_t";
 		case PrimitiveType::Variant::Max:		;// fallthrough
 			// no default to trigger compiler warning on missing case
 	}
