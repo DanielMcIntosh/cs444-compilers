@@ -79,7 +79,14 @@ bool VariableDeclaration::typeEquals(const TypeResult &other) const {
 
 Semantic::SemanticErrorType VariableDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
-	return type->resolve(semantic, enclosingClass);
+	Semantic::SemanticErrorType err = Semantic::SemanticErrorType::None;
+	if (initializer) {
+		err = initializer->resolveTypes(semantic, enclosingClass);
+	}
+	if (err == Semantic::SemanticErrorType::None) {
+		err = type->resolve(semantic, enclosingClass);
+	}
+	return err;
 }
 
 Semantic::SemanticErrorType VariableDeclaration::resolveExprs(Semantic::Scope const& parentScope)

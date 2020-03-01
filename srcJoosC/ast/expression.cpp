@@ -240,9 +240,7 @@ SemanticErrorType ClassInstanceCreationExpression::deduceType()
 
 SemanticErrorType FieldAccess::deduceType()
 {
-	// /* TODO: uncomment after type deduction is implemented
 	typeResult = TypeResult(*(decl->declaration->type));
-	//*/
 	return SemanticErrorType::None;
 }
 
@@ -405,9 +403,7 @@ Semantic::SemanticErrorType LocalVariableExpression::deduceType()
 Semantic::SemanticErrorType MethodInvocation::deduceType()
 {
 	// look inside the methods of the name, find the method with matching param types, then fill in declaration
-	// /* TODO: uncomment after type deduction is implemented
 	typeResult = TypeResult(*(declaration->returnType));
-	//*/
 	return SemanticErrorType::None;
 }
 Semantic::SemanticErrorType NameExpression::deduceType() {
@@ -502,10 +498,8 @@ SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const
 			return error;
 		}
 	}
-	// /* TODO: uncomment after type deduction is implemented
 	declaration = type->getDeclaration()->findConstructor(this);
 	return declaration == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
-	//*/
 }
 
 SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
@@ -521,16 +515,14 @@ SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 			return TypeResult(*t);
 		}
 	}, source);
-	// /* TODO: uncomment after type deduction is implemented
+	/* TODO: need to create declaration for length field
 	if (sourceDecl.isArray) {
 		if (member != "length") return SemanticErrorType::ExprResolution;
 		return SemanticErrorType::None;
-	}
+	} */
 	if (sourceDecl.isPrimitive) return SemanticErrorType::ExprResolution;
 	decl = sourceDecl.userDefinedType->findField(this);
 	return decl == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
-	//*/
-	return SemanticErrorType::None;
 }
 
 SemanticErrorType LocalVariableExpression::resolve(Semantic::Scope const& scope)
@@ -569,7 +561,8 @@ SemanticErrorType MethodInvocation::disambiguateSource(Semantic::Scope const& sc
 			[this](auto &converted) {
 				if (converted == nullptr)
 					return SemanticErrorType::ExprResolution;
-				source = std::move(converted);
+				auto temp = std::move(converted);
+				source = std::move(temp);
 				return SemanticErrorType::None;
 			}, src->converted);
 		if (error != SemanticErrorType::None)
@@ -614,11 +607,9 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 		[](std::unique_ptr<NameType> &src)   { return TypeResult(*src); },
 		[](std::unique_ptr<Name> &)          { assert(false); return TypeResult(); }
 	}, source);
-	// /* TODO: uncomment after type deduction is implemented
 	if (sourceDecl.isPrimitive) return SemanticErrorType::ExprResolution;
 	declaration = sourceDecl.userDefinedType->findMethod(this);
 	return declaration == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
-	//*/
 }
 
 SemanticErrorType NameExpression::resolve(Semantic::Scope const& scope)
@@ -1297,10 +1288,11 @@ MethodInvocation::MethodInvocation(const Parse::TMethodInvocation *ptNode)
 	if (ptNode->name != nullptr)
 	{
 		source = Name::create(ptNode->name);
+	} else {
+		// even if there is no prefix and ptNode->primary is null, we want to initialize the variant with
+		// a null unique_ptr<Expression>, since Expression is the simpler case (it has simpler expression resolution)
+		source = Expression::create(ptNode->primary);
 	}
-	// even if there is no prefix and ptNode->primary is null, we want to initialize the variant with
-	// a null unique_ptr<Expression>, since Expression is the simpler case (it has simpler expression resolution)
-	source = Expression::create(ptNode->primary);
 }
 
 //////////////////////////////////////////////////////////////////////////////

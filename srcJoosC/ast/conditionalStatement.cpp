@@ -66,6 +66,22 @@ Semantic::SemanticErrorType ConditionalStatement::resolveTypes(Semantic::Semanti
 			return err;
 		}
 	}
+	if (condition)
+	{
+		if (Semantic::SemanticErrorType err = condition->resolveTypes(semantic, enclosingClass);
+				err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
+	if (increment)
+	{
+		if (Semantic::SemanticErrorType err = increment->resolveTypes(semantic, enclosingClass);
+				err != Semantic::SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
 	if (Semantic::SemanticErrorType err = body->resolveTypes(semantic, enclosingClass);
 		err != Semantic::SemanticErrorType::None)
 	{
