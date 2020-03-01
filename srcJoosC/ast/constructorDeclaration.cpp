@@ -96,7 +96,7 @@ bool ConstructorDeclaration::signatureEquals(const ClassInstanceCreationExpressi
 	if (!parameters[0]->typeEquals(invocation->type.get()))
 		return false;
 	for (size_t i = 1; i < parameters.size(); ++i) {
-		if (!parameters[i]->typeEquals(invocation->args[i-1]->exprType.get()))
+		if (!parameters[i]->typeEquals(invocation->args[i-1]->typeResult))
 			return false;
 	}
 	return true;

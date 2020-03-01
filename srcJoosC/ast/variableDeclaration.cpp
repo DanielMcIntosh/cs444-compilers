@@ -72,6 +72,9 @@ bool VariableDeclaration::typeEquals(const VariableDeclaration *other) const {
 bool VariableDeclaration::typeEquals(const Type *other) const {
 	return type->equals(other);
 }
+bool VariableDeclaration::typeEquals(const TypeResult &other) const {
+	return type->equals(other);
+}
 
 
 Semantic::SemanticErrorType VariableDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)

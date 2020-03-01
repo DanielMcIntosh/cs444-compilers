@@ -15,6 +15,7 @@ namespace AST
 {
 
 class Type;
+class TypeResult;
 class Expression;
 class TypeDeclaration;
 
@@ -37,6 +38,7 @@ public:
 	bool typeEquals(const VariableDeclaration *other) const;
 	[[gnu::pure]]
 	bool typeEquals(const Type *other) const;
+	bool typeEquals(const TypeResult &other) const;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope const& parentScope);

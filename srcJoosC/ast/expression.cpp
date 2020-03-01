@@ -411,7 +411,7 @@ Semantic::SemanticErrorType MethodInvocation::deduceType()
 	return SemanticErrorType::None;
 }
 Semantic::SemanticErrorType NameExpression::deduceType() {
-	ASSERT(false);
+	typeResult = converted->typeResult;
 	return SemanticErrorType::None;
 }
 Semantic::SemanticErrorType UnaryExpression::deduceType() {
@@ -1361,7 +1361,7 @@ std::ostream& operator<<(std::ostream& os, UnaryExpression::Variant type)
 	return os << ("" + type);
 }
 
-TypeResult::TypeResult(): isPrimitive(true), isArray(false), primitiveType(TypePrimitive::Max), userDefinedType(nullptr) {
+TypeResult::TypeResult(): isPrimitive(true), isArray(false), userDefinedType(nullptr) {
 
 }
 

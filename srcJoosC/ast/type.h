@@ -18,6 +18,7 @@ class TypeDeclaration;
 class PrimitiveType;
 class NameType;
 class Name;
+class TypeResult;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -36,9 +37,10 @@ public:
 protected:
 	Type() = default;
 
-	// double dispatch for correct equals behaviour
 public:
+	// double dispatch for correct equals behaviour
 	virtual bool equals(const Type *) const = 0;
+	virtual bool equals(const TypeResult &) const = 0;
 protected:
 	virtual bool equalsDerived(const PrimitiveType *) const { return false; };
 	virtual bool equalsDerived(const NameType *) const { return false; };
@@ -76,6 +78,7 @@ public:
 
 	using Type::equals;
 	virtual bool equals(const Type *other) const override { return other->equalsDerived(this); };
+	virtual bool equals(const TypeResult &) const override;
 	std::string toCode() const override;
 
 	static thread_local int val;
@@ -111,6 +114,9 @@ public:
 
 	using Type::equals;
 	virtual bool equals(const Type *other) const override { return other->equalsDerived(this); };
+	virtual bool equals(const TypeResult &) const override;
+
+protected:
 	using Type::equalsDerived;
 	virtual bool equalsDerived(const NameType *other) const override { return declaration == other->declaration; }
 

@@ -96,10 +96,10 @@ bool MethodDeclaration::signatureEquals(const MethodInvocation *invocation) cons
 				if (invocation->args.size() + 1 != parameters.size())
 					return false;
 				// this check is reduntant, but helps with clarity
-				if (!parameters[0]->typeEquals(src->exprType.get()))
+				if (!parameters[0]->typeEquals(src->typeResult))
 					return false;
 				for (size_t i = 1; i < parameters.size(); ++i) {
-					if (!parameters[i]->typeEquals(invocation->args[i-1]->exprType.get()))
+					if (!parameters[i]->typeEquals(invocation->args[i-1]->typeResult))
 						return false;
 				}
 				return identifier == invocation->methodName;
@@ -110,7 +110,7 @@ bool MethodDeclaration::signatureEquals(const MethodInvocation *invocation) cons
 				if (parameters.size() != invocation->args.size())
 					return false;
 				for (size_t i = 0; i < parameters.size(); ++i) {
-					if (!parameters[i]->typeEquals(invocation->args[i]->exprType.get()))
+					if (!parameters[i]->typeEquals(invocation->args[i]->typeResult))
 						return false;
 				}
 				return identifier == invocation->methodName;

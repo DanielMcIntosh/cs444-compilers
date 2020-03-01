@@ -25,6 +25,8 @@ class FieldDeclaration;
 class MethodDeclaration;
 class ConstructorDeclaration;
 
+
+
 enum class TypePrimitive
 {
 	Boolean,
@@ -36,18 +38,27 @@ enum class TypePrimitive
 	Null,
 	Max
 };
+static_assert( (int)TypePrimitive::Boolean	== (int)PrimitiveType::Variant::Boolean);
+static_assert( (int)TypePrimitive::Byte   	== (int)PrimitiveType::Variant::Byte);
+static_assert( (int)TypePrimitive::Short  	== (int)PrimitiveType::Variant::Short);
+static_assert( (int)TypePrimitive::Int    	== (int)PrimitiveType::Variant::Int);
+static_assert( (int)TypePrimitive::Char   	== (int)PrimitiveType::Variant::Char);
+static_assert( (int)TypePrimitive::Void   	== (int)PrimitiveType::Variant::Void);
+static_assert( (int)TypePrimitive::Null   	== (int)PrimitiveType::Variant::Null);
 
 struct TypeResult {
 	bool isPrimitive;
 	bool isArray;
-	TypePrimitive primitiveType;
-	TypeDeclaration *userDefinedType;
+	union {
+		TypePrimitive primitiveType;
+		TypeDeclaration *userDefinedType;
+	};
 
 	TypeResult();
 	TypeResult(Type const& type);
 	TypeResult(bool arr, TypePrimitive primT)
-		: isPrimitive(true), isArray(arr), primitiveType(primT), userDefinedType(nullptr) {}
- 	// is non array numeric type
+		: isPrimitive(true), isArray(arr), primitiveType(primT) {}
+	// is non array numeric type
 	[[gnu::pure]]
 	bool isNum() const;
 	// is array or non array numeric type
@@ -86,7 +97,6 @@ public:
 	Semantic::SemanticErrorType resolveAndDeduce(Semantic::Scope const& scope);
 
 	TypeResult typeResult;
-	std::unique_ptr<Type> exprType;
 	virtual Semantic::SemanticErrorType deduceType() = 0;
 
 	static void resetError();

@@ -153,6 +153,11 @@ TypeDeclaration *NameType::getDeclaration()
 	return declaration;
 }
 
+bool NameType::equals(const TypeResult &other) const
+{
+	return !other.isPrimitive && (isArray == other.isArray) && (declaration == other.userDefinedType);
+}
+
 
 static_assert( (int)Parse::TPrimitiveTypeV::boolean	== (int)PrimitiveType::Variant::Boolean);
 static_assert( (int)Parse::TPrimitiveTypeV::byte   	== (int)PrimitiveType::Variant::Byte);
@@ -170,6 +175,12 @@ PrimitiveType::PrimitiveType(std::nullptr_t null)
 {
 	nodeType = NodeType::PrimitiveType;
 }
+
+bool PrimitiveType::equals(const TypeResult &other) const
+{
+	return other.isPrimitive && (isArray == other.isArray) && (type == (PrimitiveType::Variant)other.primitiveType);
+}
+
 
 std::string operator+=(std::string& str, PrimitiveType::Variant type)
 {
