@@ -213,18 +213,12 @@ TypeResult::TypeResult(Type const& type)
 //
 //////////////////////////////////////////////////////////////////////////////
 
-// TODO: remove this, and implement it properly in subclasses
-SemanticErrorType Expression::deduceType()
-{
-	return SemanticErrorType::None;
-}
-
 SemanticErrorType CastExpression::deduceType()
 {
 	// first allow all numeric casts
 	auto lhs = TypeResult(*type);
 	typeResult = lhs;
-	if (lhs.isNumOrArrayNum() && rhs->typeResult.isNumOrArrayNum())
+	if (lhs.isNum() && rhs->typeResult.isNum())
 		OK();
 
 	// then try assignability
@@ -246,7 +240,7 @@ SemanticErrorType ClassInstanceCreationExpression::deduceType()
 
 SemanticErrorType FieldAccess::deduceType()
 {
-	/* TODO: uncomment after type deduction is implemented
+	// /* TODO: uncomment after type deduction is implemented
 	typeResult = TypeResult(*(decl->declaration->type));
 	//*/
 	return SemanticErrorType::None;
@@ -403,6 +397,42 @@ SemanticErrorType BinaryExpression::deduceType() {
 	return err;
 }
 
+Semantic::SemanticErrorType LocalVariableExpression::deduceType()
+{
+	typeResult = TypeResult(*(declaration->type));
+	return SemanticErrorType::None;
+}
+Semantic::SemanticErrorType MethodInvocation::deduceType()
+{
+	// look inside the methods of the name, find the method with matching param types, then fill in declaration
+	// /* TODO: uncomment after type deduction is implemented
+	typeResult = TypeResult(*(declaration->returnType));
+	//*/
+	return SemanticErrorType::None;
+}
+Semantic::SemanticErrorType NameExpression::deduceType() {
+	ASSERT(false);
+	return SemanticErrorType::None;
+}
+Semantic::SemanticErrorType UnaryExpression::deduceType() {
+	auto &t = expr->typeResult;
+	if (op == Variant::Bang) {
+		if (!t.isPrimitiveType(TypePrimitive::Boolean)) {
+			// expected bool
+			return SemanticErrorType::TypeCheck;
+		}
+	} else if (op == Variant::Minus) {
+		if (!t.isNum()) {
+			// expected numeric
+			return SemanticErrorType::TypeCheck;
+		}
+	} else {
+		ASSERT(false);
+	}
+	typeResult = t;
+	return SemanticErrorType::None;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // resolve
@@ -472,32 +502,32 @@ SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const
 			return error;
 		}
 	}
-	/* TODO: uncomment after type deduction is implemented
+	// /* TODO: uncomment after type deduction is implemented
 	declaration = type->getDeclaration()->findConstructor(this);
 	return declaration == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
 	//*/
-	return SemanticErrorType::None;
 }
 
 SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 {
 
 	SemanticErrorType ret = SemanticErrorType::None;
-	Type &sourceDecl = std::visit(visitor{
-		[&ret, &scope](std::unique_ptr<Expression> &expr) -> Type& {
+	TypeResult sourceDecl = std::visit(visitor{
+		[&ret, &scope](std::unique_ptr<Expression> &expr) {
 			ret = expr->resolveAndDeduce(scope);
-			return *(expr->exprType);
+			return expr->typeResult;
 		},
-		[](std::unique_ptr<NameType> &t) -> Type& {
-			return *t;
+		[](std::unique_ptr<NameType> &t) {
+			return TypeResult(*t);
 		}
 	}, source);
-	/* TODO: uncomment after type deduction is implemented
-	if (sourceDecl.nodeType != NodeType::NameType)
-	{
-		return SemanticErrorType::ExprResolution;
+	// /* TODO: uncomment after type deduction is implemented
+	if (sourceDecl.isArray) {
+		if (member != "length") return SemanticErrorType::ExprResolution;
+		return SemanticErrorType::None;
 	}
-	decl = static_cast<NameType &>(sourceDecl).getDeclaration()->findField(this);
+	if (sourceDecl.isPrimitive) return SemanticErrorType::ExprResolution;
+	decl = sourceDecl.userDefinedType->findField(this);
 	return decl == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
 	//*/
 	return SemanticErrorType::None;
@@ -579,21 +609,16 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 	}
 
 	// find method declaration
-	Type &sourceDecl = std::visit(visitor{
-		[&scope](std::unique_ptr<Expression> &src) -> Type&	{	return *(src->exprType); },
-		[&scope](std::unique_ptr<NameType> &src) -> Type&	{	return *src;	},
-		[&scope](std::unique_ptr<Name> &src) -> Type& 		{	assert(false);	}
+	TypeResult sourceDecl = std::visit(visitor{
+		[](std::unique_ptr<Expression> &src) { return src->typeResult; },
+		[](std::unique_ptr<NameType> &src)   { return TypeResult(*src); },
+		[](std::unique_ptr<Name> &)          { assert(false); return TypeResult(); }
 	}, source);
-	/* TODO: uncomment after type deduction is implemented
-	if (sourceDecl.nodeType != NodeType::NameType)
-	{
-		return SemanticErrorType::ExprResolution;
-	}
-	declaration = static_cast<NameType &>(sourceDecl).getDeclaration()->findMethod(this);
+	// /* TODO: uncomment after type deduction is implemented
+	if (sourceDecl.isPrimitive) return SemanticErrorType::ExprResolution;
+	declaration = sourceDecl.userDefinedType->findMethod(this);
 	return declaration == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
 	//*/
-
-	return SemanticErrorType::None;
 }
 
 SemanticErrorType NameExpression::resolve(Semantic::Scope const& scope)
@@ -1355,9 +1380,9 @@ bool TypeResult::isPrimitiveType(TypePrimitive primitive) const {
 
 bool TypeResult::operator==(const TypeResult &other) const {
 	return isPrimitive == other.isPrimitive &&
-	       isArray == other.isArray &&
-					(isPrimitive ? primitiveType == other.primitiveType :
-					               userDefinedType == other.userDefinedType);
+		   isArray == other.isArray &&
+		   (isPrimitive ? primitiveType == other.primitiveType :
+			userDefinedType == other.userDefinedType);
 }
 
 bool TypeResult::isNumOrArrayNum() const {

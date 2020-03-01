@@ -35,8 +35,8 @@ public:
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
 
 	void addThisParam(TypeDeclaration *decl);
-protected:
 	std::unique_ptr<Type> returnType;
+protected:
 	std::string identifier;
 	std::vector<std::unique_ptr<VariableDeclaration>> parameters;
 	// nullable

@@ -87,7 +87,7 @@ public:
 
 	TypeResult typeResult;
 	std::unique_ptr<Type> exprType;
-	virtual Semantic::SemanticErrorType deduceType();
+	virtual Semantic::SemanticErrorType deduceType() = 0;
 
 	static void resetError();
 	static thread_local TypeDeduceError gError;
@@ -329,6 +329,7 @@ protected:
 
 public:
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+	Semantic::SemanticErrorType deduceType() override;
 protected:
 	std::string id;
 	const VariableDeclaration *declaration;
@@ -349,6 +350,7 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+	Semantic::SemanticErrorType deduceType() override;
 private:
 	Semantic::SemanticErrorType disambiguateSource(Semantic::Scope const& scope);
 protected:
@@ -377,6 +379,7 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+	Semantic::SemanticErrorType deduceType() override;
 protected:
 	std::unique_ptr<Name> unresolved;
 	std::unique_ptr<Expression> converted;
@@ -398,6 +401,7 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+	Semantic::SemanticErrorType deduceType() override;
 protected:
 	enum class Variant
 	{
