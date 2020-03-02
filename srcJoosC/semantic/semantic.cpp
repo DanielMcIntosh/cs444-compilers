@@ -45,6 +45,10 @@ const char *gSemanticErrorTypeName[] = {
 	"OverridePublic",
 	"OverrideFinal",
 	"TypeCheck",
+	"ConstructorWrongName",
+	"AssignableType",
+	"ReturningValueFromVoidFunction",
+	"ReturningFromConstructor",
 };
 
 static_assert(static_cast<int>(SemanticErrorType::Max) == ARRAY_SIZE(gSemanticErrorTypeName));

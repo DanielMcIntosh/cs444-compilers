@@ -192,6 +192,7 @@ SemanticErrorType TypeDeclaration::resolveBodyExprs()
 	Semantic::Scope scope(this);
 	for (auto *decl : methodSets.declareSet)
 	{
+		// Semantic::Scope methodScope(scope, decl);
 		if (SemanticErrorType err = decl->resolveExprs(scope);
 			err != SemanticErrorType::None)
 		{

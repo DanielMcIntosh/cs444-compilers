@@ -124,6 +124,9 @@ Semantic::SemanticErrorType ConstructorDeclaration::resolveTypes(Semantic::Seman
 
 Semantic::SemanticErrorType ConstructorDeclaration::resolveExprs(Semantic::Scope &parentScope)
 {
+	if (identifier != parentScope._enclosingClass->name) {
+		return Semantic::SemanticErrorType::ConstructorWrongName;
+	}
 	Semantic::Scope scope(parentScope);
 	for (auto &param: parameters)
 	{

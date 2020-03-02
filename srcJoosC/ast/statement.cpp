@@ -1,6 +1,7 @@
 #include "ast/statement.h"
 #include "ast/variableDeclaration.h"
 #include "ast/conditionalStatement.h"
+#include "ast/typeDeclaration.h"
 #include "ast/nodeList.h"
 #include "ast/type.h"
 #include "ast/expression.h"
@@ -46,7 +47,18 @@ SemanticErrorType ReturnStatement::resolveExprs(Semantic::Scope &parentScope)
 {
 	if (returnValue != nullptr)
 	{
-		return returnValue->resolveAndDeduce(parentScope);
+		auto err = returnValue->resolveAndDeduce(parentScope);
+		if (err != Semantic::SemanticErrorType::None) return err;
+		if (!parentScope._enclosingMethod) {
+			return Semantic::SemanticErrorType::ReturningFromConstructor;
+		}
+		auto declaredType = TypeResult(*parentScope._enclosingMethod->returnType);
+		if (declaredType.isPrimitiveType(TypePrimitive::Void)) {
+			return Semantic::SemanticErrorType::ReturningValueFromVoidFunction;
+		}
+		if (!declaredType.canAssignToMe(returnValue->typeResult)) {
+			return Semantic::SemanticErrorType::AssignableType;
+		}
 	}
 	return Semantic::SemanticErrorType::None;
 }

@@ -49,10 +49,8 @@ static_assert( (int)TypePrimitive::Null   	== (int)PrimitiveType::Variant::Null)
 struct TypeResult {
 	bool isPrimitive;
 	bool isArray;
-	union {
-		TypePrimitive primitiveType;
-		TypeDeclaration *userDefinedType;
-	};
+	TypePrimitive primitiveType;
+	TypeDeclaration *userDefinedType;
 
 	TypeResult();
 	TypeResult(Type const& type);

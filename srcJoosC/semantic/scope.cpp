@@ -4,11 +4,17 @@
 namespace Semantic {
 
 Scope::Scope(AST::TypeDeclaration *enclosingClass)
-  : _enclosingClass(enclosingClass)
+		: _enclosingClass(enclosingClass), _enclosingMethod(nullptr)
 {
 }
 Scope::Scope(Scope &parent)
-  : _enclosingClass(parent._enclosingClass), _parent(parent), _declarations(parent._declarations)
+		: _enclosingClass(parent._enclosingClass), _enclosingMethod(parent._enclosingMethod),
+		  _parent(parent), _declarations(parent._declarations)
+{
+}
+Scope::Scope(Scope &parent, AST::MethodDeclaration *enclosingMethod)
+		: _enclosingClass(parent._enclosingClass), _enclosingMethod(enclosingMethod),
+		  _parent(parent), _declarations(parent._declarations)
 {
 }
 

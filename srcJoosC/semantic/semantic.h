@@ -46,6 +46,10 @@ enum class SemanticErrorType {
 	OverridePublic,
 	OverrideFinal,
 	TypeCheck,
+	ConstructorWrongName,
+	AssignableType,
+	ReturningValueFromVoidFunction,
+	ReturningFromConstructor,
 	Max
 };
 

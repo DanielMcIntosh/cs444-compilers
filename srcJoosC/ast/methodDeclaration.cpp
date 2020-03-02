@@ -163,7 +163,7 @@ Semantic::SemanticErrorType MethodDeclaration::resolveTypes(Semantic::SemanticDB
 
 Semantic::SemanticErrorType MethodDeclaration::resolveExprs(Semantic::Scope &parentScope)
 {
-	Semantic::Scope scope(parentScope);
+	Semantic::Scope scope(parentScope, this);
 	for (auto &param: parameters)
 	{
 		if (!scope.add(param))

@@ -30,6 +30,9 @@ Semantic::SemanticErrorType ConditionalStatement::resolveExprs(Semantic::Scope &
 	{
 		err = condition->resolveAndDeduce(mainScope);
 		GOFAIL_IF_ERR(err);
+		if (!condition->typeResult.isPrimitiveType(TypePrimitive::Boolean)) {
+			return Semantic::SemanticErrorType::TypeCheck;
+		}
 	}
 	if (increment)
 	{
@@ -58,44 +61,31 @@ Semantic::SemanticErrorType ConditionalStatement::resolveExprs(Semantic::Scope &
 
 Semantic::SemanticErrorType ConditionalStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
-	if (init)
-	{
-		if (Semantic::SemanticErrorType err = init->resolveTypes(semantic, enclosingClass);
-			err != Semantic::SemanticErrorType::None)
-		{
-			return err;
-		}
+	Semantic::SemanticErrorType err;
+	if (init) {
+		err = init->resolveTypes(semantic, enclosingClass);
+		GOFAIL_IF_ERR(err);
 	}
-	if (condition)
-	{
-		if (Semantic::SemanticErrorType err = condition->resolveTypes(semantic, enclosingClass);
-				err != Semantic::SemanticErrorType::None)
-		{
-			return err;
-		}
+	if (condition) {
+		err = condition->resolveTypes(semantic, enclosingClass);
+		GOFAIL_IF_ERR(err);
 	}
-	if (increment)
-	{
-		if (Semantic::SemanticErrorType err = increment->resolveTypes(semantic, enclosingClass);
-				err != Semantic::SemanticErrorType::None)
-		{
-			return err;
-		}
+	if (increment) {
+		err = increment->resolveTypes(semantic, enclosingClass);
+		GOFAIL_IF_ERR(err);
 	}
-	if (Semantic::SemanticErrorType err = body->resolveTypes(semantic, enclosingClass);
-		err != Semantic::SemanticErrorType::None)
-	{
-		return err;
+	if (body) {
+		err = body->resolveTypes(semantic, enclosingClass);
+		GOFAIL_IF_ERR(err);
 	}
-	if (elseBody)
-	{
-		if (Semantic::SemanticErrorType err = elseBody->resolveTypes(semantic, enclosingClass);
-			err != Semantic::SemanticErrorType::None)
-		{
-			return err;
-		}
+	if (elseBody) {
+		err = body->resolveTypes(semantic, enclosingClass);
+		GOFAIL_IF_ERR(err);
 	}
 	return Semantic::SemanticErrorType::None;
+
+	fail:
+	return err;
 }
 
 //////////////////////////////////////////////////////////////////////////////

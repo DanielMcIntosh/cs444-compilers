@@ -229,7 +229,7 @@ SemanticErrorType CastExpression::deduceType()
 
 	GOFAIL(); // to print error
 	fail:
-	return SemanticErrorType::TypeCheck;
+	return SemanticErrorType::AssignableType;
 }
 
 SemanticErrorType ClassInstanceCreationExpression::deduceType()
@@ -1385,20 +1385,30 @@ bool TypeResult::isNumOrArrayNum() const {
 }
 
 bool TypeResult::canAssignToMe(const TypeResult &other) const {
+	// TODO: remaining rules in JLS 5.1.4
 	// same type on both sides
 	if (*this == other)
 		return true;
-	// short <- byte or short[] <- byte[]
-	if (primitiveType == TypePrimitive::Short &&
-	    other.primitiveType == TypePrimitive::Byte)
-		return true;
-	// int <- char or int[] <- char []
-	if (primitiveType == TypePrimitive::Int &&
-	    other.primitiveType == TypePrimitive::Char)
-		return true;
-	// C := null where C is a class TODO can an array be null also?
-	if (!isPrimitive && !isArray &&
-	    other.isPrimitiveType(TypePrimitive::Null))
+	if (!isArray) {
+		// short <- byte
+		if (primitiveType == TypePrimitive::Short &&
+			other.primitiveType == TypePrimitive::Byte)
+			return true;
+		// int <- byte
+		if (primitiveType == TypePrimitive::Int &&
+			other.primitiveType == TypePrimitive::Byte)
+			return true;
+		// int <- short
+		if (primitiveType == TypePrimitive::Int &&
+			other.primitiveType == TypePrimitive::Short)
+			return true;
+		// int <- char
+		if (primitiveType == TypePrimitive::Int &&
+			other.primitiveType == TypePrimitive::Char)
+			return true;
+	}
+	// C := null where C is any non-primitive
+	if (!isPrimitive && other.isPrimitiveType(TypePrimitive::Null))
 		return true;
 	// both are (either single or array of) objects
 	if (!isPrimitive && !other.isPrimitive) {

@@ -93,7 +93,11 @@ Semantic::SemanticErrorType VariableDeclaration::resolveExprs(Semantic::Scope co
 {
 	if (initializer != nullptr)
 	{
-		return initializer->resolveAndDeduce(parentScope);
+		auto err = initializer->resolveAndDeduce(parentScope);
+		if (err != Semantic::SemanticErrorType::None) return err;
+		if (!TypeResult(*type).canAssignToMe(initializer->typeResult)) {
+			return Semantic::SemanticErrorType::AssignableType;
+		}
 	}
 	return Semantic::SemanticErrorType::None;
 }
