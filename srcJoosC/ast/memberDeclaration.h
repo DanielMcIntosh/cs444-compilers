@@ -10,7 +10,6 @@ namespace Semantic
 {
 	struct SemanticDB;
 	enum class SemanticErrorType;
-	class Scope;
 }
 
 namespace AST
@@ -37,16 +36,20 @@ public:
 	[[gnu::pure]]
 	virtual bool equals(const MethodDeclaration *) const;
 
-	virtual Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) = 0;
-	virtual Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) = 0;
+	virtual Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic) = 0;
+	virtual Semantic::SemanticErrorType resolveExprs() = 0;
 
 	bool hasModifier(Modifier::Variant) const;
 protected:
 	explicit MemberDeclaration(std::vector<std::unique_ptr<Modifier>> mods);
 
+
+protected:
 	std::vector<std::unique_ptr<Modifier>> modifiers;
 	// set for membership testing, including all implicit modifiers
 	std::array<bool,static_cast<size_t>(Modifier::Variant::Max)> modifierSet{};
+public:
+	TypeDeclaration *_enclosingClass;
 };
 
 } //namespace AST

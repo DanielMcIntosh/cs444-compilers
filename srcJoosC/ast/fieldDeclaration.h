@@ -24,10 +24,10 @@ public:
 	[[gnu::pure]]
 	bool idEquals(const FieldAccess *) const;
 
-	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
-	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic) override;
+	Semantic::SemanticErrorType resolveExprs() override;
 
-	std::unique_ptr<VariableDeclaration> declaration;
+	std::unique_ptr<VariableDeclaration> varDecl;
 };
 
 } //namespace AST

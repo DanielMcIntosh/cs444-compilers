@@ -137,7 +137,7 @@ SemanticErrorType Name::disambiguate(Semantic::Scope const& scope)
 
 	// since we pre-computed during type resolution the result of rule3 of namespace disambiguation,
 	// converted should already be non-null. If it is null, that means rule3 failed.
-	return std::visit([](auto &expr){ return expr == nullptr; }, converted) ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
+	return std::visit([](auto &expr){ return expr == nullptr; }, converted) ? SemanticErrorType::DisambiguiationFailed : SemanticErrorType::None;
 }
 
 void Name::buildConverted(std::unique_ptr<Expression> expr, unsigned int idStart)

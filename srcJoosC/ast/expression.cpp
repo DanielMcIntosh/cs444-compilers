@@ -240,7 +240,7 @@ SemanticErrorType ClassInstanceCreationExpression::deduceType()
 
 SemanticErrorType FieldAccess::deduceType()
 {
-	typeResult = TypeResult(*(decl->declaration->type));
+	typeResult = TypeResult(*(decl->varDecl->type));
 	return SemanticErrorType::None;
 }
 
@@ -499,7 +499,7 @@ SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const
 		}
 	}
 	declaration = type->getDeclaration()->findConstructor(this);
-	return declaration == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
+	return declaration == nullptr ? SemanticErrorType::DeclarationNotFound : SemanticErrorType::None;
 }
 
 SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
@@ -520,9 +520,9 @@ SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 		if (member != "length") return SemanticErrorType::ExprResolution;
 		return SemanticErrorType::None;
 	} */
-	if (sourceDecl.isPrimitive) return SemanticErrorType::ExprResolution;
+	if (sourceDecl.isPrimitive) return SemanticErrorType::PrimativeNotExpected;
 	decl = sourceDecl.userDefinedType->findField(this);
-	return decl == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
+	return decl == nullptr ? SemanticErrorType::DeclarationNotFound : SemanticErrorType::None;
 }
 
 SemanticErrorType LocalVariableExpression::resolve(Semantic::Scope const& scope)
@@ -560,7 +560,7 @@ SemanticErrorType MethodInvocation::disambiguateSource(Semantic::Scope const& sc
 		auto error = std::visit(
 			[this](auto &converted) {
 				if (converted == nullptr)
-					return SemanticErrorType::ExprResolution;
+					return SemanticErrorType::DisambiguiationFailed;
 				auto temp = std::move(converted);
 				source = std::move(temp);
 				return SemanticErrorType::None;
@@ -607,9 +607,9 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 		[](std::unique_ptr<NameType> &src)   { return TypeResult(*src); },
 		[](std::unique_ptr<Name> &)          { assert(false); return TypeResult(); }
 	}, source);
-	if (sourceDecl.isPrimitive) return SemanticErrorType::ExprResolution;
+	if (sourceDecl.isPrimitive) return SemanticErrorType::PrimativeNotExpected;
 	declaration = sourceDecl.userDefinedType->findMethod(this);
-	return declaration == nullptr ? SemanticErrorType::ExprResolution : SemanticErrorType::None;
+	return declaration == nullptr ? SemanticErrorType::DeclarationNotFound : SemanticErrorType::None;
 }
 
 SemanticErrorType NameExpression::resolve(Semantic::Scope const& scope)
@@ -625,7 +625,7 @@ SemanticErrorType NameExpression::resolve(Semantic::Scope const& scope)
 	}, unresolved->converted);
 	if (converted == nullptr)
 	{
-		return SemanticErrorType::ExprResolution;
+		return SemanticErrorType::DisambiguiationFailed;
 	}
 	return converted->resolveAndDeduce(scope);
 }
@@ -1219,6 +1219,10 @@ FieldAccess::FieldAccess(std::unique_ptr<NameType> type, std::string field)
 	nodeType = NodeType::FieldAccess;
 }
 
+bool FieldAccess::isStaticAccessor() const
+{
+	return std::holds_alternative<std::unique_ptr<NameType>>(source);
+}
 
 
 //////////////////////////////////////////////////////////////////////////////

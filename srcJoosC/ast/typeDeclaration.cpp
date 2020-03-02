@@ -11,7 +11,6 @@
 #include "ast/expression.h"
 #include "parse/parseTree.h"
 #include "semantic/semantic.h"
-#include "semantic/scope.h"
 #include <memory>
 #include <vector>
 #include <string>
@@ -73,6 +72,10 @@ TypeDeclaration::TypeDeclaration(const Parse::TClassDeclaration *ptNode)
 	for (const auto &mod : modifiers) {
 		modifierSet[static_cast<size_t>(mod->type)] = true;
 	}
+	for (const auto &mem : members)
+	{
+		mem->_enclosingClass = this;
+	}
 }
 
 TypeDeclaration::TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode)
@@ -93,6 +96,11 @@ TypeDeclaration::TypeDeclaration(const Parse::TInterfaceDeclaration *ptNode)
 	}
 	// interfaces are implicitly abstract
 	modifierSet[static_cast<size_t>(Modifier::Variant::Abstract)] = true;
+
+	for (const auto &mem : members)
+	{
+		mem->_enclosingClass = this;
+	}
 }
 
 std::string TypeDeclaration::toCode() const
@@ -166,7 +174,7 @@ SemanticErrorType TypeDeclaration::resolveBodyTypeNames(Semantic::SemanticDB con
 {
 	for (auto &decl : members)
 	{
-		if (SemanticErrorType err = decl->resolveTypes(semantic, this);
+		if (SemanticErrorType err = decl->resolveTypes(semantic);
 			err != SemanticErrorType::None)
 		{
 			return err;
@@ -181,19 +189,26 @@ SemanticErrorType TypeDeclaration::resolveBodyExprs()
 	{
 		for (auto *decl : methodSets.declareSet)
 		{
-			decl->addThisParam(this);
+			decl->addThisParam();
 		}
 		for (auto *decl : constructorSet)
 		{
-			decl->addThisParam(this);
+			decl->addThisParam();
 		}
+		// for fields, we add the "this" directly to the scope.
 	}
 
-	Semantic::Scope scope(this);
+	for (auto *decl : fieldSets.declareSet)
+	{
+		if (SemanticErrorType err = decl->resolveExprs();
+			err != SemanticErrorType::None)
+		{
+			return err;
+		}
+	}
 	for (auto *decl : methodSets.declareSet)
 	{
-		// Semantic::Scope methodScope(scope, decl);
-		if (SemanticErrorType err = decl->resolveExprs(scope);
+		if (SemanticErrorType err = decl->resolveExprs();
 			err != SemanticErrorType::None)
 		{
 			return err;
@@ -201,7 +216,7 @@ SemanticErrorType TypeDeclaration::resolveBodyExprs()
 	}
 	for (auto *decl : constructorSet)
 	{
-		if (SemanticErrorType err = decl->resolveExprs(scope);
+		if (SemanticErrorType err = decl->resolveExprs();
 			err != SemanticErrorType::None)
 		{
 			return err;

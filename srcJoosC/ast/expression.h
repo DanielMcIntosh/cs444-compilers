@@ -289,6 +289,8 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
+
+	bool isStaticAccessor() const;
 protected:
 	std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> source;
 	std::string member;

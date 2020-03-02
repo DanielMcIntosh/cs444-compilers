@@ -102,18 +102,18 @@ bool ConstructorDeclaration::signatureEquals(const ClassInstanceCreationExpressi
 	return true;
 }
 
-Semantic::SemanticErrorType ConstructorDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+Semantic::SemanticErrorType ConstructorDeclaration::resolveTypes(Semantic::SemanticDB const& semantic)
 {
 	for (auto &param: parameters)
 	{
-		if (Semantic::SemanticErrorType err = param->resolveTypes(semantic, enclosingClass);
+		if (Semantic::SemanticErrorType err = param->resolveTypes(semantic, _enclosingClass);
 			err != Semantic::SemanticErrorType::None)
 		{
 			return err;
 		}
 	}
 
-	if (Semantic::SemanticErrorType err = body->resolveTypes(semantic, enclosingClass);
+	if (Semantic::SemanticErrorType err = body->resolveTypes(semantic, _enclosingClass);
 		err != Semantic::SemanticErrorType::None)
 	{
 		return err;
@@ -122,12 +122,12 @@ Semantic::SemanticErrorType ConstructorDeclaration::resolveTypes(Semantic::Seman
 	return Semantic::SemanticErrorType::None;
 }
 
-Semantic::SemanticErrorType ConstructorDeclaration::resolveExprs(Semantic::Scope &parentScope)
+Semantic::SemanticErrorType ConstructorDeclaration::resolveExprs()
 {
-	if (identifier != parentScope._enclosingClass->name) {
+	if (identifier != _enclosingClass->name) {
 		return Semantic::SemanticErrorType::ConstructorWrongName;
 	}
-	Semantic::Scope scope(parentScope);
+	Semantic::Scope scope(_enclosingClass, this);
 	for (auto &param: parameters)
 	{
 		if (!scope.add(param))
@@ -147,11 +147,11 @@ Semantic::SemanticErrorType ConstructorDeclaration::resolveExprs(Semantic::Scope
 	return Semantic::SemanticErrorType::None;
 }
 
-void ConstructorDeclaration::addThisParam(TypeDeclaration *decl)
+void ConstructorDeclaration::addThisParam()
 {
 	if (!hasModifier(Modifier::Variant::Static))
 	{
-		parameters.insert(parameters.begin(), std::make_unique<VariableDeclaration>(decl->asType(), "this"));
+		parameters.insert(parameters.begin(), std::make_unique<VariableDeclaration>(_enclosingClass->asType(), "this"));
 	}
 }
 

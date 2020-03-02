@@ -49,10 +49,11 @@ SemanticErrorType ReturnStatement::resolveExprs(Semantic::Scope &parentScope)
 	{
 		auto err = returnValue->resolveAndDeduce(parentScope);
 		if (err != Semantic::SemanticErrorType::None) return err;
-		if (!parentScope._enclosingMethod) {
+		if (std::holds_alternative<ConstructorDeclaration *>(parentScope._enclosingMethod)) {
 			return Semantic::SemanticErrorType::ReturningFromConstructor;
 		}
-		auto declaredType = TypeResult(*parentScope._enclosingMethod->returnType);
+		auto enclMethod = std::get<MethodDeclaration *>(parentScope._enclosingMethod);
+		auto declaredType = TypeResult(*enclMethod->returnType);
 		if (declaredType.isPrimitiveType(TypePrimitive::Void)) {
 			return Semantic::SemanticErrorType::ReturningValueFromVoidFunction;
 		}

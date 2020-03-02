@@ -5,6 +5,7 @@
 #include "ast/modifier.h"
 #include "ast/nodeList.h"
 #include "ast/expression.h"
+#include "ast/typeDeclaration.h"
 #include "parse/parseTree.h"
 #include "semantic/scope.h"
 #include "semantic/semantic.h"
@@ -28,7 +29,7 @@ std::unique_ptr<FieldDeclaration> FieldDeclaration::create(const Parse::Tree *pt
 }
 FieldDeclaration::FieldDeclaration(const Parse::TFieldDeclaration *ptNode)
   : MemberDeclaration(std::move(NodeList<Modifier>(ptNode->modifiers).list)),
-	declaration(std::make_unique<VariableDeclaration>(ptNode->variableDeclaration))
+	varDecl(std::make_unique<VariableDeclaration>(ptNode->variableDeclaration))
 {
 	nodeType = NodeType::FieldDeclaration;
 }
@@ -40,31 +41,37 @@ std::string FieldDeclaration::toCode() const
 	{
 		str += mod->toCode() + " ";
 	}
-	str += declaration->toCode() + ";";
+	str += varDecl->toCode() + ";";
 	return str;
 }
 
 bool FieldDeclaration::equals(const FieldDeclaration *other) const {
-  return declaration->equals(other->declaration.get());
+  return varDecl->equals(other->varDecl.get());
 }
 
 bool FieldDeclaration::idEquals(const FieldDeclaration *other) const {
-	return declaration->idEquals(other->declaration.get());
+	return varDecl->idEquals(other->varDecl.get());
 }
 bool FieldDeclaration::idEquals(const FieldAccess *other) const
 {
-	return declaration->idEquals(other->member)
-	&& (hasModifier(Modifier::Variant::Static) == std::holds_alternative<std::unique_ptr<NameType>>(other->source));
+	return varDecl->idEquals(other->member)
+	&& (hasModifier(Modifier::Variant::Static) == other->isStaticAccessor());
 }
 
-Semantic::SemanticErrorType FieldDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+Semantic::SemanticErrorType FieldDeclaration::resolveTypes(Semantic::SemanticDB const& semantic)
 {
-	return declaration->resolveTypes(semantic, enclosingClass);
+	return varDecl->resolveTypes(semantic, _enclosingClass);
 }
 
-Semantic::SemanticErrorType FieldDeclaration::resolveExprs(Semantic::Scope &parentScope)
+Semantic::SemanticErrorType FieldDeclaration::resolveExprs()
 {
-	return declaration->resolveExprs(parentScope);
+	Semantic::Scope scope(_enclosingClass);
+	auto thisDecl = std::make_unique<VariableDeclaration>(_enclosingClass->asType(), "this");
+	if (!hasModifier(Modifier::Variant::Static))
+	{
+		scope.add(thisDecl);
+	}
+	return varDecl->resolveExprs(scope);
 }
 
 } //namespace AST

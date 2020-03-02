@@ -3,12 +3,15 @@
 #include <memory>
 #include <vector>
 #include <string>
-#include <ast/methodDeclaration.h>
+#include <variant>
 
 namespace AST
 {
 	class VariableDeclaration;
 	class TypeDeclaration;
+	class MethodDeclaration;
+	class ConstructorDeclaration;
+	class FieldDeclaration;
 }
 
 namespace Semantic {
@@ -16,8 +19,9 @@ namespace Semantic {
 class Scope {
 public:
 	explicit Scope(AST::TypeDeclaration *enclosingClass);
+	explicit Scope(AST::TypeDeclaration *enclosingClass, AST::MethodDeclaration *enclosingMethod);
+	explicit Scope(AST::TypeDeclaration *enclosingClass, AST::ConstructorDeclaration *enclosingMethod);
 	Scope(Scope &parent);
-	Scope(Scope &parent, AST::MethodDeclaration *enclosingMethod);
 
 	bool add(std::unique_ptr<AST::VariableDeclaration> const&);
 	bool add(const AST::VariableDeclaration *);
@@ -27,7 +31,7 @@ public:
 
 	AST::TypeDeclaration * const _enclosingClass;
 	// nullable
-	AST::MethodDeclaration * const _enclosingMethod;
+	std::variant<AST::MethodDeclaration *, AST::ConstructorDeclaration *> const _enclosingMethod;
 protected:
 	Scope &_parent = *this;
 	std::vector<const AST::VariableDeclaration *> _declarations;

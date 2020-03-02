@@ -133,9 +133,9 @@ bool MethodDeclaration::equals(const MethodDeclaration *other) const {
 	return identifier == other->identifier;
 }
 
-Semantic::SemanticErrorType MethodDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+Semantic::SemanticErrorType MethodDeclaration::resolveTypes(Semantic::SemanticDB const& semantic)
 {
-	if (Semantic::SemanticErrorType err = returnType->resolve(semantic, enclosingClass);
+	if (Semantic::SemanticErrorType err = returnType->resolve(semantic, _enclosingClass);
 		err != Semantic::SemanticErrorType::None)
 	{
 		return err;
@@ -143,7 +143,7 @@ Semantic::SemanticErrorType MethodDeclaration::resolveTypes(Semantic::SemanticDB
 
 	for (auto &param: parameters)
 	{
-		if (Semantic::SemanticErrorType err = param->resolveTypes(semantic, enclosingClass);
+		if (Semantic::SemanticErrorType err = param->resolveTypes(semantic, _enclosingClass);
 			err != Semantic::SemanticErrorType::None)
 		{
 			return err;
@@ -152,7 +152,7 @@ Semantic::SemanticErrorType MethodDeclaration::resolveTypes(Semantic::SemanticDB
 
 	if (body)
 	{
-		if (Semantic::SemanticErrorType err = body->resolveTypes(semantic, enclosingClass);
+		if (Semantic::SemanticErrorType err = body->resolveTypes(semantic, _enclosingClass);
 			err != Semantic::SemanticErrorType::None)
 		{
 			return err;
@@ -161,9 +161,9 @@ Semantic::SemanticErrorType MethodDeclaration::resolveTypes(Semantic::SemanticDB
 	return Semantic::SemanticErrorType::None;
 }
 
-Semantic::SemanticErrorType MethodDeclaration::resolveExprs(Semantic::Scope &parentScope)
+Semantic::SemanticErrorType MethodDeclaration::resolveExprs()
 {
-	Semantic::Scope scope(parentScope, this);
+	Semantic::Scope scope(_enclosingClass, this);
 	for (auto &param: parameters)
 	{
 		if (!scope.add(param))
@@ -183,11 +183,11 @@ Semantic::SemanticErrorType MethodDeclaration::resolveExprs(Semantic::Scope &par
 	return Semantic::SemanticErrorType::None;
 }
 
-void MethodDeclaration::addThisParam(TypeDeclaration *decl)
+void MethodDeclaration::addThisParam()
 {
 	if (!hasModifier(Modifier::Variant::Static))
 	{
-		parameters.insert(parameters.begin(), std::make_unique<VariableDeclaration>(decl->asType(), "this"));
+		parameters.insert(parameters.begin(), std::make_unique<VariableDeclaration>(_enclosingClass->asType(), "this"));
 	}
 }
 

@@ -24,10 +24,10 @@ public:
 	bool signatureEquals(const ConstructorDeclaration *) const;
 	bool signatureEquals(const ClassInstanceCreationExpression *) const;
 
-	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
-	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic) override;
+	Semantic::SemanticErrorType resolveExprs() override;
 
-	void addThisParam(TypeDeclaration *decl);
+	void addThisParam();
 protected:
 	std::string identifier;
 	std::vector<std::unique_ptr<VariableDeclaration>> parameters;

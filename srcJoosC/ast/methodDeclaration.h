@@ -31,10 +31,10 @@ public:
 	[[gnu::pure]]
 	bool returnEquals(const MethodDeclaration *other) const;
 
-	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
-	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
+	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic) override;
+	Semantic::SemanticErrorType resolveExprs() override;
 
-	void addThisParam(TypeDeclaration *decl);
+	void addThisParam();
 	std::unique_ptr<Type> returnType;
 protected:
 	std::string identifier;
