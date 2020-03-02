@@ -508,4 +508,23 @@ bool TypeDeclaration::hasModifier(Modifier::Variant mod) const {
 	return modifierSet[static_cast<size_t>(mod)];
 }
 
+bool TypeDeclaration::isSamePackage(const TypeDeclaration *other) const
+{
+	return fqn.substr(0, fqn.find_last_of('.')) == other->fqn.substr(0, other->fqn.find_last_of('.'));
+}
+bool TypeDeclaration::isSubClassOf(const TypeDeclaration *other) const
+{
+	// if we are the same class
+	if (this == other)
+		return true;
+
+	// if I'm a (potentially indirect) child of other, they're one of my parents
+	for (auto *decl : hyperSet)
+	{
+		if (other == decl)
+			return true;
+	}
+	return false;
+}
+
 } //namespace AST

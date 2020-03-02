@@ -361,6 +361,8 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
+
+	bool isStaticCall() const;
 private:
 	Semantic::SemanticErrorType disambiguateSource(Semantic::Scope const& scope);
 protected:

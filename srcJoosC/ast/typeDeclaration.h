@@ -55,6 +55,8 @@ public:
 	std::unique_ptr<NameType> asType();
 
 	bool hasModifier(Modifier::Variant) const;
+	bool isSamePackage(const TypeDeclaration *other) const;
+	bool isSubClassOf(const TypeDeclaration *) const;
 
 	// Fully qualified name (with package string)
 	std::string fqn;

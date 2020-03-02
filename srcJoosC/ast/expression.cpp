@@ -498,15 +498,31 @@ SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const
 			return error;
 		}
 	}
+
 	declaration = type->getDeclaration()->findConstructor(this);
-	return declaration == nullptr ? SemanticErrorType::DeclarationNotFound : SemanticErrorType::None;
+
+	if (declaration == nullptr)
+	{
+		return SemanticErrorType::DeclarationNotFound;
+	}
+	if (declaration->hasModifier(Modifier::Variant::Protected))
+	{
+		// check that we can access the declaration (JLS 6.6.1)
+		// protected constructors can only be used within the same package
+		if (!scope._enclosingClass->isSamePackage(declaration->_enclosingClass))
+		{
+			return SemanticErrorType::AccessViolation;
+		}
+	}
+
+	return SemanticErrorType::None;
 }
 
 SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 {
 
 	SemanticErrorType ret = SemanticErrorType::None;
-	TypeResult sourceDecl = std::visit(visitor{
+	TypeResult sourceType = std::visit(visitor{
 		[&ret, &scope](std::unique_ptr<Expression> &expr) {
 			ret = expr->resolveAndDeduce(scope);
 			return expr->typeResult;
@@ -515,14 +531,34 @@ SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 			return TypeResult(*t);
 		}
 	}, source);
+	if (ret != SemanticErrorType::None)
+	{
+		return ret;
+	}
 	/* TODO: need to create declaration for length field
-	if (sourceDecl.isArray) {
+	if (sourceType.isArray) {
 		if (member != "length") return SemanticErrorType::ExprResolution;
 		return SemanticErrorType::None;
 	} */
-	if (sourceDecl.isPrimitive) return SemanticErrorType::PrimativeNotExpected;
-	decl = sourceDecl.userDefinedType->findField(this);
-	return decl == nullptr ? SemanticErrorType::DeclarationNotFound : SemanticErrorType::None;
+	if (sourceType.isPrimitive) return SemanticErrorType::PrimativeNotExpected;
+
+	decl = sourceType.userDefinedType->findField(this);
+	if (decl == nullptr)
+	{
+		return SemanticErrorType::DeclarationNotFound;
+	}
+	if (decl->hasModifier(Modifier::Variant::Protected))
+	{
+		// check that we can access the declaration (JLS 6.6.1)
+		if (!(scope._enclosingClass->isSamePackage(decl->_enclosingClass) ||
+			 (scope._enclosingClass->isSubClassOf(decl->_enclosingClass) &&
+			  (isStaticAccessor() || sourceType.userDefinedType->isSubClassOf(scope._enclosingClass)))))
+		{
+			return SemanticErrorType::AccessViolation;
+		}
+	}
+
+	return SemanticErrorType::None;
 }
 
 SemanticErrorType LocalVariableExpression::resolve(Semantic::Scope const& scope)
@@ -602,14 +638,30 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 	}
 
 	// find method declaration
-	TypeResult sourceDecl = std::visit(visitor{
+	TypeResult sourceType = std::visit(visitor{
 		[](std::unique_ptr<Expression> &src) { return src->typeResult; },
 		[](std::unique_ptr<NameType> &src)   { return TypeResult(*src); },
 		[](std::unique_ptr<Name> &)          { assert(false); return TypeResult(); }
 	}, source);
-	if (sourceDecl.isPrimitive) return SemanticErrorType::PrimativeNotExpected;
-	declaration = sourceDecl.userDefinedType->findMethod(this);
-	return declaration == nullptr ? SemanticErrorType::DeclarationNotFound : SemanticErrorType::None;
+	if (sourceType.isPrimitive) return SemanticErrorType::PrimativeNotExpected;
+
+	declaration = sourceType.userDefinedType->findMethod(this);
+	if (declaration == nullptr)
+	{
+		return SemanticErrorType::DeclarationNotFound;
+	}
+	if (declaration->hasModifier(Modifier::Variant::Protected))
+	{
+		// check that we can access the declaration (JLS 6.6.1)
+		if (!(scope._enclosingClass->isSamePackage(declaration->_enclosingClass) ||
+			 (scope._enclosingClass->isSubClassOf(declaration->_enclosingClass) &&
+			  (isStaticCall() || sourceType.userDefinedType->isSubClassOf(scope._enclosingClass)))))
+		{
+			return SemanticErrorType::AccessViolation;
+		}
+	}
+
+	return SemanticErrorType::None;
 }
 
 SemanticErrorType NameExpression::resolve(Semantic::Scope const& scope)
@@ -1297,6 +1349,11 @@ MethodInvocation::MethodInvocation(const Parse::TMethodInvocation *ptNode)
 		// a null unique_ptr<Expression>, since Expression is the simpler case (it has simpler expression resolution)
 		source = Expression::create(ptNode->primary);
 	}
+}
+
+bool MethodInvocation::isStaticCall() const
+{
+	return std::holds_alternative<std::unique_ptr<NameType>>(source);
 }
 
 //////////////////////////////////////////////////////////////////////////////
