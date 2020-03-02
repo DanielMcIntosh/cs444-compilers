@@ -1056,7 +1056,9 @@ std::string UnaryExpression::toCode() const
 //////////////////////////////////////////////////////////////////////////////
 
 ArrayAccess::ArrayAccess(const Parse::TArrayAccess *ptNode)
-				: array(Expression::create(ptNode->expression)),
+				: array(Expression::create((ptNode->v == Parse::TArrayAccessV::NameLSBrExpressionRSBr)
+									? (const Parse::Tree *)ptNode->name
+									: (const Parse::Tree *)ptNode->primaryNoNewArray)),
 				  index(Expression::create(ptNode->expression))
 {
 	nodeType = NodeType::ArrayAccess;
