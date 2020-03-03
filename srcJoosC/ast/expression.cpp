@@ -190,23 +190,6 @@ SemanticErrorType Expression::resolveAndDeduce(Semantic::Scope const& scope)
 	return deduceType();
 }
 
-TypeResult::TypeResult(Type const& type)
-  : isPrimitive(type.nodeType == NodeType::PrimitiveType),
-	isArray(type.isArray)
-{
-	if (isPrimitive)
-	{
-		PrimitiveType const& primitive = static_cast<PrimitiveType const&>(type);
-		primitiveType = (TypePrimitive)(primitive.type);
-		userDefinedType = nullptr;
-	} else
-	{
-		NameType const& name = static_cast<NameType const&>(type);
-		primitiveType = TypePrimitive::Max;
-		userDefinedType = name.declaration;
-	}
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // deduceType
@@ -240,7 +223,19 @@ SemanticErrorType ClassInstanceCreationExpression::deduceType()
 
 SemanticErrorType FieldAccess::deduceType()
 {
-	typeResult = TypeResult(*(decl->varDecl->type));
+	// this is a temporary hack until we better understand how we want to implement length
+	if (decl == nullptr)
+	{
+		if (member != "length")
+		{
+			return SemanticErrorType::TypeCheck;
+		}
+		typeResult = TypeResult(false, TypePrimitive::Int);
+	}
+	else
+	{
+		typeResult = TypeResult(*(decl->varDecl->type));
+	}
 	return SemanticErrorType::None;
 }
 
@@ -250,7 +245,7 @@ SemanticErrorType Literal::deduceType() {
 					[](bool) { return TypeResult{false, TypePrimitive::Boolean}; },
 					[](char) { return TypeResult{false, TypePrimitive::Char}; },
 					[](std::string&) {
-						return !gStandAloneMode ? TypeResult(*(Literal::stringDecl->asType())) : TypeResult(); },
+						return (!gStandAloneMode) ? TypeResult(*(Literal::stringDecl->asType())) : TypeResult{false, TypePrimitive::Max}; },
 					[](std::nullptr_t) { return TypeResult{false, TypePrimitive::Null}; }
 	}, value);
 	return SemanticErrorType::None;
@@ -503,7 +498,7 @@ SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const
 		}
 	}
 
-	declaration = type->getDeclaration()->findConstructor(this);
+	declaration = type->declaration->findConstructor(this);
 
 	if (declaration == nullptr)
 	{
@@ -539,11 +534,14 @@ SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 	{
 		return ret;
 	}
-	/* TODO: need to create declaration for length field
-	if (sourceType.isArray) {
-		if (member != "length") return SemanticErrorType::ExprResolution;
+
+	if (sourceType.isArray && member == "length") {
+		// TODO provide a declaration for length?
+		// this is a temporary hack until we better understand how we want to implement length
+		decl = nullptr;
 		return SemanticErrorType::None;
-	} */
+	}
+
 	if (sourceType.isPrimitive) return SemanticErrorType::PrimativeNotExpected;
 
 	decl = sourceType.userDefinedType->findField(this);
@@ -645,7 +643,7 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 	TypeResult sourceType = std::visit(visitor{
 		[](std::unique_ptr<Expression> &src) { return src->typeResult; },
 		[](std::unique_ptr<NameType> &src)   { return TypeResult(*src); },
-		[](std::unique_ptr<Name> &)          { assert(false); return TypeResult(); }
+		[](std::unique_ptr<Name> &) -> TypeResult { assert(false); }
 	}, source);
 	if (sourceType.isPrimitive) return SemanticErrorType::PrimativeNotExpected;
 
@@ -1420,8 +1418,21 @@ std::ostream& operator<<(std::ostream& os, UnaryExpression::Variant type)
 	return os << ("" + type);
 }
 
-TypeResult::TypeResult(): isPrimitive(true), isArray(false), userDefinedType(nullptr) {
-
+TypeResult::TypeResult(Type const& type)
+  : isPrimitive(type.nodeType == NodeType::PrimitiveType),
+	isArray(type.isArray)
+{
+	if (isPrimitive)
+	{
+		PrimitiveType const& primitive = static_cast<PrimitiveType const&>(type);
+		primitiveType = (TypePrimitive)(primitive.type);
+		userDefinedType = nullptr;
+	} else
+	{
+		NameType const& name = static_cast<NameType const&>(type);
+		primitiveType = TypePrimitive::Max;
+		userDefinedType = name.declaration;
+	}
 }
 
 bool TypeResult::isNum() const {

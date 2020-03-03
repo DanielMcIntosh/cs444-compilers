@@ -52,10 +52,9 @@ struct TypeResult {
 	TypePrimitive primitiveType;
 	TypeDeclaration *userDefinedType;
 
-	TypeResult();
 	TypeResult(Type const& type);
 	TypeResult(bool arr, TypePrimitive primT)
-		: isPrimitive(true), isArray(arr), primitiveType(primT) {}
+		: isPrimitive(true), isArray(arr), primitiveType(primT), userDefinedType(nullptr) {}
 	// is non array numeric type
 	[[gnu::pure]]
 	bool isNum() const;
@@ -96,7 +95,7 @@ public:
 	virtual Semantic::SemanticErrorType resolve(Semantic::Scope const& scope);
 	Semantic::SemanticErrorType resolveAndDeduce(Semantic::Scope const& scope);
 
-	TypeResult typeResult;
+	TypeResult typeResult = TypeResult(false, TypePrimitive::Max);
 	virtual Semantic::SemanticErrorType deduceType() = 0;
 
 	static void resetError();
