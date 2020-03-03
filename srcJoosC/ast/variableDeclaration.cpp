@@ -95,7 +95,7 @@ Semantic::SemanticErrorType VariableDeclaration::resolveExprs(Semantic::Scope co
 	{
 		auto err = initializer->resolveAndDeduce(parentScope);
 		if (err != Semantic::SemanticErrorType::None) return err;
-		if (!TypeResult(*type).canAssignToMe(initializer->typeResult)) {
+		if (!TypeResult(*type, false).canAssignToMyType(initializer->typeResult)) {
 			return Semantic::SemanticErrorType::AssignableType;
 		}
 	}

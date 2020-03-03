@@ -49,12 +49,13 @@ static_assert( (int)TypePrimitive::Null   	== (int)PrimitiveType::Variant::Null)
 struct TypeResult {
 	bool isPrimitive;
 	bool isArray;
+	bool isFinal;
 	TypePrimitive primitiveType;
 	TypeDeclaration *userDefinedType;
 
-	TypeResult(Type const& type);
-	TypeResult(bool arr, TypePrimitive primT)
-		: isPrimitive(true), isArray(arr), primitiveType(primT), userDefinedType(nullptr) {}
+	TypeResult(Type const& type, bool final);
+	TypeResult(bool arr, TypePrimitive primT, bool final)
+		: isPrimitive(true), isArray(arr), isFinal(final), primitiveType(primT), userDefinedType(nullptr) {}
 	// is non array numeric type
 	[[gnu::pure]]
 	bool isNum() const;
@@ -72,7 +73,7 @@ struct TypeResult {
 	bool operator==(const TypeResult&other) const;
 
 	// assignability (JLS 5), used in more than one place
-	bool canAssignToMe(const TypeResult &other) const ;
+	bool canAssignToMyType(const TypeResult &other) const ;
 };
 
 struct TypeDeduceError {
@@ -95,7 +96,7 @@ public:
 	virtual Semantic::SemanticErrorType resolve(Semantic::Scope const& scope);
 	Semantic::SemanticErrorType resolveAndDeduce(Semantic::Scope const& scope);
 
-	TypeResult typeResult = TypeResult(false, TypePrimitive::Max);
+	TypeResult typeResult = TypeResult(false, TypePrimitive::Max, true);
 	virtual Semantic::SemanticErrorType deduceType() = 0;
 
 	static void resetError();

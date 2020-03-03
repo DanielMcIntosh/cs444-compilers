@@ -204,15 +204,15 @@ SemanticErrorType Expression::resolveAndDeduce(Semantic::Scope const& scope)
 SemanticErrorType CastExpression::deduceType()
 {
 	// first allow all numeric casts
-	auto lhs = TypeResult(*type);
+	auto lhs = TypeResult(*type, rhs->typeResult.isFinal);
 	typeResult = lhs;
 	if (lhs.isNum() && rhs->typeResult.isNum())
 		OK();
 
 	// then try assignability
-	if (lhs.canAssignToMe(rhs->typeResult))
+	if (lhs.canAssignToMyType(rhs->typeResult))
 		OK();
-	else if (rhs->typeResult.canAssignToMe(lhs))
+	else if (rhs->typeResult.canAssignToMyType(lhs))
 		OK();
 
 	GOFAIL(); // to print error
@@ -222,7 +222,7 @@ SemanticErrorType CastExpression::deduceType()
 
 SemanticErrorType ClassInstanceCreationExpression::deduceType()
 {
-	typeResult = TypeResult(*type);
+	typeResult = TypeResult(*type, true);
 	return SemanticErrorType::None;
 }
 
@@ -235,23 +235,24 @@ SemanticErrorType FieldAccess::deduceType()
 		{
 			return SemanticErrorType::TypeCheck;
 		}
-		typeResult = TypeResult(false, TypePrimitive::Int);
+		typeResult = TypeResult(false, TypePrimitive::Int, true);
 	}
 	else
 	{
-		typeResult = TypeResult(*(decl->varDecl->type));
+		// type result is the type the field was declared with
+		typeResult = TypeResult(*(decl->varDecl->type), decl->hasModifier(Modifier::Variant::Final));
 	}
 	return SemanticErrorType::None;
 }
 
 SemanticErrorType Literal::deduceType() {
 	typeResult = std::visit(visitor{
-					[](unsigned int) { return TypeResult{false, TypePrimitive::Int}; },
-					[](bool) { return TypeResult{false, TypePrimitive::Boolean}; },
-					[](char) { return TypeResult{false, TypePrimitive::Char}; },
+					[](unsigned int) { return TypeResult{false, TypePrimitive::Int, true}; },
+					[](bool) { return TypeResult{false, TypePrimitive::Boolean, true}; },
+					[](char) { return TypeResult{false, TypePrimitive::Char, true}; },
 					[](std::string&) {
-						return (!gStandAloneMode) ? TypeResult(*(Literal::stringDecl->asType())) : TypeResult{false, TypePrimitive::Max}; },
-					[](std::nullptr_t) { return TypeResult{false, TypePrimitive::Null}; }
+						return (!gStandAloneMode) ? TypeResult(*(Literal::stringDecl->asType()), true) : TypeResult{false, TypePrimitive::Max, true}; },
+					[](std::nullptr_t) { return TypeResult{false, TypePrimitive::Null, true}; }
 	}, value);
 	return SemanticErrorType::None;
 }
@@ -304,7 +305,8 @@ SemanticErrorType ArrayCreationExpression::deduceType() {
 
 SemanticErrorType AssignmentExpression::deduceType() {
 	typeResult = lhs->typeResult;
-	if (lhs->typeResult.canAssignToMe(rhs->typeResult))
+	if (lhs->typeResult.canAssignToMyType(rhs->typeResult) &&
+		!lhs->typeResult.isFinal)
 		OK();
 	GOFAIL(); // to print error
 	fail:
@@ -340,32 +342,40 @@ std::optional<TypeResult> BinExprHelper(Expression* lhs, Expression* rhs,
 	bool bothNum = lhsTR.isNum() && rhsTR.isNum();
 	bool bothBool = lhsTR.isPrimitiveType(TypePrimitive::Boolean) &&
 	                rhsTR.isPrimitiveType(TypePrimitive::Boolean);
-	bool assignable = lhsTR.canAssignToMe(rhsTR) || rhsTR.canAssignToMe(lhsTR);
+	bool assignable = lhsTR.canAssignToMyType(rhsTR) || rhsTR.canAssignToMyType(lhsTR);
 
 	if (bothNum && IsArithmeticOp(op)) {
-		return TypeResult(false, TypePrimitive::Int);
+		return TypeResult(false, TypePrimitive::Int, true);
 	}
 
 	if (bothNum && IsNumCompare(op)) {
-		return TypeResult(false, TypePrimitive::Boolean);
+		return TypeResult(false, TypePrimitive::Boolean, true);
 	}
 
 	if (bothBool && IsBooleanOp(op)) {
-		return TypeResult(false, TypePrimitive::Boolean);
+		return TypeResult(false, TypePrimitive::Boolean, true);
 	}
 
 	if ((bothNum || assignable) &&
 	    (op == BinaryExpression::Variant::Eq || op == BinaryExpression::Variant::NEq)) {
-		return TypeResult(false, TypePrimitive::Boolean);
+		return TypeResult(false, TypePrimitive::Boolean, true);
 	}
 
 	// At this point, only string concatenation remains
 	if (op == BinaryExpression::Variant::Add)
 	{
 		if (lhsTR.isJavaString() && !rhsTR.isPrimitiveType(TypePrimitive::Void))
-			return lhsTR;
+		{
+			TypeResult ret = lhsTR;
+			ret.isFinal = true;
+			return ret;
+		}
 		else if (rhsTR.isJavaString() && !lhsTR.isPrimitiveType(TypePrimitive::Void))
-			return rhsTR;
+		{
+			TypeResult ret = rhsTR;
+			ret.isFinal = true;
+			return ret;
+		}
 	}
 	return std::nullopt;
 }
@@ -383,14 +393,15 @@ SemanticErrorType BinaryExpression::deduceType() {
 					},
 					[&](std::unique_ptr<Type> &type) {
 						assert(op == BinaryExpression::Variant::InstanceOf);
-						auto rhsTypeResult = TypeResult(*type);
-						if (!lhs->typeResult.canAssignToMe(rhsTypeResult)
-							&& !rhsTypeResult.canAssignToMe(lhs->typeResult)) {
+						if (auto rhsTypeResult = TypeResult(*type, false);
+							!lhs->typeResult.canAssignToMyType(rhsTypeResult) &&
+							!rhsTypeResult.canAssignToMyType(lhs->typeResult))
+						{
 							err = SemanticErrorType::TypeCheck;
 							return;
 						}
 
-						typeResult = TypeResult(false, TypePrimitive::Boolean);
+						typeResult = TypeResult(false, TypePrimitive::Boolean, true);
 					}
 	}, rhs);
 
@@ -403,13 +414,14 @@ SemanticErrorType BinaryExpression::deduceType() {
 
 Semantic::SemanticErrorType LocalVariableExpression::deduceType()
 {
-	typeResult = TypeResult(*(declaration->type));
+	typeResult = TypeResult(*(declaration->type), false);
 	return SemanticErrorType::None;
 }
 Semantic::SemanticErrorType MethodInvocation::deduceType()
 {
-	// look inside the methods of the name, find the method with matching param types, then fill in declaration
-	typeResult = TypeResult(*(declaration->returnType));
+	// I'm setting isFinal to false because I don't remember Java well enough to know whether its
+	// "everything is a reference" policy means assigning to a return value makes sense
+	typeResult = TypeResult(*(declaration->returnType), false);
 	return SemanticErrorType::None;
 }
 Semantic::SemanticErrorType NameExpression::deduceType() {
@@ -432,6 +444,7 @@ Semantic::SemanticErrorType UnaryExpression::deduceType() {
 		ASSERT(false);
 	}
 	typeResult = t;
+	typeResult.isFinal = true;
 	return SemanticErrorType::None;
 }
 
@@ -534,7 +547,7 @@ SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 			return expr->typeResult;
 		},
 		[](std::unique_ptr<NameType> &t) {
-			return TypeResult(*t);
+			return TypeResult(*t, false);
 		}
 	}, source);
 	if (ret != SemanticErrorType::None)
@@ -649,7 +662,7 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 	// find method declaration
 	TypeResult sourceType = std::visit(visitor{
 		[](std::unique_ptr<Expression> &src) { return src->typeResult; },
-		[](std::unique_ptr<NameType> &src)   { return TypeResult(*src); },
+		[](std::unique_ptr<NameType> &src)   { return TypeResult(*src, false); },
 		[](std::unique_ptr<Name> &) -> TypeResult { assert(false); }
 	}, source);
 	if (sourceType.isPrimitive) return SemanticErrorType::PrimativeNotExpected;
@@ -1432,9 +1445,10 @@ std::ostream& operator<<(std::ostream& os, UnaryExpression::Variant type)
 	return os << ("" + type);
 }
 
-TypeResult::TypeResult(Type const& type)
+TypeResult::TypeResult(Type const& type, bool final)
   : isPrimitive(type.nodeType == NodeType::PrimitiveType),
-	isArray(type.isArray)
+	isArray(type.isArray),
+	isFinal(final)
 {
 	if (isPrimitive)
 	{
@@ -1480,7 +1494,7 @@ bool TypeResult::isNumOrArrayNum() const {
 	                       primitiveType == TypePrimitive::Char);
 }
 
-bool TypeResult::canAssignToMe(const TypeResult &other) const {
+bool TypeResult::canAssignToMyType(const TypeResult &other) const {
 	if ((isPrimitive && primitiveType == TypePrimitive::Void) ||
 		(other.isPrimitive && other.primitiveType == TypePrimitive::Void))
 		return false;

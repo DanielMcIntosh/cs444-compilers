@@ -53,11 +53,11 @@ SemanticErrorType ReturnStatement::resolveExprs(Semantic::Scope &parentScope)
 			return Semantic::SemanticErrorType::ReturningFromConstructor;
 		}
 		auto enclMethod = std::get<MethodDeclaration *>(parentScope._enclosingMethod);
-		auto declaredType = TypeResult(*enclMethod->returnType);
+		auto declaredType = TypeResult(*enclMethod->returnType, false);
 		if (declaredType.isPrimitiveType(TypePrimitive::Void)) {
 			return Semantic::SemanticErrorType::ReturningValueFromVoidFunction;
 		}
-		if (!declaredType.canAssignToMe(returnValue->typeResult)) {
+		if (!declaredType.canAssignToMyType(returnValue->typeResult)) {
 			return Semantic::SemanticErrorType::AssignableType;
 		}
 	}
