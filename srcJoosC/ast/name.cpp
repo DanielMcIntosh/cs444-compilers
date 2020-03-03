@@ -123,16 +123,8 @@ SemanticErrorType Name::disambiguate(Semantic::Scope const& scope)
 				return SemanticErrorType::None;
 			}
 		}
-		else
-		{
-			// attempt to construct a field access using the implicit TypeName
-			auto field = std::make_unique<FieldAccess>(scope._enclosingClass->asType(), ids[0]);
-			if (field->resolve(scope) == SemanticErrorType::None)
-			{
-				buildConverted(std::move(field), 1);
-				return SemanticErrorType::None;
-			}
-		}
+		// implicit TypeName is not permitted in joos.
+		// https://www.student.cs.uwaterloo.ca/~cs444/features/implicitthisclassforstaticmethods.html
 	}
 
 	// since we pre-computed during type resolution the result of rule3 of namespace disambiguation,

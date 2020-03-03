@@ -585,13 +585,13 @@ SemanticErrorType MethodInvocation::disambiguateSource(Semantic::Scope const& sc
 		if (auto thisExpr = std::make_unique<LocalVariableExpression>("this");
 			thisExpr->resolve(scope) == SemanticErrorType::None)
 		{
-			// implicit TypeName is not permitted in joos non-static methods. We can safely assume the source is thisExpr.
-			// https://www.student.cs.uwaterloo.ca/~cs444/features/implicitthisclassforstaticmethods.html
 			source = std::move(thisExpr);
 		}
 		else
 		{
-			source = scope._enclosingClass->asType();
+			// implicit TypeName is not permitted in joos. We can safely assume the source is thisExpr.
+			// https://www.student.cs.uwaterloo.ca/~cs444/features/implicitthisclassforstaticmethods.html
+			return SemanticErrorType::DisambiguiationFailed;
 		}
 	}
 	else if (std::holds_alternative<std::unique_ptr<Name>>(source))
