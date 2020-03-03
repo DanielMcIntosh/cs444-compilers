@@ -31,6 +31,7 @@ const char *gSemanticErrorTypeName[] = {
 	"TypeDeclarationClashImport",
 	"PrefixNameIsType",
 	"NotPackage",
+	"InstantiateAbstractClass",
 	"LocalVariableShadowing",
 	"FieldIdConflict",
 	"LocalVariableDNE",

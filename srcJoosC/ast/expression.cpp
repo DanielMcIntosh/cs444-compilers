@@ -111,6 +111,11 @@ ClassInstanceCreationExpression::resolveTypes(Semantic::SemanticDB const &semant
 	{
 		return error;
 	}
+	else if (type->declaration->isInterface ||
+		type->declaration->hasModifier(Modifier::Variant::Abstract))
+	{
+		return SemanticErrorType::InstantiateAbstractClass;
+	}
 	for (auto &expr : args) {
 		if (auto error = expr->resolveTypes(semantic, enclosingClass);
 			error != SemanticErrorType::None)
