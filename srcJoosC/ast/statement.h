@@ -27,7 +27,7 @@ class Statement: public Node
 public:
 	static std::unique_ptr<Statement> create(const Parse::Tree *ptNode);
 
-	virtual Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
+	virtual Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) = 0;
 	virtual Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) = 0;
 };
 

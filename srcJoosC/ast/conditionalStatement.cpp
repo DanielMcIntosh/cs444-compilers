@@ -79,7 +79,7 @@ Semantic::SemanticErrorType ConditionalStatement::resolveTypes(Semantic::Semanti
 		GOFAIL_IF_ERR(err);
 	}
 	if (elseBody) {
-		err = body->resolveTypes(semantic, enclosingClass);
+		err = elseBody->resolveTypes(semantic, enclosingClass);
 		GOFAIL_IF_ERR(err);
 	}
 	return Semantic::SemanticErrorType::None;

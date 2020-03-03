@@ -106,11 +106,6 @@ SemanticErrorType ExpressionStatement::resolveTypes(Semantic::SemanticDB const& 
 	return expression->resolveTypes(semantic, enclosingClass);
 }
 
-SemanticErrorType Statement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *source)
-{
-	return SemanticErrorType::None;
-}
-
 SemanticErrorType LocalVariableDeclarationStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
 	return declaration->resolveTypes(semantic, enclosingClass);
