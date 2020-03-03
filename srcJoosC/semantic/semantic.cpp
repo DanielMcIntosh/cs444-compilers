@@ -40,6 +40,8 @@ const char *gSemanticErrorTypeName[] = {
 	"PrimativeNotExpected",
 	"DisambiguiationFailed",
 	"DefaultSuperConstructorMissing",
+	"VariableInOwnInitializer",
+	"ForwardReferenceToField",
 	"ExprResolution",
 	"DuplicateFieldDeclaration",
 	"DuplicateMethodDeclaration",
@@ -386,7 +388,12 @@ void semanticDo(SemanticDB *sdb) {
 
 	for (auto *typeDecl : allTypes)
 	{
-		typeDecl->addThisParam();
+		if (SemanticErrorType err = typeDecl->exprResolutionPrep();
+			err != SemanticErrorType::None)
+		{
+			sdb->error = err;
+			return;
+		}
 	}
 
 	for (auto *typeDecl : allTypes)

@@ -183,7 +183,7 @@ SemanticErrorType TypeDeclaration::resolveBodyTypeNames(Semantic::SemanticDB con
 	return SemanticErrorType::None;
 }
 
-void TypeDeclaration::addThisParam()
+SemanticErrorType TypeDeclaration::exprResolutionPrep()
 {
 	if (!isInterface)
 	{
@@ -197,6 +197,154 @@ void TypeDeclaration::addThisParam()
 		}
 		// for fields, we add the "this" directly to the scope.
 	}
+
+	// pre exprResolution weeding:
+	if (SemanticErrorType err = precheckFieldInitializers();
+		err != SemanticErrorType::None)
+	{
+		return err;
+	}
+
+	return SemanticErrorType::None;
+}
+
+SemanticErrorType TypeDeclaration::precheckFieldInitializers()
+{
+	std::vector<FieldDeclaration *> undeclaredFields(fieldSets.declareSet.rbegin(), fieldSets.declareSet.rend());
+	for (auto *decl : fieldSets.declareSet)
+	{
+		// we're at the declaration for the field at the back of undeclaredFields, remove it from the list
+		undeclaredFields.pop_back();
+
+		if (!decl->varDecl->hasInitializer())
+			continue;
+		// since the restrictions from JLS 8.3.2.3 only apply to SimpleNames,
+		// and joos doesn't allow implicit this TypeNames, we can never violate them for
+		// a static field. Since all the fields we can access in the initializer for a
+		// static field are themselves static, we don't need to check static field initializers.
+		if (decl->hasModifier(Modifier::Variant::Static))
+			continue;
+
+		struct ExprStackMember {
+			bool isDirectAssignmentLhs = false;
+			Expression *expr;
+		};
+		std::vector<ExprStackMember> exprStack = {{false, decl->varDecl->initializer.get()}};
+		for (ExprStackMember cur; !exprStack.empty(); )
+		{
+			cur = exprStack.back();
+			exprStack.pop_back();
+
+			Name *curName = nullptr;
+			switch(cur.expr->nodeType)
+			{
+				case NodeType::ArrayAccess:
+				{
+					ArrayAccess *expr = static_cast<ArrayAccess *>(cur.expr);
+					exprStack.push_back({false, expr->array.get()});
+					exprStack.push_back({false, expr->index.get()});
+					continue;
+				}
+				case NodeType::ArrayCreationExpression:
+				{
+					ArrayCreationExpression *expr = static_cast<ArrayCreationExpression *>(cur.expr);
+					exprStack.push_back({false, expr->size.get()});
+					continue;
+				}
+				case NodeType::AssignmentExpression:
+				{
+					AssignmentExpression *expr = static_cast<AssignmentExpression *>(cur.expr);
+					exprStack.push_back({true, expr->lhs.get()});
+					exprStack.push_back({false, expr->rhs.get()});
+					continue;
+				}
+				case NodeType::BinaryExpression:
+				{
+					BinaryExpression *expr = static_cast<BinaryExpression *>(cur.expr);
+					exprStack.push_back({false, expr->lhs.get()});
+					if (expr->op != BinaryExpression::Variant::InstanceOf)
+						exprStack.push_back({false, std::get<std::unique_ptr<Expression>>(expr->rhs).get()});
+					continue;
+				}
+				case NodeType::CastExpression:
+				{
+					CastExpression *expr = static_cast<CastExpression *>(cur.expr);
+					exprStack.push_back({false, expr->rhs.get()});
+					continue;
+				}
+				case NodeType::ClassInstanceCreationExpression:
+				{
+					ClassInstanceCreationExpression *expr = static_cast<ClassInstanceCreationExpression *>(cur.expr);
+					for (auto &arg : expr->args)
+					{
+						exprStack.push_back({false, arg.get()});
+					}
+					continue;
+				}
+				case NodeType::FieldAccess:
+				{
+					FieldAccess *expr = static_cast<FieldAccess *>(cur.expr);
+					if (!expr->isStaticAccessor())
+						exprStack.push_back({false, std::get<std::unique_ptr<Expression>>(expr->source).get()});
+					continue;
+				}
+				case NodeType::Literal:
+				{
+					continue;
+				}
+				case NodeType::LocalVariableExpression:
+				{
+					continue;
+				}
+				case NodeType::MethodInvocation:
+				{
+					MethodInvocation *expr = static_cast<MethodInvocation *>(cur.expr);
+					for (auto &arg : expr->args)
+					{
+						exprStack.push_back({false, arg.get()});
+					}
+
+					if (!expr->isDisambiguated())
+					{
+						curName = std::get<std::unique_ptr<Name>>(expr->source).get();
+						break; // jump to end of switch statement to process curName
+					}
+					else if (!expr->isStaticCall())
+						exprStack.push_back({false, std::get<std::unique_ptr<Expression>>(expr->source).get()});
+					else
+						assert(((void)"shouldn't see NameType in MethodInvocation source until after exprResolution", false));
+
+					continue;
+				}
+				case NodeType::NameExpression:
+				{
+					NameExpression *expr = static_cast<NameExpression *>(cur.expr);
+					assert(expr->converted == nullptr);
+					curName = expr->unresolved.get();
+					break; // jump to end of switch statement to process curName
+				}
+				case NodeType::UnaryExpression:
+				{
+					UnaryExpression *expr = static_cast<UnaryExpression *>(cur.expr);
+					exprStack.push_back({false, expr->expr.get()});
+					continue;
+				}
+				default:
+					assert(false);
+			}
+			assert(curName != nullptr);
+			if (cur.isDirectAssignmentLhs)
+				continue;
+			if (curName->ids[0] == decl->varDecl->identifier)
+				return SemanticErrorType::VariableInOwnInitializer;
+			for (auto *undeclared : undeclaredFields)
+			{
+				if (curName->ids[0] == undeclared->varDecl->identifier)
+					return SemanticErrorType::ForwardReferenceToField;
+			}
+		}
+	}
+	return SemanticErrorType::None;
 }
 
 SemanticErrorType TypeDeclaration::resolveBodyExprs()

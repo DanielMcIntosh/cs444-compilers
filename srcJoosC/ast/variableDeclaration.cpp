@@ -102,4 +102,9 @@ Semantic::SemanticErrorType VariableDeclaration::resolveExprs(Semantic::Scope co
 	return Semantic::SemanticErrorType::None;
 }
 
+bool VariableDeclaration::hasInitializer() const
+{
+	return initializer != nullptr;
+}
+
 } //namespace AST

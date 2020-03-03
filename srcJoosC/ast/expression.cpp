@@ -1386,6 +1386,10 @@ bool MethodInvocation::isStaticCall() const
 {
 	return std::holds_alternative<std::unique_ptr<NameType>>(source);
 }
+bool MethodInvocation::isDisambiguated() const
+{
+	return !std::holds_alternative<std::unique_ptr<Name>>(source);
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //

@@ -19,6 +19,7 @@ enum class NodeType {
 	MethodHeader,
 	TypeBody,
 	VariableDeclarator,
+	Name,
 
 	TYPE_BEGIN,
 	PrimitiveType = TYPE_BEGIN,
@@ -43,7 +44,6 @@ enum class NodeType {
 	AssignmentExpression = EXPRESSION_BEGIN,
 	BinaryExpression,
 	CastExpression,
-	Name,
 	UnaryExpression,
 	ArrayAccess,
 	ArrayCreationExpression,

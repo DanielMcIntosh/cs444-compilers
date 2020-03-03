@@ -41,6 +41,8 @@ enum class SemanticErrorType {
 	PrimativeNotExpected,
 	DisambiguiationFailed,
 	DefaultSuperConstructorMissing,
+	VariableInOwnInitializer,
+	ForwardReferenceToField,
 	ExprResolution,
 	DuplicateFieldDeclaration,
 	DuplicateMethodDeclaration,

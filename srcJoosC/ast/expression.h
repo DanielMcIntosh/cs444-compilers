@@ -121,7 +121,8 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
-protected:
+
+public:
 	std::unique_ptr<Expression> array;
 	std::unique_ptr<Expression> index;
 };
@@ -142,7 +143,8 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
-protected:
+
+public:
 	// IMPORTANT: during construction, we have to change type->isArray to true
 	std::unique_ptr<Type> type;
 	std::unique_ptr<Expression> size;
@@ -165,7 +167,7 @@ public:
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
-protected:
+public:
 	std::unique_ptr<Expression> lhs;
 	std::unique_ptr<Expression> rhs;
 };
@@ -214,9 +216,9 @@ public:
 		LazyOr,
 		Max
 	};
-protected:
- 	Variant op;
 
+public:
+ 	Variant op;
 	std::unique_ptr<Expression> lhs;
 	// instanceof has a rhs that's a ReferenceType instead of an Expression
 	std::variant<std::unique_ptr<Expression>, std::unique_ptr<Type>> rhs;
@@ -244,7 +246,8 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
-protected:
+
+public:
 	std::unique_ptr<Type> type;
 	std::unique_ptr<Expression> rhs;
 };
@@ -267,11 +270,12 @@ public:
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
-protected:
+public:
 	std::unique_ptr<NameType> type;
 	std::vector<std::unique_ptr<Expression>> args;
 	friend class ConstructorDeclaration;
 
+protected:
 	const ConstructorDeclaration *declaration;
 };
 
@@ -295,11 +299,12 @@ public:
 	Semantic::SemanticErrorType deduceType() override;
 
 	bool isStaticAccessor() const;
-protected:
+public:
 	std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> source;
 	std::string member;
 	friend class FieldDeclaration;
 
+protected:
 	const FieldDeclaration *decl;
 };
 
@@ -319,8 +324,10 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType deduceType() override;
 	static bool isJavaString(TypeDeclaration *decl);
-protected:
+
+public:
 	std::variant<unsigned int, bool, char, std::string, std::nullptr_t > value;
+protected:
 	static thread_local TypeDeclaration *stringDecl;
 };
 
@@ -337,16 +344,15 @@ public:
 	explicit LocalVariableExpression(const Parse::TThis2 *ptNode);
 	explicit LocalVariableExpression(std::string identifier);
 	std::string toCode() const override;
-protected:
-	friend class NameExpression;
-	friend class Name;
 
-public:
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
+
 protected:
 	std::string id;
 	const VariableDeclaration *declaration;
+	friend class NameExpression;
+	friend class Name;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -367,9 +373,11 @@ public:
 	Semantic::SemanticErrorType deduceType() override;
 
 	bool isStaticCall() const;
+	bool isDisambiguated() const;
 private:
 	Semantic::SemanticErrorType disambiguateSource(Semantic::Scope const& scope);
-protected:
+
+public:
 	// nullable prior to expression resolution
 	// Expression when non-static method, NameType when static method, Name only before expression resolution
 	std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>, std::unique_ptr<Name>> source;
@@ -377,6 +385,7 @@ protected:
 	std::vector<std::unique_ptr<Expression>> args;
 	friend class MethodDeclaration;
 
+protected:
 	const MethodDeclaration *declaration;
 };
 
@@ -396,7 +405,8 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
-protected:
+
+public:
 	std::unique_ptr<Name> unresolved;
 	std::unique_ptr<Expression> converted;
 };
@@ -418,7 +428,8 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
-protected:
+
+public:
 	enum class Variant
 	{
 		Minus,
