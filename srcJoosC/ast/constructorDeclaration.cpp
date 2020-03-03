@@ -13,6 +13,8 @@
 #include "semantic/semantic.h"
 #include <memory>
 
+using Semantic::SemanticErrorType;
+
 namespace AST
 {
 
@@ -102,49 +104,61 @@ bool ConstructorDeclaration::signatureEquals(const ClassInstanceCreationExpressi
 	return true;
 }
 
-Semantic::SemanticErrorType ConstructorDeclaration::resolveTypes(Semantic::SemanticDB const& semantic)
+SemanticErrorType ConstructorDeclaration::resolveTypes(Semantic::SemanticDB const& semantic)
 {
 	for (auto &param: parameters)
 	{
-		if (Semantic::SemanticErrorType err = param->resolveTypes(semantic, _enclosingClass);
-			err != Semantic::SemanticErrorType::None)
+		if (SemanticErrorType err = param->resolveTypes(semantic, _enclosingClass);
+			err != SemanticErrorType::None)
 		{
 			return err;
 		}
 	}
 
-	if (Semantic::SemanticErrorType err = body->resolveTypes(semantic, _enclosingClass);
-		err != Semantic::SemanticErrorType::None)
+	if (SemanticErrorType err = body->resolveTypes(semantic, _enclosingClass);
+		err != SemanticErrorType::None)
 	{
 		return err;
 	}
 
-	return Semantic::SemanticErrorType::None;
+	return SemanticErrorType::None;
 }
 
-Semantic::SemanticErrorType ConstructorDeclaration::resolveExprs()
+SemanticErrorType ConstructorDeclaration::resolveExprs()
 {
 	if (identifier != _enclosingClass->name) {
-		return Semantic::SemanticErrorType::ConstructorWrongName;
+		return SemanticErrorType::ConstructorWrongName;
 	}
 	Semantic::Scope scope(_enclosingClass, this);
 	for (auto &param: parameters)
 	{
 		if (!scope.add(param))
 		{
-			return Semantic::SemanticErrorType::LocalVariableShadowing;
+			return SemanticErrorType::LocalVariableShadowing;
+		}
+	}
+
+	// TODO: probably want to remove this, and somehow add an explicit call to the
+	// parent constructor at the start of body, which then gets resolved in body->resolveExprs
+	if (_enclosingClass->superClass != nullptr)
+	{
+		auto *superDecl = _enclosingClass->superClass->declaration;
+		auto implicitSuperCall = std::make_unique<ClassInstanceCreationExpression>(superDecl->asType(), std::vector<std::unique_ptr<Expression>>{});
+		if (superDecl->findConstructor(implicitSuperCall.get()) == nullptr)
+		{
+			return SemanticErrorType::DefaultSuperConstructorMissing;
 		}
 	}
 
 	if (body)
 	{
-		if (Semantic::SemanticErrorType err = body->resolveExprs(scope);
-			err != Semantic::SemanticErrorType::None)
+		if (SemanticErrorType err = body->resolveExprs(scope);
+			err != SemanticErrorType::None)
 		{
 			return err;
 		}
 	}
-	return Semantic::SemanticErrorType::None;
+	return SemanticErrorType::None;
 }
 
 void ConstructorDeclaration::addThisParam()

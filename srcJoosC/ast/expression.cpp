@@ -1257,6 +1257,13 @@ ClassInstanceCreationExpression::ClassInstanceCreationExpression(const Parse::TC
 	nodeType = NodeType::ClassInstanceCreationExpression;
 }
 
+ClassInstanceCreationExpression::ClassInstanceCreationExpression(std::unique_ptr<NameType> t, std::vector<std::unique_ptr<Expression>> arguments)
+	: type(std::move(t)),
+		args(std::move(arguments))
+{
+	nodeType = NodeType::ClassInstanceCreationExpression;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // FieldAccess

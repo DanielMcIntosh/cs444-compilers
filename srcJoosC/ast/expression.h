@@ -259,11 +259,13 @@ class ClassInstanceCreationExpression: public Expression
 public:
 	static std::unique_ptr<ClassInstanceCreationExpression> create(const Parse::Tree *ptNode);
 	explicit ClassInstanceCreationExpression(const Parse::TClassInstanceCreationExpression *ptNode);
+	explicit ClassInstanceCreationExpression(std::unique_ptr<NameType> t, std::vector<std::unique_ptr<Expression>> arguments);
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
+
 protected:
 	std::unique_ptr<NameType> type;
 	std::vector<std::unique_ptr<Expression>> args;

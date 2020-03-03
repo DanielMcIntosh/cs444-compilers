@@ -39,6 +39,7 @@ const char *gSemanticErrorTypeName[] = {
 	"AccessViolation",
 	"PrimativeNotExpected",
 	"DisambiguiationFailed",
+	"DefaultSuperConstructorMissing",
 	"ExprResolution",
 	"DuplicateFieldDeclaration",
 	"DuplicateMethodDeclaration",
