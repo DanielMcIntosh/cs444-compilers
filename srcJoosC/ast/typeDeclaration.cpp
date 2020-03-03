@@ -183,7 +183,7 @@ SemanticErrorType TypeDeclaration::resolveBodyTypeNames(Semantic::SemanticDB con
 	return SemanticErrorType::None;
 }
 
-SemanticErrorType TypeDeclaration::resolveBodyExprs()
+void TypeDeclaration::addThisParam()
 {
 	if (!isInterface)
 	{
@@ -197,7 +197,10 @@ SemanticErrorType TypeDeclaration::resolveBodyExprs()
 		}
 		// for fields, we add the "this" directly to the scope.
 	}
+}
 
+SemanticErrorType TypeDeclaration::resolveBodyExprs()
+{
 	for (auto *decl : fieldSets.declareSet)
 	{
 		if (SemanticErrorType err = decl->resolveExprs();

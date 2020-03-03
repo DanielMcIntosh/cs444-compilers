@@ -43,6 +43,7 @@ public:
 
 	Semantic::SemanticErrorType resolveSuperTypeNames(Semantic::SemanticDB const& semantic, TypeDeclaration *object);
 	Semantic::SemanticErrorType resolveBodyTypeNames(Semantic::SemanticDB const& semantic);
+	void addThisParam();
 	Semantic::SemanticErrorType resolveBodyExprs();
 
 	Semantic::SemanticErrorType	generateHierarchySets(TypeDeclaration *, TypeDeclaration *);

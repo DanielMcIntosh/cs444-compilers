@@ -381,6 +381,12 @@ void semanticDo(SemanticDB *sdb) {
 	}
 
 	Expression::resetError();
+
+	for (auto *typeDecl : allTypes)
+	{
+		typeDecl->addThisParam();
+	}
+
 	for (auto *typeDecl : allTypes)
 	{
 		if (SemanticErrorType err = typeDecl->resolveBodyExprs();
