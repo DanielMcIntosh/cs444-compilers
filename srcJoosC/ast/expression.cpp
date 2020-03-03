@@ -360,11 +360,13 @@ std::optional<TypeResult> BinExprHelper(Expression* lhs, Expression* rhs,
 	}
 
 	// At this point, only string concatenation remains
-	if (lhsTR.isJavaString() && !rhsTR.isPrimitiveType(TypePrimitive::Void))
-		return lhsTR;
-	else if (rhsTR.isJavaString() && !lhsTR.isPrimitiveType(TypePrimitive::Void))
-		return rhsTR;
-
+	if (op == BinaryExpression::Variant::Add)
+	{
+		if (lhsTR.isJavaString() && !rhsTR.isPrimitiveType(TypePrimitive::Void))
+			return lhsTR;
+		else if (rhsTR.isJavaString() && !lhsTR.isPrimitiveType(TypePrimitive::Void))
+			return rhsTR;
+	}
 	return std::nullopt;
 }
 
