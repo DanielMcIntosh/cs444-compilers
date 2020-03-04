@@ -62,8 +62,8 @@ public:
 	std::string fqn;
 	// The compilation unit in which this type is declared.
 	CompilationUnit *cpu = nullptr;
-protected:
 	bool isInterface;
+protected:
 	std::vector<std::unique_ptr<Modifier>> modifiers;
 	// set for membership testing, including all implicit modifiers
 	std::array<bool,static_cast<size_t>(Modifier::Variant::Max)> modifierSet{};

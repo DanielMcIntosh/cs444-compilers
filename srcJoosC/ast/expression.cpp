@@ -1456,7 +1456,9 @@ bool TypeResult::isNumOrArrayNum() const {
 }
 
 bool TypeResult::canAssignToMe(const TypeResult &other) const {
-	// TODO: remaining rules in JLS 5.1.4
+	if ((isPrimitive && primitiveType == TypePrimitive::Void) ||
+		(other.isPrimitive && other.primitiveType == TypePrimitive::Void))
+		return false;
 	// same type on both sides
 	if (*this == other)
 		return true;
@@ -1479,10 +1481,25 @@ bool TypeResult::canAssignToMe(const TypeResult &other) const {
 			return true;
 	}
 	// C := null where C is any non-primitive
-	if (!isPrimitive && other.isPrimitiveType(TypePrimitive::Null))
+	if (isReferenceType() && other.isPrimitiveType(TypePrimitive::Null))
 		return true;
+	if (!isPrimitive && other.isArray)
+	{
+		if (userDefinedType->fqn == "java.lang.Object" ||
+			userDefinedType->fqn == "java.lang.Cloneable" ||
+			userDefinedType->fqn == "java.io.Serializable")
+		{
+			return true;
+		}
+	}
 	// both are (either single or array of) objects
 	if (!isPrimitive && !other.isPrimitive) {
+		if (userDefinedType->fqn == "java.lang.Object" &&
+			other.userDefinedType->isInterface)
+		{
+			return true;
+		}
+
 		// same type on both sides is handled at the top
 		for (auto *decl : other.userDefinedType->hyperSet) {
 			// assigning to super class
