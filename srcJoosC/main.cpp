@@ -386,7 +386,7 @@ void checkTestMode(JoosC* joosc, const char *argv1) {
     getJavaFilesRecursive(stdlib, string(libFolder));
     stdlib.push_back("./tests/stdlib/IObject.java");
   }
-  if (num >= 6||num == 3)
+  if (num >= 6)
   	gStandAloneMode = true;
   batchTesting(joosc, string(progFolder), stdlib, num);
 }
