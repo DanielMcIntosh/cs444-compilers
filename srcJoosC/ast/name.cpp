@@ -101,10 +101,13 @@ SemanticErrorType Name::disambiguate(Semantic::Scope const& scope)
 	// resolve to local variable
 	{
 		auto local = std::make_unique<LocalVariableExpression>(ids[0]);
-		if (local->resolve(scope) == SemanticErrorType::None)
+		if (auto err = local->resolve(scope);
+			err == SemanticErrorType::None)
 		{
 			buildConverted(std::move(local), 1);
 			return SemanticErrorType::None;
+		} else if(err == SemanticErrorType::VariableInOwnInitializer) {
+			return err;
 		}
 	}
 

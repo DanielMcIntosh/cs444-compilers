@@ -17,7 +17,7 @@ Scope::Scope(AST::TypeDeclaration *enclosingClass, AST::ConstructorDeclaration *
 }
 Scope::Scope(Scope &parent)
 		: _enclosingClass(parent._enclosingClass), _enclosingMethod(parent._enclosingMethod),
-		  _parent(parent), _declarations(parent._declarations)
+		  _declarations(parent._declarations)
 {
 }
 
@@ -34,11 +34,6 @@ bool Scope::add(const AST::VariableDeclaration *newDecl)
 
 	_declarations.push_back(newDecl);
 	return true;
-}
-
-bool Scope::isRoot()
-{
-	return &_parent == this;
 }
 
 const AST::VariableDeclaration *Scope::findDecl(std::string id) const

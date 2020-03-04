@@ -586,7 +586,12 @@ SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 SemanticErrorType LocalVariableExpression::resolve(Semantic::Scope const& scope)
 {
 	declaration = scope.findDecl(id);
-	return declaration == nullptr ? SemanticErrorType::LocalVariableDNE : SemanticErrorType::None;
+	if (declaration == nullptr)
+		return SemanticErrorType::LocalVariableDNE;
+	if (declaration == scope._currentDeclaration)
+		return SemanticErrorType::VariableInOwnInitializer;
+
+	return SemanticErrorType::None;
 }
 
 SemanticErrorType MethodInvocation::disambiguateSource(Semantic::Scope const& scope)

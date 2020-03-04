@@ -66,17 +66,20 @@ SemanticErrorType ReturnStatement::resolveExprs(Semantic::Scope &parentScope)
 
 SemanticErrorType LocalVariableDeclarationStatement::resolveExprs(Semantic::Scope &parentScope)
 {
+	if (!parentScope.add(declaration))
+	{
+		return SemanticErrorType::LocalVariableShadowing;
+	}
+
+	parentScope._currentDeclaration = declaration.get();
 	// resolve initializer if it exists
 	if (SemanticErrorType err = declaration->resolveExprs(parentScope);
 		err != SemanticErrorType::None)
 	{
 		return err;
 	}
+	parentScope._currentDeclaration = nullptr;
 
-	if (!parentScope.add(declaration))
-	{
-		return SemanticErrorType::LocalVariableShadowing;
-	}
 	return SemanticErrorType::None;
 }
 
