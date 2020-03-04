@@ -303,12 +303,12 @@ SemanticErrorType ArrayCreationExpression::deduceType() {
 }
 
 SemanticErrorType AssignmentExpression::deduceType() {
-	typeResult = rhs->typeResult;
+	typeResult = lhs->typeResult;
 	if (lhs->typeResult.canAssignToMe(rhs->typeResult))
 		OK();
 	GOFAIL(); // to print error
 	fail:
-	return Semantic::SemanticErrorType::TypeCheck;
+	return SemanticErrorType::TypeCheck;
 }
 
 bool IsArithmeticOp(BinaryExpression::Variant op) {
@@ -335,9 +335,12 @@ bool IsBooleanOp(BinaryExpression::Variant op) {
 
 std::optional<TypeResult> BinExprHelper(Expression* lhs, Expression* rhs,
                                            BinaryExpression::Variant op) {
-	bool bothNum = lhs->typeResult.isNum() && rhs->typeResult.isNum();
-	bool bothBool = lhs->typeResult.isPrimitiveType(TypePrimitive::Boolean) &&
-	                rhs->typeResult.isPrimitiveType(TypePrimitive::Boolean);
+	const auto &lhsTR = lhs->typeResult;
+	const auto &rhsTR = rhs->typeResult;
+	bool bothNum = lhsTR.isNum() && rhsTR.isNum();
+	bool bothBool = lhsTR.isPrimitiveType(TypePrimitive::Boolean) &&
+	                rhsTR.isPrimitiveType(TypePrimitive::Boolean);
+	bool assignable = lhsTR.canAssignToMe(rhsTR) || rhsTR.canAssignToMe(lhsTR);
 
 	if (bothNum && IsArithmeticOp(op)) {
 		return TypeResult(false, TypePrimitive::Int);
@@ -351,16 +354,16 @@ std::optional<TypeResult> BinExprHelper(Expression* lhs, Expression* rhs,
 		return TypeResult(false, TypePrimitive::Boolean);
 	}
 
-	if ((bothBool || bothNum) &&
+	if ((bothNum || assignable) &&
 	    (op == BinaryExpression::Variant::Eq || op == BinaryExpression::Variant::NEq)) {
 		return TypeResult(false, TypePrimitive::Boolean);
 	}
 
 	// At this point, only string concatenation remains
-	if (lhs->typeResult.isJavaString() && !rhs->typeResult.isPrimitiveType(TypePrimitive::Void))
-		return lhs->typeResult;
-	else if (rhs->typeResult.isJavaString() && !lhs->typeResult.isPrimitiveType(TypePrimitive::Void))
-		return rhs->typeResult;
+	if (lhsTR.isJavaString() && !rhsTR.isPrimitiveType(TypePrimitive::Void))
+		return lhsTR;
+	else if (rhsTR.isJavaString() && !lhsTR.isPrimitiveType(TypePrimitive::Void))
+		return rhsTR;
 
 	return std::nullopt;
 }
@@ -377,9 +380,10 @@ SemanticErrorType BinaryExpression::deduceType() {
 
 					},
 					[&](std::unique_ptr<Type> &type) {
-						if (lhs->typeResult.isPrimitive ||
-						    lhs->typeResult.isArray ||
-						    op != BinaryExpression::Variant::InstanceOf) {
+						assert(op == BinaryExpression::Variant::InstanceOf);
+						auto rhsTypeResult = TypeResult(*type);
+						if (!lhs->typeResult.canAssignToMe(rhsTypeResult)
+							&& !rhsTypeResult.canAssignToMe(lhs->typeResult)) {
 							err = SemanticErrorType::TypeCheck;
 							return;
 						}
@@ -1431,6 +1435,10 @@ bool TypeResult::isJavaString() const  {
 
 bool TypeResult::isPrimitiveType(TypePrimitive primitive) const {
 	return isPrimitive && !isArray && primitiveType == primitive;
+}
+
+bool TypeResult::isReferenceType() const {
+	return isArray || !isPrimitive;
 }
 
 bool TypeResult::operator==(const TypeResult &other) const {

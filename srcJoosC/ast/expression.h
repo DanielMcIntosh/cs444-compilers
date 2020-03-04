@@ -68,6 +68,8 @@ struct TypeResult {
 	// is non array primitive type
 	[[gnu::pure]]
 	bool isPrimitiveType(TypePrimitive primitive) const;
+	[[gnu::pure]]
+	bool isReferenceType() const;
 	bool operator==(const TypeResult&other) const;
 
 	// assignability (JLS 5), used in more than one place
