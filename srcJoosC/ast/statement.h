@@ -29,6 +29,10 @@ public:
 
 	virtual Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) = 0;
 	virtual Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) = 0;
+
+	// a4
+
+	virtual void staticAnalysis(StaticAnalysisCtx *ctx);
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -46,6 +50,10 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
+
+	// a4
+
+	void staticAnalysis(StaticAnalysisCtx *ctx) override;
 protected:
 	std::vector<std::unique_ptr<Statement>> statements;
 };
@@ -85,6 +93,10 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
+
+	// a4
+
+	void staticAnalysis(StaticAnalysisCtx *ctx) override;
 protected:
 	// nullable
 	std::unique_ptr<Expression> returnValue;

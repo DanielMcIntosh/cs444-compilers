@@ -49,6 +49,12 @@ public:
 
 	Semantic::SemanticErrorType	generateHierarchySets(TypeDeclaration *, TypeDeclaration *);
 
+  //
+  // a4
+  //
+
+  void staticAnalysis(StaticAnalysisCtx *ctx);
+  
 	ConstructorDeclaration *findConstructor(ClassInstanceCreationExpression *invocation);
 	MethodDeclaration *findMethod(MethodInvocation *invocation);
 	FieldDeclaration *findField(FieldAccess *access);

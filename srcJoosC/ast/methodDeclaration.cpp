@@ -15,6 +15,15 @@
 namespace AST
 {
 
+void MethodDeclaration::staticAnalysis(StaticAnalysisCtx *ctx) {
+	auto nCtx = *ctx;	
+	if (!body) {
+		nCtx.noOut = true; // correct case
+	} else
+		body->staticAnalysis(&nCtx);
+	ctx->noOut = nCtx.noOut;
+}	
+
 // static
 std::unique_ptr<MethodDeclaration> MethodDeclaration::create(const Parse::Tree *ptNode)
 {

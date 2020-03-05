@@ -21,6 +21,15 @@ using Semantic::SemanticErrorType;
 namespace AST
 {
 
+
+void TypeDeclaration::staticAnalysis(StaticAnalysisCtx *ctx) {
+	for (auto &member : members) {
+		auto nCtx = *ctx;
+		member->staticAnalysis(&nCtx);
+		ctx->noOut = nCtx.noOut;
+	}
+}	
+
 // static
 std::unique_ptr<TypeDeclaration> TypeDeclaration::create(const Parse::Tree *ptNode)
 {
@@ -504,8 +513,8 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 			}
 			if (m->hasModifier(Modifier::Variant::Abstract)) {
 				bool allAbstract = true;
-				for (const auto &s : superSet) {
-					for (const auto &n : s->methodSets.containSet) {
+				for (const auto &s2 : superSet) {
+					for (const auto &n : s2->methodSets.containSet) {
 						if (m->signatureEquals(n) && !n->hasModifier(Modifier::Variant::Abstract)) {
 							allAbstract = false;
 							// Replacing abstract with concrete method

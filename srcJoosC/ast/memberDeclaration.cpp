@@ -13,6 +13,10 @@
 namespace AST
 {
 
+void MemberDeclaration::staticAnalysis(StaticAnalysisCtx *ctx) {
+	ctx->noOut = true;
+}	
+
 // static
 std::unique_ptr<MemberDeclaration> MemberDeclaration::create(const Parse::Tree *ptNode)
 {
@@ -66,5 +70,5 @@ bool MemberDeclaration::equals(const MethodDeclaration *) const {
 bool MemberDeclaration::hasModifier(Modifier::Variant mod) const {
 	return modifierSet[static_cast<size_t>(mod)];
 }
-
+	
 } //namespace AST

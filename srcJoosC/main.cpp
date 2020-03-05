@@ -151,19 +151,12 @@ cleanup : {  // clean ups
 struct BatchTestResult {
   FrontendStageType frontendStage;
   MiddleendResult middleend;
-  const char *singleSource;
 
   BatchTestResult();
-  ~BatchTestResult();
 };
 
-BatchTestResult::BatchTestResult() : frontendStage(FrontendStageType::Pass),
-                                     singleSource(nullptr)
+BatchTestResult::BatchTestResult() : frontendStage(FrontendStageType::Pass)
 {}
-
-BatchTestResult::~BatchTestResult() {
-	if (singleSource) free((void *)singleSource);
-}
 
 struct BatchTestThreadCtx {
   // input
@@ -207,9 +200,6 @@ void batchTestingThread(BatchTestThreadCtx ctx) {
     	ASSERT(topLevelName.find(".java") != string::npos);
       frontendResults.emplace_back(
           doFrontEndSingle(ctx.joosc, topLevelName.c_str()));
-      // copy source text if it is a single file
-	    // have to copy because frontend results don't persist
-	    caseResult->singleSource = strdup(frontendResults.back().fileContent);
     } else {
       ASSERT(fs::is_directory(dupPath));
       vector<string> fileBundle;
@@ -337,10 +327,6 @@ void batchTesting(JoosC* joosc, const string& baseDir,
 	        Semantic::SemanticErrorType::NotFoundImport) {
 		    if (valid != isProgramValidFromFileName(topLevelName.c_str())) {
 			    LOG_RED(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError, sdb->errMsg.c_str());
-			    // also print source code if it is a single .java file
-			    if (result.singleSource) {
-			    	fwrite(result.singleSource, strlen(result.singleSource), 1, stderr);
-			    }
 		    } else {
 			    LOG_GREEN(logFmt, i + 1, topLevelName.c_str(), frontEndStageName, semanticError, sdb->errMsg.c_str());
 		    }
@@ -386,7 +372,7 @@ void checkTestMode(JoosC* joosc, const char *argv1) {
     getJavaFilesRecursive(stdlib, string(libFolder));
     stdlib.push_back("./tests/stdlib/IObject.java");
   }
-  if (num >= 6)
+  if (num >= 6 || num == 4)
   	gStandAloneMode = true;
   batchTesting(joosc, string(progFolder), stdlib, num);
 }

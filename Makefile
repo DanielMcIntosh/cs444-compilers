@@ -43,8 +43,8 @@ CXX := g++
 endif
 
 ifeq ($(OS),Windows_NT)
-CXX := clang
-LDFLAGS += -lstdc++
+CXX := g++
+#LDFLAGS += -lstdc++
 endif
 
 ifeq ($(CXX),clang)
@@ -138,6 +138,12 @@ a3:
 
 a3Direct: joosc_debug
 	export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH;	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=3; ./joosc_debug
+
+a4:
+	$(MAKE) a4Direct -j$(NPROC)
+
+a4Direct: joosc_debug
+	export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH;	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=4; ./joosc_debug
 
 a6:
 	$(MAKE) a6Direct -j$(NPROC)

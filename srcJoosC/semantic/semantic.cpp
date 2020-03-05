@@ -57,6 +57,7 @@ const char *gSemanticErrorTypeName[] = {
 	"AssignableType",
 	"ReturningValueFromVoidFunction",
 	"ReturningFromConstructor",
+	"StaticAnalysis",
 };
 
 static_assert(static_cast<int>(SemanticErrorType::Max) == ARRAY_SIZE(gSemanticErrorTypeName));
@@ -405,6 +406,16 @@ void semanticDo(SemanticDB *sdb) {
 			sdb->errMsg = Expression::gError.function;
 			return;
 		}
+	}
+
+	for (auto *typeDecl : allTypes) {
+		StaticAnalysisCtx ctx;
+		ctx.noIn = false; // maybe
+		typeDecl->staticAnalysis(&ctx);
+		if (!ctx.noOut) { // reaches the end
+			sdb->error = SemanticErrorType::StaticAnalysis;
+			return;
+		}		
 	}
 }
 

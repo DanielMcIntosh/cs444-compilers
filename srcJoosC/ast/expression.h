@@ -4,7 +4,7 @@
 #include "ast/type.h"
 
 #include <variant>
-
+#include <optional>
 
 namespace Semantic
 {
@@ -24,8 +24,6 @@ class VariableDeclaration;
 class FieldDeclaration;
 class MethodDeclaration;
 class ConstructorDeclaration;
-
-
 
 enum class TypePrimitive
 {
@@ -81,6 +79,23 @@ struct TypeDeduceError {
 	std::string function;
 };
 
+enum class ConstExprType {
+	Bool,
+	Num,
+	Unknown,
+};
+
+struct ConstExpr {
+	ConstExprType type = ConstExprType::Unknown;
+	long long int numVal = 0;
+	bool boolVal = false;
+
+	bool isKnown();
+	bool isFalse();
+	bool isTrue();
+	std::optional<long long int> getNum();
+};
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Expression
@@ -101,6 +116,10 @@ public:
 
 	static void resetError();
 	static thread_local TypeDeduceError gError;
+
+	// a4
+
+	virtual ConstExpr tryEval();	
 protected:
 
 };
@@ -217,6 +236,9 @@ public:
 		Max
 	};
 
+	// a4
+	
+	ConstExpr tryEval() override;	
 public:
  	Variant op;
 	std::unique_ptr<Expression> lhs;
@@ -325,6 +347,9 @@ public:
 	Semantic::SemanticErrorType deduceType() override;
 	static bool isJavaString(TypeDeclaration *decl);
 
+	// a4
+	ConstExpr tryEval() override;	
+
 public:
 	std::variant<unsigned int, bool, char, std::string, std::nullptr_t > value;
 protected:
@@ -428,6 +453,9 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
+
+	// a4
+	ConstExpr tryEval() override;	
 
 public:
 	enum class Variant

@@ -40,6 +40,14 @@ public:
 	virtual Semantic::SemanticErrorType resolveExprs() = 0;
 
 	bool hasModifier(Modifier::Variant) const;
+
+
+  //
+  // a4
+  //
+
+  virtual void staticAnalysis(StaticAnalysisCtx *ctx);
+  
 protected:
 	explicit MemberDeclaration(std::vector<std::unique_ptr<Modifier>> mods);
 

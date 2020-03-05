@@ -30,6 +30,10 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
+
+	// a4
+
+	void staticAnalysis(StaticAnalysisCtx *ctx) override;
 protected:
 	enum class ConditionType {
 		If,

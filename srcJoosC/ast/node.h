@@ -57,6 +57,13 @@ enum class NodeType {
 
 };
 
+  // TODO move to right place
+
+  struct StaticAnalysisCtx {
+		bool noIn;
+		bool noOut;
+  };
+  
 class Node
 {
 public:

@@ -34,6 +34,10 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic) override;
 	Semantic::SemanticErrorType resolveExprs() override;
 
+	// a4
+
+	void staticAnalysis(StaticAnalysisCtx *ctx) override;
+
 	void addThisParam();
 	std::unique_ptr<Type> returnType;
 protected:

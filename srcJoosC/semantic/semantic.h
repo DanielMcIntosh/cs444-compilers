@@ -58,6 +58,8 @@ enum class SemanticErrorType {
 	AssignableType,
 	ReturningValueFromVoidFunction,
 	ReturningFromConstructor,
+	// a4
+	StaticAnalysis,
 	Max
 };
 

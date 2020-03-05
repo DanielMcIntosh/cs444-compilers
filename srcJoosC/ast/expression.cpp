@@ -22,6 +22,26 @@ void Expression::resetError() {
 	gError.function.clear();
 }
 
+	bool ConstExpr::isKnown() {
+		return type != ConstExprType::Unknown;
+	}
+
+
+	bool ConstExpr::isFalse() {
+		return isKnown() && !boolVal;		
+	}
+
+
+	bool ConstExpr::isTrue() {
+		return isKnown() && boolVal;
+	}
+
+	std::optional<long long int> ConstExpr::getNum() {
+		if (type != ConstExprType::Num)
+			return std::nullopt;
+		return numVal;
+	}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // ResolveTypes
@@ -769,6 +789,10 @@ std::unique_ptr<Expression> Expression::create(const Parse::Tree *ptNode)
 	}
 }
 
+ConstExpr Expression::tryEval() {
+	return ConstExpr();
+}
+
 // static
 std::unique_ptr<ArrayAccess> ArrayAccess::create(const Parse::Tree *ptNode)
 {
@@ -1190,6 +1214,36 @@ BinaryExpression::BinaryExpression(const Parse::TConditionalOrExpression *ptNode
 	nodeType = NodeType::BinaryExpression;
 }
 
+ConstExpr BinaryExpression::tryEval() {
+	if (op == Variant::InstanceOf)
+		return ConstExpr();
+
+	auto left = lhs->tryEval();
+	auto right = std::get<0>(rhs)->tryEval();
+
+	if (left.type != right.type || left.type == ConstExprType::Unknown)
+		return ConstExpr();
+
+	if (left.type == ConstExprType::Bool) {
+		if (op == Variant::Eq) {
+			return ConstExpr{ConstExprType::Bool, 0, left.boolVal == right.boolVal};
+		}
+		if (op == Variant::NEq) {
+			return ConstExpr{ConstExprType::Bool, 0, left.boolVal != right.boolVal};
+		}
+		return ConstExpr();
+	}
+
+	if (left.type == ConstExprType::Num) {
+		switch (op) {
+			case Variant::Add:
+				return ConstExpr{ConstExprType ::Num, left.numVal + right.numVal};
+    default:
+      return ConstExpr();
+		}
+	}
+}
+
 std::string operator+=(std::string& str, BinaryExpression::Variant op)
 {
 	switch(op)
@@ -1347,6 +1401,16 @@ bool Literal::isJavaString(TypeDeclaration *decl) {
 	return decl == stringDecl;
 }
 
+ConstExpr Literal::tryEval() {
+	return std::visit(visitor{
+					[&](unsigned int val) { return ConstExpr{ConstExprType::Num, val, false}; },
+					[&](bool val) { return ConstExpr{ConstExprType::Bool, 0, val}; },
+					[&](char val) { return ConstExpr{ConstExprType::Num, val, false}; },
+					[&](std::string &val) { return ConstExpr{ConstExprType::Unknown, 0, false}; },
+					[&](std::nullptr_t val) { return ConstExpr{ConstExprType::Unknown, 0, false}; },
+	}, value);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // LocalVariableExpression
@@ -1452,6 +1516,14 @@ std::ostream& operator<<(std::ostream& os, UnaryExpression::Variant type)
 		return os;
 	}
 	return os << ("" + type);
+}
+
+ConstExpr UnaryExpression::tryEval() {
+	auto constExpr = expr->tryEval();
+	if (constExpr.type == ConstExprType::Bool && op == UnaryExpression::Variant::Bang) {
+		return ConstExpr{ConstExprType::Bool, 0, !constExpr.boolVal};
+	}
+	return ConstExpr();
 }
 
 TypeResult::TypeResult(Type const& type, bool final)
