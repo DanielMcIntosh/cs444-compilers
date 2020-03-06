@@ -133,6 +133,12 @@ clean:
 	$(RM) $(SHARED_NAME)
 	$(RM) ptgen
 
+a2:
+	$(MAKE) a2Direct -j$(NPROC)
+
+a2Direct: joosc_debug
+	export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH;	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=2; ./joosc_debug
+
 a3:
 	$(MAKE) a3Direct -j$(NPROC)
 
