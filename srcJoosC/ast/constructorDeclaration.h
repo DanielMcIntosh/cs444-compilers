@@ -28,6 +28,10 @@ public:
 	Semantic::SemanticErrorType resolveExprs() override;
 
 	void addThisParam();
+
+	// a4
+
+	void staticAnalysis(StaticAnalysisCtx *ctx) override;
 protected:
 	std::string identifier;
 	std::vector<std::unique_ptr<VariableDeclaration>> parameters;

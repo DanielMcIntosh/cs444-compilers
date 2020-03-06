@@ -72,6 +72,16 @@ typedef int16_t s16;
 #define strtok_r strtok_s
 #endif
 
+#ifdef _WIN32
+
+	#define CUR_DIR_MARKER
+
+#else
+
+	#define CUR_DIR_MARKER "./"
+
+#endif
+
 #define UNIMPLEMENTED unimplementedImpl
 [[noreturn]] void unimplementedImpl();
 

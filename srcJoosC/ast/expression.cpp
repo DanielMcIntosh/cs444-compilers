@@ -69,6 +69,12 @@ ConstExpr BinaryExpression::tryEval() {
 		if (op == Variant::NEq) {
 			return ConstExpr{ConstExprType::Bool, 0, left.boolVal != right.boolVal};
 		}
+		if (op == Variant::LazyOr) {
+			return ConstExpr{ConstExprType::Bool, 0, left.boolVal || right.boolVal};
+		}
+		if (op == Variant::LazyAnd) {
+			return ConstExpr{ConstExprType::Bool, 0, left.boolVal && right.boolVal};
+		}
 		return ConstExpr();
 	}
 
@@ -76,6 +82,8 @@ ConstExpr BinaryExpression::tryEval() {
 		switch (op) {
 			case Variant::Add:
 				return ConstExpr{ConstExprType::Num, left.numVal + right.numVal};
+			case Variant::Mult:
+				return ConstExpr{ConstExprType::Num, left.numVal * right.numVal};
 		case Variant::Eq:
 			return ConstExpr{ConstExprType::Bool, 0, left.numVal == right.numVal};
 		case Variant::NEq:

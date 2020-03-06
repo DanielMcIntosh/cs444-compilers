@@ -169,4 +169,12 @@ void ConstructorDeclaration::addThisParam()
 	}
 }
 
+void ConstructorDeclaration::staticAnalysis(StaticAnalysisCtx *ctx) {
+	auto nCtx = *ctx;
+	if (body) {
+		body->staticAnalysis(&nCtx);
+	}
+	ctx->hasError = nCtx.hasError;
+}
+
 } //namespace AST

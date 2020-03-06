@@ -24,6 +24,8 @@ void MethodDeclaration::staticAnalysis(StaticAnalysisCtx *ctx) {
 			if (primType->type != PrimitiveType::Variant::Void) {
 				nCtx.hasError |= nCtx.out;
 			}
+		} else {
+			nCtx.hasError |= nCtx.out;
 		}
 	}
 	ctx->hasError = nCtx.hasError;

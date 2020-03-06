@@ -18,6 +18,9 @@ namespace AST
 //////////////////////////////////////////////////////////////////////////////
 
 	void ConditionalStatement::staticAnalysis(StaticAnalysisCtx *ctx) {
+		if (!ctx->in) {
+			ctx->hasError = true;
+		}
 		switch (condType) {
 		case ConditionType::If: {
 			if (!elseBody) {
@@ -57,7 +60,31 @@ namespace AST
 			break;
 		}
 		case ConditionType::For: {
-			
+			if (!condition) {
+				body->staticAnalysis(ctx);
+				ctx->out = false;
+				break;
+			}
+
+			auto expr = condition->tryEval();
+			if (expr.isFalse()) {
+				auto nCtx = *ctx;
+				nCtx.in = false;
+				body->staticAnalysis(&nCtx);
+				ctx->out = ctx->in;
+				ctx->hasError |= nCtx.hasError;
+				break;
+			}
+
+			if (expr.isTrue()) {
+				body->staticAnalysis(ctx);
+				ctx->out = false;
+				break;
+			}
+
+			bool inL = ctx->in;
+			body->staticAnalysis(ctx);
+			ctx->out = inL;
 			break;
 		}
 		default:

@@ -301,7 +301,7 @@ void batchTesting(JoosC* joosc, const string& baseDir,
   for (int i = 0; i < numTests; ++i) {
     BatchTestResult& result = results[i];
     const string& topLevelName = topLevelFileList[i];
-    bool valid = result.frontendStage == FrontendStageType::Pass &&
+	  bool valid = result.frontendStage == FrontendStageType::Pass &&
                  result.middleend.failedStage == MiddleendStageType::Pass;
 	  if (valid == isProgramValidFromFileName(topLevelName.c_str())) {
 		  ++numPassed;
@@ -362,17 +362,17 @@ void checkTestMode(JoosC* joosc, const char *argv1) {
   }
   if (!num) return;
 
-  const char* assnBase = "./tests/assignment_testcases";
+  const char* assnBase = CUR_DIR_MARKER "tests/assignment_testcases";
   strdecl256(progFolder, "%s/a%d/", assnBase, num);
 
   vector<string> stdlib;
   if (num >= 2 && num <= 5) {
-    const char* libBase = "./tests/stdlib";
+    const char* libBase = CUR_DIR_MARKER "tests/stdlib";
     strdecl256(libFolder, "%s/%d.0/", libBase, num);
     getJavaFilesRecursive(stdlib, string(libFolder));
-    stdlib.push_back("./tests/stdlib/IObject.java");
+    stdlib.push_back(CUR_DIR_MARKER  "tests/stdlib/IObject.java");
   }
-  if (num >= 6 || num == 4)
+  if (num >= 6 || num == 3)
   	gStandAloneMode = true;
   batchTesting(joosc, string(progFolder), stdlib, num);
 }
@@ -431,7 +431,10 @@ int main(int argc, const char** argv) {
   {
     profileSection("compile main");
     if (fileList.empty()) return 0;
-    fileList.push_back("./tests/stdlib/IObject.java");
+    gStandAloneMode = 1;
+    if (!gStandAloneMode) {
+	    fileList.push_back(CUR_DIR_MARKER "tests/stdlib/IObject.java");
+    }
     return compileMain(&joosc, fileList);
   }
 }
