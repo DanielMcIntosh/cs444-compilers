@@ -410,9 +410,10 @@ void semanticDo(SemanticDB *sdb) {
 
 	for (auto *typeDecl : allTypes) {
 		StaticAnalysisCtx ctx;
-		ctx.noIn = false; // maybe
+		ctx.in = true; // maybe
+		ctx.hasError = false;
 		typeDecl->staticAnalysis(&ctx);
-		if (!ctx.noOut) { // reaches the end
+		if (ctx.hasError) {
 			sdb->error = SemanticErrorType::StaticAnalysis;
 			return;
 		}		

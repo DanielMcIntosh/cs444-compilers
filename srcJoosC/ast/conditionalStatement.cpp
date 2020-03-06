@@ -20,13 +20,44 @@ namespace AST
 	void ConditionalStatement::staticAnalysis(StaticAnalysisCtx *ctx) {
 		switch (condType) {
 		case ConditionType::If: {
-			auto expr = condition->tryEval();
+			if (!elseBody) {
+				bool inL = ctx->in;
+				body->staticAnalysis(ctx);
+				ctx->out = ctx->out || inL;
+			} else {
+				auto nCtx1 = *ctx;
+				body->staticAnalysis(&nCtx1);
+				auto nCtx2 = *ctx;
+				elseBody->staticAnalysis(&nCtx2);
+				ctx->out = nCtx1.out || nCtx2.out;
+				ctx->hasError |= nCtx1.hasError || nCtx2.hasError;
+			}
 			break;
 		}
 		case ConditionType::While: {
+			auto expr = condition->tryEval();
+			if (expr.isTrue()) {
+				body->staticAnalysis(ctx);
+				ctx->out = false;
+				break;
+			}
+
+			if (expr.isFalse()) {
+				auto nCtx = *ctx;
+				nCtx.in = false;
+				body->staticAnalysis(&nCtx);
+				ctx->out = ctx->in;
+				ctx->hasError |= nCtx.hasError;
+				break;
+			}
+
+			bool inL = ctx->in;
+			body->staticAnalysis(ctx);
+			ctx->out = inL;
 			break;
 		}
 		case ConditionType::For: {
+			
 			break;
 		}
 		default:

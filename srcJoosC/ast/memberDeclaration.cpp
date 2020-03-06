@@ -14,7 +14,7 @@ namespace AST
 {
 
 void MemberDeclaration::staticAnalysis(StaticAnalysisCtx *ctx) {
-	ctx->noOut = true;
+	ctx->hasError = false; // default case
 }	
 
 // static

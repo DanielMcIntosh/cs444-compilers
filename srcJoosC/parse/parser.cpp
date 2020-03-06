@@ -15,56 +15,6 @@ namespace Parse {
 const char* newLines = "\r\n";
 const char* Spaces = " ";
 
-static bool can_parse(const vector<string>& input,
-               const vector<Rule>& rules,
-               const DFA& joos_dfa) {
-  vector<int> state_stack;
-  vector<string> token_stack;
-  state_stack.push_back(0);
-  for (auto token : input) {
-    while (true) {
-      if (joos_dfa.at(state_stack.back()).count(token) == 0) {
-        // invalid token at this state
-        return false;
-      }
-      Transition next_rule = joos_dfa.at(state_stack.back()).at(token);
-      auto [action, rule_id] = next_rule;
-      if (action == SHIFT) {
-        auto next_state = rule_id;
-        token_stack.push_back(token);
-        state_stack.push_back(next_state);
-        break;
-      }
-
-      for (int i = 0; i < rules[rule_id].rhsSize; ++i) {
-        token_stack.pop_back();
-        state_stack.pop_back();
-      }
-      token_stack.push_back(rules[rule_id].lhs);
-
-      if (joos_dfa.at(state_stack.back()).count(token_stack.back()) == 0) {
-        return false;
-      }
-
-      auto r = joos_dfa.at(state_stack.back()).at(token_stack.back());
-      if (r.first == SHIFT) {
-        state_stack.push_back(r.second);
-      } else {
-        assert(false);  // this can never happen
-      }
-    }
-  }
-  return true;
-}
-
-static void lineHelper(char* buffer, const char** textPtr) {
-  profileSection("line helper");
-  int len = strcspn(*textPtr, newLines);
-  snprintf(buffer, len + 1, "%s", *textPtr);
-  *textPtr += len;
-  *textPtr += strspn(*textPtr, newLines);
-}
-
 static void lineHelperFast(char** textPtr, char** state) {
   profileSection("line helper fast");
 
@@ -376,48 +326,6 @@ void parserDumpDebugInfo(const ParseResult& result,
   FILE* dump = fopen(filePath, "w");
   fprintf(dump, "error at index %d\n", result.errorLexTokenIndex);
   fclose(dump);
-}
-
-static void parserTest() {
-  Parser parser;
-  s32 fileSize;
-  unique_ptr<char[]> fileContents =
-      readEntireFile("experimental/sample.lr1", &fileSize);
-  if (!fileContents)
-    return;
-
-  parserReadLR1(&parser, fileContents.get());
-
-  vector<pair<bool, vector<string>>> tests = {
-      {true, {"BOF", "id", "-", "(", "id", "-", "id", ")", "EOF"}},
-      {true, {"BOF", "id", "EOF"}},
-      {true,
-       {"BOF", "(", "id", "-", "id", ")", "-", "(", "id", "-", "id", ")",
-        "EOF"}},
-      {true, {"BOF", "(", "id", "-", "id", ")", "-", "id", "EOF"}},
-      {true, {"BOF", "id", "-", "id", "EOF"}},
-      {true,
-       {"BOF", "(", "(", "id", "-", "id", ")", "-", "id", ")", "-", "id",
-        "EOF"}},
-      {true,
-       {"BOF", "(", "id", "-", "(",  "id", "-", "(", "id", "-", "(",  "id",
-        "-",   "(", "id", "-", "id", ")",  ")", ")", ")",  ")", "EOF"}},
-      {true, {"BOF", "(",  "(", "(",  "(",  "(", "(",  "id", "-",  "id", ")",
-              "-",   "id", ")", "-",  "id", ")", "-",  "(",  "id", "-",  "(",
-              "id",  "-",  "(", "id", "-",  "(", "id", "-",  "(",  "id", "-",
-              "id",  ")",  ")", ")",  ")",  ")", ")",  ")",  ")",  "EOF"}},
-      {false,
-       {"BOF", "id"}},  // BUG: accepts valid prefix if EOF marker is missing
-      {false, {"BOF", "(", "EOF"}},
-      {false, {"BOF", "(", ")", "EOF"}},
-      {false, {"BOF", "id", "id", "EOF"}},
-  };
-
-  for (auto [expected, input] : tests) {
-    auto result = can_parse(input, parser.rules, parser.joos_dfa);
-    printf("expect: %d got: %d %s\n", expected, result,
-           expected == result ? "" : "failed");
-  }
 }
 
 }  // namespace Parse

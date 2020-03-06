@@ -21,6 +21,12 @@ void Expression::resetError() {
 	gError.hasError = false;
 	gError.function.clear();
 }
+	
+//////////////////////////////////////////////////////////////////////////////
+//
+// tryEval
+//
+//////////////////////////////////////////////////////////////////////////////	
 
 	bool ConstExpr::isKnown() {
 		return type != ConstExprType::Unknown;
@@ -41,6 +47,56 @@ void Expression::resetError() {
 			return std::nullopt;
 		return numVal;
 	}
+
+	ConstExpr Expression::tryEval() {
+		return ConstExpr();
+	}
+
+ConstExpr BinaryExpression::tryEval() {
+	if (op == Variant::InstanceOf)
+		return ConstExpr();
+
+	auto left = lhs->tryEval();
+	auto right = std::get<0>(rhs)->tryEval();
+
+	if (left.type != right.type || left.type == ConstExprType::Unknown)
+		return ConstExpr();
+
+	if (left.type == ConstExprType::Bool) {
+		if (op == Variant::Eq) {
+			return ConstExpr{ConstExprType::Bool, 0, left.boolVal == right.boolVal};
+		}
+		if (op == Variant::NEq) {
+			return ConstExpr{ConstExprType::Bool, 0, left.boolVal != right.boolVal};
+		}
+		return ConstExpr();
+	}
+
+	if (left.type == ConstExprType::Num) {
+		switch (op) {
+			case Variant::Add:
+				return ConstExpr{ConstExprType::Num, left.numVal + right.numVal};
+		case Variant::Eq:
+			return ConstExpr{ConstExprType::Bool, 0, left.numVal == right.numVal};
+		case Variant::NEq:
+			return ConstExpr{ConstExprType::Bool, 0, left.numVal != right.numVal};			
+    default:
+      return ConstExpr();
+		}
+	}
+
+	return ConstExpr();
+}
+
+ConstExpr Literal::tryEval() {
+	return std::visit(visitor{
+					[&](unsigned int val) { return ConstExpr{ConstExprType::Num, val, false}; },
+					[&](bool val) { return ConstExpr{ConstExprType::Bool, 0, val}; },
+					[&](char val) { return ConstExpr{ConstExprType::Num, val, false}; },
+					[&](std::string &val) { return ConstExpr{ConstExprType::Unknown, 0, false}; },
+					[&](std::nullptr_t val) { return ConstExpr{ConstExprType::Unknown, 0, false}; },
+	}, value);
+} 	
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -789,10 +845,6 @@ std::unique_ptr<Expression> Expression::create(const Parse::Tree *ptNode)
 	}
 }
 
-ConstExpr Expression::tryEval() {
-	return ConstExpr();
-}
-
 // static
 std::unique_ptr<ArrayAccess> ArrayAccess::create(const Parse::Tree *ptNode)
 {
@@ -1214,36 +1266,6 @@ BinaryExpression::BinaryExpression(const Parse::TConditionalOrExpression *ptNode
 	nodeType = NodeType::BinaryExpression;
 }
 
-ConstExpr BinaryExpression::tryEval() {
-	if (op == Variant::InstanceOf)
-		return ConstExpr();
-
-	auto left = lhs->tryEval();
-	auto right = std::get<0>(rhs)->tryEval();
-
-	if (left.type != right.type || left.type == ConstExprType::Unknown)
-		return ConstExpr();
-
-	if (left.type == ConstExprType::Bool) {
-		if (op == Variant::Eq) {
-			return ConstExpr{ConstExprType::Bool, 0, left.boolVal == right.boolVal};
-		}
-		if (op == Variant::NEq) {
-			return ConstExpr{ConstExprType::Bool, 0, left.boolVal != right.boolVal};
-		}
-		return ConstExpr();
-	}
-
-	if (left.type == ConstExprType::Num) {
-		switch (op) {
-			case Variant::Add:
-				return ConstExpr{ConstExprType ::Num, left.numVal + right.numVal};
-    default:
-      return ConstExpr();
-		}
-	}
-}
-
 std::string operator+=(std::string& str, BinaryExpression::Variant op)
 {
 	switch(op)
@@ -1399,16 +1421,6 @@ Literal::Literal(const Parse::TLiteral *ptNode)
 
 bool Literal::isJavaString(TypeDeclaration *decl) {
 	return decl == stringDecl;
-}
-
-ConstExpr Literal::tryEval() {
-	return std::visit(visitor{
-					[&](unsigned int val) { return ConstExpr{ConstExprType::Num, val, false}; },
-					[&](bool val) { return ConstExpr{ConstExprType::Bool, 0, val}; },
-					[&](char val) { return ConstExpr{ConstExprType::Num, val, false}; },
-					[&](std::string &val) { return ConstExpr{ConstExprType::Unknown, 0, false}; },
-					[&](std::nullptr_t val) { return ConstExpr{ConstExprType::Unknown, 0, false}; },
-	}, value);
 }
 
 //////////////////////////////////////////////////////////////////////////////

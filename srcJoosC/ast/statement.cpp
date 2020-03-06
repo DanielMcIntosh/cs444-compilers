@@ -21,18 +21,22 @@ namespace AST
 //////////////////////////////////////////////////////////////////////////////
 
 	void Statement::staticAnalysis(StaticAnalysisCtx *ctx) {
-		ctx->noOut = false;
+		ctx->out = ctx->in;
 	}
 
 	void Block::staticAnalysis(StaticAnalysisCtx *ctx) {
 		for (auto &stmt : statements) {
+			if (!ctx->in) {
+				ctx->hasError = true;
+				return;
+			}
 			stmt->staticAnalysis(ctx);
-			ctx->noIn = ctx->noOut;
+			ctx->in = ctx->out;
 		}
 	}
 
 	void ReturnStatement::staticAnalysis(StaticAnalysisCtx *ctx) {
-		ctx->noOut = true;
+		ctx->out = false;
 	}
 
 //////////////////////////////////////////////////////////////////////////////

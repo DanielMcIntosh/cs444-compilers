@@ -60,11 +60,6 @@ s64 getFileSize(const char *path) {
   return statBuf.st_size;
 }
 
-void createDirectoryChain(const char *path) {
-  strdecl256(commandBuffer, "mkdir -p %s", path);
-  system(commandBuffer);
-}
-
 [[gnu::const]]
 s32 getLeadingZeros(u64 val) {
   return __builtin_clzll(val);

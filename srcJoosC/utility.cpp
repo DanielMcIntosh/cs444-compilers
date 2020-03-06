@@ -111,7 +111,8 @@ std::unique_ptr<char[]> readEntireFile(const char* path, s32* size) {
 
   std::unique_ptr<char[]> filePtr(new char[fileSize + 1]);
 
-  fread(filePtr.get(), fileSize, 1, file);
+  auto ret = fread(filePtr.get(), fileSize, 1, file);
+	ASSERT(ret == 1);
   filePtr[fileSize] = '\0';
 
   *size = fileSize;

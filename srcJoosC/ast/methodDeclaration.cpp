@@ -17,11 +17,16 @@ namespace AST
 
 void MethodDeclaration::staticAnalysis(StaticAnalysisCtx *ctx) {
 	auto nCtx = *ctx;	
-	if (!body) {
-		nCtx.noOut = true; // correct case
-	} else
+	if (body) {
 		body->staticAnalysis(&nCtx);
-	ctx->noOut = nCtx.noOut;
+		if (returnType->nodeType == NodeType::PrimitiveType) {
+			auto primType = (PrimitiveType*)returnType.get();
+			if (primType->type != PrimitiveType::Variant::Void) {
+				nCtx.hasError |= nCtx.out;
+			}
+		}
+	}
+	ctx->hasError = nCtx.hasError;
 }	
 
 // static

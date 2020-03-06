@@ -293,21 +293,6 @@ u64 arrayHash(const array<u64, size>& a) {
   return result;
 }
 
-static void arrayBitFieldTest() {
-  NStateBitField bitfield{0};
-
-  for (s32 i = 0; i < NStateFieldLen * 64; ++i) {
-    arrayBitFieldSet(&bitfield, i);
-  }
-  bitfield[2] = 0;
-  bitfield[3] = 0;
-  bitfield[7] = 0;
-
-  for (auto val = arrayBitFieldBegin(bitfield); *val != -1; ++val) {
-    LOGR("%d", *val);
-  }
-}
-
 static void epsilonClosureFast(const NState* nstate, NStateBitField* bitfield) {
   NStateBitField seenField{0};
 
