@@ -274,7 +274,7 @@ void batchTesting(JoosC* joosc, const string& baseDir,
   }
 
   int numTests = topLevelFileList.size();
-  int numThreads = 1;
+  int numThreads = 12;
 
   vector<thread> threads;
   vector<BatchTestResult> results(numTests);
@@ -431,7 +431,6 @@ int main(int argc, const char** argv) {
   {
     profileSection("compile main");
     if (fileList.empty()) return 0;
-    gStandAloneMode = 1;
     if (!gStandAloneMode) {
 	    fileList.push_back(CUR_DIR_MARKER "tests/stdlib/IObject.java");
     }
