@@ -19,16 +19,16 @@ thread_local TypeDeclaration *Literal::stringDecl;
  * (Note that only NameType has an associated TypeDeclaration, so resolving a PrimitiveType is a NOP)
  */
 
-Semantic::SemanticErrorType NameType::resolve(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+SemanticErrorType NameType::resolve(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
 	auto [typeDecl, err] = semantic.resolveType(this, enclosingClass);
 	declaration = typeDecl;
 	return err;
 }
 
-Semantic::SemanticErrorType PrimitiveType::resolve(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+SemanticErrorType PrimitiveType::resolve(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
-	return Semantic::SemanticErrorType::None;
+	return SemanticErrorType::None;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -99,23 +99,23 @@ SemanticErrorType ConstructorDeclaration::resolveTypes(Semantic::SemanticDB cons
 	return SemanticErrorType::None;
 }
 
-Semantic::SemanticErrorType FieldDeclaration::resolveTypes(Semantic::SemanticDB const& semantic)
+SemanticErrorType FieldDeclaration::resolveTypes(Semantic::SemanticDB const& semantic)
 {
 	return varDecl->resolveTypes(semantic, _enclosingClass);
 }
 
-Semantic::SemanticErrorType MethodDeclaration::resolveTypes(Semantic::SemanticDB const& semantic)
+SemanticErrorType MethodDeclaration::resolveTypes(Semantic::SemanticDB const& semantic)
 {
-	if (Semantic::SemanticErrorType err = returnType->resolve(semantic, _enclosingClass);
-		err != Semantic::SemanticErrorType::None)
+	if (SemanticErrorType err = returnType->resolve(semantic, _enclosingClass);
+		err != SemanticErrorType::None)
 	{
 		return err;
 	}
 
 	for (auto &param: parameters)
 	{
-		if (Semantic::SemanticErrorType err = param->resolveTypes(semantic, _enclosingClass);
-			err != Semantic::SemanticErrorType::None)
+		if (SemanticErrorType err = param->resolveTypes(semantic, _enclosingClass);
+			err != SemanticErrorType::None)
 		{
 			return err;
 		}
@@ -123,13 +123,13 @@ Semantic::SemanticErrorType MethodDeclaration::resolveTypes(Semantic::SemanticDB
 
 	if (body)
 	{
-		if (Semantic::SemanticErrorType err = body->resolveTypes(semantic, _enclosingClass);
-			err != Semantic::SemanticErrorType::None)
+		if (SemanticErrorType err = body->resolveTypes(semantic, _enclosingClass);
+			err != SemanticErrorType::None)
 		{
 			return err;
 		}
 	}
-	return Semantic::SemanticErrorType::None;
+	return SemanticErrorType::None;
 }
 
 
@@ -154,7 +154,7 @@ SemanticErrorType Block::resolveTypes(Semantic::SemanticDB const& semantic, Type
 
 SemanticErrorType ConditionalStatement::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
-	Semantic::SemanticErrorType err;
+	SemanticErrorType err;
 	if (init) {
 		err = init->resolveTypes(semantic, enclosingClass);
 		GOFAIL_IF_ERR(err);
@@ -175,7 +175,7 @@ SemanticErrorType ConditionalStatement::resolveTypes(Semantic::SemanticDB const&
 		err = elseBody->resolveTypes(semantic, enclosingClass);
 		GOFAIL_IF_ERR(err);
 	}
-	return Semantic::SemanticErrorType::None;
+	return SemanticErrorType::None;
 
 	fail:
 	return err;
@@ -384,13 +384,13 @@ SemanticErrorType Name::resolveTypes(Semantic::SemanticDB const& semantic, TypeD
 	return SemanticErrorType::None;
 }
 
-Semantic::SemanticErrorType VariableDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
+SemanticErrorType VariableDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
 {
-	Semantic::SemanticErrorType err = Semantic::SemanticErrorType::None;
+	SemanticErrorType err = SemanticErrorType::None;
 	if (initializer) {
 		err = initializer->resolveTypes(semantic, enclosingClass);
 	}
-	if (err == Semantic::SemanticErrorType::None) {
+	if (err == SemanticErrorType::None) {
 		err = type->resolve(semantic, enclosingClass);
 	}
 	return err;

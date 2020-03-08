@@ -3,13 +3,9 @@
 #include "ast/type.h"
 #include "ast/typeDeclaration.h"
 #include "parse/parseTree.h"
-#include "semantic/semantic.h"
-#include "semantic/scope.h"
 
 #include <memory>
 #include <vector>
-
-using Semantic::SemanticErrorType;
 
 namespace AST
 {

@@ -13,6 +13,12 @@ using Semantic::SemanticErrorType;
 namespace AST
 {
 
+thread_local TypeDeduceError Expression::gError;
+void Expression::resetError() {
+	gError.hasError = false;
+	gError.function.clear();
+}
+
 /**
  * ExprResolution's job is to associate LocalVariableExpressionss, FieldAccesses, MethodInvocations, etc.
  * with their corresponding declarations (could be any one of VariableDeclaration, FieldDeclaration, MethodDeclaration, etc.)
@@ -444,7 +450,7 @@ SemanticErrorType Literal::deduceType() {
 	return SemanticErrorType::None;
 }
 
-Semantic::SemanticErrorType ArrayAccess::deduceType() {
+SemanticErrorType ArrayAccess::deduceType() {
 	// array must be array type
 	if (!array->typeResult.isArray)
 		GOFAIL();
@@ -460,7 +466,7 @@ Semantic::SemanticErrorType ArrayAccess::deduceType() {
 	OK();
 
 	fail:
-	return Semantic::SemanticErrorType::TypeCheck;
+	return SemanticErrorType::TypeCheck;
 }
 
 SemanticErrorType ArrayCreationExpression::deduceType() {
@@ -599,23 +605,23 @@ SemanticErrorType BinaryExpression::deduceType() {
 	return err;
 }
 
-Semantic::SemanticErrorType LocalVariableExpression::deduceType()
+SemanticErrorType LocalVariableExpression::deduceType()
 {
 	typeResult = TypeResult(*(declaration->type), false);
 	return SemanticErrorType::None;
 }
-Semantic::SemanticErrorType MethodInvocation::deduceType()
+SemanticErrorType MethodInvocation::deduceType()
 {
 	// I'm setting isFinal to false because I don't remember Java well enough to know whether its
 	// "everything is a reference" policy means assigning to a return value makes sense
 	typeResult = TypeResult(*(declaration->returnType), false);
 	return SemanticErrorType::None;
 }
-Semantic::SemanticErrorType NameExpression::deduceType() {
+SemanticErrorType NameExpression::deduceType() {
 	typeResult = converted->typeResult;
 	return SemanticErrorType::None;
 }
-Semantic::SemanticErrorType UnaryExpression::deduceType() {
+SemanticErrorType UnaryExpression::deduceType() {
 	auto &t = expr->typeResult;
 	if (op == Variant::Bang) {
 		if (!t.isPrimitiveType(TypePrimitive::Boolean)) {
@@ -661,10 +667,10 @@ SemanticErrorType Block::resolveExprs(Semantic::Scope &parentScope)
 	return SemanticErrorType::None;
 }
 
-Semantic::SemanticErrorType ConditionalStatement::resolveExprs(Semantic::Scope &parentScope)
+SemanticErrorType ConditionalStatement::resolveExprs(Semantic::Scope &parentScope)
 {
 	Semantic::Scope mainScope(parentScope);
-	Semantic::SemanticErrorType err;
+	SemanticErrorType err;
 	if (init)
 	{
 		err = init->resolveExprs(mainScope);
@@ -675,7 +681,7 @@ Semantic::SemanticErrorType ConditionalStatement::resolveExprs(Semantic::Scope &
 		err = condition->resolveAndDeduce(mainScope);
 		GOFAIL_IF_ERR(err);
 		if (!condition->typeResult.isPrimitiveType(TypePrimitive::Boolean)) {
-			return Semantic::SemanticErrorType::TypeCheck;
+			return SemanticErrorType::TypeCheck;
 		}
 	}
 	if (increment)
@@ -703,7 +709,7 @@ SemanticErrorType ExpressionStatement::resolveExprs(Semantic::Scope &parentScope
 	{
 		return expression->resolveAndDeduce(parentScope);
 	}
-	return Semantic::SemanticErrorType::None;
+	return SemanticErrorType::None;
 }
 
 SemanticErrorType LocalVariableDeclarationStatement::resolveExprs(Semantic::Scope &parentScope)
@@ -730,20 +736,20 @@ SemanticErrorType ReturnStatement::resolveExprs(Semantic::Scope &parentScope)
 	if (returnValue != nullptr)
 	{
 		auto err = returnValue->resolveAndDeduce(parentScope);
-		if (err != Semantic::SemanticErrorType::None) return err;
+		if (err != SemanticErrorType::None) return err;
 		if (std::holds_alternative<ConstructorDeclaration *>(parentScope._enclosingMethod)) {
-			return Semantic::SemanticErrorType::ReturningFromConstructor;
+			return SemanticErrorType::ReturningFromConstructor;
 		}
 		auto enclMethod = std::get<MethodDeclaration *>(parentScope._enclosingMethod);
 		auto declaredType = TypeResult(*enclMethod->returnType, false);
 		if (declaredType.isPrimitiveType(TypePrimitive::Void)) {
-			return Semantic::SemanticErrorType::ReturningValueFromVoidFunction;
+			return SemanticErrorType::ReturningValueFromVoidFunction;
 		}
 		if (!declaredType.canAssignToMyType(returnValue->typeResult)) {
-			return Semantic::SemanticErrorType::AssignableType;
+			return SemanticErrorType::AssignableType;
 		}
 	}
-	return Semantic::SemanticErrorType::None;
+	return SemanticErrorType::None;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -818,7 +824,7 @@ SemanticErrorType ConstructorDeclaration::resolveExprs()
 	return SemanticErrorType::None;
 }
 
-Semantic::SemanticErrorType FieldDeclaration::resolveExprs()
+SemanticErrorType FieldDeclaration::resolveExprs()
 {
 	Semantic::Scope scope(_enclosingClass);
 	auto thisDecl = std::make_unique<VariableDeclaration>(_enclosingClass->asType(), "this");
@@ -829,26 +835,26 @@ Semantic::SemanticErrorType FieldDeclaration::resolveExprs()
 	return varDecl->resolveExprs(scope);
 }
 
-Semantic::SemanticErrorType MethodDeclaration::resolveExprs()
+SemanticErrorType MethodDeclaration::resolveExprs()
 {
 	Semantic::Scope scope(_enclosingClass, this);
 	for (auto &param: parameters)
 	{
 		if (!scope.add(param))
 		{
-			return Semantic::SemanticErrorType::LocalVariableShadowing;
+			return SemanticErrorType::LocalVariableShadowing;
 		}
 	}
 
 	if (body)
 	{
-		if (Semantic::SemanticErrorType err = body->resolveExprs(scope);
-			err != Semantic::SemanticErrorType::None)
+		if (SemanticErrorType err = body->resolveExprs(scope);
+			err != SemanticErrorType::None)
 		{
 			return err;
 		}
 	}
-	return Semantic::SemanticErrorType::None;
+	return SemanticErrorType::None;
 }
 
 
@@ -858,17 +864,17 @@ Semantic::SemanticErrorType MethodDeclaration::resolveExprs()
 //
 //////////////////////////////////////////////////////////////////////////////
 
-Semantic::SemanticErrorType VariableDeclaration::resolveExprs(Semantic::Scope const& parentScope)
+SemanticErrorType VariableDeclaration::resolveExprs(Semantic::Scope const& parentScope)
 {
 	if (initializer != nullptr)
 	{
 		auto err = initializer->resolveAndDeduce(parentScope);
-		if (err != Semantic::SemanticErrorType::None) return err;
+		if (err != SemanticErrorType::None) return err;
 		if (!TypeResult(*type, false).canAssignToMyType(initializer->typeResult)) {
-			return Semantic::SemanticErrorType::AssignableType;
+			return SemanticErrorType::AssignableType;
 		}
 	}
-	return Semantic::SemanticErrorType::None;
+	return SemanticErrorType::None;
 }
 
 

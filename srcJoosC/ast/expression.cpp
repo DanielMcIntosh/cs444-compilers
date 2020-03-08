@@ -5,27 +5,18 @@
 #include "ast/typeDeclaration.h"
 #include "ast/variableDeclaration.h"
 #include "parse/parseTree.h"
-#include "semantic/semantic.h"
-#include "semantic/scope.h"
 #include <memory>
 #include <optional>
 #include <ostream>
 
-using Semantic::SemanticErrorType;
 namespace AST
 {
-thread_local TypeDeduceError Expression::gError;
 
-void Expression::resetError() {
-	gError.hasError = false;
-	gError.function.clear();
-}
-	
 //////////////////////////////////////////////////////////////////////////////
 //
 // tryEval
 //
-//////////////////////////////////////////////////////////////////////////////	
+//////////////////////////////////////////////////////////////////////////////
 
 	bool ConstExpr::isKnown() {
 		return type != ConstExprType::Unknown;
@@ -33,7 +24,7 @@ void Expression::resetError() {
 
 
 	bool ConstExpr::isFalse() {
-		return isKnown() && !boolVal;		
+		return isKnown() && !boolVal;
 	}
 
 
@@ -86,7 +77,7 @@ ConstExpr BinaryExpression::tryEval() {
 		case Variant::Eq:
 			return ConstExpr{ConstExprType::Bool, 0, left.numVal == right.numVal};
 		case Variant::NEq:
-			return ConstExpr{ConstExprType::Bool, 0, left.numVal != right.numVal};			
+			return ConstExpr{ConstExprType::Bool, 0, left.numVal != right.numVal};
     default:
       return ConstExpr();
 		}
@@ -103,7 +94,7 @@ ConstExpr Literal::tryEval() {
 					[&](std::string &val) { return ConstExpr{ConstExprType::Unknown, 0, false}; },
 					[&](std::nullptr_t val) { return ConstExpr{ConstExprType::Unknown, 0, false}; },
 	}, value);
-} 	
+}
 
 
 //////////////////////////////////////////////////////////////////////////////

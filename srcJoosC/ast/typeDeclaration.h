@@ -54,7 +54,7 @@ public:
   //
 
   void staticAnalysis(StaticAnalysisCtx *ctx);
-  
+
 	ConstructorDeclaration *findConstructor(ClassInstanceCreationExpression *invocation);
 	MethodDeclaration *findMethod(MethodInvocation *invocation);
 	FieldDeclaration *findField(FieldAccess *access);
@@ -90,17 +90,11 @@ public:
 
 	std::vector<ConstructorDeclaration *> constructorSet;
 
-	//
-	// Implements formal hierarchy checking
-	// Exact container types may be changed to facilitate easier access
-	// or iteration
-	//
-
 	// Super.
-	// Need to contain all top level parents
+	// Contains direct parents
 	std::vector<TypeDeclaration *> superSet;
 
-	// Contains indirect and direct parents
+	// Contains direct and indirect parents
 	std::vector<TypeDeclaration *> hyperSet;
 
 	template <class DeclType>

@@ -344,10 +344,8 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 		}
 
 		// A class must not extend a final class
-		for (auto &mod : super->modifiers) {
-			if (mod->type == Modifier::Variant::Final) {
-				return SemanticErrorType::ExtendFinalClass;
-			}
+		if (super->hasModifier(Modifier::Variant::Final)) {
+			return SemanticErrorType::ExtendFinalClass;
 		}
 	}
 
