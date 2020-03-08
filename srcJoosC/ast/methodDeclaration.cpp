@@ -146,56 +146,6 @@ bool MethodDeclaration::equals(const MethodDeclaration *other) const {
 	return identifier == other->identifier;
 }
 
-Semantic::SemanticErrorType MethodDeclaration::resolveTypes(Semantic::SemanticDB const& semantic)
-{
-	if (Semantic::SemanticErrorType err = returnType->resolve(semantic, _enclosingClass);
-		err != Semantic::SemanticErrorType::None)
-	{
-		return err;
-	}
-
-	for (auto &param: parameters)
-	{
-		if (Semantic::SemanticErrorType err = param->resolveTypes(semantic, _enclosingClass);
-			err != Semantic::SemanticErrorType::None)
-		{
-			return err;
-		}
-	}
-
-	if (body)
-	{
-		if (Semantic::SemanticErrorType err = body->resolveTypes(semantic, _enclosingClass);
-			err != Semantic::SemanticErrorType::None)
-		{
-			return err;
-		}
-	}
-	return Semantic::SemanticErrorType::None;
-}
-
-Semantic::SemanticErrorType MethodDeclaration::resolveExprs()
-{
-	Semantic::Scope scope(_enclosingClass, this);
-	for (auto &param: parameters)
-	{
-		if (!scope.add(param))
-		{
-			return Semantic::SemanticErrorType::LocalVariableShadowing;
-		}
-	}
-
-	if (body)
-	{
-		if (Semantic::SemanticErrorType err = body->resolveExprs(scope);
-			err != Semantic::SemanticErrorType::None)
-		{
-			return err;
-		}
-	}
-	return Semantic::SemanticErrorType::None;
-}
-
 void MethodDeclaration::addThisParam()
 {
 	if (!hasModifier(Modifier::Variant::Static))

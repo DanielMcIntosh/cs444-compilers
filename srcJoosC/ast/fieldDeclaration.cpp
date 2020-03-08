@@ -58,20 +58,4 @@ bool FieldDeclaration::idEquals(const FieldAccess *other) const
 	&& (hasModifier(Modifier::Variant::Static) == other->isStaticAccessor());
 }
 
-Semantic::SemanticErrorType FieldDeclaration::resolveTypes(Semantic::SemanticDB const& semantic)
-{
-	return varDecl->resolveTypes(semantic, _enclosingClass);
-}
-
-Semantic::SemanticErrorType FieldDeclaration::resolveExprs()
-{
-	Semantic::Scope scope(_enclosingClass);
-	auto thisDecl = std::make_unique<VariableDeclaration>(_enclosingClass->asType(), "this");
-	if (!hasModifier(Modifier::Variant::Static))
-	{
-		scope.add(thisDecl);
-	}
-	return varDecl->resolveExprs(scope);
-}
-
 } //namespace AST

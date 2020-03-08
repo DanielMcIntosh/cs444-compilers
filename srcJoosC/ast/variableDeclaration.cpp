@@ -76,32 +76,6 @@ bool VariableDeclaration::typeEquals(const TypeResult &other) const {
 	return type->equals(other);
 }
 
-
-Semantic::SemanticErrorType VariableDeclaration::resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass)
-{
-	Semantic::SemanticErrorType err = Semantic::SemanticErrorType::None;
-	if (initializer) {
-		err = initializer->resolveTypes(semantic, enclosingClass);
-	}
-	if (err == Semantic::SemanticErrorType::None) {
-		err = type->resolve(semantic, enclosingClass);
-	}
-	return err;
-}
-
-Semantic::SemanticErrorType VariableDeclaration::resolveExprs(Semantic::Scope const& parentScope)
-{
-	if (initializer != nullptr)
-	{
-		auto err = initializer->resolveAndDeduce(parentScope);
-		if (err != Semantic::SemanticErrorType::None) return err;
-		if (!TypeResult(*type, false).canAssignToMyType(initializer->typeResult)) {
-			return Semantic::SemanticErrorType::AssignableType;
-		}
-	}
-	return Semantic::SemanticErrorType::None;
-}
-
 bool VariableDeclaration::hasInitializer() const
 {
 	return initializer != nullptr;

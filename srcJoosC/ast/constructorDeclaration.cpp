@@ -104,63 +104,6 @@ bool ConstructorDeclaration::signatureEquals(const ClassInstanceCreationExpressi
 	return true;
 }
 
-SemanticErrorType ConstructorDeclaration::resolveTypes(Semantic::SemanticDB const& semantic)
-{
-	for (auto &param: parameters)
-	{
-		if (SemanticErrorType err = param->resolveTypes(semantic, _enclosingClass);
-			err != SemanticErrorType::None)
-		{
-			return err;
-		}
-	}
-
-	if (SemanticErrorType err = body->resolveTypes(semantic, _enclosingClass);
-		err != SemanticErrorType::None)
-	{
-		return err;
-	}
-
-	return SemanticErrorType::None;
-}
-
-SemanticErrorType ConstructorDeclaration::resolveExprs()
-{
-	if (identifier != _enclosingClass->name) {
-		return SemanticErrorType::ConstructorWrongName;
-	}
-	Semantic::Scope scope(_enclosingClass, this);
-	for (auto &param: parameters)
-	{
-		if (!scope.add(param))
-		{
-			return SemanticErrorType::LocalVariableShadowing;
-		}
-	}
-
-	// TODO: probably want to remove this, and somehow add an explicit call to the
-	// parent constructor at the start of body, which then gets resolved in body->resolveExprs
-	if (_enclosingClass->superClass != nullptr)
-	{
-		auto *superDecl = _enclosingClass->superClass->declaration;
-		auto implicitSuperCall = std::make_unique<ClassInstanceCreationExpression>(superDecl->asType(), std::vector<std::unique_ptr<Expression>>{});
-		if (superDecl->findConstructor(implicitSuperCall.get()) == nullptr)
-		{
-			return SemanticErrorType::DefaultSuperConstructorMissing;
-		}
-	}
-
-	if (body)
-	{
-		if (SemanticErrorType err = body->resolveExprs(scope);
-			err != SemanticErrorType::None)
-		{
-			return err;
-		}
-	}
-	return SemanticErrorType::None;
-}
-
 void ConstructorDeclaration::addThisParam()
 {
 	if (!hasModifier(Modifier::Variant::Static))

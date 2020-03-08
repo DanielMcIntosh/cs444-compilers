@@ -1,6 +1,9 @@
 ./srcJoosC/main.cpp
 ./srcJoosC/semantic/scope.cpp
 ./srcJoosC/semantic/semantic.cpp
+./srcJoosC/semantic/dagSort.cpp
+./srcJoosC/semantic/typeResolution.cpp
+./srcJoosC/semantic/exprResolution.cpp
 ./srcJoosC/ast/compilationUnit.cpp
 ./srcJoosC/ast/conditionalStatement.cpp
 ./srcJoosC/ast/constructorDeclaration.cpp
@@ -22,4 +25,3 @@
 ./srcJoosC/ast/ast.cpp
 ./srcJoosC/ast/nodeList.cpp
 ./srcJoosC/ast/node.cpp
-./srcJoosC/semantic/dagSort.cpp

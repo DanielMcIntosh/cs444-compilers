@@ -163,48 +163,6 @@ std::string TypeDeclaration::toCode() const
 	return str;
 }
 
-SemanticErrorType TypeDeclaration::resolveSuperTypeNames(Semantic::SemanticDB const& semantic, TypeDeclaration* object)
-{
-	if (!gStandAloneMode) {
-		if (!superClass && !isInterface && fqn != "java.lang.Object") {
-			object->children.push_back(this);
-		}
-	}
-	if (superClass)
-	{
-		if (SemanticErrorType err = superClass->resolve(semantic, this);
-			err != SemanticErrorType::None)
-		{
-			return err;
-		}
-		superClass->getDeclaration()->children.push_back(this);
-	}
-
-	for (auto &intf: interfaces)
-	{
-		if (SemanticErrorType err = intf->resolve(semantic, this);
-			err != SemanticErrorType::None)
-		{
-			return err;
-		}
-		intf->getDeclaration()->children.push_back(this);
-	}
-	return SemanticErrorType::None;
-}
-
-SemanticErrorType TypeDeclaration::resolveBodyTypeNames(Semantic::SemanticDB const& semantic)
-{
-	for (auto &decl : members)
-	{
-		if (SemanticErrorType err = decl->resolveTypes(semantic);
-			err != SemanticErrorType::None)
-		{
-			return err;
-		}
-	}
-	return SemanticErrorType::None;
-}
-
 SemanticErrorType TypeDeclaration::exprResolutionPrep()
 {
 	if (!isInterface)
@@ -364,35 +322,6 @@ SemanticErrorType TypeDeclaration::precheckFieldInitializers()
 				if (curName->ids[0] == undeclared->varDecl->identifier)
 					return SemanticErrorType::ForwardReferenceToField;
 			}
-		}
-	}
-	return SemanticErrorType::None;
-}
-
-SemanticErrorType TypeDeclaration::resolveBodyExprs()
-{
-	for (auto *decl : fieldSets.declareSet)
-	{
-		if (SemanticErrorType err = decl->resolveExprs();
-			err != SemanticErrorType::None)
-		{
-			return err;
-		}
-	}
-	for (auto *decl : methodSets.declareSet)
-	{
-		if (SemanticErrorType err = decl->resolveExprs();
-			err != SemanticErrorType::None)
-		{
-			return err;
-		}
-	}
-	for (auto *decl : constructorSet)
-	{
-		if (SemanticErrorType err = decl->resolveExprs();
-			err != SemanticErrorType::None)
-		{
-			return err;
 		}
 	}
 	return SemanticErrorType::None;
