@@ -25,7 +25,7 @@ namespace AST
 //
 // staticAnalysis
 //
-//////////////////////////////////////////////////////////////////////////////	
+//////////////////////////////////////////////////////////////////////////////
 
 void TypeDeclaration::staticAnalysis(StaticAnalysisCtx *ctx) {
 	for (auto &member : members) {
@@ -41,7 +41,7 @@ void TypeDeclaration::staticAnalysis(StaticAnalysisCtx *ctx) {
 //
 // create
 //
-//////////////////////////////////////////////////////////////////////////////		
+//////////////////////////////////////////////////////////////////////////////
 
 // static
 std::unique_ptr<TypeDeclaration> TypeDeclaration::create(const Parse::Tree *ptNode)
@@ -165,18 +165,18 @@ std::string TypeDeclaration::toCode() const
 
 SemanticErrorType TypeDeclaration::exprResolutionPrep()
 {
-	if (!isInterface)
+	for (auto &decl : members)
 	{
-		for (auto *decl : methodSets.declareSet)
+		if (decl->nodeType == NodeType::MethodDeclaration)
 		{
-			decl->addThisParam();
+			static_cast<MethodDeclaration *>(decl.get())->addThisParam();
 		}
-		for (auto *decl : constructorSet)
+		else if (decl->nodeType == NodeType::ConstructorDeclaration)
 		{
-			decl->addThisParam();
+			static_cast<ConstructorDeclaration *>(decl.get())->addThisParam();
 		}
-		// for fields, we add the "this" directly to the scope.
 	}
+	// for fields, we add the "this" directly to the scope.
 
 	// pre exprResolution weeding:
 	if (SemanticErrorType err = precheckFieldInitializers();
@@ -190,8 +190,17 @@ SemanticErrorType TypeDeclaration::exprResolutionPrep()
 
 SemanticErrorType TypeDeclaration::precheckFieldInitializers()
 {
-	std::vector<FieldDeclaration *> undeclaredFields(fieldSets.declareSet.rbegin(), fieldSets.declareSet.rend());
-	for (auto *decl : fieldSets.declareSet)
+	std::vector<FieldDeclaration *> fields;
+	for (auto &decl : members)
+	{
+		if (decl->nodeType == NodeType::FieldDeclaration)
+		{
+			fields.push_back(static_cast<FieldDeclaration *>(decl.get()));
+		}
+	}
+	std::vector<FieldDeclaration *> undeclaredFields(fields.rbegin(), fields.rend());
+
+	for (auto *decl : fields)
 	{
 		// we're at the declaration for the field at the back of undeclaredFields, remove it from the list
 		undeclaredFields.pop_back();
@@ -319,7 +328,7 @@ SemanticErrorType TypeDeclaration::precheckFieldInitializers()
 				return SemanticErrorType::VariableInOwnInitializer;
 			for (auto *undeclared : undeclaredFields)
 			{
-				if (curName->ids[0] == undeclared->varDecl->identifier)
+				if (undeclared->varDecl->idEquals(curName->ids[0]))
 					return SemanticErrorType::ForwardReferenceToField;
 			}
 		}
@@ -375,14 +384,18 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 	// build super set and hyper set
 	if (super) {
 		superSet.push_back(super);
-		hyperSet = super->hyperSet;
 		hyperSet.push_back(super);
+		hyperSet.insert(hyperSet.end(), super->hyperSet.begin(), super->hyperSet.end());
 	}
 	for (auto *ext : extends) {
 		superSet.push_back(ext);
-		hyperSet.insert(hyperSet.end(), ext->hyperSet.begin(), ext->hyperSet.end());
 		hyperSet.push_back(ext);
+		hyperSet.insert(hyperSet.end(), ext->hyperSet.begin(), ext->hyperSet.end());
 	}
+
+	std::vector<MethodDeclaration *> mDeclareSet;
+	std::vector<FieldDeclaration *> fDeclareSet;
+	std::vector<FieldDeclaration *> fInheritSet;
 
 	if (!gStandAloneMode) {
 		// If this is an interface without a superinterface, add IObject methods to declare set
@@ -390,27 +403,28 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 			for (auto &member : iObject->members) {
 				ASSERT(member->nodeType == NodeType::MethodDeclaration);
 				auto m = static_cast<MethodDeclaration*>(member.get());
-				methodSets.declareSet.push_back(m);
+				mDeclareSet.push_back(m);
 			}
 		}
 	}
+
 	// build declare sets
 	for (auto &member : members) {
 		switch (member->nodeType) {
 			case NodeType::FieldDeclaration: {
 				auto f = static_cast<FieldDeclaration *>(member.get());
-				for (const auto &g : fieldSets.declareSet) {
+				for (const auto &g : fDeclareSet) {
 					// Hierarchy check 10: cannot declare multiple fields with the same name
 					if (f->idEquals(g)) {
 						return SemanticErrorType::DuplicateFieldDeclaration;
 					}
 				}
-				fieldSets.declareSet.push_back(f);
+				fDeclareSet.push_back(f);
 				break;
 			}
 			case NodeType::MethodDeclaration: {
 				auto m = static_cast<MethodDeclaration*>(member.get());
-				for (const auto &n : methodSets.declareSet) {
+				for (const auto &n : mDeclareSet) {
 					// Hierarchy check 2: No duplicate methods
 					if (m->signatureEquals(n)) {
 						return SemanticErrorType::DuplicateMethodDeclaration;
@@ -420,7 +434,7 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 						return SemanticErrorType::AbstractClassNotAbstract;
 					}
 				}
-				methodSets.declareSet.push_back(m);
+				mDeclareSet.push_back(m);
 				break;
 			}
 			case NodeType::ConstructorDeclaration: {
@@ -441,73 +455,82 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 	// replace set for methods
 	std::vector<std::pair<MethodDeclaration *, MethodDeclaration *>> overrides;
 
+	if (super)
+	{
+		methodContainSet = super->methodContainSet;
+	}
+
 	// inheriting methods
-	for (const auto &s : superSet) {
-		for (const auto &m : s->methodSets.containSet) {
-			bool noDecl = true;
-			for (const auto &n : methodSets.declareSet) {
-				if (m->signatureEquals(n)) {
-					noDecl = false;
+	for (const auto &s : extends)
+	{
+		for (const auto &m : s->methodContainSet)
+		{
+			bool isInContainSetAlready = false;
+			for (auto &n : methodContainSet)
+			{
+				if (m->signatureEquals(n))
+				{
+					// Hierarchy check 3: One return type per unique signature
+					if (!m->returnEquals(n))
+						return SemanticErrorType::AmbiguousReturnType;
+
+					// Replacing abstract from interface with concrete method from superclass
+					if (!n->hasModifier(Modifier::Variant::Abstract))
+						overrides.emplace_back(n, m);
+					// expanding access - if we're implementing an interface which has this method marked public,
+					// we better provide an implementation which is public, not private
+					else if (m->hasModifier(Modifier::Variant::Public) && !n->hasModifier(Modifier::Variant::Public))
+						// replace non-public entry in methodContainSet with our public declaration
+						n = m;
+
+					isInContainSetAlready = true;
 					break;
 				}
 			}
-			if (m->hasModifier(Modifier::Variant::Abstract)) {
-				bool allAbstract = true;
-				for (const auto &s2 : superSet) {
-					for (const auto &n : s2->methodSets.containSet) {
-						if (m->signatureEquals(n) && !n->hasModifier(Modifier::Variant::Abstract)) {
-							allAbstract = false;
-							// Replacing abstract with concrete method
-							overrides.emplace_back(n, m);
-						}
-					}
-					if (!allAbstract)
-						break;
-				}
-				if (noDecl && allAbstract) {
-					// Inheriting abstract method
-					methodSets.inheritSet.push_back(m);
-				}
-			} else {
-				if (noDecl) {
-					// Inheriting non-abstract method
-					methodSets.inheritSet.push_back(m);
-				}
+			if (!isInContainSetAlready)
+			{
+				methodContainSet.push_back(m);
 			}
+		}
+	}
+
+	for (auto *m : mDeclareSet )
+	{
+		bool isOverride = false;
+		for (auto &n : methodContainSet) {
+			if (m->signatureEquals(n)) {
+				overrides.emplace_back(m, n);
+				// replace entry in methodContainSet with our declaration/implementation
+				n = m;
+				isOverride = true;
+				break;
+			}
+		}
+		if (!isOverride)
+		{
+			methodContainSet.push_back(m);
 		}
 	}
 
 	// inheriting fields
 	for (const auto &s : superSet) {
-		for (const auto &f : s->fieldSets.containSet) {
+		for (const auto &f : s->fieldContainSet) {
 			bool unique = true;
-			for (const auto &g : fieldSets.declareSet) {
+			for (const auto &g : fDeclareSet) {
 				if (f->idEquals(g)) {
 					unique = false;
 					break;
 				}
 			}
 			if (unique) {
-				fieldSets.inheritSet.push_back(f);
-			}
-		}
-	}
-
-	// overriding methods in superclasses
-	for (const auto &s : superSet) {
-		for (const auto &m : methodSets.declareSet) {
-			for (const auto &n : s->methodSets.containSet) {
-				if (m->signatureEquals(n)) {
-					overrides.emplace_back(m, n);
-				}
+				fInheritSet.push_back(f);
 			}
 		}
 	}
 
 	for (const auto &[m, n] : overrides) {
 		// Hierarchy check 5: Static methods can only override and be overriden by static methods
-		if ((m->hasModifier(Modifier::Variant::Static) && !n->hasModifier(Modifier::Variant::Static)) ||
-			(!m->hasModifier(Modifier::Variant::Static) && n->hasModifier(Modifier::Variant::Static))) {
+		if ((m->hasModifier(Modifier::Variant::Static) != n->hasModifier(Modifier::Variant::Static))) {
 			return SemanticErrorType::OverrideStatic;
 		}
 		// Hierarchy check 6: Methods can only override methods with the same return type
@@ -524,27 +547,16 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 		}
 	}
 
-	methodSets.containSet.insert(methodSets.containSet.end(), methodSets.declareSet.begin(), methodSets.declareSet.end());
-	methodSets.containSet.insert(methodSets.containSet.end(), methodSets.inheritSet.begin(), methodSets.inheritSet.end());
-	fieldSets.containSet.insert(fieldSets.containSet.end(), fieldSets.declareSet.begin(), fieldSets.declareSet.end());
-	fieldSets.containSet.insert(fieldSets.containSet.end(), fieldSets.inheritSet.begin(), fieldSets.inheritSet.end());
+	fieldContainSet.insert(fieldContainSet.end(), fDeclareSet.begin(), fDeclareSet.end());
+	fieldContainSet.insert(fieldContainSet.end(), fInheritSet.begin(), fInheritSet.end());
 
 	// Hierarchy check 4: classes with abstract methods must be abstract
-	for (const auto &m : methodSets.containSet) {
+	for (const auto &m : methodContainSet) {
 		if (m->hasModifier(Modifier::Variant::Abstract)) {
 			if (!hasModifier(Modifier::Variant::Abstract)) {
 				return SemanticErrorType::AbstractClassNotAbstract;
 			}
 			break;
-		}
-	}
-
-	// Hierarchy check 3: One return type per unique signature
-	for (const auto &m : methodSets.containSet) {
-		for (const auto &n : methodSets.containSet) {
-			if (m->signatureEquals(n) && !m->returnEquals(n)) {
-				return SemanticErrorType::AmbiguousReturnType;
-			}
 		}
 	}
 
@@ -568,7 +580,7 @@ ConstructorDeclaration *TypeDeclaration::findConstructor(ClassInstanceCreationEx
 MethodDeclaration *TypeDeclaration::findMethod(MethodInvocation *invocation)
 {
 	MethodDeclaration *ret = nullptr;
-	for (auto *decl : methodSets.containSet)
+	for (auto *decl : methodContainSet)
 	{
 		if (decl->signatureEquals(invocation))
 		{
@@ -582,7 +594,7 @@ MethodDeclaration *TypeDeclaration::findMethod(MethodInvocation *invocation)
 FieldDeclaration *TypeDeclaration::findField(FieldAccess *access)
 {
 	FieldDeclaration *ret = nullptr;
-	for (auto *decl : fieldSets.containSet)
+	for (auto *decl : fieldContainSet)
 	{
 		if (decl->idEquals(access))
 		{

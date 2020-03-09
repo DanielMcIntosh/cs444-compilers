@@ -97,23 +97,11 @@ public:
 	// Contains direct and indirect parents
 	std::vector<TypeDeclaration *> hyperSet;
 
-	template <class DeclType>
-	struct MemberSets{
-		// Declare.
-		// Should be a copy of "members" field above. Exists to make things clear.
-		std::vector<DeclType *> declareSet;
 
-		// Inherit.
-		// Should copy from all parents.
-		std::vector<DeclType *> inheritSet;
-
-		// Contain.
-		// Should be a concatenation of declareSet and inheritSet above.
-		std::vector<DeclType *> containSet;
-	};
-
-	MemberSets<FieldDeclaration> fieldSets;
-	MemberSets<MethodDeclaration> methodSets;
+	// For classes, these should line up with the data layout and vtable layout respectively
+	// (when you skip the static fields/methods?)
+	std::vector<FieldDeclaration *> fieldContainSet;
+	std::vector<MethodDeclaration *> methodContainSet;
 };
 
 } //namespace AST

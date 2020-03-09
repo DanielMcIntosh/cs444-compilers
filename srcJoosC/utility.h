@@ -61,7 +61,7 @@ typedef int16_t s16;
 
 #ifndef _MSC_VER
 
-#define EXPORT __attribute__ ((visibility ("default"))) 
+#define EXPORT __attribute__ ((visibility ("default")))
 #define LOG_RED(_fmt, ...) LOGR("\033[0;91m" _fmt "\033[0m", ##__VA_ARGS__)
 #define LOG_GREEN(_fmt, ...) LOGR("\033[0;92m" _fmt "\033[0m", ##__VA_ARGS__)
 

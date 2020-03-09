@@ -760,23 +760,7 @@ SemanticErrorType ReturnStatement::resolveExprs(Semantic::Scope &parentScope)
 
 SemanticErrorType TypeDeclaration::resolveBodyExprs()
 {
-	for (auto *decl : fieldSets.declareSet)
-	{
-		if (SemanticErrorType err = decl->resolveExprs();
-			err != SemanticErrorType::None)
-		{
-			return err;
-		}
-	}
-	for (auto *decl : methodSets.declareSet)
-	{
-		if (SemanticErrorType err = decl->resolveExprs();
-			err != SemanticErrorType::None)
-		{
-			return err;
-		}
-	}
-	for (auto *decl : constructorSet)
+	for (auto &decl : members)
 	{
 		if (SemanticErrorType err = decl->resolveExprs();
 			err != SemanticErrorType::None)
