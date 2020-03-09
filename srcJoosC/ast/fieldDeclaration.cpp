@@ -46,15 +46,15 @@ std::string FieldDeclaration::toCode() const
 }
 
 bool FieldDeclaration::equals(const FieldDeclaration *other) const {
-  return varDecl->equals(other->varDecl.get());
+  return other && varDecl->equals(other->varDecl.get());
 }
 
 bool FieldDeclaration::idEquals(const FieldDeclaration *other) const {
-	return varDecl->idEquals(other->varDecl.get());
+	return other && varDecl->idEquals(other->varDecl.get());
 }
 bool FieldDeclaration::idEquals(const FieldAccess *other) const
 {
-	return varDecl->idEquals(other->member)
+	return other && varDecl->idEquals(other->member)
 	&& (hasModifier(Modifier::Variant::Static) == other->isStaticAccessor());
 }
 

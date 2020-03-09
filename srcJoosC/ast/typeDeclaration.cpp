@@ -458,6 +458,7 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 	if (super)
 	{
 		methodContainSet = super->methodContainSet;
+		fieldContainSet = super->fieldContainSet;
 	}
 
 	// inheriting methods
@@ -512,21 +513,19 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 		}
 	}
 
-	// inheriting fields
-	for (const auto &s : superSet) {
-		for (const auto &f : s->fieldContainSet) {
-			bool unique = true;
-			for (const auto &g : fDeclareSet) {
-				if (f->idEquals(g)) {
-					unique = false;
-					break;
-				}
-			}
-			if (unique) {
-				fInheritSet.push_back(f);
+	// hidden fields - can't be accessed from an expression of our type, has to be cast first
+	// leave null entries in fieldContainSet to reflect the gap in the data layout
+	// these gaps won't prevent access through the superclass after a cast
+	for (auto *f : fDeclareSet )
+	{
+		for (auto &g : fieldContainSet) {
+			if (f->idEquals(g)) {
+				g = nullptr;
+				break;
 			}
 		}
 	}
+	fieldContainSet.insert(fieldContainSet.end(), fDeclareSet.begin(), fDeclareSet.end());
 
 	for (const auto &[m, n] : overrides) {
 		// Hierarchy check 5: Static methods can only override and be overriden by static methods
@@ -546,9 +545,6 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 			return SemanticErrorType::OverrideFinal;
 		}
 	}
-
-	fieldContainSet.insert(fieldContainSet.end(), fDeclareSet.begin(), fDeclareSet.end());
-	fieldContainSet.insert(fieldContainSet.end(), fInheritSet.begin(), fInheritSet.end());
 
 	// Hierarchy check 4: classes with abstract methods must be abstract
 	for (const auto &m : methodContainSet) {
@@ -596,7 +592,7 @@ FieldDeclaration *TypeDeclaration::findField(FieldAccess *access)
 	FieldDeclaration *ret = nullptr;
 	for (auto *decl : fieldContainSet)
 	{
-		if (decl->idEquals(access))
+		if (decl && decl->idEquals(access))
 		{
 			if (ret != nullptr)
 				return nullptr;
