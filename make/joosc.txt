@@ -25,3 +25,4 @@
 ./srcJoosC/ast/ast.cpp
 ./srcJoosC/ast/nodeList.cpp
 ./srcJoosC/ast/node.cpp
+./srcJoosC/codegen/codegen.cpp

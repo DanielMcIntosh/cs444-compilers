@@ -21,3 +21,4 @@ DFA.txt
 cmake-build-debug
 cmake-build-release
 output
+outputDebug

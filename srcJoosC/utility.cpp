@@ -10,9 +10,9 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-void assertImpl(bool value, const char* str, ...) {
+void assertImpl(bool value, const char* str, const char *file, int line, ...) {
   if (!value) {
-    LOGR("failed: %d (%s) ", value, str);
+    LOGR("%s:%d failed: %d (%s) ", file, line, value, str);
     UNIMPLEMENTED();
   }
 }
@@ -45,6 +45,16 @@ void strAppend(std::string* str, const char* fmt, ...) {
 void strFlushFILE(std::string* output, FILE* file) {
   fwrite(output->data(), output->length(), 1, file);
   output->clear();
+}
+
+void logImplStr(string&target, const char* str, ...) {
+	char logEntry[1024];
+	va_list arg;
+	va_start(arg, str);
+	vsnprintf(logEntry, ARRAY_SIZE(logEntry), str, arg);
+	va_end(arg);
+
+	target += logEntry;
 }
 
 void logImplRaw(const char* str, ...) {

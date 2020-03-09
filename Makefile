@@ -2,11 +2,9 @@
 
 NPROC := 4
 
-ifneq ($(OS),Windows_NT)
 UNAME_S := $(shell uname -s)
-	ifeq ($(UNAME_S), Linux)
-		NPROC := $(shell grep -c ^processor /proc/cpuinfo)
-	endif
+ifeq ($(UNAME_S), Linux)
+	NPROC := $(shell grep -c ^processor /proc/cpuinfo)
 endif
 
 CXXFLAGS := -fno-rtti -D__USE_MINGW_ANSI_STDIO -MMD -MP -std=c++17
@@ -17,10 +15,8 @@ LDFLAGS := -fno-rtti -pthread
 LDFLAGS_RELEASE := -O3 -flto -s
 LDFLAGS_DEBUG := -g
 
-ifneq ($(OS),Windows_NT)
 CXXFLAGS_DEBUG += -fsanitize=address
 LDFLAGS_DEBUG += -lasan -rdynamic
-endif
 
 BUILD_DIR_DEBUG := ./build/debug
 BUILD_DIR_RELEASE := ./build/release
@@ -40,11 +36,6 @@ CXX := g++-9
 
 ifeq ($(shell echo $$GITLAB_CI),true)
 CXX := g++
-endif
-
-ifeq ($(OS),Windows_NT)
-CXX := g++
-#LDFLAGS += -lstdc++
 endif
 
 ifeq ($(CXX),clang)
@@ -76,11 +67,7 @@ PTGEN_DEPS := $(PTGEN_OBJS:.o=.d)
 
 # Target : Shared
 
-ifeq ($(OS),Windows_NT)
-SHARED_NAME := libjc.dll
-else
 SHARED_NAME := libjc.so
-endif
 
 SHARED_SRCS := $(shell cat ./make/jc.txt)
 SHARED_OBJS := $(SHARED_SRCS:%=$(BUILD_DIR_SHARED)/%.o)
@@ -150,6 +137,12 @@ a4:
 
 a4Direct: joosc_debug
 	export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH;	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=4; ./joosc_debug
+
+a5:
+	$(MAKE) a5Direct -j$(NPROC)
+
+a5Direct: joosc_debug
+	export LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH;	export JOOSC_TEST=TEST; export JOOSC_TEST_ASSN=5; ./joosc_debug
 
 a6:
 	$(MAKE) a6Direct -j$(NPROC)

@@ -25,7 +25,7 @@ typedef int64_t s64;
 typedef uint16_t u16;
 typedef int16_t s16;
 
-#define ARRAY_SIZE(_exp) (s32)(sizeof((_exp)) / sizeof((_exp)[0]))
+#define ARRAY_SIZE(_exp) (int)(sizeof((_exp)) / sizeof((_exp)[0]))
 
 #define TWO_TO_THREE 8
 #define TWO_TO_FOUR 16
@@ -48,7 +48,8 @@ typedef int16_t s16;
 // assert and logging and others
 //
 
-#define ASSERT(_exp, ...) assertImpl((bool)(_exp), #_exp, ##__VA_ARGS__)
+#define ASSERT(_exp, ...) assertImpl((bool)(_exp), #_exp, __FILE__, \
+__LINE__, ##__VA_ARGS__)
 #define ASSERT2(_exp, _fmt, ...) \
   assertImpl_((bool)(_exp), #_exp, _fmt, ##__VA_ARGS__)
 #define FAILED(_str) \
@@ -56,6 +57,7 @@ typedef int16_t s16;
 #define LOG(fmt, ...) \
   logImpl((fmt), __FILE__, __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__)
 #define LOGR(fmt, ...) logImplRaw((fmt), ##__VA_ARGS__)
+#define LOGS(str, fmt, ...) logImplStr(str, (fmt), ##__VA_ARGS__)
 #define LOGI(_level, _fmt, ...) LOG("%*s" _fmt, _level, "", ##__VA_ARGS__)
 #define LOGIR(_level, _fmt, ...) LOGR("%*s" _fmt, _level, "", ##__VA_ARGS__)
 
@@ -90,13 +92,14 @@ typedef int16_t s16;
 //
 
 [[gnu::format(printf, 1, 5)]] EXPORT void logImpl(const char* str,
-                                           const char* file,
-                                           s32 line,
-                                           const char* func,
-                                           ...);
+                                                  const char* file,
+                                                  s32 line,
+                                                  const char* func,
+                                                  ...);
 
 [[gnu::format(printf, 1, 2)]] EXPORT void logImplRaw(const char* str, ...);
-[[gnu::format(printf, 2, 3)]] EXPORT void assertImpl(bool val, const char* str, ...);
+[[gnu::format(printf, 2, 3)]] EXPORT void logImplStr(std::string&target, const char* str, ...);
+[[gnu::format(printf, 2, 5)]] EXPORT void assertImpl(bool val, const char* str, const char *file, int line, ...);
 [[gnu::format(printf, 3, 4)]] EXPORT void assertImpl_(bool val,
                                                const char* str,
                                                const char* fmt,
