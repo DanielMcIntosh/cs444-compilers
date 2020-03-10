@@ -152,7 +152,7 @@ a6Direct: joosc_debug
 
 marmoset:
 	/u/cs_build/bin/marmoset_submit --username=-ddmcinto-q5an-whkuan- \
-	--zipargs=-r cs444 A2Code ./srcJoosC ./srcPTGen ./Makefile ./make ./joos.lr1 ./joos.txt ./joosc \
+	--zipargs=-r cs444 A5Code ./srcJoosC ./srcPTGen ./Makefile ./make ./joos.lr1 ./joos.txt ./joosc \
 	./tests/stdlib/IObject.java
 
 -include $(JOOSC_DEPS_DEBUG)

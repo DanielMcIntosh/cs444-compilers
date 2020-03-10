@@ -149,7 +149,6 @@ int compileMain(JoosC* joosc, const vector<string>& fileList) {
     goto cleanup;
   }
 
-  /*
   backend = doBackend(middleend);
   for (const auto& sFile : backend.sFiles) {
     string thePath = basePath + sFile.fileName;
@@ -159,7 +158,6 @@ int compileMain(JoosC* joosc, const vector<string>& fileList) {
     ASSERT(fwrite(content.c_str(), content.length(), 1, f) == 1);
     fclose(f);
   }
-  */
 
 cleanup : {  // clean ups
   for (FrontendResult& singleResult : frontendResult) {
