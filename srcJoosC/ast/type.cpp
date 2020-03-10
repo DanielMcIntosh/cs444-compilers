@@ -152,7 +152,7 @@ PrimitiveType::PrimitiveType(const Parse::TPrimitiveType *ptNode)
 	nodeType = NodeType::PrimitiveType;
 	assert(type <= Variant::Max && type != Variant::Void);
 }
-PrimitiveType::PrimitiveType(std::nullptr_t null)
+PrimitiveType::PrimitiveType(std::nullptr_t)
 	: type(Variant::Void)
 {
 	nodeType = NodeType::PrimitiveType;

@@ -11,6 +11,16 @@ namespace Weeder {
 
 using namespace Parse;
 
+void weederCheckLocalVariablesInitialised(Tree* root, WeederResult* result) {
+	for (auto* decl : ptFindByType(root, LocalVariableDeclarationStatement)) {
+		if (decl->variableDeclaration->variableDeclarator->v == TVariableDeclaratorV::Identifier) {
+			scoped_lock lock(*result->theMutex);
+			result->violations.push_back({WeederCategory::LocalVariableNoInitialiser});
+			return;
+		}
+	}
+}
+
 void weederCheckClassNotAbstractAndFinal(Tree* root, WeederResult* result) {
   for (auto* cls : ptFindByType(root, ClassDeclaration)) {
     bool is_abstract = false;
@@ -306,6 +316,7 @@ WeederResult weederCheck(Tree* root, const char* fileName) {
   weederCheckFileNameMatchClass(root, fileName, &result);
   weederCheckAccessModifiers(root, &result);
   weederCheckCast(root, &result);
+  weederCheckLocalVariablesInitialised(root, &result);
 
   {
     scoped_lock lock(*result.theMutex);

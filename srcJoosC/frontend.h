@@ -71,6 +71,8 @@ enum class WeederCategory {
   AccessModifiers,
   // Reject illegal expressions in casts
   Cast,
+  // Local variable declarations must have initialisers
+  LocalVariableNoInitialiser,
   Max
 };
 

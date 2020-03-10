@@ -117,7 +117,7 @@ void ConstructorDeclaration::staticAnalysis(StaticAnalysisCtx *ctx) {
 	if (body) {
 		body->staticAnalysis(&nCtx);
 	}
-	ctx->hasError = nCtx.hasError;
+	ctx->hasError |= nCtx.hasError;
 }
 
 } //namespace AST
