@@ -56,17 +56,6 @@ enum class NodeType {
 	EXPRESSION_END,
 
 };
-
-  // TODO move to right place
-
-	// true == maybe
-	// false == no
-  struct StaticAnalysisCtx {
-		bool in;
-		bool out;
-
-		bool hasError;
-  };
   
 class Node
 {

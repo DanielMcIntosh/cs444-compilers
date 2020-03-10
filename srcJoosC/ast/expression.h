@@ -3,6 +3,7 @@
 #include "ast/node.h"
 #include "ast/type.h"
 #include "semantic/exprResolution.h"
+#include "semantic/staticAnalysis.h"
 
 #include <variant>
 #include <optional>
@@ -25,23 +26,6 @@ class VariableDeclaration;
 class FieldDeclaration;
 class MethodDeclaration;
 class ConstructorDeclaration;
-
-enum class ConstExprType {
-	Bool,
-	Num,
-	Unknown,
-};
-
-struct ConstExpr {
-	ConstExprType type = ConstExprType::Unknown;
-	long long int numVal = 0;
-	bool boolVal = false;
-
-	bool isKnown();
-	bool isFalse();
-	bool isTrue();
-	std::optional<long long int> getNum();
-};
 
 //////////////////////////////////////////////////////////////////////////////
 //

@@ -21,6 +21,7 @@ class MemberDeclaration;
 class ConstructorDeclaration;
 class MethodDeclaration;
 class TypeDeclaration;
+class StaticAnalysisCtx;
 
 class MemberDeclaration: public Node
 {

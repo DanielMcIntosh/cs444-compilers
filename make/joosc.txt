@@ -4,6 +4,7 @@
 ./srcJoosC/semantic/dagSort.cpp
 ./srcJoosC/semantic/typeResolution.cpp
 ./srcJoosC/semantic/exprResolution.cpp
+./srcJoosC/semantic/staticAnalysis.cpp
 ./srcJoosC/ast/compilationUnit.cpp
 ./srcJoosC/ast/conditionalStatement.cpp
 ./srcJoosC/ast/constructorDeclaration.cpp

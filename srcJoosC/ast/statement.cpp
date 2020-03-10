@@ -16,40 +16,6 @@ namespace AST
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// staticAnalysis
-//
-//////////////////////////////////////////////////////////////////////////////
-
-	void Statement::staticAnalysis(StaticAnalysisCtx *ctx) {
-		if (!ctx->in)
-			ctx->hasError = true;
-		ctx->out = ctx->in;
-	}
-
-	void Block::staticAnalysis(StaticAnalysisCtx *ctx) {
-		if (!ctx->in) {
-			ctx->hasError = true;
-			return;
-		}
-		for (auto &stmt : statements) {
-			if (!ctx->in) {
-				ctx->hasError = true;
-				return;
-			}
-			stmt->staticAnalysis(ctx);
-			ctx->in = ctx->out;
-		}
-		ctx->out = ctx->in;
-	}
-
-	void ReturnStatement::staticAnalysis(StaticAnalysisCtx *ctx) {
-		if (!ctx->in)
-			ctx->hasError = true;
-		ctx->out = false;
-	}
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // create functions
 //
 //////////////////////////////////////////////////////////////////////////////

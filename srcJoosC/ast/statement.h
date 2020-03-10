@@ -15,6 +15,7 @@ namespace AST
 class TypeDeclaration;
 class VariableDeclaration;
 class Expression;
+class StaticAnalysisCtx;
 
 //////////////////////////////////////////////////////////////////////////////
 //
