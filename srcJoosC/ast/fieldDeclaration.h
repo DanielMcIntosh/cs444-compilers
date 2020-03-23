@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ast/memberDeclaration.h"
+#include "semantic/scope.h"
 #include <memory>
 
 namespace AST
@@ -28,6 +29,9 @@ public:
 	Semantic::SemanticErrorType resolveExprs() override;
 
 	std::unique_ptr<VariableDeclaration> varDecl;
+
+	// a5
+	Semantic::Scope theScope;
 };
 
 } //namespace AST

@@ -610,7 +610,6 @@ bool FieldAccess::isStaticAccessor() const
 	return std::holds_alternative<std::unique_ptr<NameType>>(source);
 }
 
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // Literal

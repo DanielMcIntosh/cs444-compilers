@@ -3,6 +3,7 @@
 #include "ast/memberDeclaration.h"
 #include "ast/statement.h"
 #include <memory>
+#include "semantic/scope.h"
 
 namespace AST
 {
@@ -40,7 +41,10 @@ public:
 
 	void addThisParam();
 	std::unique_ptr<Type> returnType;
-protected:
+
+	// a5
+	Semantic::Scope theScope;
+
 	std::string identifier;
 	std::vector<std::unique_ptr<VariableDeclaration>> parameters;
 	// nullable

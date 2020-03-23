@@ -21,27 +21,20 @@ enum class NodeType {
 	VariableDeclarator,
 	Name,
 
-	TYPE_BEGIN,
-	PrimitiveType = TYPE_BEGIN,
+	PrimitiveType,
 	NameType,
-	TYPE_END,
 
-	MEMBER_DECLARATION_BEGIN = TYPE_END,
-	ConstructorDeclaration = MEMBER_DECLARATION_BEGIN,
+	ConstructorDeclaration,
 	FieldDeclaration,
 	MethodDeclaration,
-	MEMBER_DECLARATION_END,
 
-	STATEMENT_BEGIN = MEMBER_DECLARATION_END,
-	Block = STATEMENT_BEGIN,
+	Block,
 	ExpressionStatement,
 	LocalVariableDeclarationStatement,
 	ReturnStatement,
 	ConditionalStatement,
-	STATEMENT_END,
 
-	EXPRESSION_BEGIN = STATEMENT_END,
-	AssignmentExpression = EXPRESSION_BEGIN,
+	AssignmentExpression,
 	BinaryExpression,
 	CastExpression,
 	UnaryExpression,
@@ -53,8 +46,6 @@ enum class NodeType {
 	MethodInvocation,
 	LocalVariableExpression,
 	NameExpression,
-	EXPRESSION_END,
-
 };
   
 class Node

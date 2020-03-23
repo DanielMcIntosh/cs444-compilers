@@ -1,3 +1,6 @@
+
+#include <ast/statement.h>
+
 #include "staticAnalysis.h"
 
 #include "ast/expression.h"
@@ -102,7 +105,8 @@ ConstExpr Literal::tryEval() {
 		ctx->out = ctx->in;
 	}
 
-	void Block::staticAnalysis(StaticAnalysisCtx *ctx) {
+
+void Block::staticAnalysis(StaticAnalysisCtx *ctx) {
 		if (!ctx->in) {
 			ctx->hasError = true;
 			return;

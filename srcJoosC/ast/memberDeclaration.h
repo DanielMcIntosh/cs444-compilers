@@ -42,7 +42,6 @@ public:
 
 	bool hasModifier(Modifier::Variant) const;
 
-
   //
   // a4
   //
@@ -52,8 +51,7 @@ public:
 protected:
 	explicit MemberDeclaration(std::vector<std::unique_ptr<Modifier>> mods);
 
-
-protected:
+public:
 	std::vector<std::unique_ptr<Modifier>> modifiers;
 	// set for membership testing, including all implicit modifiers
 	std::array<bool,static_cast<size_t>(Modifier::Variant::Max)> modifierSet{};

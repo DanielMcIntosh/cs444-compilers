@@ -196,14 +196,18 @@ struct BatchTestThreadCtx {
   vector<BatchTestResult>* result;
 };
 
-void waitChild(pid_t pid) {
+bool waitChild(pid_t pid) {
   ASSERT(pid != -1);
 
   pid_t childStat;
   auto ret = waitpid(pid, &childStat, 0);
-  ASSERT(ret == pid);
-  ASSERT(WIFEXITED(childStat));
-  ASSERT(!WEXITSTATUS(childStat));
+  if (ret != pid)
+  	return false;
+  if (!WIFEXITED(childStat))
+  	return false;
+  if (WEXITSTATUS(childStat))
+  	return false;
+  return true;
 }
 
 struct ExecArg {
@@ -300,6 +304,8 @@ void batchTestingThread(BatchTestThreadCtx ctx) {
     if (ctx.assgnNum == 5) {
       BackendResult backend = doBackend(caseResult->middleend);
 
+      caseResult->execResult.retCode = -1;
+
       const string basePath = "outputDebug/" + to_string(i) + "/";
       fs::remove_all(basePath);
       fs::create_directories(basePath);
@@ -358,7 +364,8 @@ void batchTestingThread(BatchTestThreadCtx ctx) {
           execArgFree(&nasmArg);
           execArgPop(&nasmArg, 3);
 
-          waitChild(pid);
+          if (!waitChild(pid))
+          	goto cleanup;
         }
       }
 
@@ -386,9 +393,11 @@ void batchTestingThread(BatchTestThreadCtx ctx) {
           execv(ldArg.argv[0], ldArg.argv);
           ASSERT2(false, "unreachable");
         }
-        waitChild(pid);
 
-        execArgFree(&ldArg);
+	      execArgFree(&ldArg);
+        if (!waitChild(pid))
+        	goto cleanup;
+
       }
 
       {
@@ -474,8 +483,10 @@ void batchTestingThread(BatchTestThreadCtx ctx) {
         int childOutSize = ftell(childOut);
         fseek(childOut, 0, SEEK_SET);
         string childOutStr(childOutSize, 0);
-        ASSERT(fread((void*)childOutStr.data(), childOutSize, 1, childOut) ==
-               1);
+        if (childOutSize > 0) {
+	        ASSERT(fread((void*)childOutStr.data(), childOutSize, 1, childOut) ==
+	               1);
+        }
         caseResult->execResult.output =
           childOutStr + "\n" + caseResult->execResult.output;
 

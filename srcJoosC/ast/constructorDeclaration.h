@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ast/memberDeclaration.h"
+#include "semantic/scope.h"
 #include <memory>
 
 namespace AST
@@ -32,10 +33,14 @@ public:
 	// a4
 
 	void staticAnalysis(StaticAnalysisCtx *ctx) override;
-protected:
+
 	std::string identifier;
 	std::vector<std::unique_ptr<VariableDeclaration>> parameters;
 	std::unique_ptr<Block> body;
+
+	// a5
+
+	Semantic::Scope theScope;
 private:
 	// not convinced this is the best way of dealing with needing 2 members from declarator
 	ConstructorDeclaration(std::vector<std::unique_ptr<Modifier>> mods, MethodDeclarator &&declarator, std::unique_ptr<Block> block);

@@ -15,6 +15,10 @@ namespace Semantic
 	class Scope;
 }
 
+namespace CodeGen {
+  class SContext;
+}
+
 namespace AST
 {
 
@@ -51,6 +55,10 @@ public:
 	// a4
 
 	virtual ConstExpr tryEval();
+
+	// a5
+
+	virtual void codeGenerate(CodeGen::SContext *ctx) = 0;
 protected:
 
 };
@@ -71,6 +79,8 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
+
+  void codeGenerate(CodeGen::SContext *ctx) override;
 
 public:
 	std::unique_ptr<Expression> array;
@@ -94,6 +104,8 @@ public:
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
+	void codeGenerate(CodeGen::SContext *ctx) override;
+
 public:
 	// IMPORTANT: during construction, we have to change type->isArray to true
 	std::unique_ptr<Type> type;
@@ -116,6 +128,8 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
+
+	void codeGenerate(CodeGen::SContext *ctx) override;
 
 public:
 	std::unique_ptr<Expression> lhs;
@@ -170,6 +184,9 @@ public:
 	// a4
 
 	ConstExpr tryEval() override;
+
+  // a5
+  void codeGenerate(CodeGen::SContext *ctx) override;
 public:
  	Variant op;
 	std::unique_ptr<Expression> lhs;
@@ -200,6 +217,9 @@ public:
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
+  // a5
+  void codeGenerate(CodeGen::SContext *ctx) override;  
+
 public:
 	std::unique_ptr<Type> type;
 	std::unique_ptr<Expression> rhs;
@@ -222,6 +242,9 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
+
+  // a5
+  void codeGenerate(CodeGen::SContext *ctx) override;  
 
 public:
 	std::unique_ptr<NameType> type;
@@ -252,12 +275,15 @@ public:
 	Semantic::SemanticErrorType deduceType() override;
 
 	bool isStaticAccessor() const;
+
+	// a5
+	void codeGenerate(CodeGen::SContext *ctx) override;
+
 public:
 	std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> source;
 	std::string member;
 	friend class FieldDeclaration;
 
-protected:
 	const FieldDeclaration *decl;
 };
 
@@ -280,6 +306,9 @@ public:
 
 	// a4
 	ConstExpr tryEval() override;
+
+	// a5
+	void codeGenerate(CodeGen::SContext *ctx) override;
 
 public:
 	std::variant<unsigned int, bool, char, std::string, std::nullptr_t > value;
@@ -304,11 +333,15 @@ public:
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
-protected:
+
 	std::string id;
 	const VariableDeclaration *declaration;
 	friend class NameExpression;
 	friend class Name;
+
+	// a5
+
+	void codeGenerate(CodeGen::SContext *ctx) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -328,6 +361,9 @@ public:
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
+  // a5
+  void codeGenerate(CodeGen::SContext *ctx) override;  
+
 	bool isStaticCall() const;
 	bool isDisambiguated() const;
 private:
@@ -341,8 +377,8 @@ public:
 	std::vector<std::unique_ptr<Expression>> args;
 	friend class MethodDeclaration;
 
-protected:
 	const MethodDeclaration *declaration;
+
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -361,6 +397,10 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
+
+	// a5
+
+	void codeGenerate(CodeGen::SContext *ctx) override;
 
 public:
 	std::unique_ptr<Name> unresolved;
@@ -388,6 +428,8 @@ public:
 	// a4
 	ConstExpr tryEval() override;
 
+  // a5
+  void codeGenerate(CodeGen::SContext *ctx) override;  
 public:
 	enum class Variant
 	{

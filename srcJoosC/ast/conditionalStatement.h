@@ -1,8 +1,10 @@
 #pragma once
 
 #include "ast/statement.h"
+#include "semantic/scope.h"
 #include <memory>
 #include <map>
+
 
 namespace AST
 {
@@ -56,6 +58,13 @@ protected:
 	friend std::string operator+(std::string, ConditionalStatement::ConditionType);
 	friend std::string operator+=(std::string&, ConditionalStatement::ConditionType);
 	friend std::ostream& operator<<(std::ostream&, ConditionalStatement::ConditionType);
+
+public:
+	// a5
+	void codeGenerate(CodeGen::SContext *ctx) override;
+
+	Semantic::Scope theMainScope;
+	Semantic::Scope theElseScope;
 };
 
 std::string operator+(std::string str, ConditionalStatement::ConditionType type);

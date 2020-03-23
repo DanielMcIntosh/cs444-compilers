@@ -1,12 +1,17 @@
 #pragma once
 
 #include "ast/node.h"
+#include "semantic/scope.h"
 
 namespace Semantic
 {
 	struct SemanticDB;
 	enum class SemanticErrorType;
 	class Scope;
+}
+
+namespace CodeGen {
+  class SContext;
 }
 
 namespace AST
@@ -34,6 +39,9 @@ public:
 	// a4
 
 	virtual void staticAnalysis(StaticAnalysisCtx *ctx);
+
+	// a5
+	virtual void codeGenerate(CodeGen::SContext* ctx) = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -55,8 +63,13 @@ public:
 	// a4
 
 	void staticAnalysis(StaticAnalysisCtx *ctx) override;
-protected:
+
 	std::vector<std::unique_ptr<Statement>> statements;
+
+	// a5
+	Semantic::Scope theScope;
+
+	void codeGenerate(CodeGen::SContext *ctx) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -74,9 +87,11 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
-protected:
+
 	// nullable
 	std::unique_ptr<Expression> expression;
+
+	void codeGenerate(CodeGen::SContext *ctx) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -98,6 +113,10 @@ public:
 	// a4
 
 	void staticAnalysis(StaticAnalysisCtx *ctx) override;
+
+  // a5
+  void codeGenerate(CodeGen::SContext *ctx) override;  
+
 protected:
 	// nullable
 	std::unique_ptr<Expression> returnValue;
@@ -118,6 +137,9 @@ public:
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope &parentScope) override;
+
+  // a5
+  void codeGenerate(CodeGen::SContext *ctx) override;
 protected:
 	std::unique_ptr<VariableDeclaration> declaration;
 };
