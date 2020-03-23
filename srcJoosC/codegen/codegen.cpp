@@ -266,10 +266,6 @@ void codeGenInitMethodSelectorTable(SContext *ctx,
                                     const unordered_map<string, AST::TypeDeclaration*> &typeMap) {
 	using namespace AST;
 	// fill in selector table with unique declared methods (that are in base classes)
-  // TODO: Wei Heng
-  // Right now there are redundant entries in the table,
-  // (e.g. String.toString is overriding Object.toString, but only Object.toString should show up in the table)
-  // and they should be removed
 	for (auto &[name, type]: typeMap) {
 		for (auto *method : type->methodContainSet) {
 			if (method->hasModifier(Modifier::Variant::Static))
