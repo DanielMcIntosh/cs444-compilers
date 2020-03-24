@@ -98,14 +98,8 @@ public:
 	bool lastExprLValue = false;
 	SText text;
 	std::string typeName;
-	Semantic::Scope *scope = nullptr;
+	int _numParam;
 	int counter = 0;
-
-	void pushScope(Semantic::Scope *newScope);
-	void popScope();
-
-private:
-	std::vector<Semantic::Scope *> scopeStack;
 };
 
 std::string getProcedureName(const AST::MemberDeclaration *theMember);

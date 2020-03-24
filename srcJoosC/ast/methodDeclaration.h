@@ -42,9 +42,6 @@ public:
 	void addThisParam();
 	std::unique_ptr<Type> returnType;
 
-	// a5
-	Semantic::Scope theScope;
-
 	std::string identifier;
 	std::vector<std::unique_ptr<VariableDeclaration>> parameters;
 	// nullable

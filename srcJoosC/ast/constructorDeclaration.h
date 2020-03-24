@@ -39,8 +39,6 @@ public:
 	std::unique_ptr<Block> body;
 
 	// a5
-
-	Semantic::Scope theScope;
 private:
 	// not convinced this is the best way of dealing with needing 2 members from declarator
 	ConstructorDeclaration(std::vector<std::unique_ptr<Modifier>> mods, MethodDeclarator &&declarator, std::unique_ptr<Block> block);

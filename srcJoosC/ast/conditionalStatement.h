@@ -62,9 +62,6 @@ protected:
 public:
 	// a5
 	void codeGenerate(CodeGen::SContext *ctx) override;
-
-	Semantic::Scope theMainScope;
-	Semantic::Scope theElseScope;
 };
 
 std::string operator+(std::string str, ConditionalStatement::ConditionType type);

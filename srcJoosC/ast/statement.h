@@ -66,9 +66,6 @@ public:
 
 	std::vector<std::unique_ptr<Statement>> statements;
 
-	// a5
-	Semantic::Scope theScope;
-
 	void codeGenerate(CodeGen::SContext *ctx) override;
 };
 
@@ -115,7 +112,7 @@ public:
 	void staticAnalysis(StaticAnalysisCtx *ctx) override;
 
   // a5
-  void codeGenerate(CodeGen::SContext *ctx) override;  
+  void codeGenerate(CodeGen::SContext *ctx) override;
 
 protected:
 	// nullable

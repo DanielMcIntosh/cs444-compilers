@@ -17,7 +17,7 @@ Scope::Scope(AST::TypeDeclaration *enclosingClass, AST::ConstructorDeclaration *
 }
 Scope::Scope(Scope &parent)
 		: _enclosingClass(parent._enclosingClass), _enclosingMethod(parent._enclosingMethod),
-		  _declarations(parent._declarations), _numParam(parent._numParam)
+		  _declarations(parent._declarations)
 {
 }
 
@@ -25,13 +25,14 @@ bool Scope::add(std::unique_ptr<AST::VariableDeclaration> const& decl)
 {
 	return add(decl.get());
 }
-bool Scope::add(const AST::VariableDeclaration *newDecl)
+bool Scope::add(AST::VariableDeclaration *newDecl)
 {
 	if (doesConflict(newDecl))
 	{
 		return false;
 	}
 
+	newDecl->index = _declarations.size();
 	_declarations.push_back(newDecl);
 	return true;
 }
@@ -58,23 +59,6 @@ bool Scope::doesConflict(const AST::VariableDeclaration *newDecl) const
 		}
 	}
 	return false;
-}
-
-Scope::Scope() {
-
-}
-
-Scope & Scope::operator=(const Scope& other) {
-	if (&other == this)
-		return *this;
-
-	_enclosingClass = other._enclosingClass;
-	_enclosingMethod = other._enclosingMethod;
-	_currentDeclaration = other._currentDeclaration;
-	_declarations = other._declarations;
-	_numParam = other._numParam;
-
-	return *this;
 }
 
 } // namespace Semantic

@@ -29,9 +29,6 @@ public:
 	Semantic::SemanticErrorType resolveExprs() override;
 
 	std::unique_ptr<VariableDeclaration> varDecl;
-
-	// a5
-	Semantic::Scope theScope;
 };
 
 } //namespace AST

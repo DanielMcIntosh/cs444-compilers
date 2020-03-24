@@ -655,10 +655,10 @@ SemanticErrorType UnaryExpression::deduceType() {
 
 SemanticErrorType Block::resolveExprs(Semantic::Scope &parentScope)
 {
-	theScope = Semantic::Scope(parentScope);
+	Semantic::Scope scope(parentScope);
 	for (auto &stmt: statements)
 	{
-		if (SemanticErrorType err = stmt->resolveExprs(theScope);
+		if (SemanticErrorType err = stmt->resolveExprs(scope);
 			err != SemanticErrorType::None)
 		{
 			return err;
@@ -669,16 +669,16 @@ SemanticErrorType Block::resolveExprs(Semantic::Scope &parentScope)
 
 SemanticErrorType ConditionalStatement::resolveExprs(Semantic::Scope &parentScope)
 {
-	theMainScope = Semantic::Scope(parentScope);
+	Semantic::Scope mainScope(parentScope);
 	SemanticErrorType err;
 	if (init)
 	{
-		err = init->resolveExprs(theMainScope);
+		err = init->resolveExprs(mainScope);
 		GOFAIL_IF_ERR(err);
 	}
 	if (condition)
 	{
-		err = condition->resolveAndDeduce(theMainScope);
+		err = condition->resolveAndDeduce(mainScope);
 		GOFAIL_IF_ERR(err);
 		if (!condition->typeResult.isPrimitiveType(TypePrimitive::Boolean)) {
 			return SemanticErrorType::TypeCheck;
@@ -686,15 +686,15 @@ SemanticErrorType ConditionalStatement::resolveExprs(Semantic::Scope &parentScop
 	}
 	if (increment)
 	{
-		err = increment->resolveAndDeduce(theMainScope);
+		err = increment->resolveAndDeduce(mainScope);
 		GOFAIL_IF_ERR(err);
 	}
-	err = body->resolveExprs(theMainScope);
+	err = body->resolveExprs(mainScope);
 	GOFAIL_IF_ERR(err);
 	if (elseBody)
 	{
-		theElseScope = Semantic::Scope(parentScope);
-		err = elseBody->resolveExprs(theElseScope);
+		Semantic::Scope elseScope(parentScope);
+		err = elseBody->resolveExprs(elseScope);
 		GOFAIL_IF_ERR(err);
 	}
 	OK();
@@ -776,16 +776,14 @@ SemanticErrorType ConstructorDeclaration::resolveExprs()
 	if (identifier != _enclosingClass->name) {
 		return SemanticErrorType::ConstructorWrongName;
 	}
-	theScope = Semantic::Scope(_enclosingClass, this);
+	Semantic::Scope scope(_enclosingClass, this);
 	for (auto &param: parameters)
 	{
-		if (!theScope.add(param))
+		if (!scope.add(param))
 		{
 			return SemanticErrorType::LocalVariableShadowing;
 		}
 	}
-
-	theScope._numParam = theScope._declarations.size();
 
 	// TODO: probably want to remove this, and somehow add an explicit call to the
 	// parent constructor at the start of body, which then gets resolved in body->resolveExprs
@@ -801,7 +799,7 @@ SemanticErrorType ConstructorDeclaration::resolveExprs()
 
 	if (body)
 	{
-		if (SemanticErrorType err = body->resolveExprs(theScope);
+		if (SemanticErrorType err = body->resolveExprs(scope);
 			err != SemanticErrorType::None)
 		{
 			return err;
@@ -812,33 +810,29 @@ SemanticErrorType ConstructorDeclaration::resolveExprs()
 
 SemanticErrorType FieldDeclaration::resolveExprs()
 {
-	theScope = Semantic::Scope(_enclosingClass);
+	Semantic::Scope scope(_enclosingClass);
 	auto thisDecl = std::make_unique<VariableDeclaration>(_enclosingClass->asType(), "this");
 	if (!hasModifier(Modifier::Variant::Static))
 	{
-		theScope.add(thisDecl);
+		scope.add(thisDecl);
 	}
-
-	theScope._numParam = theScope._declarations.size();
-	return varDecl->resolveExprs(theScope);
+	return varDecl->resolveExprs(scope);
 }
 
 SemanticErrorType MethodDeclaration::resolveExprs()
 {
-	theScope = Semantic::Scope(_enclosingClass, this);
+	Semantic::Scope scope(_enclosingClass, this);
 	for (auto &param: parameters)
 	{
-		if (!theScope.add(param))
+		if (!scope.add(param))
 		{
 			return SemanticErrorType::LocalVariableShadowing;
 		}
 	}
 
-	theScope._numParam = theScope._declarations.size();
-
 	if (body)
 	{
-		if (SemanticErrorType err = body->resolveExprs(theScope);
+		if (SemanticErrorType err = body->resolveExprs(scope);
 			err != SemanticErrorType::None)
 		{
 			return err;

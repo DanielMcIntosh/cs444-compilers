@@ -51,6 +51,8 @@ public:
 	// nullable
 	std::unique_ptr<Expression> initializer;
 
+	int index;
+
 };
 
 } //namespace AST

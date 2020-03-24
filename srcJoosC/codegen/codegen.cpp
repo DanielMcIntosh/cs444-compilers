@@ -1,6 +1,5 @@
 #include "codegen.h"
 #include "ast/allASTHeaders.h"
-#include "semantic/scope.h"
 
 #include <variant>
 #include <algorithm>
@@ -17,12 +16,6 @@ void ConditionalStatement::codeGenerate(CodeGen::SContext *ctx) {
 	// TODO Daniel
 	ctx->text.add("; BEGIN - ConditionalStatement");
 
-	auto item = (ConditionalStatement*)this;
-	ctx->pushScope(&item->theMainScope);
-
-	ctx->popScope();
-	ctx->pushScope(&item->theElseScope);
-	ctx->popScope();
 
 	ctx->text.add("; END - ConditionalStatement");
 }
@@ -312,7 +305,7 @@ BackendResult doBackend(const MiddleendResult &middleend) {
 				string labelName = getProcedureName(ctor);
 				ctx->text.declGlobalAndBegin(labelName);
 
-				ctx->pushScope(&ctor->theScope);
+				ctx->_numParam = ctor->parameters.size();
 
 					//   1 st arg
 					//   ...
@@ -332,7 +325,6 @@ mov esp, ebp
 pop ebp
 ret
 )");
-				ctx->popScope();
 			}
 		}
 
@@ -347,7 +339,7 @@ ret
 
 	      string labelName = getProcedureName(method);
 	      ctx->text.declGlobalAndBegin(labelName);
-	      ctx->pushScope(&method->theScope);
+	      ctx->_numParam = method->parameters.size();
 	      ctx->text.add(R"(
 push ebp
 mov ebp, esp
@@ -358,7 +350,6 @@ mov esp, ebp
 pop ebp
 ret
 )");
-	      ctx->popScope();
       }
     }
 
@@ -423,16 +414,6 @@ ret
 		result.sFiles.push_back(SFile{"stub.s", ctx->text.toString()});
 	}
 	return result;
-}
-
-void SContext::pushScope(Semantic::Scope *newScope) {
-	scopeStack.push_back(scope);
-	scope = newScope;
-}
-
-void SContext::popScope() {
-	scope = scopeStack.back();
-	scopeStack.pop_back();
 }
 
 BackendResult doBackend2(const MiddleendResult &middleend) {
@@ -537,7 +518,7 @@ void Literal::codeGenerate(CodeGen::SContext *ctx) {
 
 void ArrayCreationExpression::codeGenerate(CodeGen::SContext *ctx) {
 	ctx->text.add("; BEGIN - ArrayCreationExpression");
-  
+
 	auto item = (ArrayCreationExpression*)this;
 	TypeResult *theTypeResult = &item->typeResult;
 
@@ -633,14 +614,14 @@ pop eax)");
 
 void MethodInvocation::codeGenerate(CodeGen::SContext *ctx) {
 	ctx->text.add("; BEGIN - MethodInvocation");
-  
+
 	auto item = (MethodInvocation*)this;
 	CodeGen::SText *text = &ctx->text;
 
 	int numArg = 0;
 	if (item->source.index() == 0) {
 		// non static method
-		auto lExpr = (Expression*)std::get<0>(item->source).get();
+		auto &lExpr = std::get<0>(item->source);
 
 		// this
 		lExpr->codeGenerate(ctx);
@@ -665,7 +646,7 @@ void MethodInvocation::codeGenerate(CodeGen::SContext *ctx) {
 	// figure out procedure pointer
 	if (item->source.index() == 0) {
 		// non static method
-		auto lExpr = (Expression*)std::get<0>(item->source).get();
+		auto &lExpr = std::get<0>(item->source);
 		TypeResult *theTypeResult = &lExpr->typeResult;
 		ASSERT(!theTypeResult->isArray);
 		ASSERT(!theTypeResult->isPrimitive);
@@ -712,7 +693,7 @@ void MethodInvocation::codeGenerate(CodeGen::SContext *ctx) {
 
 void AssignmentExpression::codeGenerate(CodeGen::SContext *ctx) {
 	ctx->text.add("; BEGIN - AssignmentExpression");
-  
+
 	CodeGen::SText *text = &ctx->text;
 	auto item = (AssignmentExpression*)this;
 
@@ -812,30 +793,17 @@ void FieldAccess::codeGenerate(CodeGen::SContext *ctx) {
 
 void LocalVariableExpression::codeGenerate(CodeGen::SContext *ctx) {
 	ctx->text.add("; BEGIN - LocalVariableExpression");
-	auto item = (LocalVariableExpression*)this;
-
-	int index = 0;
-	bool found = false;
-	for (auto * decl : ctx->scope->_declarations) {
-		if (decl->identifier == item->id) {
-			ASSERT(!found);
-			found = true;
-		}
-		if (!found) {
-			++index;
-		}
-	}
 
 	ctx->text.add("mov eax, ebp");
 
-	if (index < ctx->scope->_numParam) {
+	if (declaration->index < ctx->_numParam) {
 		// is a parameter
-		int offset = ctx->scope->_numParam - index + 1;
+		int offset = ctx->_numParam - declaration->index + 1;
 		strdecl512(inst, "add eax, %d", offset * 4);
 		ctx->text.add(inst);
 	} else {
 		// is a local variable
-		int offset = index - ctx->scope->_numParam + 1;
+		int offset = declaration->index - ctx->_numParam + 1;
 		strdecl512(inst, "sub eax, %d", offset * 4);
 		ctx->text.add(inst);
 	}
@@ -881,11 +849,9 @@ void ExpressionStatement::codeGenerate(CodeGen::SContext *ctx) {
 void Block::codeGenerate(CodeGen::SContext *ctx) {
 	ctx->text.add("; BEGIN - Block");
 	auto item = (Block*)this;
-	ctx->pushScope(&item->theScope);
 	for (auto &stmt : item->statements) {
 		stmt->codeGenerate(ctx);
 	}
-	ctx->popScope();
 	ctx->text.add("; END - Block");
 }
 
