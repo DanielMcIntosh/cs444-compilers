@@ -15,9 +15,25 @@ namespace AST {
 void ConditionalStatement::codeGenerate(CodeGen::SContext *ctx) {
 	// TODO Daniel
 	ctx->text.add("; BEGIN - ConditionalStatement");
+	int stackSizeAtStart = ctx->stackSize;
+
+	if (init)
+	{
+		init->codeGenerate(ctx);
+	}
 
 
-	ctx->text.add("; END - ConditionalStatement");
+
+	if (ctx->stackSize != stackSizeAtStart)
+	{
+		// reset the stack to where it was before the start of this conditional statement
+		int delta = (ctx->stackSize - stackSizeAtStart) * 4;
+		ctx->text.add("add esp, " + std::to_string(delta) + "; END - ConditionalStatement");
+		ctx->stackSize = stackSizeAtStart;
+	} else
+	{
+		ctx->text.add("; END - ConditionalStatement");
+	}
 }
 
 void ReturnStatement::codeGenerate(CodeGen::SContext *ctx) {
@@ -822,7 +838,7 @@ void ArrayAccess::codeGenerate(CodeGen::SContext *ctx) {
 void LocalVariableDeclarationStatement::codeGenerate(CodeGen::SContext *ctx) {
 	// TODO: Wei Heng
 	ctx->text.add("; BEGIN - LocalVariableDeclarationStatement");
-
+	++ctx->stackSize;
 	ctx->text.add("; END - LocalVariableDeclarationStatement");
 }
 
@@ -835,11 +851,22 @@ void ExpressionStatement::codeGenerate(CodeGen::SContext *ctx) {
 
 void Block::codeGenerate(CodeGen::SContext *ctx) {
 	ctx->text.add("; BEGIN - Block");
-	auto item = (Block*)this;
-	for (auto &stmt : item->statements) {
+	int stackSizeAtStart = ctx->stackSize;
+
+	for (auto &stmt : statements) {
 		stmt->codeGenerate(ctx);
 	}
-	ctx->text.add("; END - Block");
+
+	if (ctx->stackSize != stackSizeAtStart)
+	{
+		// reset the stack to where it was before the start of this block
+		int delta = (ctx->stackSize - stackSizeAtStart) * 4;
+		ctx->text.add("add esp, " + std::to_string(delta) + "; END - Block");
+		ctx->stackSize = stackSizeAtStart;
+	} else
+	{
+		ctx->text.add("; END - Block");
+	}
 }
 
 } // namespace AST

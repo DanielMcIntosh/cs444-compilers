@@ -99,6 +99,7 @@ public:
 	SText text;
 	std::string typeName;
 	int _numParam;
+	int stackSize = 0;
 	int counter = 0;
 };
 
