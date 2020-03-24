@@ -13,8 +13,10 @@ using namespace std;
 namespace AST {
 
 void ConditionalStatement::codeGenerate(CodeGen::SContext *ctx) {
-	// TODO Daniel
-	ctx->text.add("; BEGIN - ConditionalStatement");
+	static int uniqueNumber = 0;
+	std::string uniqueIdentifier = std::to_string(uniqueNumber++);
+
+	ctx->text.add("; BEGIN - ConditionalStatement" + uniqueIdentifier);
 	int stackSizeAtStart = ctx->stackSize;
 
 	if (init)
@@ -22,17 +24,53 @@ void ConditionalStatement::codeGenerate(CodeGen::SContext *ctx) {
 		init->codeGenerate(ctx);
 	}
 
+	ctx->text.add("CondStart" + uniqueIdentifier + ":");
+	if (condition)
+	{
+		condition->codeGenerate(ctx);
+		ctx->text.add("cmp eax, 0; ConditionalStatement" + uniqueIdentifier + " (" + condition->toCode() + ")");
+		ctx->text.add("je CondElse" + uniqueIdentifier);
+	}
 
+	body->codeGenerate(ctx);
+
+	switch(condType)
+	{
+		case ConditionType::While:
+		case ConditionType::For:
+		{
+			if (increment) {
+				increment->codeGenerate(ctx);
+			}
+			ctx->text.add("jmp CondStart" + uniqueIdentifier);
+			break;
+		}
+		case ConditionType::If:
+		{
+			ctx->text.add("jmp CondEnd" + uniqueIdentifier);
+			break;
+		}
+		default:
+			assert(false);
+	}
+
+	ctx->text.add("CondElse" + uniqueIdentifier + ":");
+	if (elseBody)
+	{
+		elseBody->codeGenerate(ctx);
+	}
+
+	ctx->text.add("CondEnd" + uniqueIdentifier + ":");
 
 	if (ctx->stackSize != stackSizeAtStart)
 	{
 		// reset the stack to where it was before the start of this conditional statement
 		int delta = (ctx->stackSize - stackSizeAtStart) * 4;
-		ctx->text.add("add esp, " + std::to_string(delta) + "; END - ConditionalStatement");
+		ctx->text.add("add esp, " + std::to_string(delta) + "; END - ConditionalStatement" + uniqueIdentifier);
 		ctx->stackSize = stackSizeAtStart;
 	} else
 	{
-		ctx->text.add("; END - ConditionalStatement");
+		ctx->text.add("; END - ConditionalStatement" + uniqueIdentifier);
 	}
 }
 
