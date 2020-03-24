@@ -51,8 +51,9 @@ public:
 	// nullable
 	std::unique_ptr<Expression> initializer;
 
+	// for local variables/parameters, this is the index on the stack (sort of)
+	// for fields, this is the offset from the start of the data
 	int index;
-
 };
 
 } //namespace AST

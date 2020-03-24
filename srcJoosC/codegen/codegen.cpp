@@ -726,19 +726,18 @@ void CastExpression::codeGenerate(CodeGen::SContext *ctx) {
 void FieldAccess::codeGenerate(CodeGen::SContext *ctx) {
 	ctx->text.add("; BEGIN - FieldAccess");
 
-	auto item = (FieldAccess*)this;
 	CodeGen::SText *text = &ctx->text;
 
-	int varIndex = item->source.index();
+	int varIndex = source.index();
 
 	if (varIndex == 1) {
 		// static field
 
-		auto nameType = (NameType*)std::get<1>(item->source).get();
+		auto &nameType = std::get<1>(source);
 		ASSERT(nameType->nodeType == NodeType::NameType);
 
 		strdecl512(label, "%s.%s", nameType->declaration->fqn.c_str(),
-		           item->member.c_str());
+		           member.c_str());
 		ctx->text.addExternSymbol(label);
 		text->addf("mov eax, %s", label);
 		ctx->lastExprLValue = true;
@@ -747,14 +746,14 @@ void FieldAccess::codeGenerate(CodeGen::SContext *ctx) {
 	}
 
 	// arbitrary expr
-	auto lExpr = (Expression*)std::get<0>(item->source).get();
+	auto &lExpr = std::get<0>(source);
 	lExpr->codeGenerate(ctx);
 
 	TypeResult *theTypeResult = &lExpr->typeResult;
 
 	if (theTypeResult->isArray) {
 		// array
-		ASSERT(item->member == "length");
+		ASSERT(member == "length");
 		if (ctx->lastExprLValue) {
 			text->add("mov eax, [eax]");
 		}
@@ -769,23 +768,11 @@ void FieldAccess::codeGenerate(CodeGen::SContext *ctx) {
 
 	// non array
 	ASSERT(!theTypeResult->isPrimitive);
-	int index = OBJECT_FIELD;
-	bool found = false;
-	for (auto *field: theTypeResult->userDefinedType->fieldContainSet) {
-		if (field->varDecl->identifier == item->member) {
-			ASSERT(!found);
-			found = true;
-		}
-		if (!found) {
-			++index;
-		}
-	}
 
-	ASSERT(found);
 	if (ctx->lastExprLValue) {
 		text->add("mov eax, [eax]");
 	}
-	strdecl512(inst, "add eax, %d", index * 4);
+	strdecl512(inst, "add eax, %d", (decl->varDecl->index + OBJECT_FIELD) * 4);
 	text->add(inst);
 	ctx->lastExprLValue = true;
 	ctx->text.add("; END - FieldAccess");

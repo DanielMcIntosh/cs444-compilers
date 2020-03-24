@@ -525,7 +525,11 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 			}
 		}
 	}
-	fieldContainSet.insert(fieldContainSet.end(), fDeclareSet.begin(), fDeclareSet.end());
+	for (auto *f : fDeclareSet)
+	{
+		f->varDecl->index = fieldContainSet.size();
+		fieldContainSet.push_back(f);
+	}
 
 	for (const auto &[m, n] : overrides) {
 		// Hierarchy check 5: Static methods can only override and be overriden by static methods
