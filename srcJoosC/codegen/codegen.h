@@ -95,7 +95,6 @@ public:
 	std::vector<std::unique_ptr<MethodInfo>> methodTable;
 	std::unordered_map<std::string, MethodInfo*> methodSelector;
 
-	bool lastExprLValue = false;
 	SText text;
 	std::string typeName;
 	int _numParam;

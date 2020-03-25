@@ -58,7 +58,7 @@ public:
 
 	// a5
 
-	virtual void codeGenerate(CodeGen::SContext *ctx) = 0;
+	virtual void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) = 0;
 protected:
 
 };
@@ -80,7 +80,7 @@ public:
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
-  void codeGenerate(CodeGen::SContext *ctx) override;
+  void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 
 public:
 	std::unique_ptr<Expression> array;
@@ -104,7 +104,7 @@ public:
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
-	void codeGenerate(CodeGen::SContext *ctx) override;
+	void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 
 public:
 	// IMPORTANT: during construction, we have to change type->isArray to true
@@ -129,7 +129,7 @@ public:
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
-	void codeGenerate(CodeGen::SContext *ctx) override;
+	void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 
 public:
 	std::unique_ptr<Expression> lhs;
@@ -186,7 +186,7 @@ public:
 	ConstExpr tryEval() override;
 
   // a5
-  void codeGenerate(CodeGen::SContext *ctx) override;
+  void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 public:
  	Variant op;
 	std::unique_ptr<Expression> lhs;
@@ -218,7 +218,7 @@ public:
 	Semantic::SemanticErrorType deduceType() override;
 
   // a5
-  void codeGenerate(CodeGen::SContext *ctx) override;  
+  void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 
 public:
 	std::unique_ptr<Type> type;
@@ -244,7 +244,7 @@ public:
 	Semantic::SemanticErrorType deduceType() override;
 
   // a5
-  void codeGenerate(CodeGen::SContext *ctx) override;  
+  void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 
 public:
 	std::unique_ptr<NameType> type;
@@ -277,7 +277,7 @@ public:
 	bool isStaticAccessor() const;
 
 	// a5
-	void codeGenerate(CodeGen::SContext *ctx) override;
+	void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 
 public:
 	std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> source;
@@ -308,7 +308,7 @@ public:
 	ConstExpr tryEval() override;
 
 	// a5
-	void codeGenerate(CodeGen::SContext *ctx) override;
+	void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 
 public:
 	std::variant<unsigned int, bool, char, std::string, std::nullptr_t > value;
@@ -341,7 +341,7 @@ public:
 
 	// a5
 
-	void codeGenerate(CodeGen::SContext *ctx) override;
+	void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -362,7 +362,7 @@ public:
 	Semantic::SemanticErrorType deduceType() override;
 
   // a5
-  void codeGenerate(CodeGen::SContext *ctx) override;  
+  void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 
 	bool isStaticCall() const;
 	bool isDisambiguated() const;
@@ -400,7 +400,7 @@ public:
 
 	// a5
 
-	void codeGenerate(CodeGen::SContext *ctx) override;
+	void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 
 public:
 	std::unique_ptr<Name> unresolved;
@@ -429,7 +429,7 @@ public:
 	ConstExpr tryEval() override;
 
   // a5
-  void codeGenerate(CodeGen::SContext *ctx) override;  
+  void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 public:
 	enum class Variant
 	{

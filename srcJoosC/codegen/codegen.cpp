@@ -7,8 +7,6 @@
 using namespace std;
 
 // all calculation results should be left in eax
-// ctx->lastExprLValue will be true if the value in eax is a pointer to the
-// value (LValue), in which case an instruction mov eax, [eax] should be added
 
 namespace AST {
 
@@ -83,7 +81,8 @@ ret)");
 	ctx->text.add("; END - ReturnStatement (" + toCode() + ")");
 }
 
-void BinaryExpression::codeGenerate(CodeGen::SContext *ctx) {
+void BinaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
+	assert(!returnLValue);
 	static int uniqueNumber = 0;
 	std::string uniqueIdentifier = std::to_string(uniqueNumber++);
 
@@ -93,7 +92,6 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx) {
 	if (op == Variant::InstanceOf)
 	{
 		//TODO
-		ctx->lastExprLValue = false;
 		ctx->text.add("; END - BinaryExpression" + uniqueIdentifier + " (" + toCode() + ")");
 		return;
 	}
@@ -180,11 +178,11 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx) {
 			assert(false);
 	}
 
-	ctx->lastExprLValue = false;
 	ctx->text.add("; END - BinaryExpression" + uniqueIdentifier + " (" + toCode() + ")");
 }
 
-void UnaryExpression::codeGenerate(CodeGen::SContext *ctx) {
+void UnaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
+	assert(!returnLValue);
 	ctx->text.add("; BEGIN - UnaryExpression (" + toCode() + ")");
 	expr->codeGenerate(ctx);
 	switch(op)
@@ -199,7 +197,6 @@ void UnaryExpression::codeGenerate(CodeGen::SContext *ctx) {
 		default:
 			assert(false);
 	}
-	ctx->lastExprLValue = false;
 	ctx->text.add("; END - UnaryExpression (" + toCode() + ")");
 }
 
@@ -628,7 +625,8 @@ namespace AST {
 //
 //////////////////////////////////////////////////////////////////////////////
 
-void Literal::codeGenerate(CodeGen::SContext *ctx) {
+void Literal::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
+	assert(!returnLValue);
 	auto item = (Literal*)this;
 
 	strdecl512(label, "%s_const_%d", ctx->typeName.c_str(), ++ctx->counter);
@@ -674,12 +672,12 @@ void Literal::codeGenerate(CodeGen::SContext *ctx) {
 
 	if (isInt) {
 		ctx->text.addConstant(labelS, effectiveValue);
-    ctx->text.add("mov eax, [" + labelS + "];   " + toCode());
-		ctx->lastExprLValue = false;
+	    ctx->text.add("mov eax, [" + labelS + "];   " + toCode());
 	}
 }
 
-void ArrayCreationExpression::codeGenerate(CodeGen::SContext *ctx) {
+void ArrayCreationExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
+	assert(!returnLValue);
 	ctx->text.add("; BEGIN - ArrayCreationExpression (" + toCode() + ")");
 
 	auto item = (ArrayCreationExpression*)this;
@@ -716,10 +714,6 @@ void ArrayCreationExpression::codeGenerate(CodeGen::SContext *ctx) {
 	typeInfoName += "_typeinfo";
 
 	item->size->codeGenerate(ctx);
-
-	if (ctx->lastExprLValue) {
-		ctx->text.add("mov eax, [eax]");
-	}
 
 	ctx->text.add("push eax"); // pushed number of elements
 	ctx->text.addf("add eax, %d", ARRAY_DATA_OFFSET);
@@ -775,7 +769,8 @@ pop eax)");
 	ctx->text.add("; END - ArrayCreationExpression (" + toCode() + ")");
 }
 
-void MethodInvocation::codeGenerate(CodeGen::SContext *ctx) {
+void MethodInvocation::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
+	assert(!returnLValue);
 	ctx->text.add("; BEGIN - MethodInvocation (" + toCode() + ")");
 
 	auto item = (MethodInvocation*)this;
@@ -789,9 +784,6 @@ void MethodInvocation::codeGenerate(CodeGen::SContext *ctx) {
 		// this
 		lExpr->codeGenerate(ctx);
 
-		if (ctx->lastExprLValue) {
-			ctx->text.add("mov eax, [eax]");
-		}
 		ctx->text.add("push eax");
 		++numArg;
 	}
@@ -799,9 +791,6 @@ void MethodInvocation::codeGenerate(CodeGen::SContext *ctx) {
 	// arguments
 	for (auto &arg : item->args) {
 		arg->codeGenerate(ctx);
-		if (ctx->lastExprLValue) {
-			ctx->text.add("mov eax, [eax]");
-		}
 		ctx->text.add("push eax");
 		++numArg;
 	}
@@ -846,46 +835,40 @@ void MethodInvocation::codeGenerate(CodeGen::SContext *ctx) {
 		ASSERT(false);
 	}
 
-	// result is in eax (if any)
 	strdecl512(inst, "add esp, %d", numArg * 4);
 	text->add(inst);
-	ctx->lastExprLValue = false;
 
 	ctx->text.add("; END - MethodInvocation (" + toCode() + ")");
 }
 
-void AssignmentExpression::codeGenerate(CodeGen::SContext *ctx) {
+void AssignmentExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	ctx->text.add("; BEGIN - AssignmentExpression (" + toCode() + ")");
 
 	CodeGen::SText *text = &ctx->text;
 	auto item = (AssignmentExpression*)this;
 
-	item->lhs->codeGenerate(ctx);
-	ASSERT(ctx->lastExprLValue);
+	item->lhs->codeGenerate(ctx, true);
 	text->add("push eax");
 	item->rhs->codeGenerate(ctx);
 	text->add("pop ebx");
-	if (ctx->lastExprLValue) {
-		text->add("mov eax, [eax]");
-	}
 	text->add("mov [ebx], eax");
-	text->add("mov eax, ebx");
-	ctx->lastExprLValue = true;
+	if (returnLValue)
+		text->add("mov eax, ebx");
 
 	ctx->text.add("; END - AssignmentExpression (" + toCode() + ")");
 }
 
-void NameExpression::codeGenerate(CodeGen::SContext *ctx) {
-	converted->codeGenerate(ctx);
+void NameExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
+	converted->codeGenerate(ctx, returnLValue);
 }
 
-void CastExpression::codeGenerate(CodeGen::SContext *ctx) {
+void CastExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	// TODO: Wei Heng
 	ctx->text.add("; BEGIN - CastExpression (" + toCode() + ")");
 	ctx->text.add("; END - CastExpression (" + toCode() + ")");
 }
 
-void FieldAccess::codeGenerate(CodeGen::SContext *ctx) {
+void FieldAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	ctx->text.add("; BEGIN - FieldAccess (" + toCode() + ")");
 
 	CodeGen::SText *text = &ctx->text;
@@ -898,11 +881,12 @@ void FieldAccess::codeGenerate(CodeGen::SContext *ctx) {
 		auto &nameType = std::get<1>(source);
 		ASSERT(nameType->nodeType == NodeType::NameType);
 
-		strdecl512(label, "%s.%s", nameType->declaration->fqn.c_str(),
-		           member.c_str());
+		std::string label = nameType->declaration->fqn + "." + member;
 		ctx->text.addExternSymbol(label);
-		text->addf("mov eax, %s", label);
-		ctx->lastExprLValue = true;
+		if (returnLValue)
+			text->add("mov eax, " + label);
+		else
+			text->add("mov eax, [" + label + "]");
 		ctx->text.add("; END - FieldAccess (" + toCode() + ")");
     return;
 	}
@@ -916,14 +900,12 @@ void FieldAccess::codeGenerate(CodeGen::SContext *ctx) {
 	if (theTypeResult->isArray) {
 		// array
 		ASSERT(member == "length");
-		if (ctx->lastExprLValue) {
-			text->add("mov eax, [eax]");
-		}
 
 		// length is the first field
-		strdecl512(inst, "add eax, %d", OBJECT_FIELD * 4);
-		text->add(inst);
-		ctx->lastExprLValue = true;
+		if (returnLValue)
+			text->add("add eax, " + std::to_string(OBJECT_FIELD * 4));
+		else
+			text->add("mov eax, [eax + " + std::to_string(OBJECT_FIELD * 4) + "]");
 		ctx->text.add("; END - FieldAccess (" + toCode() + ")");
 		return;
 	}
@@ -931,47 +913,40 @@ void FieldAccess::codeGenerate(CodeGen::SContext *ctx) {
 	// non array
 	ASSERT(!theTypeResult->isPrimitive);
 
-	if (ctx->lastExprLValue) {
-		text->add("mov eax, [eax]");
-	}
-	strdecl512(inst, "add eax, %d", (decl->varDecl->index + OBJECT_FIELD) * 4);
-	text->add(inst);
-	ctx->lastExprLValue = true;
+	if (returnLValue)
+		text->add("add eax, " + std::to_string((decl->varDecl->index + OBJECT_FIELD) * 4));
+	else
+		text->add("mov eax, [eax + " + std::to_string((decl->varDecl->index + OBJECT_FIELD) * 4) + "]");
 	ctx->text.add("; END - FieldAccess (" + toCode() + ")");
 }
 
-void LocalVariableExpression::codeGenerate(CodeGen::SContext *ctx) {
-	ctx->text.add("; BEGIN - LocalVariableExpression (" + toCode() + ")");
-
-	ctx->text.add("mov eax, ebp");
-
-	if (declaration->index < ctx->_numParam) {
-		// is a parameter
-		int offset = ctx->_numParam - declaration->index + 1;
-		strdecl512(inst, "add eax, %d", offset * 4);
-		ctx->text.add(inst);
-	} else {
-		// is a local variable
-		int offset = declaration->index - ctx->_numParam + 1;
-		strdecl512(inst, "sub eax, %d", offset * 4);
-		ctx->text.add(inst);
+void LocalVariableExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
+	// have to adjust by +/- 1 because ebp and eip get pushed between the parameters and the local variables
+	// whether we adjust by +1 or -1 depends on whether it's a local variable or parameter
+	int offset = ctx->_numParam - declaration->index + (declaration->index < ctx->_numParam ? 1 : -1);
+	if (returnLValue)
+	{
+		ctx->text.add("; BEGIN - LocalVariableExpression (" + toCode() + ")");
+		ctx->text.add("mov eax, ebp");
+		ctx->text.add("add eax, " + std::to_string(offset * 4));
+		ctx->text.add("; END - LocalVariableExpression (" + toCode() + ")");
 	}
-
-	ctx->lastExprLValue = true;
-	ctx->text.add("; END - LocalVariableExpression (" + toCode() + ")");
+	else
+	{
+		ctx->text.add("mov eax, [ebp + " + std::to_string(offset * 4) + "]; LocalVariableExpression (" + toCode() + ")");
+	}
 }
 
-void ClassInstanceCreationExpression::codeGenerate(CodeGen::SContext *ctx) {
+void ClassInstanceCreationExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
+	assert(!returnLValue);
 	// TODO : Titus
 	ctx->text.add("; BEGIN - ClassInstanceCreationExpression (" + toCode() + ")");
-	ctx->lastExprLValue = false;
 	ctx->text.add("; END - ClassInstanceCreationExpression (" + toCode() + ")");
 }
 
-void ArrayAccess::codeGenerate(CodeGen::SContext *ctx) {
+void ArrayAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	// TODO: Wei Heng
 	ctx->text.add("; BEGIN - ArrayAccess (" + toCode() + ")");
-	ctx->lastExprLValue = true;
 	ctx->text.add("; END - ArrayAccess (" + toCode() + ")");
 }
 

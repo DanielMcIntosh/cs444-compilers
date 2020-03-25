@@ -613,8 +613,6 @@ SemanticErrorType LocalVariableExpression::deduceType()
 }
 SemanticErrorType MethodInvocation::deduceType()
 {
-	// I'm setting isFinal to false because I don't remember Java well enough to know whether its
-	// "everything is a reference" policy means assigning to a return value makes sense
 	typeResult = TypeResult(*(declaration->returnType), false);
 	return SemanticErrorType::None;
 }
