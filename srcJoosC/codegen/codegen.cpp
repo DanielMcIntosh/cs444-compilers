@@ -76,22 +76,23 @@ void ConditionalStatement::codeGenerate(CodeGen::SContext *ctx) {
 
 void ReturnStatement::codeGenerate(CodeGen::SContext *ctx) {
 	// TODO Daniel
-	ctx->text.add("; BEGIN - ReturnStatement");
-	ctx->text.add("; END - ReturnStatement");
+	ctx->text.add("; BEGIN - ReturnStatement (" + toCode() + ")");
+
+	ctx->text.add("; END - ReturnStatement (" + toCode() + ")");
 }
 
 void BinaryExpression::codeGenerate(CodeGen::SContext *ctx) {
 	// TODO Daniel
-	ctx->text.add("; BEGIN - BinaryExpression");
+	ctx->text.add("; BEGIN - BinaryExpression (" + toCode() + ")");
 	ctx->lastExprLValue = false;
-	ctx->text.add("; END - BinaryExpression");
+	ctx->text.add("; END - BinaryExpression (" + toCode() + ")");
 }
 
 void UnaryExpression::codeGenerate(CodeGen::SContext *ctx) {
 	// TODO Daniel
-	ctx->text.add("; BEGIN - UnaryExpression");
+	ctx->text.add("; BEGIN - UnaryExpression (" + toCode() + ")");
 	ctx->lastExprLValue = false;
-	ctx->text.add("; END - UnaryExpression");
+	ctx->text.add("; END - UnaryExpression (" + toCode() + ")");
 }
 
 }  // namespace AST
@@ -565,13 +566,13 @@ void Literal::codeGenerate(CodeGen::SContext *ctx) {
 
 	if (isInt) {
 		ctx->text.addConstant(labelS, effectiveValue);
-    ctx->text.addf("mov eax, [%s]", label);
+    ctx->text.add("mov eax, [" + labelS + "];   " + toCode());
 		ctx->lastExprLValue = false;
 	}
 }
 
 void ArrayCreationExpression::codeGenerate(CodeGen::SContext *ctx) {
-	ctx->text.add("; BEGIN - ArrayCreationExpression");
+	ctx->text.add("; BEGIN - ArrayCreationExpression (" + toCode() + ")");
 
 	auto item = (ArrayCreationExpression*)this;
 	TypeResult *theTypeResult = &item->typeResult;
@@ -663,11 +664,11 @@ pop eax)");
 	ctx->text.add("add ebx, 1");
 	ctx->text.addf("jmp %s\n%s:", loopLabel.c_str(), loopOutLabel.c_str());
 
-	ctx->text.add("; END - ArrayCreationExpression");
+	ctx->text.add("; END - ArrayCreationExpression (" + toCode() + ")");
 }
 
 void MethodInvocation::codeGenerate(CodeGen::SContext *ctx) {
-	ctx->text.add("; BEGIN - MethodInvocation");
+	ctx->text.add("; BEGIN - MethodInvocation (" + toCode() + ")");
 
 	auto item = (MethodInvocation*)this;
 	CodeGen::SText *text = &ctx->text;
@@ -742,11 +743,11 @@ void MethodInvocation::codeGenerate(CodeGen::SContext *ctx) {
 	text->add(inst);
 	ctx->lastExprLValue = false;
 
-	ctx->text.add("; END - MethodInvocation");
+	ctx->text.add("; END - MethodInvocation (" + toCode() + ")");
 }
 
 void AssignmentExpression::codeGenerate(CodeGen::SContext *ctx) {
-	ctx->text.add("; BEGIN - AssignmentExpression");
+	ctx->text.add("; BEGIN - AssignmentExpression (" + toCode() + ")");
 
 	CodeGen::SText *text = &ctx->text;
 	auto item = (AssignmentExpression*)this;
@@ -763,22 +764,21 @@ void AssignmentExpression::codeGenerate(CodeGen::SContext *ctx) {
 	text->add("mov eax, ebx");
 	ctx->lastExprLValue = true;
 
-	ctx->text.add("; END - AssignmentExpression");
+	ctx->text.add("; END - AssignmentExpression (" + toCode() + ")");
 }
 
 void NameExpression::codeGenerate(CodeGen::SContext *ctx) {
-	auto item = (NameExpression*)this;
-	item->converted->codeGenerate(ctx);
+	converted->codeGenerate(ctx);
 }
 
 void CastExpression::codeGenerate(CodeGen::SContext *ctx) {
 	// TODO: Wei Heng
-	ctx->text.add("; BEGIN - CastExpression");
-	ctx->text.add("; END - CastExpression");
+	ctx->text.add("; BEGIN - CastExpression (" + toCode() + ")");
+	ctx->text.add("; END - CastExpression (" + toCode() + ")");
 }
 
 void FieldAccess::codeGenerate(CodeGen::SContext *ctx) {
-	ctx->text.add("; BEGIN - FieldAccess");
+	ctx->text.add("; BEGIN - FieldAccess (" + toCode() + ")");
 
 	CodeGen::SText *text = &ctx->text;
 
@@ -795,7 +795,7 @@ void FieldAccess::codeGenerate(CodeGen::SContext *ctx) {
 		ctx->text.addExternSymbol(label);
 		text->addf("mov eax, %s", label);
 		ctx->lastExprLValue = true;
-		ctx->text.add("; END - FieldAccess");
+		ctx->text.add("; END - FieldAccess (" + toCode() + ")");
     return;
 	}
 
@@ -816,7 +816,7 @@ void FieldAccess::codeGenerate(CodeGen::SContext *ctx) {
 		strdecl512(inst, "add eax, %d", OBJECT_FIELD * 4);
 		text->add(inst);
 		ctx->lastExprLValue = true;
-		ctx->text.add("; END - FieldAccess");
+		ctx->text.add("; END - FieldAccess (" + toCode() + ")");
 		return;
 	}
 
@@ -829,11 +829,11 @@ void FieldAccess::codeGenerate(CodeGen::SContext *ctx) {
 	strdecl512(inst, "add eax, %d", (decl->varDecl->index + OBJECT_FIELD) * 4);
 	text->add(inst);
 	ctx->lastExprLValue = true;
-	ctx->text.add("; END - FieldAccess");
+	ctx->text.add("; END - FieldAccess (" + toCode() + ")");
 }
 
 void LocalVariableExpression::codeGenerate(CodeGen::SContext *ctx) {
-	ctx->text.add("; BEGIN - LocalVariableExpression");
+	ctx->text.add("; BEGIN - LocalVariableExpression (" + toCode() + ")");
 
 	ctx->text.add("mov eax, ebp");
 
@@ -850,21 +850,21 @@ void LocalVariableExpression::codeGenerate(CodeGen::SContext *ctx) {
 	}
 
 	ctx->lastExprLValue = true;
-	ctx->text.add("; END - LocalVariableExpression");
+	ctx->text.add("; END - LocalVariableExpression (" + toCode() + ")");
 }
 
 void ClassInstanceCreationExpression::codeGenerate(CodeGen::SContext *ctx) {
 	// TODO : Titus
-	ctx->text.add("; BEGIN - ClassInstanceCreationExpression");
+	ctx->text.add("; BEGIN - ClassInstanceCreationExpression (" + toCode() + ")");
 	ctx->lastExprLValue = false;
-	ctx->text.add("; END - ClassInstanceCreationExpression");
+	ctx->text.add("; END - ClassInstanceCreationExpression (" + toCode() + ")");
 }
 
 void ArrayAccess::codeGenerate(CodeGen::SContext *ctx) {
 	// TODO: Wei Heng
-	ctx->text.add("; BEGIN - ArrayAccess");
+	ctx->text.add("; BEGIN - ArrayAccess (" + toCode() + ")");
 	ctx->lastExprLValue = true;
-	ctx->text.add("; END - ArrayAccess");
+	ctx->text.add("; END - ArrayAccess (" + toCode() + ")");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -875,16 +875,15 @@ void ArrayAccess::codeGenerate(CodeGen::SContext *ctx) {
 
 void LocalVariableDeclarationStatement::codeGenerate(CodeGen::SContext *ctx) {
 	// TODO: Wei Heng
-	ctx->text.add("; BEGIN - LocalVariableDeclarationStatement");
+	ctx->text.add("; BEGIN - LocalVariableDeclarationStatement (" + toCode() + ")");
 	++ctx->stackSize;
-	ctx->text.add("; END - LocalVariableDeclarationStatement");
+	ctx->text.add("; END - LocalVariableDeclarationStatement (" + toCode() + ")");
 }
 
 void ExpressionStatement::codeGenerate(CodeGen::SContext *ctx) {
-	auto item = (ExpressionStatement*)this;
-	if (!item->expression)
+	if (!expression)
 		return;
-	item->expression->codeGenerate(ctx);
+	expression->codeGenerate(ctx);
 }
 
 void Block::codeGenerate(CodeGen::SContext *ctx) {

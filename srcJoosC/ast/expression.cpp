@@ -325,12 +325,42 @@ std::string FieldAccess::toCode() const
 	return "(" + std::visit([this](auto &src) { return src->toCode(); }, source) + "." + member + ")";
 }
 
+static std::string charEscape(char c)
+{
+	return c >= 32 ? std::string() + c
+	               : c == '\b' ? "\\b"
+	               : c == '\t' ? "\\t"
+	               : c == '\n' ? "\\n"
+	               : c == '\f' ? "\\f"
+	               : c == '\r' ? "\\r"
+	               : c == '\'' ? "\\'"
+	               : c == '\"' ? "\\\""
+	               : c == '\\' ? "\\\\"
+	               : std::string("\\") + (char)('0' + (c>>6)%8)
+	                                   + (char)('0' + (c>>3)%8)
+	                                   + (char)('0' + (c>>0)%8);
+}
+
+static std::string stringEscape(std::string s)
+{
+	for (unsigned int i = 0; i < s.length(); ++i)
+	{
+		if (s[i] < 32)
+		{
+			std::string escaped = charEscape(s[i]);
+			s.replace(i, 1, escaped);
+			i += escaped.length() - 1;
+		}
+	}
+	return s;
+}
+
 std::string Literal::toCode() const {
 	return std::visit(visitor {
 		[](unsigned int x) { return std::to_string(x); },
 		[](bool x) -> std::string { return x ? "true" : "false"; },
-		[](char x) { return std::string("'") + x + "'"; },
-		[](std::string x) { return x; },
+		[](char x) { return "'" + charEscape(x) + "'"; },
+		[](std::string x) { return "\"" + stringEscape(x) + "\""; },
 		[](std::nullptr_t) -> std::string { return "null"; }
 	}, value);
 }
