@@ -477,7 +477,20 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 
 					// Replacing abstract from interface with concrete method from superclass
 					if (!n->hasModifier(Modifier::Variant::Abstract))
-						overrides.emplace_back(n, m);
+					{
+						bool weImplement = false;
+						for (auto *ours : mDeclareSet)
+						{
+							if (m->signatureEquals(ours))
+							{
+								weImplement = true;
+								break;
+							}
+						}
+
+						if (!weImplement)
+							overrides.emplace_back(n, m);
+					}
 					// expanding access - if we're implementing an interface which has this method marked public,
 					// we better provide an implementation which is public, not private
 					else if (m->hasModifier(Modifier::Variant::Public) && !n->hasModifier(Modifier::Variant::Public))

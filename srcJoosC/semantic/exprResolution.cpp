@@ -462,6 +462,7 @@ SemanticErrorType ArrayAccess::deduceType() {
 	// resulting type is the type of the array with array dropped
 	typeResult = array->typeResult;
 	typeResult.isArray = false;
+	typeResult.isFinal = false;
 
 	OK();
 

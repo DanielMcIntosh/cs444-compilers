@@ -16,7 +16,7 @@ namespace AST
 {
 
 void MethodDeclaration::staticAnalysis(StaticAnalysisCtx *ctx) {
-	auto nCtx = *ctx;	
+	auto nCtx = *ctx;
 	if (body) {
 		body->staticAnalysis(&nCtx);
 		if (returnType->nodeType == NodeType::PrimitiveType) {
@@ -29,7 +29,7 @@ void MethodDeclaration::staticAnalysis(StaticAnalysisCtx *ctx) {
 		}
 	}
 	ctx->hasError = nCtx.hasError;
-}	
+}
 
 // static
 std::unique_ptr<MethodDeclaration> MethodDeclaration::create(const Parse::Tree *ptNode)
@@ -77,7 +77,12 @@ MethodDeclaration::MethodDeclaration(const Parse::TMethodDeclaration *ptNode)
 	nodeType = NodeType::MethodDeclaration;
 }
 std::string MethodDeclaration::toCode() const {
-	std::string s = returnType->toCode() + " " + identifier + "(";
+	std::string s;
+	for (auto &mod : modifiers)
+	{
+		s += mod->toCode() + " ";
+	}
+	s += returnType->toCode() + " " + identifier + "(";
 	for (const auto& p : parameters)
 	{
 		s += p->toCode() + ", ";
