@@ -75,7 +75,6 @@ void ConditionalStatement::codeGenerate(CodeGen::SContext *ctx) {
 }
 
 void ReturnStatement::codeGenerate(CodeGen::SContext *ctx) {
-	// TODO Daniel
 	ctx->text.add("; BEGIN - ReturnStatement (" + toCode() + ")");
 	returnValue->codeGenerate(ctx);
 	ctx->text.add(R"(mov esp, ebp
@@ -165,6 +164,8 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx) {
 			ctx->text.add("setne al");
 			break;
 		case Variant::EagerAnd:
+			// if ebx is 0, overwrite eax with 0, otherwise leave eax as is
+			// can't use set as that would overwrite the value in eax when ebx is non-zero
 			ctx->text.add("cmp ebx, 0");
 			ctx->text.add("cmoveq eax, ebx");
 			break;
@@ -184,8 +185,20 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx) {
 }
 
 void UnaryExpression::codeGenerate(CodeGen::SContext *ctx) {
-	// TODO Daniel
 	ctx->text.add("; BEGIN - UnaryExpression (" + toCode() + ")");
+	expr->codeGenerate(ctx);
+	switch(op)
+	{
+		case Variant::Minus:
+			ctx->text.add("neg eax");
+			break;
+		case Variant::Bang:
+			ctx->text.add("cmp eax, 0");
+			ctx->text.add("sete al");
+			break;
+		default:
+			assert(false);
+	}
 	ctx->lastExprLValue = false;
 	ctx->text.add("; END - UnaryExpression (" + toCode() + ")");
 }
