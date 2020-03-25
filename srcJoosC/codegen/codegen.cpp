@@ -77,15 +77,110 @@ void ConditionalStatement::codeGenerate(CodeGen::SContext *ctx) {
 void ReturnStatement::codeGenerate(CodeGen::SContext *ctx) {
 	// TODO Daniel
 	ctx->text.add("; BEGIN - ReturnStatement (" + toCode() + ")");
-
+	returnValue->codeGenerate(ctx);
+	ctx->text.add(R"(mov esp, ebp
+pop ebp
+ret)");
 	ctx->text.add("; END - ReturnStatement (" + toCode() + ")");
 }
 
 void BinaryExpression::codeGenerate(CodeGen::SContext *ctx) {
-	// TODO Daniel
-	ctx->text.add("; BEGIN - BinaryExpression (" + toCode() + ")");
+	static int uniqueNumber = 0;
+	std::string uniqueIdentifier = std::to_string(uniqueNumber++);
+
+	ctx->text.add("; BEGIN - BinaryExpression" + uniqueIdentifier + " (" + toCode() + ")");
+	lhs->codeGenerate(ctx);
+
+	if (op == Variant::InstanceOf)
+	{
+		//TODO
+		ctx->lastExprLValue = false;
+		ctx->text.add("; END - BinaryExpression" + uniqueIdentifier + " (" + toCode() + ")");
+		return;
+	}
+
+	// special case to deal with LazyAnd and LazyOr since they don't always evaluate the rhs
+	switch(op)
+	{
+		case Variant::LazyAnd:
+			ctx->text.add("cmp eax, 0");
+			ctx->text.add("je ExprEnd" + uniqueIdentifier);
+			std::get<0>(rhs)->codeGenerate(ctx);
+			break;
+		case Variant::LazyOr:
+			ctx->text.add("cmp eax, 0");
+			ctx->text.add("jne ExprEnd" + uniqueIdentifier);
+			std::get<0>(rhs)->codeGenerate(ctx);
+			break;
+		default:
+			ctx->text.add("push eax");
+			std::get<0>(rhs)->codeGenerate(ctx);
+			ctx->text.add("mov ebx, eax");
+			ctx->text.add("pop eax");
+			break;
+	}
+	//process rhs & compute result
+	switch(op)
+	{
+		case Variant::Add:
+			ctx->text.add("add eax, ebx");
+			break;
+		case Variant::Sub:
+			ctx->text.add("sub eax, ebx");
+			break;
+		case Variant::Mult:
+			ctx->text.add("mul ebx");
+			break;
+		case Variant::Div:
+			ctx->text.add("cdq");
+			ctx->text.add("div ebx");
+			break;
+		case Variant::Mod:
+			ctx->text.add("cdq");
+			ctx->text.add("div ebx");
+			ctx->text.add("mov eax, edx");
+			break;
+		case Variant::Lt:
+			ctx->text.add("cmp eax, ebx");
+			ctx->text.add("setl al");
+			break;
+		case Variant::Gt:
+			ctx->text.add("cmp eax, ebx");
+			ctx->text.add("setg al");
+			break;
+		case Variant::LtEq:
+			ctx->text.add("cmp eax, ebx");
+			ctx->text.add("setle al");
+			break;
+		case Variant::GtEq:
+			ctx->text.add("cmp eax, ebx");
+			ctx->text.add("setge al");
+			break;
+		case Variant::Eq:
+			ctx->text.add("cmp eax, ebx");
+			ctx->text.add("sete al");
+			break;
+		case Variant::NEq:
+			ctx->text.add("cmp eax, ebx");
+			ctx->text.add("setne al");
+			break;
+		case Variant::EagerAnd:
+			ctx->text.add("cmp ebx, 0");
+			ctx->text.add("cmoveq eax, ebx");
+			break;
+		case Variant::EagerOr:
+			ctx->text.add("or eax, ebx");
+			break;
+		case Variant::LazyAnd:
+		case Variant::LazyOr:
+			ctx->text.add("ExprEnd" + uniqueIdentifier + ":");
+			break;
+		default:
+			assert(false);
+	}
+
 	ctx->lastExprLValue = false;
-	ctx->text.add("; END - BinaryExpression (" + toCode() + ")");
+	ctx->text.add("; END - BinaryExpression" + uniqueIdentifier + " (" + toCode() + ")");
 }
 
 void UnaryExpression::codeGenerate(CodeGen::SContext *ctx) {
