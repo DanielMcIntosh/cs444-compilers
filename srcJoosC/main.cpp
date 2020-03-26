@@ -682,6 +682,9 @@ int main(int argc, const char** argv) {
     fileList.push_back(string(argv[i]));
   }
 
+  if (argc > 1)
+	  gEntryPointFile = argv[1];
+
   checkScanner();
 
   JoosC joosc;

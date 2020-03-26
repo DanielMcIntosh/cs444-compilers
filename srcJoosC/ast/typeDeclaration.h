@@ -102,6 +102,9 @@ public:
 	// (when you skip the static fields/methods?)
 	std::vector<FieldDeclaration *> fieldContainSet;
 	std::vector<MethodDeclaration *> methodContainSet;
+
+	// path of the source file containing this type
+	std::string sourceFilePath;
 };
 
 } //namespace AST

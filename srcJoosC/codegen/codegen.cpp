@@ -120,6 +120,9 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	switch(op)
 	{
 		case Variant::Add:
+			// TODO: call concat/valueOf method of string if necessary
+			// there are multiple overloads for valueOf and
+			// function label can be obtained with string getProcedureName(MemberDeclaration*)
 			ctx->text.add("add eax, ebx");
 			break;
 		case Variant::Sub:
@@ -478,6 +481,43 @@ push ebp
 mov ebp, esp
 )");
 
+				// 1. call super()
+				if (type->superClass) {
+					// this
+					ctx->text.addf("mov eax, [ebp + %d]", ctx->_numParam + 1);
+					ctx->text.addf("push eax");
+
+					ConstructorDeclaration *defaultSuper = nullptr;
+					for (auto *superCtor : type->superClass->declaration->constructorSet) {
+						if (superCtor->parameters.size() == 1) {
+							ASSERT(!defaultSuper);
+							defaultSuper = superCtor;
+						}
+					}
+					ASSERT(defaultSuper);
+
+					ctx->text.call("%s", getProcedureName(defaultSuper).c_str());
+					ctx->text.add("pop eax");
+				}
+
+				// 2. initialize non static fields
+				for (auto &field : type->fieldContainSet) {
+					if (field->hasModifier(Modifier::Variant::Static))
+						continue;
+
+					if (!field->varDecl->initializer) {
+						ctx->text.addf("mov eax, [ebp + %d]", ctx->_numParam + 1);
+						ctx->text.addf("mov dword [eax + %d], 0", (OBJECT_FIELD + field->varDecl->index) * 4);
+					} else {
+						// TODO:
+						// I'm not sure how "this" is handled or what index does it have
+						// in the expression of initializer
+						// it should be so that no special case is needed and
+						// field access just works
+					}
+				}
+
+				// 3. actual body
 				ctor->body->codeGenerate(ctx);
 
 				ctx->text.add(R"(
@@ -537,6 +577,53 @@ ret
 	// stub file (type info for primitive types (place holder), _start)
 	{
 		ctx->text = SText();
+
+		ctx->text.declGlobalAndBegin("_start");
+		ctx->text.add("mov eax, 123");
+		ctx->text.call("__debexit");
+
+		// static field initializer
+		for (const auto &type : middleend.semanticDB.typeMap) {
+			for (auto &field : type.second->fieldContainSet) {
+				if (!field->hasModifier(Modifier::Variant::Static))
+					continue;
+
+				strdecl512(label, "%s.%s", type.second->fqn.c_str(), field->varDecl->identifier.c_str());
+				ctx->text.addExternSymbol(string(label));
+				if (!field->varDecl->initializer) {
+					ctx->text.addf("mov eax, 0");
+				} else {
+					field->varDecl->initializer->codeGenerate(ctx);
+				}
+				ctx->text.addf("mov [%s], eax", label);
+			}
+		}
+
+		// call test
+		bool found = false;
+		for (const auto &type : middleend.semanticDB.typeMap) {
+			if (gEntryPointFile) {
+				// files are passed on command line. use the designated source file
+				if (type.second->sourceFilePath != string(gEntryPointFile))
+					continue;
+			}
+			// else just find a class that contains that method..
+
+			for (const auto &method : type.second->methodContainSet) {
+				if (method->identifier == "test" &&
+
+				    method->parameters.empty() && method->hasModifier(Modifier::Variant::Static)) {
+					ASSERT(!found);
+					found = true;
+					ctx->text.call("%s", getProcedureName(method).c_str());
+				}
+			}
+		}
+		ASSERT(found);
+		ctx->text.add("mov ebx, eax");
+		ctx->text.add("mov eax, 1");
+		ctx->text.add("int 0x80");
+
 		int primIndex = ++typeIndex;
 		auto primTypes = getPrimitiveTypes();
 
@@ -566,10 +653,6 @@ ret
 
 			++primIndex;
 		}
-
-		ctx->text.declGlobalAndBegin("_start");
-		ctx->text.add("mov eax, 123");
-		ctx->text.call("__debexit");
 
 		result.sFiles.push_back(SFile{"stub.s", ctx->text.toString()});
 	}
@@ -656,7 +739,7 @@ void Literal::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 			break;
 		case 3:
 			// string
-      // TODO : Titus
+      // TODO
       // need to call class instance creation of string
 			effectiveValue = 0;
 			isInt = true;
@@ -716,7 +799,7 @@ void ArrayCreationExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLV
 	item->size->codeGenerate(ctx);
 
 	ctx->text.add("push eax"); // pushed number of elements
-	ctx->text.addf("add eax, %d", ARRAY_DATA_OFFSET);
+	ctx->text.addf("add eax, %d", ARRAY_DATA_OFFSET); // multiply by 4 is done next line
 	ctx->text.add("shl eax, 2");
 	ctx->text.call("__malloc");
 
@@ -743,25 +826,8 @@ pop edx
 	ctx->text.addf("%s:", loopLabel.c_str());
 	ctx->text.add("cmp ebx, ecx");
 	ctx->text.addf("je %s", loopOutLabel.c_str());
-
-	ctx->text.add(R"(
-push eax
-push ebx
-push ecx)");
-
-	if (theTypeResult->isPrimitive) {
-		ctx->text.add("mov eax, 0");
-	} else {
-		ctx->text.call("%s_clsInstCreatWarp", typeInfoName.c_str());
-	}
-
-	ctx->text.add(R"(
-mov edx, eax
-pop ecx
-pop ebx
-pop eax)");
-
-	ctx->text.addf("mov [eax + ebx * 4 + %d], edx", ARRAY_DATA_OFFSET * 4);
+	ctx->text.add("mov edx, 0");
+	ctx->text.addf("mov [eax + %d + ebx * 4], edx", ARRAY_DATA_OFFSET * 4);
 
 	ctx->text.add("add ebx, 1");
 	ctx->text.addf("jmp %s\n%s:", loopLabel.c_str(), loopOutLabel.c_str());
@@ -846,6 +912,8 @@ void AssignmentExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValu
 
 	CodeGen::SText *text = &ctx->text;
 	auto item = (AssignmentExpression*)this;
+
+	// TODO Subtype test
 
 	item->lhs->codeGenerate(ctx, true);
 	text->add("push eax");
@@ -939,8 +1007,34 @@ void LocalVariableExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLV
 
 void ClassInstanceCreationExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	assert(!returnLValue);
-	// TODO : Titus
 	ctx->text.add("; BEGIN - ClassInstanceCreationExpression (" + toCode() + ")");
+
+	TypeDeclaration *typeDecl = this->type->declaration;
+
+	ctx->text.addf("mov eax, %ld", (OBJECT_FIELD + typeDecl->fieldContainSet.size()) * 4);
+	ctx->text.call("__malloc");
+
+	ctx->text.add("push eax"); // final return value
+
+	strdecl512(label, "%s_typeinfo", typeDecl->fqn.c_str());
+	ctx->text.addExternSymbol(label);
+	ctx->text.addf("mov dword [eax], %s", label);
+	ctx->text.addf("mov dword [eax + %d], 0", OBJECT_ISARRAY * 4);
+
+	int numArg = 0;
+	ctx->text.add("push eax"); ++numArg;
+
+	for (auto &arg : this->args) {
+		arg->codeGenerate(ctx);
+		ctx->text.add("push eax");
+		++numArg;
+	}
+
+	ctx->text.call("%s", getProcedureName(this->declaration).c_str());
+	ctx->text.addf("add esp, %d", numArg * 4);
+
+	ctx->text.add("pop eax"); // final return value
+
 	ctx->text.add("; END - ClassInstanceCreationExpression (" + toCode() + ")");
 }
 

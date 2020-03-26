@@ -124,3 +124,4 @@ EXPORT void frontendResultDelete(FrontendResult* result);
 EXPORT extern bool gStandAloneMode;
 // 1'based test index
 EXPORT extern thread_local int gTestIndex;
+EXPORT extern const char *gEntryPointFile;

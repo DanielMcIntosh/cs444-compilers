@@ -65,6 +65,7 @@ static_assert(static_cast<int>(SemanticErrorType::Max) == ARRAY_SIZE(gSemanticEr
 void semanticInit(SemanticDB *db, const vector<FrontendResult> &frontendResult) {
 	for (auto &result: frontendResult) {
 		auto *cpu = reinterpret_cast<CompilationUnit *>(result.astResult.ast.get());
+		cpu->typeDeclaration->sourceFilePath = result.fileName;
 		db->cpus.push_back(cpu);
 	}
 }
