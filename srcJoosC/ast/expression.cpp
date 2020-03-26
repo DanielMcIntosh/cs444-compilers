@@ -589,6 +589,12 @@ CastExpression::CastExpression(const Parse::TCastExpression *ptNode)
 			ASSERT(false);
 	}
 }
+CastExpression::CastExpression(std::unique_ptr<Type> t, std::unique_ptr<Expression> expr)
+  :	type(std::move(t)),
+	rhs(std::move(expr))
+{
+	nodeType = NodeType::CastExpression;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -713,6 +719,14 @@ MethodInvocation::MethodInvocation(const Parse::TMethodInvocation *ptNode)
 		source = Expression::create(ptNode->primary);
 	}
 }
+MethodInvocation::MethodInvocation(std::unique_ptr<NameType> src, std::string name, std::vector<std::unique_ptr<Expression>> arguments)
+  :	source(std::move(src)),
+	methodName(std::move(name)),
+	args(std::move(arguments))
+{
+	nodeType = NodeType::MethodInvocation;
+}
+
 
 bool MethodInvocation::isStaticCall() const
 {

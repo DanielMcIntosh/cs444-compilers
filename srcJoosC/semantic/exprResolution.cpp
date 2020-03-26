@@ -215,7 +215,37 @@ SemanticErrorType BinaryExpression::resolve(Semantic::Scope const& scope)
 	}
 	if (op != Variant::InstanceOf)
 	{
-		return std::get<std::unique_ptr<Expression>>(rhs)->resolveAndDeduce(scope);
+		auto &rhsExpr = std::get<std::unique_ptr<Expression>>(rhs);
+		if (auto error = rhsExpr->resolveAndDeduce(scope);
+			error != SemanticErrorType::None)
+		{
+			return error;
+		}
+		if (op == Variant::Add)
+		{
+			// String concatenation: if needed, make an explicit call to String::valueOf so both lhs and rhs are Strings
+			if ((lhs->typeResult.isJavaString() && !rhsExpr->typeResult.isJavaString()) ||
+				(!lhs->typeResult.isJavaString() && rhsExpr->typeResult.isJavaString()))
+			{
+				auto &strExpr = lhs->typeResult.isJavaString() ? lhs : rhsExpr;
+				auto &otherExpr = !lhs->typeResult.isJavaString() ? lhs : rhsExpr;
+
+				std::vector<std::unique_ptr<Expression>> args;
+				if (otherExpr->typeResult.isReferenceType() || otherExpr->typeResult.isPrimitiveType(TypePrimitive::Null))
+				{
+					// use a hack to get the TypeDecl for java.lang.Object (String has Object as its implicit superclass)
+					TypeDeclaration *objDecl = strExpr->typeResult.userDefinedType->superClass->declaration;
+					// cast otherExpr to Object, since valueOf expects an Object, String or primitive as its argument
+					args.push_back(std::make_unique<CastExpression>(objDecl->asType(), std::move(otherExpr)));
+				}
+				else
+					args.push_back(std::move(otherExpr));
+
+				// overwrite otherExpr with the exlicit invocation of String::valueOf
+				otherExpr = std::make_unique<MethodInvocation>(strExpr->typeResult.userDefinedType->asType(), "valueOf", std::move(args));
+				return otherExpr->resolveAndDeduce(scope);
+			}
+		}
 	}
 	return SemanticErrorType::None;
 }
@@ -529,7 +559,7 @@ bool IsBooleanOp(BinaryExpression::Variant op) {
 	        op == BinaryExpression::Variant::LazyOr);
 }
 
-std::optional<TypeResult> BinExprHelper(Expression* lhs, Expression* rhs,
+std::optional<TypeResult> BinExprHelper(std::unique_ptr<Expression> &lhs, std::unique_ptr<Expression> &rhs,
                                            BinaryExpression::Variant op) {
 	const auto &lhsTR = lhs->typeResult;
 	const auto &rhsTR = rhs->typeResult;
@@ -578,12 +608,11 @@ SemanticErrorType BinaryExpression::deduceType() {
 	SemanticErrorType err = SemanticErrorType::None;
 	std::visit(visitor {
 					[&](std::unique_ptr<Expression> &rexpr) {
-						auto res = BinExprHelper(lhs.get(), rexpr.get(), op);
+						auto res = BinExprHelper(lhs, rexpr, op);
 						if (res)
 							typeResult = *res;
 						else
 							err = SemanticErrorType::TypeCheck;
-
 					},
 					[&](std::unique_ptr<Type> &type) {
 						assert(op == BinaryExpression::Variant::InstanceOf);

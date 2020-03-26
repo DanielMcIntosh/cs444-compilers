@@ -120,9 +120,14 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	switch(op)
 	{
 		case Variant::Add:
-			// TODO: call concat/valueOf method of string if necessary
-			// there are multiple overloads for valueOf and
-			// function label can be obtained with string getProcedureName(MemberDeclaration*)
+			if (typeResult.isJavaString())
+			{
+				// TODO: call concat/valueOf method of string if necessary
+				// there are multiple overloads for valueOf and
+				// function label can be obtained with string getProcedureName(MemberDeclaration*)
+				ctx->text.add("; END - BinaryExpression" + uniqueIdentifier + " (" + toCode() + ")");
+				return;
+			}
 			ctx->text.add("add eax, ebx");
 			break;
 		case Variant::Sub:

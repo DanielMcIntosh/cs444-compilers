@@ -338,14 +338,14 @@ SemanticErrorType TypeDeclaration::precheckFieldInitializers()
 
 SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object, TypeDeclaration *iObject)
 {
-	TypeDeclaration *super = superClass ? superClass->getDeclaration() : nullptr;
-
 	if (!gStandAloneMode) {
 		// If this is a class without a superclass, extend java.lang.Object
 		if (!isInterface && !superClass && fqn != "java.lang.Object") {
-			super = object;
+			superClass = object->asType();
 		}
 	}
+	TypeDeclaration *super = superClass ? superClass->getDeclaration() : nullptr;
+
 	if (super) {
 		// A class must not extend an interface
 		if (super->isInterface) {
