@@ -64,7 +64,7 @@ void ConditionalStatement::codeGenerate(CodeGen::SContext *ctx) {
 	{
 		// reset the stack to where it was before the start of this conditional statement
 		int delta = (ctx->stackSize - stackSizeAtStart) * 4;
-		ctx->text.add("add esp, " + std::to_string(delta) + "; END - ConditionalStatement" + uniqueIdentifier);
+		ctx->text.add("add esp, " + std::to_string(delta) + "; END - ConditionalStatement" + uniqueIdentifier + " (pop loop variables)");
 		ctx->stackSize = stackSizeAtStart;
 	} else
 	{
@@ -780,7 +780,7 @@ void Literal::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 
 	if (isInt) {
 		ctx->text.addConstant(labelS, effectiveValue);
-	    ctx->text.add("mov eax, [" + labelS + "];   " + toCode());
+	    ctx->text.add("mov eax, [" + labelS + "];   Literal (" + toCode() + ")");
 	}
 }
 
@@ -899,19 +899,14 @@ void MethodInvocation::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 		auto it = ctx->methodSelector.find(procName);
 		ASSERT(it != ctx->methodSelector.end());
 
-		text->add("mov eax, esp");
 		ASSERT(numArg > 0);
-		strdecl512(inst, "add eax, %d", (numArg - 1) * 4);
-		text->add(inst);
 		// get "this" pointer
-		text->add("mov eax, [eax]");
+		text->add("mov eax, [esp + " + std::to_string((numArg - 1) * 4) + "]; load \"this\" from args[0]");
 		// get class pointer
-		text->add("mov eax, [eax]");
+		text->add("mov eax, [eax]; load klass ptr");
 
 		int procOffset = (CLASS_SELECTOR + it->second->tableIndex);
-		snprintf(inst, ARRAY_SIZE(inst), "add eax, %d", procOffset * 4);
-		text->add(inst);
-		text->add("mov eax, [eax]");
+		text->add("mov eax, [eax + " + std::to_string(procOffset * 4) + "]; load function ptr");
 		text->addf("call eax ; %s", it->first.c_str());
 
 	} else if (item->source.index() == 1) {
@@ -926,8 +921,7 @@ void MethodInvocation::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 		ASSERT(false);
 	}
 
-	strdecl512(inst, "add esp, %d", numArg * 4);
-	text->add(inst);
+	text->add("add esp, " + std::to_string(numArg * 4) + "; MethodInvocation - pop args");
 
 	ctx->text.add("; END - MethodInvocation (" + toCode() + ")");
 }
@@ -1056,7 +1050,7 @@ void ClassInstanceCreationExpression::codeGenerate(CodeGen::SContext *ctx, bool 
 	}
 
 	ctx->text.call("%s", getProcedureName(this->declaration).c_str());
-	ctx->text.addf("add esp, %d", numArg * 4);
+	ctx->text.add("add esp, " + std::to_string(numArg * 4) + "; ClassInstanceCreationExpression - pop args");
 
 	ctx->text.add("pop eax"); // final return value
 
@@ -1100,7 +1094,7 @@ void Block::codeGenerate(CodeGen::SContext *ctx) {
 	{
 		// reset the stack to where it was before the start of this block
 		int delta = (ctx->stackSize - stackSizeAtStart) * 4;
-		ctx->text.add("add esp, " + std::to_string(delta) + "; END - Block");
+		ctx->text.add("add esp, " + std::to_string(delta) + "; END - Block (pop local variables)");
 		ctx->stackSize = stackSizeAtStart;
 	} else
 	{
