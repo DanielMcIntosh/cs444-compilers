@@ -87,6 +87,34 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	std::string uniqueIdentifier = std::to_string(uniqueNumber++);
 
 	ctx->text.add("; BEGIN - BinaryExpression" + uniqueIdentifier + " (" + toCode() + ")");
+
+	// string concatenation
+	if (typeResult.isJavaString())
+	{
+		// call lhs.concat(rhs)
+		std::vector<std::unique_ptr<Expression>> args;
+		args.push_back(std::move(std::get<0>(rhs)));
+		MethodInvocation concatInvoke(std::move(lhs), "concat", std::move(args));
+		// hack - rather fragile, there are several conditions which have to be met for this to be safe.
+		// Some of the most significant of those are: 1) MethodInvocation::resolve only uses scope
+		// for access violation checks, but String::concat is public, so those checks are skipped
+		// 2) the children of concatInvoke have already had resolveAndDeduce called on them
+		// 3) there's a lot of things that are un-initialized in concatInvoke (e.g. concatInvoke.typeResult)
+		// we don't use/care about any of them (in either resolve or codeGenerate)
+		concatInvoke.resolve(Semantic::Scope(nullptr));
+		concatInvoke.codeGenerate(ctx);
+
+		// move lhs and rhs back from concatInvoke
+		// may not be necessary since codeGenerate is the last compilation step, but we'll do it just to be safe
+		lhs = std::move(std::get<0>(concatInvoke.source));
+		rhs = std::move(concatInvoke.args[0]);
+
+		// TODO: call lhs.concat(rhs)
+		// function label can be obtained with string getProcedureName(MemberDeclaration*)
+		ctx->text.add("; END - BinaryExpression" + uniqueIdentifier + " (" + toCode() + ")");
+		return;
+	}
+
 	lhs->codeGenerate(ctx);
 
 	if (op == Variant::InstanceOf)
@@ -120,13 +148,6 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	switch(op)
 	{
 		case Variant::Add:
-			if (typeResult.isJavaString())
-			{
-				// TODO: call lhs.concat(rhs)
-				// function label can be obtained with string getProcedureName(MemberDeclaration*)
-				ctx->text.add("; END - BinaryExpression" + uniqueIdentifier + " (" + toCode() + ")");
-				return;
-			}
 			ctx->text.add("add eax, ebx");
 			break;
 		case Variant::Sub:

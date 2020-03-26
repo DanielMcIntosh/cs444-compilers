@@ -726,7 +726,13 @@ MethodInvocation::MethodInvocation(std::unique_ptr<NameType> src, std::string na
 {
 	nodeType = NodeType::MethodInvocation;
 }
-
+MethodInvocation::MethodInvocation(std::unique_ptr<Expression> src, std::string name, std::vector<std::unique_ptr<Expression>> arguments)
+  :	source(std::move(src)),
+	methodName(std::move(name)),
+	args(std::move(arguments))
+{
+	nodeType = NodeType::MethodInvocation;
+}
 
 bool MethodInvocation::isStaticCall() const
 {

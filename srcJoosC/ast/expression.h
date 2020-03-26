@@ -370,6 +370,7 @@ public:
 	static std::unique_ptr<MethodInvocation> create(const Parse::Tree *ptNode);
 	explicit MethodInvocation(const Parse::TMethodInvocation *ptNode);
 	explicit MethodInvocation(std::unique_ptr<NameType> src, std::string name, std::vector<std::unique_ptr<Expression>> arguments);
+	explicit MethodInvocation(std::unique_ptr<Expression> src, std::string name, std::vector<std::unique_ptr<Expression>> arguments);
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
