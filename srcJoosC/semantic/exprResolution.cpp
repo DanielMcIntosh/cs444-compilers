@@ -49,6 +49,16 @@ void Expression::resetError() {
 
 SemanticErrorType Expression::resolveAndDeduce(Semantic::Scope const& scope)
 {
+	if (auto error = disambiguate(scope);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	if (auto error = deduceChildTypes(scope);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
 	if (auto error = resolve(scope);
 		error != SemanticErrorType::None)
 	{
@@ -57,12 +67,26 @@ SemanticErrorType Expression::resolveAndDeduce(Semantic::Scope const& scope)
 	return deduceType();
 }
 
+SemanticErrorType Expression::disambiguate(Semantic::Scope const& scope)
+{
+	return SemanticErrorType::None;
+}
+SemanticErrorType Expression::deduceChildTypes(Semantic::Scope const& scope)
+{
+	return SemanticErrorType::None;
+}
+SemanticErrorType Expression::resolve(Semantic::Scope const& scope)
+{
+	return SemanticErrorType::None;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Disambiguation
 //
 //////////////////////////////////////////////////////////////////////////////
 
+// !!NOT!! an override of Expression::disambiguate
 SemanticErrorType Name::disambiguate(Semantic::Scope const& scope)
 {
 	// resolve to local variable
@@ -85,6 +109,8 @@ SemanticErrorType Name::disambiguate(Semantic::Scope const& scope)
 		if (auto thisExpr = std::make_unique<LocalVariableExpression>("this");
 			thisExpr->resolve(scope) == SemanticErrorType::None)
 		{
+			// LocalVariableExpression::deduceType can't fail, skip error check
+			thisExpr->deduceType();
 			// attempt construct a FieldAccess using the implicit "this"
 			auto field = std::make_unique<FieldAccess>(std::move(thisExpr), ids[0]);
 			if (field->resolve(scope) == SemanticErrorType::None)
@@ -121,7 +147,7 @@ void Name::buildConverted(std::unique_ptr<NameType> type, unsigned int idStart)
 	}
 }
 
-SemanticErrorType MethodInvocation::disambiguateSource(Semantic::Scope const& scope)
+SemanticErrorType MethodInvocation::disambiguate(Semantic::Scope const& scope)
 {
 	// if no source, make the implicit source explicit.
 	if (std::visit([](auto &src) { return src == nullptr; }, source))
@@ -163,18 +189,31 @@ SemanticErrorType MethodInvocation::disambiguateSource(Semantic::Scope const& sc
 	return SemanticErrorType::None;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// resolve
-//
-//////////////////////////////////////////////////////////////////////////////
-
-SemanticErrorType Expression::resolve(Semantic::Scope const& scope)
+SemanticErrorType NameExpression::disambiguate(Semantic::Scope const& scope)
 {
+	if (auto error = unresolved->disambiguate(scope);
+		error != SemanticErrorType::None)
+	{
+		return error;
+	}
+	converted = std::visit(visitor {
+		[](std::unique_ptr<Expression> &expr)							{ return std::move(expr); },
+		[](std::unique_ptr<NameType> &t) -> std::unique_ptr<Expression> { return nullptr; }
+	}, unresolved->converted);
+	if (converted == nullptr)
+	{
+		return SemanticErrorType::DisambiguiationFailed;
+	}
 	return SemanticErrorType::None;
 }
 
-SemanticErrorType ArrayAccess::resolve(Semantic::Scope const& scope)
+//////////////////////////////////////////////////////////////////////////////
+//
+// deduceChildTypes
+//
+//////////////////////////////////////////////////////////////////////////////
+
+SemanticErrorType ArrayAccess::deduceChildTypes(Semantic::Scope const& scope)
 {
 	if (auto error = array->resolveAndDeduce(scope);
 		error != SemanticErrorType::None)
@@ -188,11 +227,11 @@ SemanticErrorType ArrayAccess::resolve(Semantic::Scope const& scope)
 	}
 	return SemanticErrorType::None;
 }
-SemanticErrorType ArrayCreationExpression::resolve(Semantic::Scope const& scope)
+SemanticErrorType ArrayCreationExpression::deduceChildTypes(Semantic::Scope const& scope)
 {
 	return size->resolveAndDeduce(scope);
 }
-SemanticErrorType AssignmentExpression::resolve(Semantic::Scope const& scope)
+SemanticErrorType AssignmentExpression::deduceChildTypes(Semantic::Scope const& scope)
 {
 	if (auto error = lhs->resolveAndDeduce(scope);
 		error != SemanticErrorType::None)
@@ -206,7 +245,7 @@ SemanticErrorType AssignmentExpression::resolve(Semantic::Scope const& scope)
 	}
 	return SemanticErrorType::None;
 }
-SemanticErrorType BinaryExpression::resolve(Semantic::Scope const& scope)
+SemanticErrorType BinaryExpression::deduceChildTypes(Semantic::Scope const& scope)
 {
 	if (auto error = lhs->resolveAndDeduce(scope);
 		error != SemanticErrorType::None)
@@ -249,11 +288,11 @@ SemanticErrorType BinaryExpression::resolve(Semantic::Scope const& scope)
 	}
 	return SemanticErrorType::None;
 }
-SemanticErrorType CastExpression::resolve(Semantic::Scope const& scope)
+SemanticErrorType CastExpression::deduceChildTypes(Semantic::Scope const& scope)
 {
 	return rhs->resolveAndDeduce(scope);
 }
-SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const& scope)
+SemanticErrorType ClassInstanceCreationExpression::deduceChildTypes(Semantic::Scope const& scope)
 {
 	for (auto &expr : args) {
 		if (auto error = expr->resolveAndDeduce(scope);
@@ -263,6 +302,64 @@ SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const
 		}
 	}
 
+	return SemanticErrorType::None;
+}
+
+SemanticErrorType FieldAccess::deduceChildTypes(Semantic::Scope const& scope)
+{
+	return std::visit(visitor{
+		[&scope](std::unique_ptr<Expression> &expr) {
+			return expr->resolveAndDeduce(scope);
+		},
+		[](std::unique_ptr<NameType> &t) {
+			return SemanticErrorType::None;
+		}
+	}, source);
+}
+
+SemanticErrorType MethodInvocation::deduceChildTypes(Semantic::Scope const& scope)
+{
+	{
+		SemanticErrorType error = std::visit(visitor {
+			[&scope](std::unique_ptr<Expression> &src)	{	return src->resolveAndDeduce(scope); },
+			[&scope](std::unique_ptr<NameType> &src) 	{	return SemanticErrorType::None;	},
+			[&scope](std::unique_ptr<Name> &src) -> SemanticErrorType {	assert(false);	}
+		}, source);
+		if (error != SemanticErrorType::None)
+		{
+			return error;
+		}
+	}
+
+	for (auto& arg : args) {
+		if (auto error = arg->resolveAndDeduce(scope);
+			error != SemanticErrorType::None)
+		{
+			return error;
+		}
+	}
+
+	return SemanticErrorType::None;
+}
+
+SemanticErrorType NameExpression::deduceChildTypes(Semantic::Scope const& scope)
+{
+	return converted->deduceChildTypes(scope);
+}
+
+SemanticErrorType UnaryExpression::deduceChildTypes(Semantic::Scope const& scope)
+{
+	return expr->resolveAndDeduce(scope);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// resolve
+//
+//////////////////////////////////////////////////////////////////////////////
+
+SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const& scope)
+{
 	declaration = type->declaration->findConstructor(this);
 
 	if (declaration == nullptr)
@@ -284,21 +381,14 @@ SemanticErrorType ClassInstanceCreationExpression::resolve(Semantic::Scope const
 
 SemanticErrorType FieldAccess::resolve(Semantic::Scope const& scope)
 {
-
-	SemanticErrorType ret = SemanticErrorType::None;
 	TypeResult sourceType = std::visit(visitor{
-		[&ret, &scope](std::unique_ptr<Expression> &expr) {
-			ret = expr->resolveAndDeduce(scope);
+		[](std::unique_ptr<Expression> &expr) {
 			return expr->typeResult;
 		},
 		[](std::unique_ptr<NameType> &t) {
 			return TypeResult(*t, false);
 		}
 	}, source);
-	if (ret != SemanticErrorType::None)
-	{
-		return ret;
-	}
 
 	if (sourceType.isArray && member == "length") {
 		// TODO provide a declaration for length?
@@ -341,38 +431,13 @@ SemanticErrorType LocalVariableExpression::resolve(Semantic::Scope const& scope)
 
 SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 {
-	if (auto error = disambiguateSource(scope);
-		error != SemanticErrorType::None)
-	{
-		return error;
-	}
-
-	{
-		SemanticErrorType error = std::visit(visitor {
-			[&scope](std::unique_ptr<Expression> &src)	{	return src->resolveAndDeduce(scope); },
-			[&scope](std::unique_ptr<NameType> &src) 	{	return SemanticErrorType::None;	},
-			[&scope](std::unique_ptr<Name> &src) -> SemanticErrorType {	assert(false);	}
-		}, source);
-		if (error != SemanticErrorType::None)
-		{
-			return error;
-		}
-	}
-
-	for (auto& arg : args) {
-		if (auto error = arg->resolveAndDeduce(scope);
-			error != SemanticErrorType::None)
-		{
-			return error;
-		}
-	}
-
 	// find method declaration
 	TypeResult sourceType = std::visit(visitor{
 		[](std::unique_ptr<Expression> &src) { return src->typeResult; },
 		[](std::unique_ptr<NameType> &src)   { return TypeResult(*src, false); },
 		[](std::unique_ptr<Name> &) -> TypeResult { assert(false); }
 	}, source);
+
 	if (sourceType.isPrimitive) return SemanticErrorType::PrimativeNotExpected;
 
 	declaration = sourceType.userDefinedType->findMethod(this);
@@ -396,27 +461,8 @@ SemanticErrorType MethodInvocation::resolve(Semantic::Scope const& scope)
 
 SemanticErrorType NameExpression::resolve(Semantic::Scope const& scope)
 {
-	if (auto error = unresolved->disambiguate(scope);
-		error != SemanticErrorType::None)
-	{
-		return error;
-	}
-	converted = std::visit(visitor {
-		[](std::unique_ptr<Expression> &expr)							{ return std::move(expr); },
-		[](std::unique_ptr<NameType> &t) -> std::unique_ptr<Expression> { return nullptr; }
-	}, unresolved->converted);
-	if (converted == nullptr)
-	{
-		return SemanticErrorType::DisambiguiationFailed;
-	}
-	return converted->resolveAndDeduce(scope);
+	return converted->resolve(scope);
 }
-
-SemanticErrorType UnaryExpression::resolve(Semantic::Scope const& scope)
-{
-	return expr->resolveAndDeduce(scope);
-}
-
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -646,6 +692,11 @@ SemanticErrorType MethodInvocation::deduceType()
 	return SemanticErrorType::None;
 }
 SemanticErrorType NameExpression::deduceType() {
+	if (auto err = converted->deduceType();
+		err != SemanticErrorType::None)
+	{
+		return err;
+	}
 	typeResult = converted->typeResult;
 	return SemanticErrorType::None;
 }

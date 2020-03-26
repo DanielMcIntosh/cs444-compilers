@@ -43,11 +43,15 @@ public:
 	static std::unique_ptr<Expression> create(const Parse::Tree *ptNode);
 
 	virtual Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
-	virtual Semantic::SemanticErrorType resolve(Semantic::Scope const& scope);
+
 	Semantic::SemanticErrorType resolveAndDeduce(Semantic::Scope const& scope);
+	virtual Semantic::SemanticErrorType disambiguate(Semantic::Scope const& scope);
+	virtual Semantic::SemanticErrorType deduceChildTypes(Semantic::Scope const& scope);
+	virtual Semantic::SemanticErrorType resolve(Semantic::Scope const& scope);
+	virtual Semantic::SemanticErrorType deduceType() = 0;
 
 	TypeResult typeResult = TypeResult(false, TypePrimitive::Max, true);
-	virtual Semantic::SemanticErrorType deduceType() = 0;
+
 
 	static void resetError();
 	static thread_local TypeDeduceError gError;
@@ -77,7 +81,8 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
-	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+
+	Semantic::SemanticErrorType deduceChildTypes(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
   void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
@@ -101,7 +106,8 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
-	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+
+	Semantic::SemanticErrorType deduceChildTypes(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
 	void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
@@ -126,7 +132,8 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
-	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+
+	Semantic::SemanticErrorType deduceChildTypes(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
 	void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
@@ -158,7 +165,8 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
-	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+
+	Semantic::SemanticErrorType deduceChildTypes(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
 	enum class Variant {
@@ -215,7 +223,8 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
-	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+
+	Semantic::SemanticErrorType deduceChildTypes(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
   // a5
@@ -241,6 +250,8 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+
+	Semantic::SemanticErrorType deduceChildTypes(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
@@ -272,6 +283,8 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+
+	Semantic::SemanticErrorType deduceChildTypes(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
@@ -360,16 +373,17 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+
+	Semantic::SemanticErrorType disambiguate(Semantic::Scope const& scope) override;
+	Semantic::SemanticErrorType deduceChildTypes(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
-  // a5
-  void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
+	// a5
+	void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 
 	bool isStaticCall() const;
 	bool isDisambiguated() const;
-private:
-	Semantic::SemanticErrorType disambiguateSource(Semantic::Scope const& scope);
 
 public:
 	// nullable prior to expression resolution
@@ -380,7 +394,6 @@ public:
 	friend class MethodDeclaration;
 
 	const MethodDeclaration *declaration;
-
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -397,11 +410,13 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
+
+	Semantic::SemanticErrorType disambiguate(Semantic::Scope const& scope) override;
+	Semantic::SemanticErrorType deduceChildTypes(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
 	// a5
-
 	void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 
 public:
@@ -424,7 +439,8 @@ public:
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
-	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
+
+	Semantic::SemanticErrorType deduceChildTypes(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
 	// a4
