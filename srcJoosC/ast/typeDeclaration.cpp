@@ -399,7 +399,7 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 
 	if (!gStandAloneMode) {
 		// If this is an interface without a superinterface, add IObject methods to declare set
-		if (isInterface && !superClass && fqn != "java.lang.IObject") {
+		if (isInterface && interfaces.empty() && fqn != "java.lang.IObject") {
 			for (auto &member : iObject->members) {
 				ASSERT(member->nodeType == NodeType::MethodDeclaration);
 				auto m = static_cast<MethodDeclaration*>(member.get());
