@@ -11,7 +11,7 @@ using namespace std;
 namespace AST {
 
 void ConditionalStatement::codeGenerate(CodeGen::SContext *ctx) {
-	static int uniqueNumber = 0;
+	static thread_local int uniqueNumber = 0;
 	std::string uniqueIdentifier = std::to_string(uniqueNumber++);
 
 	ctx->text.add("; BEGIN - ConditionalStatement" + uniqueIdentifier);
@@ -83,7 +83,7 @@ ret)");
 
 void BinaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	assert(!returnLValue);
-	static int uniqueNumber = 0;
+	static thread_local int uniqueNumber = 0;
 	std::string uniqueIdentifier = std::to_string(uniqueNumber++);
 
 	ctx->text.add("; BEGIN - BinaryExpression" + uniqueIdentifier + " (" + toCode() + ")");
@@ -122,8 +122,7 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 		case Variant::Add:
 			if (typeResult.isJavaString())
 			{
-				// TODO: call concat/valueOf method of string if necessary
-				// there are multiple overloads for valueOf and
+				// TODO: call lhs.concat(rhs)
 				// function label can be obtained with string getProcedureName(MemberDeclaration*)
 				ctx->text.add("; END - BinaryExpression" + uniqueIdentifier + " (" + toCode() + ")");
 				return;
