@@ -641,14 +641,17 @@ void TypeDeclaration::codeGenerateStaticInit(CodeGen::SContext *ctx)
 		if (!field->hasModifier(Modifier::Variant::Static))
 			continue;
 
-		std::string label = this->fqn + "." + field->varDecl->identifier;
-		ctx->text.addExternSymbol(label);
+
 		if (!field->varDecl->initializer) {
-			ctx->text.addf("mov eax, 0");
+			ctx->text.add("push dword 0");
 		} else {
 			field->varDecl->initializer->codeGenerate(ctx);
+			ctx->text.add("push eax");
 		}
-		ctx->text.add("mov [" + label + "], eax");
+
+		field->asFieldAccess()->codeGenerate(ctx, true);
+		// pop the initializer directly into field
+		ctx->text.add("pop dword [eax]");
 	}
 }
 
@@ -690,8 +693,8 @@ mov ebp, esp
 
 	// 1. call super()
 	if (defaultSuper != nullptr) {
-		// this
-		ctx->text.addf("mov eax, [ebp + %d]; load \"this\" from args[0]", (ctx->_numParam + 1) * 4);
+		// load "this"
+		parameters[0]->asLocalVarExpr()->codeGenerate(ctx);
 		ctx->text.addf("push eax");
 
 		ctx->text.call("%s", getProcedureName(defaultSuper).c_str());
@@ -706,8 +709,8 @@ mov ebp, esp
 			continue;
 
 		if (!field->varDecl->initializer) {
-			ctx->text.addf("mov eax, [ebp + %d]; load \"this\" from args[0]", (ctx->_numParam + 1) * 4);
-			ctx->text.addf("mov dword [eax + %d], 0", (OBJECT_FIELD + field->varDecl->index) * 4);
+			field->asFieldAccess(parameters[0]->asLocalVarExpr())->codeGenerate(ctx, true);
+			ctx->text.add("mov dword [eax], 0");
 		} else {
 			// TODO:
 			// I'm not sure how "this" is handled or what index does it have

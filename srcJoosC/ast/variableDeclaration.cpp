@@ -81,4 +81,12 @@ bool VariableDeclaration::hasInitializer() const
 	return initializer != nullptr;
 }
 
+std::unique_ptr<LocalVariableExpression> VariableDeclaration::asLocalVarExpr()
+{
+	auto ret = std::make_unique<LocalVariableExpression>(identifier);
+	ret->declaration = this;
+	ret->deduceType();
+	return ret;
+}
+
 } //namespace AST

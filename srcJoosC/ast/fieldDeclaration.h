@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ast/memberDeclaration.h"
-#include "semantic/scope.h"
 #include <memory>
 
 namespace AST
@@ -9,6 +8,7 @@ namespace AST
 
 class VariableDeclaration;
 class FieldAccess;
+class Expression;
 
 class FieldDeclaration: public MemberDeclaration
 {
@@ -28,6 +28,10 @@ public:
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic) override;
 	Semantic::SemanticErrorType resolveExprs() override;
 
+	// need a src for non-static fields, but not for static fields
+	std::unique_ptr<FieldAccess> asFieldAccess(std::unique_ptr<Expression> src = nullptr);
+
+public:
 	std::unique_ptr<VariableDeclaration> varDecl;
 };
 

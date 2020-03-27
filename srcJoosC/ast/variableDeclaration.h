@@ -18,6 +18,7 @@ class Type;
 class TypeResult;
 class Expression;
 class TypeDeclaration;
+class LocalVariableExpression;
 
 class VariableDeclaration: public Node
 {
@@ -44,6 +45,8 @@ public:
 	Semantic::SemanticErrorType resolveExprs(Semantic::Scope const& parentScope);
 
 	bool hasInitializer() const;
+
+	std::unique_ptr<LocalVariableExpression> asLocalVarExpr();
 
 public:
 	std::unique_ptr<Type> type;

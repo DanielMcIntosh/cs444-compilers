@@ -58,4 +58,22 @@ bool FieldDeclaration::idEquals(const FieldAccess *other) const
 	&& (hasModifier(Modifier::Variant::Static) == other->isStaticAccessor());
 }
 
+std::unique_ptr<FieldAccess> FieldDeclaration::asFieldAccess(std::unique_ptr<Expression> src)
+{
+	std::unique_ptr<FieldAccess> ret;
+	if (hasModifier(Modifier::Variant::Static))
+	{
+		assert(src == nullptr);
+		ret = std::make_unique<FieldAccess>(_enclosingClass->asType(), varDecl->identifier);
+	}
+	else
+	{
+		assert(src != nullptr);
+		ret = std::make_unique<FieldAccess>(std::move(src), varDecl->identifier);
+	}
+	ret->decl = this;
+	ret->deduceType();
+	return ret;
+}
+
 } //namespace AST
