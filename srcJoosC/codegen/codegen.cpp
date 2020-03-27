@@ -485,113 +485,9 @@ BackendResult doBackend(const MiddleendResult &middleend) {
 		ctx->typeName = name;
 		ctx->text = SText();
 
-		{ // constructors
-			for (auto *ctor : type->constructorSet) {
+		type->codeGenerate(ctx);
 
-				string labelName = getProcedureName(ctor);
-				ctx->text.declGlobalAndBegin(labelName);
-
-				ctx->_numParam = ctor->parameters.size();
-
-					//   1 st arg
-					//   ...
-					//   n-1 th arg
-					//   n th arg
-					//   old eip
-					//   old ebp <-- ebp = esp
-				ctx->text.add(R"(
-push ebp
-mov ebp, esp
-)");
-
-				// 1. call super()
-				if (type->superClass) {
-					// this
-					ctx->text.addf("mov eax, [ebp + %d]", ctx->_numParam + 1);
-					ctx->text.addf("push eax");
-
-					ConstructorDeclaration *defaultSuper = nullptr;
-					for (auto *superCtor : type->superClass->declaration->constructorSet) {
-						if (superCtor->parameters.size() == 1) {
-							ASSERT(!defaultSuper);
-							defaultSuper = superCtor;
-						}
-					}
-					ASSERT(defaultSuper);
-
-					ctx->text.call("%s", getProcedureName(defaultSuper).c_str());
-					ctx->text.add("pop eax");
-				}
-
-				// 2. initialize non static fields
-				for (auto &field : type->fieldContainSet) {
-					if (field->hasModifier(Modifier::Variant::Static))
-						continue;
-
-					if (!field->varDecl->initializer) {
-						ctx->text.addf("mov eax, [ebp + %d]", ctx->_numParam + 1);
-						ctx->text.addf("mov dword [eax + %d], 0", (OBJECT_FIELD + field->varDecl->index) * 4);
-					} else {
-						// TODO:
-						// I'm not sure how "this" is handled or what index does it have
-						// in the expression of initializer
-						// it should be so that no special case is needed and
-						// field access just works
-					}
-				}
-
-				// 3. actual body
-				ctor->body->codeGenerate(ctx);
-
-				ctx->text.add(R"(
-mov esp, ebp
-pop ebp
-ret
-)");
-			}
-		}
-
-    { // methods
-      for (auto *method : type->methodContainSet) {
-      	if (!method)
-      		continue;
-	      if (method->_enclosingClass != type)
-	      	continue;
-	      if (!method->body)
-	      	continue;
-
-	      string labelName = getProcedureName(method);
-	      ctx->text.declGlobalAndBegin(labelName);
-	      ctx->_numParam = method->parameters.size();
-	      ctx->text.add(R"(
-push ebp
-mov ebp, esp
-)");
-	      method->body->codeGenerate(ctx);
-	      ctx->text.add(R"(
-mov esp, ebp
-pop ebp
-ret
-)");
-      }
-    }
-
-		{
-			// static fields
-			ctx->text.add("section .data\n align 2\n");
-			for (auto &field : type->fieldContainSet) {
-				if (!field->hasModifier(Modifier::Variant::Static))
-					continue;
-
-				strdecl512(label, "%s.%s", type->fqn.c_str(),
-								field->varDecl->identifier.c_str());
-				ctx->text.declGlobalAndBegin(label);
-				ctx->text.add("dd 0");
-			}
-
-		}
-
-    codeGenEmitTypeInfo(ctx, type, typeIndex, middleend.semanticDB.typeMap);
+		codeGenEmitTypeInfo(ctx, type, typeIndex, middleend.semanticDB.typeMap);
 
 		string fileName = name + ".s";
 		result.sFiles.push_back(SFile{fileName, context.text.toString()});
@@ -606,20 +502,8 @@ ret
 		ctx->text.call("__debexit");
 
 		// static field initializer
-		for (const auto &type : middleend.semanticDB.typeMap) {
-			for (auto &field : type.second->fieldContainSet) {
-				if (!field->hasModifier(Modifier::Variant::Static))
-					continue;
-
-				strdecl512(label, "%s.%s", type.second->fqn.c_str(), field->varDecl->identifier.c_str());
-				ctx->text.addExternSymbol(string(label));
-				if (!field->varDecl->initializer) {
-					ctx->text.addf("mov eax, 0");
-				} else {
-					field->varDecl->initializer->codeGenerate(ctx);
-				}
-				ctx->text.addf("mov [%s], eax", label);
-			}
+		for (const auto &[name, type] : middleend.semanticDB.typeMap) {
+			type->codeGenerateStaticInit(ctx);
 		}
 
 		// call test
@@ -724,6 +608,122 @@ call __debexit
 
 
 namespace AST {
+
+void TypeDeclaration::codeGenerate(CodeGen::SContext *ctx) {
+	// constructors
+	for (auto *ctor : this->constructorSet) {
+		ctor->codeGenerate(ctx);
+	}
+
+	// methods
+	for (auto *method : this->methodContainSet) {
+		if (!method)
+			continue;
+		if (method->_enclosingClass != this)
+			continue;
+		method->codeGenerate(ctx);
+	}
+
+	// static fields
+	ctx->text.add("section .data\n align 2\n");
+	for (auto &field : this->fieldContainSet) {
+		if (!field->hasModifier(Modifier::Variant::Static))
+			continue;
+
+		ctx->text.declGlobalAndBegin(this->fqn + "." + field->varDecl->identifier);
+		ctx->text.add("dd 0");
+	}
+}
+
+void TypeDeclaration::codeGenerateStaticInit(CodeGen::SContext *ctx)
+{
+	for (auto &field : this->fieldContainSet) {
+		if (!field->hasModifier(Modifier::Variant::Static))
+			continue;
+
+		std::string label = this->fqn + "." + field->varDecl->identifier;
+		ctx->text.addExternSymbol(label);
+		if (!field->varDecl->initializer) {
+			ctx->text.addf("mov eax, 0");
+		} else {
+			field->varDecl->initializer->codeGenerate(ctx);
+		}
+		ctx->text.add("mov [" + label + "], eax");
+	}
+}
+
+void MethodDeclaration::codeGenerate(CodeGen::SContext *ctx)
+{
+	if (!body)
+		return;
+
+	ctx->text.declGlobalAndBegin(getProcedureName(this));
+	ctx->_numParam = parameters.size();
+	ctx->text.add(R"(
+push ebp
+mov ebp, esp
+)");
+	body->codeGenerate(ctx);
+	ctx->text.add(R"(
+mov esp, ebp
+pop ebp
+ret
+)");
+}
+
+void ConstructorDeclaration::codeGenerate(CodeGen::SContext *ctx)
+{
+	ctx->text.declGlobalAndBegin(getProcedureName(this));
+
+	ctx->_numParam = parameters.size();
+
+		//   1 st arg
+		//   ...
+		//   n-1 th arg
+		//   n th arg
+		//   old eip
+		//   old ebp <-- ebp = esp
+	ctx->text.add(R"(
+push ebp
+mov ebp, esp
+)");
+
+	// 1. call super()
+	if (defaultSuper != nullptr) {
+		// this
+		ctx->text.addf("mov eax, [ebp + %d]; load \"this\" from args[0]", ctx->_numParam + 1);
+		ctx->text.addf("push eax");
+
+		ctx->text.call("%s", getProcedureName(defaultSuper).c_str());
+		ctx->text.add("pop eax");
+	}
+
+	// 2. initialize non static fields
+	for (auto &field : _enclosingClass->fieldContainSet) {
+		if (field->hasModifier(Modifier::Variant::Static))
+			continue;
+
+		if (!field->varDecl->initializer) {
+			ctx->text.addf("mov eax, [ebp + %d]; load \"this\" from args[0]", ctx->_numParam + 1);
+			ctx->text.addf("mov dword [eax + %d], 0", (OBJECT_FIELD + field->varDecl->index) * 4);
+		} else {
+			// TODO:
+			// I'm not sure how "this" is handled or what index does it have
+			// in the expression of initializer
+			// it should be so that no special case is needed and
+			// field access just works
+		}
+	}
+
+	// 3. actual body
+	body->codeGenerate(ctx);
+
+	ctx->text.add(R"(
+mov esp, ebp
+pop ebp
+ret
+)");
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //

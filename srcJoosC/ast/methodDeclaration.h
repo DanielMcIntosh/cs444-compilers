@@ -3,7 +3,15 @@
 #include "ast/memberDeclaration.h"
 #include "ast/statement.h"
 #include <memory>
-#include "semantic/scope.h"
+
+namespace Semantic
+{
+	class SemanticDB;
+}
+namespace CodeGen
+{
+	class SContext;
+}
 
 namespace AST
 {
@@ -38,6 +46,8 @@ public:
 	// a4
 
 	void staticAnalysis(StaticAnalysisCtx *ctx) override;
+
+	void codeGenerate(CodeGen::SContext *ctx);
 
 	void addThisParam();
 	std::unique_ptr<Type> returnType;

@@ -15,6 +15,10 @@ namespace Semantic
 	struct SemanticDB;
 	enum class SemanticErrorType;
 }
+namespace CodeGen
+{
+	class SContext;
+}
 
 namespace AST
 {
@@ -49,11 +53,14 @@ public:
 
 	Semantic::SemanticErrorType	generateHierarchySets(TypeDeclaration *, TypeDeclaration *);
 
-  //
-  // a4
-  //
+	//
+	// a4
+	//
 
-  void staticAnalysis(StaticAnalysisCtx *ctx);
+	void staticAnalysis(StaticAnalysisCtx *ctx);
+
+	void codeGenerate(CodeGen::SContext *ctx);
+	void codeGenerateStaticInit(CodeGen::SContext *ctx);
 
 	ConstructorDeclaration *findConstructor(ClassInstanceCreationExpression *invocation);
 	MethodDeclaration *findMethod(MethodInvocation *invocation);

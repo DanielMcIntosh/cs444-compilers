@@ -1,8 +1,12 @@
 #pragma once
 
 #include "ast/memberDeclaration.h"
-#include "semantic/scope.h"
 #include <memory>
+
+namespace CodeGen
+{
+	class SContext;
+}
 
 namespace AST
 {
@@ -34,9 +38,12 @@ public:
 
 	void staticAnalysis(StaticAnalysisCtx *ctx) override;
 
+	void codeGenerate(CodeGen::SContext *ctx);
+
 	std::string identifier;
 	std::vector<std::unique_ptr<VariableDeclaration>> parameters;
 	std::unique_ptr<Block> body;
+	ConstructorDeclaration *defaultSuper = nullptr;
 
 	// a5
 private:

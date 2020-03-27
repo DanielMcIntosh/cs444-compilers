@@ -864,13 +864,12 @@ SemanticErrorType ConstructorDeclaration::resolveExprs()
 		}
 	}
 
-	// TODO: probably want to remove this, and somehow add an explicit call to the
-	// parent constructor at the start of body, which then gets resolved in body->resolveExprs
 	if (_enclosingClass->superClass != nullptr)
 	{
 		auto *superDecl = _enclosingClass->superClass->declaration;
 		auto implicitSuperCall = std::make_unique<ClassInstanceCreationExpression>(superDecl->asType(), std::vector<std::unique_ptr<Expression>>{});
-		if (superDecl->findConstructor(implicitSuperCall.get()) == nullptr)
+		defaultSuper = superDecl->findConstructor(implicitSuperCall.get());
+		if (defaultSuper == nullptr)
 		{
 			return SemanticErrorType::DefaultSuperConstructorMissing;
 		}
