@@ -691,7 +691,7 @@ mov ebp, esp
 	// 1. call super()
 	if (defaultSuper != nullptr) {
 		// this
-		ctx->text.addf("mov eax, [ebp + %d]; load \"this\" from args[0]", ctx->_numParam + 1);
+		ctx->text.addf("mov eax, [ebp + %d]; load \"this\" from args[0]", (ctx->_numParam + 1) * 4);
 		ctx->text.addf("push eax");
 
 		ctx->text.call("%s", getProcedureName(defaultSuper).c_str());
@@ -702,9 +702,11 @@ mov ebp, esp
 	for (auto &field : _enclosingClass->fieldContainSet) {
 		if (field->hasModifier(Modifier::Variant::Static))
 			continue;
+		if (field->_enclosingClass != _enclosingClass)
+			continue;
 
 		if (!field->varDecl->initializer) {
-			ctx->text.addf("mov eax, [ebp + %d]; load \"this\" from args[0]", ctx->_numParam + 1);
+			ctx->text.addf("mov eax, [ebp + %d]; load \"this\" from args[0]", (ctx->_numParam + 1) * 4);
 			ctx->text.addf("mov dword [eax + %d], 0", (OBJECT_FIELD + field->varDecl->index) * 4);
 		} else {
 			// TODO:
