@@ -109,8 +109,6 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 		lhs = std::move(std::get<0>(concatInvoke.source));
 		rhs = std::move(concatInvoke.args[0]);
 
-		// TODO: call lhs.concat(rhs)
-		// function label can be obtained with string getProcedureName(MemberDeclaration*)
 		ctx->text.add("; END - BinaryExpression" + uniqueIdentifier + " (" + toCode() + ")");
 		return;
 	}
@@ -626,15 +624,15 @@ ret
 
 		// call test
 		bool found = false;
-		for (const auto &type : middleend.semanticDB.typeMap) {
+		for (const auto &[name, type] : middleend.semanticDB.typeMap) {
 			if (gEntryPointFile) {
 				// files are passed on command line. use the designated source file
-				if (type.second->sourceFilePath != string(gEntryPointFile))
+				if (type->sourceFilePath != string(gEntryPointFile))
 					continue;
 			}
 			// else just find a class that contains that method..
 
-			for (const auto &method : type.second->methodContainSet) {
+			for (const auto &method : type->methodContainSet) {
 				if (method->identifier == "test" &&
 
 				    method->parameters.empty() && method->hasModifier(Modifier::Variant::Static)) {
@@ -903,7 +901,7 @@ void MethodInvocation::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 		// get "this" pointer
 		text->add("mov eax, [esp + " + std::to_string((numArg - 1) * 4) + "]; load \"this\" from args[0]");
 		// get class pointer
-		text->add("mov eax, [eax]; load klass ptr");
+		text->add("mov eax, [eax + " + std::to_string(OBJECT_CLASS * 4) + "]; load klass ptr");
 
 		int procOffset = (CLASS_SELECTOR + it->second->tableIndex);
 		text->add("mov eax, [eax + " + std::to_string(procOffset * 4) + "]; load function ptr");
@@ -950,14 +948,13 @@ void NameExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 }
 
 void CastExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
+	assert(!returnLValue);
 	// TODO: Wei Heng
 	ctx->text.add("; BEGIN - CastExpression (" + toCode() + ")");
 	ctx->text.add("; END - CastExpression (" + toCode() + ")");
 }
 
 void FieldAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
-	ctx->text.add("; BEGIN - FieldAccess (" + toCode() + ")");
-
 	CodeGen::SText *text = &ctx->text;
 
 	int varIndex = source.index();
@@ -971,10 +968,9 @@ void FieldAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 		std::string label = nameType->declaration->fqn + "." + member;
 		ctx->text.addExternSymbol(label);
 		if (returnLValue)
-			text->add("mov eax, " + label);
+			text->add("mov eax, " + label + "; FieldAccess (" + toCode() + ")");
 		else
-			text->add("mov eax, [" + label + "]");
-		ctx->text.add("; END - FieldAccess (" + toCode() + ")");
+			text->add("mov eax, [" + label + "]; FieldAccess (" + toCode() + ")");
     return;
 	}
 
@@ -990,10 +986,9 @@ void FieldAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 
 		// length is the first field
 		if (returnLValue)
-			text->add("add eax, " + std::to_string(OBJECT_FIELD * 4));
+			text->add("add eax, " + std::to_string(OBJECT_FIELD * 4) + "; FieldAccess (" + toCode() + ")");
 		else
-			text->add("mov eax, [eax + " + std::to_string(OBJECT_FIELD * 4) + "]");
-		ctx->text.add("; END - FieldAccess (" + toCode() + ")");
+			text->add("mov eax, [eax + " + std::to_string(OBJECT_FIELD * 4) + "]; FieldAccess (" + toCode() + ")");
 		return;
 	}
 
@@ -1001,10 +996,9 @@ void FieldAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	ASSERT(!theTypeResult->isPrimitive);
 
 	if (returnLValue)
-		text->add("add eax, " + std::to_string((decl->varDecl->index + OBJECT_FIELD) * 4));
+		text->add("add eax, " + std::to_string((decl->varDecl->index + OBJECT_FIELD) * 4) + "; FieldAccess (" + toCode() + ")");
 	else
-		text->add("mov eax, [eax + " + std::to_string((decl->varDecl->index + OBJECT_FIELD) * 4) + "]");
-	ctx->text.add("; END - FieldAccess (" + toCode() + ")");
+		text->add("mov eax, [eax + " + std::to_string((decl->varDecl->index + OBJECT_FIELD) * 4) + "]; FieldAccess (" + toCode() + ")");
 }
 
 void LocalVariableExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
