@@ -166,26 +166,32 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 		case Variant::Lt:
 			ctx->text.add("cmp eax, ebx");
 			ctx->text.add("setl al");
+			ctx->text.add("movzx eax, al");
 			break;
 		case Variant::Gt:
 			ctx->text.add("cmp eax, ebx");
 			ctx->text.add("setg al");
+			ctx->text.add("movzx eax, al");
 			break;
 		case Variant::LtEq:
 			ctx->text.add("cmp eax, ebx");
 			ctx->text.add("setle al");
+			ctx->text.add("movzx eax, al");
 			break;
 		case Variant::GtEq:
 			ctx->text.add("cmp eax, ebx");
 			ctx->text.add("setge al");
+			ctx->text.add("movzx eax, al");
 			break;
 		case Variant::Eq:
 			ctx->text.add("cmp eax, ebx");
 			ctx->text.add("sete al");
+			ctx->text.add("movzx eax, al");
 			break;
 		case Variant::NEq:
 			ctx->text.add("cmp eax, ebx");
 			ctx->text.add("setne al");
+			ctx->text.add("movzx eax, al");
 			break;
 		case Variant::EagerAnd:
 			// if ebx is 0, overwrite eax with 0, otherwise leave eax as is
@@ -219,6 +225,7 @@ void UnaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 		case Variant::Bang:
 			ctx->text.add("cmp eax, 0");
 			ctx->text.add("sete al");
+			ctx->text.add("movzx eax, al");
 			break;
 		default:
 			assert(false);
