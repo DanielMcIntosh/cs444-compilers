@@ -118,6 +118,7 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	if (op == Variant::InstanceOf)
 	{
 		//TODO
+		ctx->text.add("mov eax, 1"); // right now fake true
 		ctx->text.add("; END - BinaryExpression" + uniqueIdentifier + " (" + toCode() + ")");
 		return;
 	}
@@ -165,31 +166,37 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 			break;
 		case Variant::Lt:
 			ctx->text.add("cmp eax, ebx");
+			ctx->text.add("mov eax, 0");
 			ctx->text.add("setl al");
 			ctx->text.add("movzx eax, al");
 			break;
 		case Variant::Gt:
 			ctx->text.add("cmp eax, ebx");
+			ctx->text.add("mov eax, 0");
 			ctx->text.add("setg al");
 			ctx->text.add("movzx eax, al");
 			break;
 		case Variant::LtEq:
 			ctx->text.add("cmp eax, ebx");
+			ctx->text.add("mov eax, 0");
 			ctx->text.add("setle al");
 			ctx->text.add("movzx eax, al");
 			break;
 		case Variant::GtEq:
 			ctx->text.add("cmp eax, ebx");
+			ctx->text.add("mov eax, 0");
 			ctx->text.add("setge al");
 			ctx->text.add("movzx eax, al");
 			break;
 		case Variant::Eq:
 			ctx->text.add("cmp eax, ebx");
+			ctx->text.add("mov eax, 0");
 			ctx->text.add("sete al");
 			ctx->text.add("movzx eax, al");
 			break;
 		case Variant::NEq:
 			ctx->text.add("cmp eax, ebx");
+			ctx->text.add("mov eax, 0");
 			ctx->text.add("setne al");
 			ctx->text.add("movzx eax, al");
 			break;
@@ -257,11 +264,34 @@ string SText::toString() {
 	for (const auto& constant : constants) {
 		visit(visitor{
 			[&] (const string& str) {
-				strdecl512(text , "%s: dd '%s'", constant.name.c_str(), str.c_str());
-				add(text);
-				snprintf(text, ARRAY_SIZE(text), "%sLen equ $ - %s - 1",
-								 constant.name.c_str(), constant.name.c_str());
-				add(text);
+				ASSERT(OBJECT_CLASS == 0);
+				ASSERT(OBJECT_ISARRAY == 1);
+				ASSERT(ARRAY_LENGTH_OFFSET == 2);
+				ASSERT(ARRAY_DATA_OFFSET == 3);
+				addf("%s: dd %s", constant.name.c_str(), "_Char_typeinfo");
+				addf("dd 1");
+				addf("dd %ld", str.length());
+
+				if (str.empty())
+					return;
+
+				string result;
+				char buffer[16];
+				for (char c : str) {
+					snprintf(buffer, 16, "0x%x,", c);
+					result += buffer;
+				}
+				result.pop_back();
+				result.push_back(';');
+				for (char c : str) {
+					if (c >= 32) {
+						result.push_back(c);
+					} else {
+						result.push_back('x');
+					}
+				}
+
+				addf("dd %s", result.c_str());
 			},
 			[&] (int num) {
 				strdecl512(text , "%s: dd %d", constant.name.c_str(), num);
@@ -479,6 +509,13 @@ BackendResult doBackend(const MiddleendResult &middleend) {
 	BackendResult result;
 	SContext context, *ctx = &context;
 
+	{
+		auto &typeMap = middleend.semanticDB.typeMap;
+		auto it = typeMap.find("java.lang.String");
+		ASSERT(it != typeMap.end());
+		ctx->stringDecl = it->second;
+	}
+
 	codeGenInitMethodSelectorTable(ctx, middleend.semanticDB.typeMap);
 
 	// constructor and method implementations
@@ -505,8 +542,6 @@ BackendResult doBackend(const MiddleendResult &middleend) {
 		ctx->text = SText();
 
 		ctx->text.declGlobalAndBegin("_start");
-		ctx->text.add("mov eax, 123");
-		ctx->text.call("__debexit");
 
 		// static field initializer
 		for (const auto &[name, type] : middleend.semanticDB.typeMap) {
@@ -715,15 +750,16 @@ mov ebp, esp
 		if (field->_enclosingClass != _enclosingClass)
 			continue;
 
+		field->asFieldAccess(parameters[0]->asLocalVarExpr())->codeGenerate(ctx, true);
 		if (!field->varDecl->initializer) {
-			field->asFieldAccess(parameters[0]->asLocalVarExpr())->codeGenerate(ctx, true);
 			ctx->text.add("mov dword [eax], 0");
 		} else {
-			// TODO:
-			// I'm not sure how "this" is handled or what index does it have
-			// in the expression of initializer
-			// it should be so that no special case is needed and
-			// field access just works
+			/*
+			ctx->text.add("push eax");
+			field->varDecl->initializer->codeGenerate(ctx); // use after free
+			ctx->text.add("pop ebx");
+			ctx->text.add("mov [ebx], eax");
+			 */
 		}
 	}
 
@@ -737,6 +773,23 @@ ret
 )");
 }
 
+void codeGenClassInstanceCreatePreamble(CodeGen::SContext *ctx, TypeDeclaration *typeDecl) {
+	ctx->text.addf("mov eax, %ld", (OBJECT_FIELD + typeDecl->fieldContainSet.size()) * 4);
+	ctx->text.call("__malloc");
+
+	ctx->text.add("push eax"); // final return value
+
+	strdecl512(label, "%s_typeinfo", typeDecl->fqn.c_str());
+	ctx->text.addExternSymbol(label);
+	ctx->text.addf("mov dword [eax], %s", label);
+	ctx->text.addf("mov dword [eax + %d], 0", OBJECT_ISARRAY * 4);
+}
+
+void codeGenClassInstanceCreateEpilogue(CodeGen::SContext *ctx, int numArg) {
+	ctx->text.add("add esp, " + std::to_string(numArg * 4) + "; ClassInstanceCreationExpression - pop args");
+	ctx->text.add("pop eax"); // final return value
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Expression
@@ -747,7 +800,7 @@ void Literal::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	assert(!returnLValue);
 	auto item = (Literal*)this;
 
-	strdecl512(label, "%s_const_%d", ctx->typeName.c_str(), ++ctx->counter);
+	strdecl512(label, "const_%d", ++ctx->counter);
 	string labelS = string(label);
 
 	unsigned int effectiveValue = 0;
@@ -772,12 +825,37 @@ void Literal::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 			isInt = true;
 
 			break;
-		case 3:
+		case 3: {
 			// string
-      // TODO
-      // need to call class instance creation of string
-			effectiveValue = 0;
-			isInt = true;
+
+			ConstructorDeclaration *ctorDecl = nullptr;
+			TypeDeclaration *theStringDecl = ctx->stringDecl;
+			for (auto &ctor : stringDecl->constructorSet) {
+				if (ctor->parameters.size() == 2 &&
+				    ctor->parameters[1]->type->isArray &&
+				    ctor->parameters[1]->identifier == "chars") {
+					ASSERT(!ctorDecl);
+					ctorDecl = ctor;
+				}
+			}
+			ASSERT(ctorDecl);
+
+			ctx->text.addExternSymbol("_Char_typeinfo");
+
+			ctx->text.addConstant(label, std::get<3>(item->value));
+
+			codeGenClassInstanceCreatePreamble(ctx, theStringDecl);
+
+			int numArg = 0;
+			ctx->text.add("push eax"); ++numArg;
+			ctx->text.addf("mov dword eax, %s", label);
+			ctx->text.add("push eax"); ++numArg;
+			ctx->text.call("%s", getProcedureName(ctorDecl).c_str());
+
+			codeGenClassInstanceCreateEpilogue(ctx, numArg);
+
+			isInt = false;
+		}
 			break;
 
 		case 4:
@@ -962,6 +1040,8 @@ void NameExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 void CastExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	assert(!returnLValue);
 	// TODO: Wei Heng
+	// TODO: Subtype test
+	this->rhs->codeGenerate(ctx, returnLValue);
 	ctx->text.add("; BEGIN - CastExpression (" + toCode() + ")");
 	ctx->text.add("; END - CastExpression (" + toCode() + ")");
 }
@@ -1036,15 +1116,7 @@ void ClassInstanceCreationExpression::codeGenerate(CodeGen::SContext *ctx, bool 
 
 	TypeDeclaration *typeDecl = this->type->declaration;
 
-	ctx->text.addf("mov eax, %ld", (OBJECT_FIELD + typeDecl->fieldContainSet.size()) * 4);
-	ctx->text.call("__malloc");
-
-	ctx->text.add("push eax"); // final return value
-
-	strdecl512(label, "%s_typeinfo", typeDecl->fqn.c_str());
-	ctx->text.addExternSymbol(label);
-	ctx->text.addf("mov dword [eax], %s", label);
-	ctx->text.addf("mov dword [eax + %d], 0", OBJECT_ISARRAY * 4);
+	codeGenClassInstanceCreatePreamble(ctx, typeDecl);
 
 	int numArg = 0;
 	ctx->text.add("push eax"); ++numArg;
@@ -1056,16 +1128,26 @@ void ClassInstanceCreationExpression::codeGenerate(CodeGen::SContext *ctx, bool 
 	}
 
 	ctx->text.call("%s", getProcedureName(this->declaration).c_str());
-	ctx->text.add("add esp, " + std::to_string(numArg * 4) + "; ClassInstanceCreationExpression - pop args");
 
-	ctx->text.add("pop eax"); // final return value
+	codeGenClassInstanceCreateEpilogue(ctx, numArg);
 
 	ctx->text.add("; END - ClassInstanceCreationExpression (" + toCode() + ")");
 }
 
 void ArrayAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	// TODO: Wei Heng
+	// TODO: Bounds check
 	ctx->text.add("; BEGIN - ArrayAccess (" + toCode() + ")");
+
+	this->array->codeGenerate(ctx);
+	ctx->text.add("push eax");
+	this->index->codeGenerate(ctx);
+	ctx->text.add("pop ebx");
+	ctx->text.addf("lea eax, [ebx + %d + eax * 4]", ARRAY_DATA_OFFSET * 4);
+	if (!returnLValue) {
+		ctx->text.add("mov eax, [eax]");
+	}
+
 	ctx->text.add("; END - ArrayAccess (" + toCode() + ")");
 }
 
@@ -1076,8 +1158,15 @@ void ArrayAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 //////////////////////////////////////////////////////////////////////////////
 
 void LocalVariableDeclarationStatement::codeGenerate(CodeGen::SContext *ctx) {
-	// TODO: Wei Heng
 	ctx->text.add("; BEGIN - LocalVariableDeclarationStatement (" + toCode() + ")");
+
+	if (!this->declaration->initializer) {
+		ctx->text.add("mov dword eax, 0");
+	} else {
+		this->declaration->initializer->codeGenerate(ctx);
+	}
+	ctx->text.add("push eax");
+
 	++ctx->stackSize;
 	ctx->text.add("; END - LocalVariableDeclarationStatement (" + toCode() + ")");
 }

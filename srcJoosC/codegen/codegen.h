@@ -13,6 +13,7 @@ BackendResult doBackend(const MiddleendResult& middleend);
 
 namespace AST {
 class MemberDeclaration;
+class TypeDeclaration;
 }
 
 namespace CodeGen {
@@ -92,6 +93,8 @@ struct MethodInfo {
 
 class SContext {
 public:
+	AST::TypeDeclaration *stringDecl; // for creating string from literal
+
 	std::vector<std::unique_ptr<MethodInfo>> methodTable;
 	std::unordered_map<std::string, MethodInfo*> methodSelector;
 

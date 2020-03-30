@@ -243,6 +243,19 @@ void execArgFree(ExecArg* e) {
   e->argv = nullptr;
 }
 
+void addr2lineHelper(const char *childPath, const char *inst, int memfd) {
+  auto addrPid = fork();
+  if (!addrPid) {
+    const char* addr2line = "/usr/bin/addr2line";
+    ASSERT(!close(STDOUT_FILENO));            
+    ASSERT(dup2(memfd, STDOUT_FILENO) == STDOUT_FILENO);
+    ASSERT(!close(memfd));
+    execl(addr2line, addr2line, "-e", childPath, inst, nullptr);
+    ASSERT2(false, "unreachable");
+  }
+  waitChild(addrPid);  
+}
+
 void batchTestingThread(BatchTestThreadCtx ctx) {
   for (int i = ctx.begin; i < ctx.end; ++i) {
     const string& topLevelName = (*ctx.topLevel)[i];
@@ -448,21 +461,10 @@ void batchTestingThread(BatchTestThreadCtx ctx) {
           siginfo_t siginfo;
           ASSERT(!ptrace(PTRACE_GETSIGINFO, pid, nullptr, &siginfo));
 
-          kill(pid, SIGKILL);
-
 #define LOWER(_x) (uint32_t)(_x & 0xffffffff)
 
           strdecl32(ip, "0x%x", LOWER(regs.rip));
-          auto addrPid = fork();
-          if (!addrPid) {
-            const char* addr2line = "/usr/bin/addr2line";
-            ASSERT(!close(STDOUT_FILENO));            
-            ASSERT(dup2(memfd, STDOUT_FILENO) == STDOUT_FILENO);
-            ASSERT(!close(memfd));
-            execl(addr2line, addr2line, "-e", childPath, ip, nullptr);
-            ASSERT2(false, "unreachable");
-          }
-          waitChild(addrPid);
+          addr2lineHelper(childPath, ip, memfd);
 
           LOGS(outputBuffer, "Received %d (%s)\n", siginfo.si_signo,
                strsignal(siginfo.si_signo));
@@ -472,6 +474,65 @@ void batchTestingThread(BatchTestThreadCtx ctx) {
           LOGS(outputBuffer, "esi %8x edi %8x esp %8x ebp %8x eip %8x\n",
                LOWER(regs.rsi), LOWER(regs.rdi), LOWER(regs.rsp),
                LOWER(regs.rbp), LOWER(regs.rip));
+
+          outputBuffer += "\n\n";          
+
+          for (int k = 16; k >= -16;) {
+          	unsigned long long address = regs.rbp + k;
+	          long result = ptrace(PTRACE_PEEKDATA, pid, address, nullptr);
+
+            uint64_t half2 = (result & 0xffffffffULL);
+            uint64_t half1 = (result & ~0xffffffffULL) >> 32;
+
+            if (k == 0) outputBuffer += '\n';
+
+            k += 4;
+            
+	          strdecl32(value1, "ebp%c%2d: %8lx ", k < 0 ? '-' : '+',
+	          				  (k < 0 ? -k : k), half1);
+	          outputBuffer += value1;
+
+            if (k == 4) {
+              strdecl32(caller, "0x%lx", half1);
+              addr2lineHelper(childPath, caller, memfd);
+            }            
+           
+            k -= 4;
+
+	          strdecl32(value2, "ebp%c%2d: %8lx ", k < 0 ? '-' : '+',
+	          				  (k < 0 ? -k : k), half2);
+	          outputBuffer += value2;
+
+            k -= 8;
+          }
+
+          outputBuffer += "\n\n";
+
+          for (int k = 16; k >= 0;) {
+          	unsigned long long address = regs.rsp + k;
+	          long result = ptrace(PTRACE_PEEKDATA, pid, address, nullptr);
+
+            uint64_t half2 = (result & 0xffffffffULL);
+            uint64_t half1 = (result & ~0xffffffffULL) >> 32;
+
+            if (k == 0) outputBuffer += '\n';
+
+            k += 4;
+            
+	          strdecl32(value1, "esp%c%2d: %8lx ", k < 0 ? '-' : '+',
+	          				  (k < 0 ? -k : k), half1);
+	          outputBuffer += value1;
+           
+            k -= 4;
+
+	          strdecl32(value2, "esp%c%2d: %8lx ", k < 0 ? '-' : '+',
+	          				  (k < 0 ? -k : k), half2);
+	          outputBuffer += value2;
+
+            k -= 8;
+          }          
+
+	        kill(pid, SIGKILL);
 
           break;
         }
@@ -594,10 +655,10 @@ void batchTesting(JoosC* joosc, const string& baseDir,
     if (correctness) ++numPassed;
 
     if (!correctness) {
-      LOG_RED(logFmt, i + 1, topLevelName.c_str(), frontEndStageName,
+      LOG_RED(logFmt, i, topLevelName.c_str(), frontEndStageName,
               semanticError, sdb->errMsg.c_str());
     } else {
-      LOG_GREEN(logFmt, i + 1, topLevelName.c_str(), frontEndStageName,
+      LOG_GREEN(logFmt, i, topLevelName.c_str(), frontEndStageName,
                 semanticError, sdb->errMsg.c_str());
     }
 
