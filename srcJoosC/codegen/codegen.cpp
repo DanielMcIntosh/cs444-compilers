@@ -153,15 +153,15 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 			ctx->text.add("sub eax, ebx");
 			break;
 		case Variant::Mult:
-			ctx->text.add("mul ebx");
+			ctx->text.add("imul ebx");
 			break;
 		case Variant::Div:
 			ctx->text.add("cdq");
-			ctx->text.add("div ebx");
+			ctx->text.add("idiv ebx");
 			break;
 		case Variant::Mod:
 			ctx->text.add("cdq");
-			ctx->text.add("div ebx");
+			ctx->text.add("idiv ebx");
 			ctx->text.add("mov eax, edx");
 			break;
 		case Variant::Lt:
@@ -427,23 +427,26 @@ void codeGenEmitTypeInfo(SContext *ctx, AST::TypeDeclaration *type, int typeInde
 	// method selector
 	for (auto &methodInfo : ctx->methodTable) {
 		string label = getProcedureName(methodInfo->declaration);
-		// TODO Wei Heng: also set function pointers for methods that this method
-		// is overriding or implementing
-		// (e.g. in String.s, java.lang.Object.toString should be filled with
-		// java.lang.String.toString)
-
-		bool isConcrete = false;
-		for (const auto &ourMethod : type->methodContainSet) {
-			if (ourMethod->equals(methodInfo->declaration) &&
-			    ourMethod->body) {
-				isConcrete = true;
+		string implLabel;
+		for (const auto &[implementor, overriden] : type->overrides) {
+			if (overriden->equals(methodInfo->declaration)) {
+				implLabel = getProcedureName(implementor);
 				break;
 			}
 		}
+		if (implLabel.empty()) {
+			for (const auto &ourMethod : type->methodContainSet) {
+				if (ourMethod->equals(methodInfo->declaration) &&
+					ourMethod->body) {
+					implLabel = label;
+					break;
+				}
+			}
+		}
 
-		if (isConcrete) {
+		if (!implLabel.empty()) {
 			ctx->text.addExternSymbol(label);
-			ctx->text.addf("dd %s; %d %s", label.c_str(), mCtr, label.c_str());
+			ctx->text.addf("dd %s; %d %s", implLabel.c_str(), mCtr, label.c_str());
 		} else {
 			ctx->text.addf("dd 0; %d %s", mCtr, label.c_str());
 		}
@@ -534,6 +537,9 @@ BackendResult doBackend(const MiddleendResult &middleend) {
 	// stub file (type info for primitive types (place holder), _start)
 	{
 		ctx->text = SText();
+
+		ctx->text.declGlobalAndBegin("exception");
+		ctx->text.call("__exception");
 
 		ctx->text.declGlobalAndBegin("_start");
 
@@ -1033,11 +1039,13 @@ void NameExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 
 void CastExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	assert(!returnLValue);
-	// TODO: Wei Heng
-	// TODO: Subtype test
-	this->rhs->codeGenerate(ctx, returnLValue);
 	ctx->text.add("; BEGIN - CastExpression (" + toCode() + ")");
-	ctx->text.add("; END - CastExpression (" + toCode() + ")");
+	rhs->codeGenerate(ctx, returnLValue);
+	if (type->nodeType == NodeType::NameType) {
+		// TODO: subtype check
+	} else {
+
+	}
 }
 
 void FieldAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
@@ -1129,19 +1137,23 @@ void ClassInstanceCreationExpression::codeGenerate(CodeGen::SContext *ctx, bool 
 }
 
 void ArrayAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
-	// TODO: Wei Heng
-	// TODO: Bounds check
 	ctx->text.add("; BEGIN - ArrayAccess (" + toCode() + ")");
 
 	this->array->codeGenerate(ctx);
 	ctx->text.add("push eax");
 	this->index->codeGenerate(ctx);
 	ctx->text.add("pop ebx");
+
+	// runtime bounds check
+	ctx->text.addf("mov ecx, [ebx + %d]", ARRAY_LENGTH_OFFSET * 4);
+	ctx->text.add("cmp eax, ecx");
+	ctx->text.addExternSymbol("exception");
+	ctx->text.add("jge exception");
+
 	ctx->text.addf("lea eax, [ebx + %d + eax * 4]", ARRAY_DATA_OFFSET * 4);
 	if (!returnLValue) {
 		ctx->text.add("mov eax, [eax]");
 	}
-
 	ctx->text.add("; END - ArrayAccess (" + toCode() + ")");
 }
 
@@ -1152,6 +1164,7 @@ void ArrayAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 //////////////////////////////////////////////////////////////////////////////
 
 void LocalVariableDeclarationStatement::codeGenerate(CodeGen::SContext *ctx) {
+	// TODO: add subtype check
 	ctx->text.add("; BEGIN - LocalVariableDeclarationStatement (" + toCode() + ")");
 
 	if (!this->declaration->initializer) {

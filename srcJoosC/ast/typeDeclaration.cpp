@@ -452,9 +452,6 @@ SemanticErrorType TypeDeclaration::generateHierarchySets(TypeDeclaration *object
 		}
 	}
 
-	// replace set for methods
-	std::vector<std::pair<MethodDeclaration *, MethodDeclaration *>> overrides;
-
 	if (super)
 	{
 		methodContainSet = super->methodContainSet;

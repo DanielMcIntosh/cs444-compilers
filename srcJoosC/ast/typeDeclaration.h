@@ -92,6 +92,9 @@ public:
 	std::vector<std::unique_ptr<NameType>> interfaces;
 	std::vector<std::unique_ptr<MemberDeclaration>> members;
 
+	// replace set for methods
+	std::vector<std::pair<MethodDeclaration *, MethodDeclaration *>> overrides;
+
 	// Used in topological sort of class hierarchy.
 	std::vector<TypeDeclaration *> children;
 
