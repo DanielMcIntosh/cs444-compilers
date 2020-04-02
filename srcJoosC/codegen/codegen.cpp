@@ -156,14 +156,16 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 			ctx->text.add("imul ebx");
 			break;
 		case Variant::Div:
-			// TODO: check for div by 0
-			ctx->text.add("cdq");
-			ctx->text.add("idiv ebx");
-			break;
 		case Variant::Mod:
+			// check for div by 0
+			ctx->text.addExternSymbol("exception");
+			ctx->text.add("cmp ebx, 0");
+			ctx->text.add("je exception");
+			// perform the division
 			ctx->text.add("cdq");
 			ctx->text.add("idiv ebx");
-			ctx->text.add("mov eax, edx");
+			if (op == Variant::Mod)
+				ctx->text.add("mov eax, edx");
 			break;
 		case Variant::Lt:
 			ctx->text.add("cmp eax, ebx");
@@ -904,6 +906,11 @@ void ArrayCreationExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLV
 
 	item->size->codeGenerate(ctx);
 
+	// check for negative array size
+	ctx->text.add("cmp eax, 0");
+	ctx->text.addExternSymbol("exception");
+	ctx->text.add("jl exception");
+
 	ctx->text.add("push eax"); // pushed number of elements
 	ctx->text.addf("add eax, %d", ARRAY_DATA_OFFSET); // multiply by 4 is done next line
 	ctx->text.add("shl eax, 2");
@@ -1141,6 +1148,9 @@ void ArrayAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	ctx->text.add("cmp eax, ecx");
 	ctx->text.addExternSymbol("exception");
 	ctx->text.add("jge exception");
+
+	ctx->text.add("cmp eax, 0");
+	ctx->text.add("jl exception");
 
 	ctx->text.addf("lea eax, [ebx + %d + eax * 4]", ARRAY_DATA_OFFSET * 4);
 	if (!returnLValue) {
