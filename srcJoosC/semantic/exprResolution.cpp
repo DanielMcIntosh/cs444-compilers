@@ -875,25 +875,49 @@ SemanticErrorType ConstructorDeclaration::resolveExprs()
 		}
 	}
 
-	if (body)
-	{
-		if (SemanticErrorType err = body->resolveExprs(scope);
-			err != SemanticErrorType::None)
+	// Non-static field initializers have to be resolved in the context of a constructor so we can
+	// properly resolve the references to "this" to the "this" parameter of the constructor.
+	// So we just push the initialization into the start of the body.
+	//
+	// use a temp vector so we insert them in the right order
+	std::vector<std::unique_ptr<Statement>> initStatements;
+	for (auto *field : _enclosingClass->fieldContainSet) {
+		if (!field)
+			continue;
+		if (field->hasModifier(Modifier::Variant::Static))
+			continue;
+		if (field->_enclosingClass != _enclosingClass)
+			continue;
+
+		if (field->varDecl->initializer != nullptr)
 		{
-			return err;
+			auto fieldAccess = field->asFieldAccess(parameters[0]->asLocalVarExpr());
+			auto assignment = field->varDecl->initializerAsAssignmentExpr(std::move(fieldAccess));
+			auto statement = std::make_unique<ExpressionStatement>(std::move(assignment));
+			initStatements.push_back(std::move(statement));
 		}
+	}
+	body->statements.insert(body->statements.begin(), std::make_move_iterator(initStatements.begin()),
+	                    std::make_move_iterator(initStatements.end()));
+
+	if (SemanticErrorType err = body->resolveExprs(scope);
+		err != SemanticErrorType::None)
+	{
+		return err;
 	}
 	return SemanticErrorType::None;
 }
 
 SemanticErrorType FieldDeclaration::resolveExprs()
 {
-	Semantic::Scope scope(_enclosingClass);
-	auto thisDecl = std::make_unique<VariableDeclaration>(_enclosingClass->asType(), "this");
+	// Non-static field initializers have to be resolved in the context of a constructor so we can
+	// properly resolve the references to "this" to the "this" parameter of the constructor.
+	// They're dealt with in constructor bodies (see ConstructorDeclaration::resolveExprs for how this happens)
 	if (!hasModifier(Modifier::Variant::Static))
 	{
-		scope.add(thisDecl);
+		return SemanticErrorType::None;
 	}
+	Semantic::Scope scope(_enclosingClass);
 	return varDecl->resolveExprs(scope);
 }
 

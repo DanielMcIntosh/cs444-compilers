@@ -45,6 +45,24 @@ Name::Name(std::vector<std::string> idList)
 	assert(!ids.empty());
 	nodeType = NodeType::Name;
 }
+Name::Name(std::vector<std::string> idList, std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> conv)
+  :	ids(std::move(idList)),
+	converted(std::move(conv))
+{
+	assert(!ids.empty());
+	nodeType = NodeType::Name;
+}
+
+Name* Name::clone() const
+{
+	std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> convDup = std::visit(visitor {
+			[](std::unique_ptr<Expression> const& conv) -> std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> {
+				return std::unique_ptr<Expression>((conv == nullptr) ? nullptr : conv->clone());},
+			[](std::unique_ptr<NameType> const& conv) -> std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> {
+				return std::unique_ptr<NameType>((conv == nullptr) ? nullptr : conv->clone());}
+		}, converted);
+	return new Name(ids, std::move(convDup)); //pass ids by value results in copy
+}
 
 std::string Name::flatten() const
 {

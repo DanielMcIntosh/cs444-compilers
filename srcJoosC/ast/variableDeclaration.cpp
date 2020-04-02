@@ -84,9 +84,16 @@ bool VariableDeclaration::hasInitializer() const
 std::unique_ptr<LocalVariableExpression> VariableDeclaration::asLocalVarExpr()
 {
 	auto ret = std::make_unique<LocalVariableExpression>(identifier);
+	// resolve
 	ret->declaration = this;
+	// deduce
 	ret->deduceType();
 	return ret;
 }
+std::unique_ptr<AssignmentExpression> VariableDeclaration::initializerAsAssignmentExpr(std::unique_ptr<Expression> lhs)
+{
+	return std::make_unique<AssignmentExpression>(std::move(lhs), std::unique_ptr<Expression>(initializer->clone()));
+}
+
 
 } //namespace AST

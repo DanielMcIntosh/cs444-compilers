@@ -80,6 +80,7 @@ class ExpressionStatement: public Statement
 public:
 	static std::unique_ptr<ExpressionStatement> create(const Parse::Tree *ptNode);
 	explicit ExpressionStatement(const Parse::TExpressionStatement *ptNode);
+	explicit ExpressionStatement(std::unique_ptr<Expression> expr);
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;

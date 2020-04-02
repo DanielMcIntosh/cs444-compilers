@@ -118,6 +118,17 @@ NameType::NameType(TypeDeclaration *decl, std::string name)
 {
 	nodeType = NodeType::NameType;
 }
+NameType::NameType(std::vector<std::string> identifiers, bool arr, TypeDeclaration *decl)
+  :	ids(std::move(identifiers)),
+	declaration(decl)
+{
+	nodeType = NodeType::NameType;
+	isArray = arr;
+}
+NameType* NameType::clone() const
+{
+	return new NameType(ids, isArray, declaration); //pass ids by value results in copy
+}
 
 std::string NameType::flatten() const {
 	std::string str;
@@ -156,6 +167,17 @@ PrimitiveType::PrimitiveType(std::nullptr_t)
 	: type(Variant::Void)
 {
 	nodeType = NodeType::PrimitiveType;
+}
+PrimitiveType::PrimitiveType(Variant var, bool arr)
+  :	type(var)
+{
+	nodeType = NodeType::PrimitiveType;
+	isArray = arr;
+}
+
+PrimitiveType* PrimitiveType::clone() const
+{
+	return new PrimitiveType(type, isArray);
 }
 
 bool PrimitiveType::equals(const TypeResult &other) const

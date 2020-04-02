@@ -19,6 +19,7 @@ class TypeResult;
 class Expression;
 class TypeDeclaration;
 class LocalVariableExpression;
+class AssignmentExpression;
 
 class VariableDeclaration: public Node
 {
@@ -47,6 +48,7 @@ public:
 	bool hasInitializer() const;
 
 	std::unique_ptr<LocalVariableExpression> asLocalVarExpr();
+	std::unique_ptr<AssignmentExpression> initializerAsAssignmentExpr(std::unique_ptr<Expression> lhs);
 
 public:
 	std::unique_ptr<Type> type;

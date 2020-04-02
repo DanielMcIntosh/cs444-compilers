@@ -41,6 +41,7 @@ class Expression: public Node
 {
 public:
 	static std::unique_ptr<Expression> create(const Parse::Tree *ptNode);
+    virtual Expression* clone() const = 0;
 
 	virtual Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass);
 
@@ -51,7 +52,6 @@ public:
 	virtual Semantic::SemanticErrorType deduceType() = 0;
 
 	TypeResult typeResult = TypeResult(false, TypePrimitive::Max, true);
-
 
 	static void resetError();
 	static thread_local TypeDeduceError gError;
@@ -78,6 +78,8 @@ class ArrayAccess: public Expression
 public:
 	static std::unique_ptr<ArrayAccess> create(const Parse::Tree *ptNode);
 	explicit ArrayAccess(const Parse::TArrayAccess *ptNode);
+	explicit ArrayAccess(std::unique_ptr<Expression> arr, std::unique_ptr<Expression> ind);
+	ArrayAccess* clone() const override;
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
@@ -85,7 +87,7 @@ public:
 	Semantic::SemanticErrorType deduceChildTypes(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
-  void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
+	void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 
 public:
 	std::unique_ptr<Expression> array;
@@ -103,6 +105,8 @@ class ArrayCreationExpression: public Expression
 public:
 	static std::unique_ptr<ArrayCreationExpression> create(const Parse::Tree *ptNode);
 	explicit ArrayCreationExpression(const Parse::TArrayCreationExpression *ptNode);
+	explicit ArrayCreationExpression(std::unique_ptr<Type> t, std::unique_ptr<Expression> sz);
+	ArrayCreationExpression* clone() const override;
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
@@ -129,6 +133,8 @@ class AssignmentExpression: public Expression
 public:
 	static std::unique_ptr<AssignmentExpression> create(const Parse::Tree *ptNode);
 	explicit AssignmentExpression(const Parse::TAssignment *ptNode);
+	explicit AssignmentExpression(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right);
+	AssignmentExpression* clone() const override;
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
@@ -152,6 +158,7 @@ public:
 class BinaryExpression: public Expression
 {
 public:
+	enum class Variant;
 	static std::unique_ptr<BinaryExpression> create(const Parse::Tree *ptNode);
 
 	explicit BinaryExpression(const Parse::TAdditiveExpression *ptNode);
@@ -162,6 +169,8 @@ public:
 	explicit BinaryExpression(const Parse::TInclusiveOrExpression *ptNode);
 	explicit BinaryExpression(const Parse::TMultiplicativeExpression *ptNode);
 	explicit BinaryExpression(const Parse::TRelationalExpression *ptNode);
+	explicit BinaryExpression(Variant opVar, std::unique_ptr<Expression> left, std::variant<std::unique_ptr<Expression>, std::unique_ptr<Type>> right);
+	BinaryExpression* clone() const override;
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
@@ -220,6 +229,7 @@ public:
 	static std::unique_ptr<CastExpression> create(const Parse::Tree *ptNode);
 	explicit CastExpression(const Parse::TCastExpression *ptNode);
 	explicit CastExpression(std::unique_ptr<Type> t, std::unique_ptr<Expression> expr);
+	CastExpression* clone() const override;
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
@@ -247,6 +257,7 @@ public:
 	static std::unique_ptr<ClassInstanceCreationExpression> create(const Parse::Tree *ptNode);
 	explicit ClassInstanceCreationExpression(const Parse::TClassInstanceCreationExpression *ptNode);
 	explicit ClassInstanceCreationExpression(std::unique_ptr<NameType> t, std::vector<std::unique_ptr<Expression>> arguments);
+	ClassInstanceCreationExpression* clone() const override;
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
@@ -278,8 +289,8 @@ class FieldAccess: public Expression
 public:
 	static std::unique_ptr<FieldAccess> create(const Parse::Tree *ptNode);
 	explicit FieldAccess(const Parse::TFieldAccess *ptNode);
-	explicit FieldAccess(std::unique_ptr<Expression> object, std::string field);
-	explicit FieldAccess(std::unique_ptr<NameType> type, std::string field);
+	explicit FieldAccess(std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> src, std::string field);
+	FieldAccess* clone() const override;
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
@@ -312,6 +323,8 @@ class Literal: public Expression
 public:
 	static std::unique_ptr<Literal> create(const Parse::Tree *ptNode);
 	explicit Literal(const Parse::TLiteral *ptNode);
+	explicit Literal(std::variant<unsigned int, bool, char, std::string, std::nullptr_t > val);
+	Literal* clone() const override;
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
@@ -342,20 +355,20 @@ public:
 	static std::unique_ptr<LocalVariableExpression> create(const Parse::Tree *ptNode);
 	explicit LocalVariableExpression(const Parse::TThis2 *ptNode);
 	explicit LocalVariableExpression(std::string identifier);
+	LocalVariableExpression* clone() const override;
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolve(Semantic::Scope const& scope) override;
 	Semantic::SemanticErrorType deduceType() override;
 
+	// a5
+	void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 
+public:
 	std::string id;
 	const VariableDeclaration *declaration;
 	friend class NameExpression;
 	friend class Name;
-
-	// a5
-
-	void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -369,8 +382,8 @@ class MethodInvocation: public Expression
 public:
 	static std::unique_ptr<MethodInvocation> create(const Parse::Tree *ptNode);
 	explicit MethodInvocation(const Parse::TMethodInvocation *ptNode);
-	explicit MethodInvocation(std::unique_ptr<NameType> src, std::string name, std::vector<std::unique_ptr<Expression>> arguments);
-	explicit MethodInvocation(std::unique_ptr<Expression> src, std::string name, std::vector<std::unique_ptr<Expression>> arguments);
+	explicit MethodInvocation(std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>, std::unique_ptr<Name>> src, std::string name, std::vector<std::unique_ptr<Expression>> arguments);
+	MethodInvocation* clone() const override;
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
@@ -407,7 +420,8 @@ class NameExpression: public Expression
 {
 public:
 	static std::unique_ptr<NameExpression> create(const Parse::Tree *ptNode);
-	explicit NameExpression(std::unique_ptr<Name> other);
+	explicit NameExpression(std::unique_ptr<Name> name, std::unique_ptr<Expression> conv = nullptr);
+	NameExpression* clone() const override;
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
@@ -434,9 +448,13 @@ public:
 class UnaryExpression: public Expression
 {
 public:
+	enum class Variant;
+
 	static std::unique_ptr<UnaryExpression> create(const Parse::Tree *ptNode);
 	explicit UnaryExpression(const Parse::TUnaryExpression *ptNode);
 	explicit UnaryExpression(const Parse::TUnaryExpressionNotPlusMinus *ptNode);
+	explicit UnaryExpression(Variant opVar, std::unique_ptr<Expression> expression);
+	UnaryExpression* clone() const override;
 	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolveTypes(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
@@ -447,8 +465,9 @@ public:
 	// a4
 	ConstExpr tryEval() override;
 
-  // a5
-  void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
+	// a5
+	void codeGenerate(CodeGen::SContext *ctx, bool returnLValue = false) override;
+
 public:
 	enum class Variant
 	{

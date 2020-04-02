@@ -410,23 +410,58 @@ std::string UnaryExpression::toCode() const
 //
 //////////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// ArrayAccess
+//
+//////////////////////////////////////////////////////////////////////////////
+
 ArrayAccess::ArrayAccess(const Parse::TArrayAccess *ptNode)
-				: array(Expression::create((ptNode->v == Parse::TArrayAccessV::NameLSBrExpressionRSBr)
-									? (const Parse::Tree *)ptNode->name
-									: (const Parse::Tree *)ptNode->primaryNoNewArray)),
-				  index(Expression::create(ptNode->expression))
+	: array(Expression::create((ptNode->v == Parse::TArrayAccessV::NameLSBrExpressionRSBr)
+						? (const Parse::Tree *)ptNode->name
+						: (const Parse::Tree *)ptNode->primaryNoNewArray)),
+	  index(Expression::create(ptNode->expression))
 {
 	nodeType = NodeType::ArrayAccess;
 }
+ArrayAccess::ArrayAccess(std::unique_ptr<Expression> arr, std::unique_ptr<Expression> ind)
+  : array(std::move(arr)),
+	index(std::move(ind))
+{
+	nodeType = NodeType::ArrayAccess;
+}
+ArrayAccess* ArrayAccess::clone() const {
+	ArrayAccess* dup = new ArrayAccess(std::unique_ptr<Expression>(array->clone()), std::unique_ptr<Expression>(index->clone()));
+	dup->typeResult = this->typeResult;
+	return dup;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// ArrayCreationExpression
+//
+//////////////////////////////////////////////////////////////////////////////
 
 ArrayCreationExpression::ArrayCreationExpression(const Parse::TArrayCreationExpression *ptNode)
-				: type(Type::create((ptNode->v == Parse::TArrayCreationExpressionV::NewPrimitiveTypeLSBrExpressionRSBr)
-				                    ? (const Parse::Tree *)ptNode->primitiveType
-				                    : (const Parse::Tree *)ptNode->classOrInterfaceType)),
-				  size(Expression::create(ptNode->expression))
+	: type(Type::create((ptNode->v == Parse::TArrayCreationExpressionV::NewPrimitiveTypeLSBrExpressionRSBr)
+	                    ? (const Parse::Tree *)ptNode->primitiveType
+	                    : (const Parse::Tree *)ptNode->classOrInterfaceType)),
+	  size(Expression::create(ptNode->expression))
 {
 	nodeType = NodeType::ArrayCreationExpression;
 	type->isArray = true;
+}
+ArrayCreationExpression::ArrayCreationExpression(std::unique_ptr<Type> t, std::unique_ptr<Expression> sz)
+  :	type(std::move(t)),
+	size(std::move(sz))
+{
+	nodeType = NodeType::ArrayCreationExpression;
+}
+
+ArrayCreationExpression* ArrayCreationExpression::clone() const {
+	ArrayCreationExpression* dup = new ArrayCreationExpression(std::unique_ptr<Type>(type->clone()), std::unique_ptr<Expression>(size->clone()));
+	dup->typeResult = this->typeResult;
+	return dup;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -440,6 +475,17 @@ AssignmentExpression::AssignmentExpression(const Parse::TAssignment *ptNode)
 		rhs(Expression::create(ptNode->assignmentExpression))
 {
 	nodeType = NodeType::AssignmentExpression;
+}
+AssignmentExpression::AssignmentExpression(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right)
+  : lhs(std::move(left)),
+	rhs(std::move(right))
+{
+	nodeType = NodeType::AssignmentExpression;
+}
+AssignmentExpression* AssignmentExpression::clone() const {
+	AssignmentExpression* dup = new AssignmentExpression(std::unique_ptr<Expression>(lhs->clone()), std::unique_ptr<Expression>(rhs->clone()));
+	dup->typeResult = this->typeResult;
+	return dup;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -516,6 +562,24 @@ BinaryExpression::BinaryExpression(const Parse::TConditionalOrExpression *ptNode
 		rhs(Expression::create(ptNode->conditionalAndExpression))
 {
 	nodeType = NodeType::BinaryExpression;
+}
+BinaryExpression::BinaryExpression(Variant opVar, std::unique_ptr<Expression> left, std::variant<std::unique_ptr<Expression>, std::unique_ptr<Type>> right)
+  :	op(opVar),
+	lhs(std::move(left)),
+	rhs(std::move(right))
+{
+	nodeType = NodeType::BinaryExpression;
+}
+BinaryExpression* BinaryExpression::clone() const {
+	std::variant<std::unique_ptr<Expression>, std::unique_ptr<Type>> rhsDup = std::visit(visitor {
+			[](std::unique_ptr<Expression> const& right) -> std::variant<std::unique_ptr<Expression>, std::unique_ptr<Type>> {
+				return std::unique_ptr<Expression>(right->clone());},
+			[](std::unique_ptr<Type> const& right) -> std::variant<std::unique_ptr<Expression>, std::unique_ptr<Type>> {
+				return std::unique_ptr<Type>(right->clone());}
+		}, rhs);
+	BinaryExpression* dup = new BinaryExpression(op, std::unique_ptr<Expression>(lhs->clone()), std::move(rhsDup));
+	dup->typeResult = this->typeResult;
+	return dup;
 }
 
 std::string operator+=(std::string& str, BinaryExpression::Variant op)
@@ -595,6 +659,11 @@ CastExpression::CastExpression(std::unique_ptr<Type> t, std::unique_ptr<Expressi
 {
 	nodeType = NodeType::CastExpression;
 }
+CastExpression* CastExpression::clone() const {
+	CastExpression* dup = new CastExpression(std::unique_ptr<Type>(type->clone()), std::unique_ptr<Expression>(rhs->clone()));
+	dup->typeResult = this->typeResult;
+	return dup;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -615,6 +684,17 @@ ClassInstanceCreationExpression::ClassInstanceCreationExpression(std::unique_ptr
 {
 	nodeType = NodeType::ClassInstanceCreationExpression;
 }
+ClassInstanceCreationExpression* ClassInstanceCreationExpression::clone() const {
+	std::vector<std::unique_ptr<Expression>> dupArgs;
+	for (auto &argument : args)
+	{
+		dupArgs.push_back(std::unique_ptr<Expression>(argument->clone()));
+	}
+	ClassInstanceCreationExpression* dup = new ClassInstanceCreationExpression(std::unique_ptr<NameType>(type->clone()), std::move(dupArgs));
+	dup->typeResult = this->typeResult;
+	dup->declaration = this->declaration;
+	return dup;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -628,17 +708,23 @@ FieldAccess::FieldAccess(const Parse::TFieldAccess *ptNode)
 {
 	nodeType = NodeType::FieldAccess;
 }
-FieldAccess::FieldAccess(std::unique_ptr<Expression> obj, std::string field)
-  :	source(std::move(obj)),
+FieldAccess::FieldAccess(std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> src, std::string field)
+  :	source(std::move(src)),
 	member(std::move(field))
 {
 	nodeType = NodeType::FieldAccess;
 }
-FieldAccess::FieldAccess(std::unique_ptr<NameType> type, std::string field)
-  :	source(std::move(type)),
-	member(std::move(field))
-{
-	nodeType = NodeType::FieldAccess;
+FieldAccess* FieldAccess::clone() const {
+	std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> srcDup = std::visit(visitor {
+			[](std::unique_ptr<Expression> const& src) -> std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> {
+				return std::unique_ptr<Expression>(src->clone());},
+			[](std::unique_ptr<NameType> const& src) -> std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> {
+				return std::unique_ptr<NameType>(src->clone());}
+		}, source);
+	FieldAccess* dup = new FieldAccess(std::move(srcDup), member);
+	dup->typeResult = this->typeResult;
+	dup->decl = this->decl;
+	return dup;
 }
 
 bool FieldAccess::isStaticAccessor() const
@@ -675,6 +761,16 @@ Literal::Literal(const Parse::TLiteral *ptNode)
 			ASSERT(false);
 	}
 }
+Literal::Literal(std::variant<unsigned int, bool, char, std::string, std::nullptr_t > val)
+  : value(std::move(val))
+{
+	nodeType = NodeType::Literal;
+}
+Literal* Literal::clone() const {
+	Literal* dup = new Literal(value); // pass by value results in copy
+	dup->typeResult = this->typeResult;
+	return dup;
+}
 
 bool Literal::isJavaString(TypeDeclaration *decl) {
 	return decl == stringDecl;
@@ -686,17 +782,22 @@ bool Literal::isJavaString(TypeDeclaration *decl) {
 //
 //////////////////////////////////////////////////////////////////////////////
 
-// mostly a dummy class - the equivalent of the Literal class, but for a "this" expression
 LocalVariableExpression::LocalVariableExpression(const Parse::TThis2 *ptNode)
   : id("this")
 {
 	nodeType = NodeType::LocalVariableExpression;
 }
-
 LocalVariableExpression::LocalVariableExpression(std::string identifier)
-  :	id(identifier)
+  :	id(std::move(identifier))
 {
 	nodeType = NodeType::LocalVariableExpression;
+}
+
+LocalVariableExpression* LocalVariableExpression::clone() const {
+	LocalVariableExpression* dup = new LocalVariableExpression(id);
+	dup->typeResult = this->typeResult;
+	dup->declaration = this->declaration;
+	return dup;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -719,19 +820,31 @@ MethodInvocation::MethodInvocation(const Parse::TMethodInvocation *ptNode)
 		source = Expression::create(ptNode->primary);
 	}
 }
-MethodInvocation::MethodInvocation(std::unique_ptr<NameType> src, std::string name, std::vector<std::unique_ptr<Expression>> arguments)
+MethodInvocation::MethodInvocation(std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>, std::unique_ptr<Name>> src, std::string name, std::vector<std::unique_ptr<Expression>> arguments)
   :	source(std::move(src)),
 	methodName(std::move(name)),
 	args(std::move(arguments))
 {
 	nodeType = NodeType::MethodInvocation;
 }
-MethodInvocation::MethodInvocation(std::unique_ptr<Expression> src, std::string name, std::vector<std::unique_ptr<Expression>> arguments)
-  :	source(std::move(src)),
-	methodName(std::move(name)),
-	args(std::move(arguments))
-{
-	nodeType = NodeType::MethodInvocation;
+MethodInvocation* MethodInvocation::clone() const {
+	std::vector<std::unique_ptr<Expression>> dupArgs;
+	for (auto &argument : args)
+	{
+		dupArgs.push_back(std::unique_ptr<Expression>(argument->clone()));
+	}
+	std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>, std::unique_ptr<Name>> srcDup = std::visit(visitor {
+			[](std::unique_ptr<Expression> const& src) -> std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>, std::unique_ptr<Name>> {
+				return std::unique_ptr<Expression>(src->clone());},
+			[](std::unique_ptr<NameType> const& src) -> std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>, std::unique_ptr<Name>> {
+				return std::unique_ptr<NameType>(src->clone());},
+			[](std::unique_ptr<Name> const& src) -> std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>, std::unique_ptr<Name>> {
+				return std::unique_ptr<Name>(src->clone());}
+		}, source);
+	MethodInvocation* dup = new MethodInvocation(std::move(srcDup), methodName, std::move(dupArgs));
+	dup->typeResult = this->typeResult;
+	dup->declaration = this->declaration;
+	return dup;
 }
 
 bool MethodInvocation::isStaticCall() const
@@ -749,10 +862,16 @@ bool MethodInvocation::isDisambiguated() const
 //
 //////////////////////////////////////////////////////////////////////////////
 
-NameExpression::NameExpression(std::unique_ptr<Name> other)
-  : unresolved(std::move(other))
+NameExpression::NameExpression(std::unique_ptr<Name> name, std::unique_ptr<Expression> conv)
+  : unresolved(std::move(name)),
+	converted(std::move(conv))
 {
 	nodeType = NodeType::NameExpression;
+}
+NameExpression* NameExpression::clone() const {
+	NameExpression* dup = new NameExpression(std::unique_ptr<Name>(unresolved->clone()), converted ? std::unique_ptr<Expression>(converted->clone()) : nullptr);
+	dup->typeResult = this->typeResult;
+	return dup;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -773,6 +892,17 @@ UnaryExpression::UnaryExpression(const Parse::TUnaryExpressionNotPlusMinus *ptNo
 		expr(Expression::create(ptNode->unaryExpression))
 {
 	nodeType = NodeType::UnaryExpression;
+}
+UnaryExpression::UnaryExpression(Variant opVar, std::unique_ptr<Expression> expression)
+  : op(opVar),
+	expr(std::move(expression))
+{
+	nodeType = NodeType::UnaryExpression;
+}
+UnaryExpression* UnaryExpression::clone() const {
+	UnaryExpression* dup = new UnaryExpression(op, std::unique_ptr<Expression>(expr->clone()));
+	dup->typeResult = this->typeResult;
+	return dup;
 }
 
 

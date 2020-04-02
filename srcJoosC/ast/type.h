@@ -30,6 +30,7 @@ class Type: public Node
 {
 public:
 	static std::unique_ptr<Type> create(const Parse::Tree *ptNode);
+    virtual Type* clone() const = 0;
 
 	bool isArray = false;
 
@@ -73,15 +74,15 @@ public:
 	explicit PrimitiveType(const Parse::TPrimitiveType *ptNode);
 	// void type - see note in Type::create
 	explicit PrimitiveType(std::nullptr_t);
+	explicit PrimitiveType(Variant var, bool arr);
+	PrimitiveType* clone() const override;
+	std::string toCode() const override;
 
 	Semantic::SemanticErrorType resolve(Semantic::SemanticDB const& semantic, TypeDeclaration *enclosingClass) override;
 
 	using Type::equals;
 	virtual bool equals(const Type *other) const override { return other->equalsDerived(this); };
 	virtual bool equals(const TypeResult &) const override;
-	std::string toCode() const override;
-
-	static thread_local int val;
 
 protected:
 	using Type::equalsDerived;
@@ -105,6 +106,8 @@ public:
 	explicit NameType(Name&& other);
 	explicit NameType(Name const& other);
 	explicit NameType(TypeDeclaration *decl, std::string name);
+	explicit NameType(std::vector<std::string> identifiers, bool arr, TypeDeclaration *decl);
+	NameType* clone() const override;
 	std::string toCode() const override;
 
 	std::string flatten() const;

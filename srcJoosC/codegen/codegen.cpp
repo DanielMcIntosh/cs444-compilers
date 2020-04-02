@@ -668,8 +668,8 @@ void TypeDeclaration::codeGenerate(CodeGen::SContext *ctx) {
 
 	// static fields
 	ctx->text.add("section .data\n align 2\n");
-	for (auto &field : this->fieldContainSet) {
-		if (!field->hasModifier(Modifier::Variant::Static))
+	for (auto *field : this->fieldContainSet) {
+		if (field == nullptr || !field->hasModifier(Modifier::Variant::Static))
 			continue;
 
 		ctx->text.declGlobalAndBegin(this->fqn + "." + field->varDecl->identifier);
@@ -679,8 +679,8 @@ void TypeDeclaration::codeGenerate(CodeGen::SContext *ctx) {
 
 void TypeDeclaration::codeGenerateStaticInit(CodeGen::SContext *ctx)
 {
-	for (auto &field : this->fieldContainSet) {
-		if (!field->hasModifier(Modifier::Variant::Static))
+	for (auto *field : this->fieldContainSet) {
+		if (field == nullptr || !field->hasModifier(Modifier::Variant::Static))
 			continue;
 
 
@@ -743,27 +743,22 @@ mov ebp, esp
 		ctx->text.add("pop eax");
 	}
 
-	// 2. initialize non static fields
-	for (auto &field : _enclosingClass->fieldContainSet) {
+	// 2. default initialize all non static fields to 0
+	// has to happen before we run their initializers in case some of them
+	// refer to un-initialized members (e.g. within a method call)
+	for (auto *field : _enclosingClass->fieldContainSet) {
+		if (field == nullptr)
+			continue;
 		if (field->hasModifier(Modifier::Variant::Static))
 			continue;
 		if (field->_enclosingClass != _enclosingClass)
 			continue;
 
 		field->asFieldAccess(parameters[0]->asLocalVarExpr())->codeGenerate(ctx, true);
-		if (!field->varDecl->initializer) {
-			ctx->text.add("mov dword [eax], 0");
-		} else {
-			/*
-			ctx->text.add("push eax");
-			field->varDecl->initializer->codeGenerate(ctx); // use after free
-			ctx->text.add("pop ebx");
-			ctx->text.add("mov [ebx], eax");
-			 */
-		}
+		ctx->text.add("mov dword [eax], 0");
 	}
 
-	// 3. actual body
+	// 3. actual body (also contains field initializers)
 	body->codeGenerate(ctx);
 
 	ctx->text.add(R"(

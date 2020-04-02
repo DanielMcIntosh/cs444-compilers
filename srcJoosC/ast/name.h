@@ -26,6 +26,8 @@ public:
 	static std::unique_ptr<Name> create(const Parse::Tree *ptNode);
 	explicit Name(const Parse::TName *ptNode);
 	explicit Name(std::vector<std::string> idList);
+	explicit Name(std::vector<std::string> idList, std::variant<std::unique_ptr<Expression>, std::unique_ptr<NameType>> conv);
+	Name* clone() const;
 
 	std::string flatten() const;
 	std::string toCode() const override;

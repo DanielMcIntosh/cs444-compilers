@@ -157,6 +157,11 @@ ExpressionStatement::ExpressionStatement(const Parse::TExpressionStatement *ptNo
 {
 	nodeType = NodeType::ExpressionStatement;
 }
+ExpressionStatement::ExpressionStatement(std::unique_ptr<Expression> expr)
+  :	expression(std::move(expr))
+{
+	nodeType = NodeType::ExpressionStatement;
+}
 
 LocalVariableDeclarationStatement::LocalVariableDeclarationStatement(const Parse::TLocalVariableDeclarationStatement *ptNode)
 	: declaration(std::make_unique<VariableDeclaration>(ptNode->variableDeclaration))
