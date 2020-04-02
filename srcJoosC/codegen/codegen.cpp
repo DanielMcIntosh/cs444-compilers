@@ -156,6 +156,7 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 			ctx->text.add("imul ebx");
 			break;
 		case Variant::Div:
+			// TODO: check for div by 0
 			ctx->text.add("cdq");
 			ctx->text.add("idiv ebx");
 			break;
@@ -679,6 +680,19 @@ void TypeDeclaration::codeGenerate(CodeGen::SContext *ctx) {
 
 void TypeDeclaration::codeGenerateStaticInit(CodeGen::SContext *ctx)
 {
+	// Default initialize all static fields to 0. This  has to happen before
+	// we run their initializers in case some of them refer to un-initialized
+	// members (e.g. within a static method call) (See JLS 8.3.2.3)
+	for (auto *field : this->fieldContainSet) {
+		if (field == nullptr)
+			continue;
+		if (!field->hasModifier(Modifier::Variant::Static))
+			continue;
+
+		field->asFieldAccess()->codeGenerate(ctx, true);
+		ctx->text.add("mov dword [eax], 0");
+	}
+
 	for (auto *field : this->fieldContainSet) {
 		if (field == nullptr || !field->hasModifier(Modifier::Variant::Static))
 			continue;
