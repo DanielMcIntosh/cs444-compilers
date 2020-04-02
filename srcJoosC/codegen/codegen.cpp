@@ -795,33 +795,13 @@ void Literal::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	assert(!returnLValue);
 	auto item = (Literal*)this;
 
-	strdecl512(label, "const_%d", ++ctx->counter);
-	string labelS = string(label);
-
 	unsigned int effectiveValue = 0;
-	bool isInt = false;
 
 	switch (item->value.index()) {
-		case 0:
-			// unsigned int
-			effectiveValue = std::get<0>(item->value);
-			isInt = true;
-			break;
-
-		case 1:
-			// bool
-			effectiveValue = std::get<1>(item->value);
-			isInt = true;
-
-			break;
-		case 2:
-			// char
-			effectiveValue = std::get<2>(item->value);
-			isInt = true;
-
-			break;
 		case 3: {
 			// string
+			strdecl512(label, "const_%d", ++ctx->counter);
+			string labelS = string(label);
 
 			ConstructorDeclaration *ctorDecl = nullptr;
 			TypeDeclaration *theStringDecl = ctx->stringDecl;
@@ -843,28 +823,32 @@ void Literal::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 
 			int numArg = 0;
 			ctx->text.add("push eax"); ++numArg;
-			ctx->text.addf("mov dword eax, %s", label);
-			ctx->text.add("push eax"); ++numArg;
+			ctx->text.addf("push dword %s", label);  ++numArg;
 			ctx->text.call("%s", getProcedureName(ctorDecl).c_str());
 
 			codeGenClassInstanceCreateEpilogue(ctx, numArg);
 
-			isInt = false;
+			return;
 		}
+		case 0:
+			// unsigned int
+			effectiveValue = std::get<0>(item->value);
 			break;
-
+		case 1:
+			// bool
+			effectiveValue = std::get<1>(item->value);
+			break;
+		case 2:
+			// char
+			effectiveValue = std::get<2>(item->value);
+			break;
 		case 4:
 			// null
 			effectiveValue = 0;
-			isInt = true;
-
 			break;
 	}
 
-	if (isInt) {
-		ctx->text.addConstant(labelS, effectiveValue);
-	    ctx->text.add("mov eax, [" + labelS + "];   Literal (" + toCode() + ")");
-	}
+	ctx->text.add("mov dword eax, " + std::to_string(effectiveValue) + ";   Literal (" + toCode() + ")");
 }
 
 void ArrayCreationExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
@@ -934,8 +918,7 @@ pop edx
 	ctx->text.addf("%s:", loopLabel.c_str());
 	ctx->text.add("cmp ebx, ecx");
 	ctx->text.addf("je %s", loopOutLabel.c_str());
-	ctx->text.add("mov edx, 0");
-	ctx->text.addf("mov [eax + %d + ebx * 4], edx", ARRAY_DATA_OFFSET * 4);
+	ctx->text.addf("mov dword [eax + %d + ebx * 4], 0", ARRAY_DATA_OFFSET * 4);
 
 	ctx->text.add("add ebx, 1");
 	ctx->text.addf("jmp %s\n%s:", loopLabel.c_str(), loopOutLabel.c_str());
