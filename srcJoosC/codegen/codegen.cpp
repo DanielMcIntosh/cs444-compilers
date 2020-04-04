@@ -404,8 +404,8 @@ string getProcedureName(const AST::MemberDeclaration *theMember) {
 	return labelName;
 }
 
-MethodInfo::MethodInfo(int index, AST::MethodDeclaration *decl): tableIndex(index),
-                                                                 declaration(decl) {
+MethodInfo::MethodInfo(int index, AST::MethodDeclaration *decl, AST::TypeDeclaration * cls): tableIndex(index),
+                                                                 declaration(decl), declaringClass(cls) {
 
 }
 
@@ -431,12 +431,39 @@ void codeGenEmitTypeInfo(SContext *ctx, AST::TypeDeclaration *type, int typeInde
 	for (auto &methodInfo : ctx->methodTable) {
 		string label = getProcedureName(methodInfo->declaration);
 		string implLabel;
-		for (const auto &[implementor, overriden] : type->overrides) {
-			if (overriden->equals(methodInfo->declaration)) {
-				implLabel = getProcedureName(implementor);
-				break;
+
+		ASSERT(!methodInfo->declaration->hasModifier(AST::Modifier::Variant::Static));
+
+		for (const auto &hyper : type->hyperSet) {
+			if (hyper != methodInfo->declaringClass)
+				continue;
+
+			for (const auto &ourContain : type->methodContainSet) {
+				if (ourContain->_enclosingClass != type)
+					continue;
+
+				if (ourContain->hasModifier(AST::Modifier::Variant::Static))
+					continue;
+
+				bool equals = ourContain->identifier == methodInfo->declaration->identifier &&
+								      ourContain->parameters.size() == methodInfo->declaration->parameters.size();
+
+				if (!equals)
+					continue;
+
+				for (size_t paramIdx = 1; paramIdx < ourContain->parameters.size(); ++paramIdx) {
+					equals &= ourContain->parameters[paramIdx]->equals(methodInfo->declaration->parameters[paramIdx].get());
+				}
+
+				if (!equals)
+					continue;
+
+				implLabel = getProcedureName(ourContain);
+				goto found;
 			}
 		}
+
+		found:
 		if (implLabel.empty()) {
 			for (const auto &ourMethod : type->methodContainSet) {
 				if (ourMethod->equals(methodInfo->declaration) &&
@@ -493,7 +520,7 @@ void codeGenInitMethodSelectorTable(SContext *ctx,
 				continue;
 
 			int index = ctx->methodTable.size();
-			ctx->methodTable.emplace_back(make_unique<MethodInfo>(index, method));
+			ctx->methodTable.emplace_back(make_unique<MethodInfo>(index, method, type));
 			auto pr = ctx->methodSelector.insert(make_pair(label, ctx->methodTable.back().get()));
 			ASSERT(pr.second);
 		}
@@ -588,13 +615,20 @@ BackendResult doBackend(const MiddleendResult &middleend) {
 			ctx->text.addf("; Method selector");
 
 			for (const auto &methodInfo : ctx->methodTable) {
-				ctx->text.addf("dd 0 ; %d", methodInfo->tableIndex);
+				if (methodInfo->declaration->_enclosingClass->fqn == "java.lang.Object") {
+					string label = getProcedureName(methodInfo->declaration);
+					ctx->text.addExternSymbol(label);
+					ctx->text.addf("dd %s; %d", label.c_str(), methodInfo->tableIndex);
+				} else {
+					ctx->text.addf("dd 0 ; %d", methodInfo->tableIndex);
+				}
 			}
 
 			ctx->text.add("; Subtype testing");
 			int typeCounter = 0;
 			for (const auto &type : middleend.semanticDB.typeMap) {
-				ctx->text.addf("dd 0; %d %s", typeCounter, type.first.c_str());
+				int isSub = type.first == "java.lang.Object" ? 1 : 0;
+				ctx->text.addf("dd %d; %d %s", isSub, typeCounter, type.first.c_str());
 				++typeCounter;
 			}
 
