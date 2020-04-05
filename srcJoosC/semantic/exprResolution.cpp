@@ -269,26 +269,42 @@ SemanticErrorType BinaryExpression::deduceChildTypes(Semantic::Scope const& scop
 		if (op == Variant::Add)
 		{
 			// String concatenation: if needed, make an explicit call to String::valueOf so both lhs and rhs are Strings
-			if ((lhs->typeResult.isJavaString() && !rhsExpr->typeResult.isJavaString()) ||
-				(!lhs->typeResult.isJavaString() && rhsExpr->typeResult.isJavaString()))
+			if (lhs->typeResult.isJavaString() || rhsExpr->typeResult.isJavaString())
 			{
 				auto &strExpr = lhs->typeResult.isJavaString() ? lhs : rhsExpr;
 				auto &otherExpr = !lhs->typeResult.isJavaString() ? lhs : rhsExpr;
+				auto *strTDecl = strExpr->typeResult.userDefinedType;
 
-				std::vector<std::unique_ptr<Expression>> args;
 				if (otherExpr->typeResult.isReferenceType() || otherExpr->typeResult.isPrimitiveType(TypePrimitive::Null))
 				{
 					// use a hack to get the TypeDecl for java.lang.Object (String has Object as its implicit superclass)
-					TypeDeclaration *objDecl = strExpr->typeResult.userDefinedType->superClass->declaration;
-					// cast otherExpr to Object, since valueOf expects an Object, String or primitive as its argument
-					args.push_back(std::make_unique<CastExpression>(objDecl->asType(), std::move(otherExpr)));
+					TypeDeclaration *objTDecl = strTDecl->superClass->declaration;
+					// replace otherExpr with a cast to Object, since valueOf expects an Object, String or primitive as its argument
+					otherExpr = std::make_unique<CastExpression>(objTDecl->asType(), std::move(otherExpr));
 				}
-				else
-					args.push_back(std::move(otherExpr));
 
-				// overwrite otherExpr with the exlicit invocation of String::valueOf
-				otherExpr = std::make_unique<MethodInvocation>(strExpr->typeResult.userDefinedType->asType(), "valueOf", std::move(args));
-				return otherExpr->resolveAndDeduce(scope);
+				// replace otherExpr with an exlicit invocation of String::valueOf
+				{
+					std::vector<std::unique_ptr<Expression>> args;
+					args.push_back(std::move(otherExpr));
+					// overwrite otherExpr
+					otherExpr = std::make_unique<MethodInvocation>(strTDecl->asType(), "valueOf", std::move(args));
+				}
+
+				// replace strExpr with an exlicit invocation of String::valueOf (in case strExpr is null)
+				{
+					std::vector<std::unique_ptr<Expression>> args;
+					args.push_back(std::move(strExpr));
+					// overwrite strExpr
+					strExpr = std::make_unique<MethodInvocation>(strTDecl->asType(), "valueOf", std::move(args));
+				}
+
+				if (auto err = otherExpr->resolveAndDeduce(scope);
+					err != SemanticErrorType::None)
+				{
+					return err;
+				}
+				return strExpr->resolveAndDeduce(scope);
 			}
 		}
 	}
