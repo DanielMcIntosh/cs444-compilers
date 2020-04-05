@@ -314,7 +314,7 @@ void batchTestingThread(BatchTestThreadCtx ctx) {
       }
     }
 
-    if (ctx.assgnNum == 5) {
+    if (ctx.assgnNum >= 5) {
       BackendResult backend = doBackend(caseResult->middleend);
 
       caseResult->execResult.retCode = -1;
@@ -642,7 +642,7 @@ void batchTesting(JoosC* joosc, const string& baseDir,
 #define logFmt "%3d %s:1 FT: %s, Semantic: %s %s"
 
     bool correctness;
-    if (assignNum != 5) {
+    if (assignNum < 5) {
       correctness =
           valid == isProgramValidFromFileName(topLevelName.c_str(), 1);
     } else {
@@ -662,8 +662,8 @@ void batchTesting(JoosC* joosc, const string& baseDir,
                 semanticError, sdb->errMsg.c_str());
     }
 
-    if (assignNum == 5) {
-      LOGR("%s", result.execResult.output.c_str());
+    if (assignNum >= 5) {
+    	fprintf(stderr, "%s\n", result.execResult.output.c_str());
     }
   }
 
@@ -699,13 +699,12 @@ void checkTestMode(JoosC* joosc, const char* argv1) {
   strdecl256(progFolder, "%s/a%d/", assnBase, num);
 
   vector<string> stdlib;
-  if (num >= 2 && num <= 5) {
+  if (num >= 2) {
     const char* libBase = CUR_DIR_MARKER "tests/stdlib";
     strdecl256(libFolder, "%s/%d.0/", libBase, num);
     getJavaFilesRecursive(stdlib, string(libFolder));
     stdlib.push_back(CUR_DIR_MARKER "tests/stdlib/IObject.java");
   }
-  if (num >= 6) gStandAloneMode = true;
   batchTesting(joosc, string(progFolder), stdlib, num);
 }
 

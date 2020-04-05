@@ -74,7 +74,8 @@ void ConditionalStatement::codeGenerate(CodeGen::SContext *ctx) {
 
 void ReturnStatement::codeGenerate(CodeGen::SContext *ctx) {
 	ctx->text.add("; BEGIN - ReturnStatement (" + toCode() + ")");
-	returnValue->codeGenerate(ctx);
+	if (returnValue)
+		returnValue->codeGenerate(ctx);
 	ctx->text.add(R"(mov esp, ebp
 pop ebp
 ret)");
@@ -288,7 +289,7 @@ string SText::toString() {
 					}
 				}
 
-				addf("dd %s", result.c_str());
+				this->lines.push_back("dd " + result);
 			},
 			[&] (int num) {
 				strdecl512(text , "%s: dd %d", constant.name.c_str(), num);
@@ -404,8 +405,8 @@ string getProcedureName(const AST::MemberDeclaration *theMember) {
 	return labelName;
 }
 
-MethodInfo::MethodInfo(int index, AST::MethodDeclaration *decl, AST::TypeDeclaration * cls): tableIndex(index),
-                                                                 declaration(decl), declaringClass(cls) {
+MethodInfo::MethodInfo(int index, AST::MethodDeclaration *decl): tableIndex(index),
+                                                                 declaration(decl) {
 
 }
 
@@ -435,7 +436,7 @@ void codeGenEmitTypeInfo(SContext *ctx, AST::TypeDeclaration *type, int typeInde
 		ASSERT(!methodInfo->declaration->hasModifier(AST::Modifier::Variant::Static));
 
 		for (const auto &hyper : type->hyperSet) {
-			if (hyper != methodInfo->declaringClass)
+			if (hyper != methodInfo->declaration->_enclosingClass)
 				continue;
 
 			for (const auto &ourContain : type->methodContainSet) {
@@ -452,7 +453,7 @@ void codeGenEmitTypeInfo(SContext *ctx, AST::TypeDeclaration *type, int typeInde
 					continue;
 
 				for (size_t paramIdx = 1; paramIdx < ourContain->parameters.size(); ++paramIdx) {
-					equals &= ourContain->parameters[paramIdx]->equals(methodInfo->declaration->parameters[paramIdx].get());
+					equals &= ourContain->parameters[paramIdx]->typeEquals(methodInfo->declaration->parameters[paramIdx].get());
 				}
 
 				if (!equals)
@@ -520,7 +521,7 @@ void codeGenInitMethodSelectorTable(SContext *ctx,
 				continue;
 
 			int index = ctx->methodTable.size();
-			ctx->methodTable.emplace_back(make_unique<MethodInfo>(index, method, type));
+			ctx->methodTable.emplace_back(make_unique<MethodInfo>(index, method));
 			auto pr = ctx->methodSelector.insert(make_pair(label, ctx->methodTable.back().get()));
 			ASSERT(pr.second);
 		}

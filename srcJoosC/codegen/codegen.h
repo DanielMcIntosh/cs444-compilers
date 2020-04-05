@@ -87,9 +87,8 @@ private:
 struct MethodInfo {
 	int tableIndex;
 	AST::MethodDeclaration *declaration;
-	AST::TypeDeclaration *declaringClass;
 
-	MethodInfo(int index, AST::MethodDeclaration *decl, AST::TypeDeclaration *declaringType);
+	MethodInfo(int index, AST::MethodDeclaration *decl);
 };
 
 class SContext {
