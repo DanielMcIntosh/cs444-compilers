@@ -49,6 +49,8 @@ void Expression::resetError() {
 
 SemanticErrorType Expression::resolveAndDeduce(Semantic::Scope const& scope)
 {
+	if (hasBeenResolved())
+		return SemanticErrorType::None;
 	if (auto error = disambiguate(scope);
 		error != SemanticErrorType::None)
 	{
@@ -78,6 +80,10 @@ SemanticErrorType Expression::deduceChildTypes(Semantic::Scope const& scope)
 SemanticErrorType Expression::resolve(Semantic::Scope const& scope)
 {
 	return SemanticErrorType::None;
+}
+bool Expression::hasBeenResolved()
+{
+	return typeResult != TypeResult(false, TypePrimitive::Max, true);
 }
 
 //////////////////////////////////////////////////////////////////////////////

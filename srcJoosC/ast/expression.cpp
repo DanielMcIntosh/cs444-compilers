@@ -980,6 +980,9 @@ bool TypeResult::operator==(const TypeResult &other) const {
 		   (isPrimitive ? primitiveType == other.primitiveType :
 			userDefinedType == other.userDefinedType);
 }
+bool TypeResult::operator!=(const TypeResult &other) const {
+	return !operator==(other);
+}
 
 bool TypeResult::isNumOrArrayNum() const {
 	return isPrimitive && (primitiveType == TypePrimitive::Int ||

@@ -50,6 +50,7 @@ public:
 	virtual Semantic::SemanticErrorType deduceChildTypes(Semantic::Scope const& scope);
 	virtual Semantic::SemanticErrorType resolve(Semantic::Scope const& scope);
 	virtual Semantic::SemanticErrorType deduceType() = 0;
+	bool hasBeenResolved();
 
 	TypeResult typeResult = TypeResult(false, TypePrimitive::Max, true);
 

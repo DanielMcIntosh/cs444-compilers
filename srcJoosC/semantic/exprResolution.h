@@ -52,6 +52,7 @@ struct TypeResult {
 	[[gnu::pure]]
 	bool isReferenceType() const;
 	bool operator==(const TypeResult&other) const;
+	bool operator!=(const TypeResult&other) const;
 
 	// assignability (JLS 5), used in more than one place
 	bool canAssignToMyType(const TypeResult &other) const ;

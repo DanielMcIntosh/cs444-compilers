@@ -71,8 +71,13 @@ std::unique_ptr<FieldAccess> FieldDeclaration::asFieldAccess(std::unique_ptr<Exp
 		assert(src != nullptr);
 		ret = std::make_unique<FieldAccess>(std::move(src), varDecl->identifier);
 	}
-	ret->decl = this;
-	ret->deduceType();
+	if (!src || src->hasBeenResolved())
+	{
+		// resolve
+		ret->decl = this;
+		// deduce
+		ret->deduceType();
+	}
 	return ret;
 }
 
