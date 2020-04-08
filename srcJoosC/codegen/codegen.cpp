@@ -280,14 +280,6 @@ string SText::toString() {
 					result += buffer;
 				}
 				result.pop_back();
-				result.push_back(';');
-				for (char c : str) {
-					if (c >= 32) {
-						result.push_back(c);
-					} else {
-						result.push_back('x');
-					}
-				}
 
 				this->lines.push_back("dd " + result);
 			},
