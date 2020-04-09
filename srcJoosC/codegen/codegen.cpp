@@ -480,10 +480,11 @@ void codeGenEmitTypeInfo(SContext *ctx, AST::TypeDeclaration *type, int typeInde
 	ctx->text.addf(" ; Subtype table");
 
 	// calculate subtype testing table
+	// in this table, any type is a subtype of itself
 	int typeCounter = 0;
 	for (auto &[otherTypeName, otherType] : typeMap) {
-		if (std::find(type->hyperSet.begin(), type->hyperSet.end(), otherType) !=
-		    type->hyperSet.end()) {
+		if (std::find(type->hyperSet.begin(), type->hyperSet.end(), otherType) != type->hyperSet.end() ||
+			type == otherType) {
 			ctx->text.addf("dd 1 ; %d %s", typeCounter, otherType->fqn.c_str());
 		} else {
 			ctx->text.addf("dd 0 ; %d %s", typeCounter, otherType->fqn.c_str());
@@ -527,7 +528,7 @@ using namespace CodeGen;
 BackendResult doBackend(const MiddleendResult &middleend) {
 	using namespace AST;
 	BackendResult result;
-	SContext context, *ctx = &context;
+	SContext context(middleend.semanticDB.typeMap), *ctx = &context;
 
 	{
 		auto &typeMap = middleend.semanticDB.typeMap;
@@ -1063,15 +1064,115 @@ void NameExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	converted->codeGenerate(ctx, returnLValue);
 }
 
+void genSubtypeCheck(CodeGen::SContext *ctx, const Type *type) {
+	// checks if obj in eax is a subtype of type
+	int i = 0;
+	for (const auto& [k, v] : ctx->typeMap) {
+		if (v->asType()->equals(type)) break;
+		++i;
+	}
+	int offset = ctx->methodTable.size() + i + 1;
+	ctx->text.addf("mov ebx, [eax + %d]", OBJECT_CLASS * 4);
+	ctx->text.addf("mov ecx, [ebx + %d] ; check subtype", offset * 4);
+	ctx->text.add("cmp ecx, 0");
+	ctx->text.add("je exception");
+}
+
 void CastExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	assert(!returnLValue);
 	ctx->text.add("; BEGIN - CastExpression (" + toCode() + ")");
 	rhs->codeGenerate(ctx, returnLValue);
-	if (type->nodeType == NodeType::NameType) {
-		// TODO: subtype check
-	} else {
+	ctx->text.addExternSymbol("exception");
 
+	string endLabel;
+	strAppend(&endLabel, "end_of_cast_%d", ++ctx->counter);
+
+	// skip null
+	ctx->text.add("cmp eax, 0");
+	ctx->text.addf("je %s", endLabel.c_str());
+
+	if (type->isArray) {
+		if (rhs->typeResult.isArray) {
+			// check assignability of element types
+			if (type->nodeType == NodeType::NameType) {
+				// casting to NameType array (NameType guaranteed)
+
+				// throw if rhs points to primitive array
+				for (const auto& prim : getPrimitiveTypes()) {
+					ctx->text.addExternSymbol(prim + "_typeinfo");
+					ctx->text.addf("cmp dword [eax + %d], %s_typeinfo", OBJECT_CLASS * 4, prim.c_str());
+					ctx->text.addf("je exception");
+				}
+
+				genSubtypeCheck(ctx, type.get());
+
+			} else {
+				// casting to primitive array, rhs guaranteed to be valid
+			}
+		} else {
+			// guaranteed to be Object/Cloneable/Serializable, to follow reference
+
+			// throw if rhs does not point to array type
+			ctx->text.addf("cmp dword [eax + %d], 0", OBJECT_ISARRAY * 4);
+			ctx->text.addf("je exception");
+
+			// check assignability of element types
+			if (type->nodeType == NodeType::NameType) {
+				// casting to NameType array
+
+				// throw if rhs points to primitive array
+				for (const auto& prim : getPrimitiveTypes()) {
+					ctx->text.addExternSymbol(prim + "_typeinfo");
+					ctx->text.addf("cmp dword [eax + %d], %s_typeinfo", OBJECT_CLASS * 4, prim.c_str());
+					ctx->text.addf("je exception");
+				}
+
+				genSubtypeCheck(ctx, type.get());
+
+			} else {
+				// casting to primitive array
+				const auto& prim = static_cast<PrimitiveType*>(type.get());
+				switch (prim->type) {
+					case PrimitiveType::Variant::Int:
+						ctx->text.addExternSymbol("_Int_typeinfo");
+						ctx->text.addf("cmp dword [eax + %d], _Int_typeinfo", OBJECT_CLASS * 4);
+						break;
+					case PrimitiveType::Variant::Short:
+						ctx->text.addExternSymbol("_Short_typeinfo");
+						ctx->text.addf("cmp dword [eax + %d], _Short_typeinfo", OBJECT_CLASS * 4);
+						break;
+					case PrimitiveType::Variant::Byte:
+						ctx->text.addExternSymbol("_Byte_typeinfo");
+						ctx->text.addf("cmp dword [eax + %d], _Byte_typeinfo", OBJECT_CLASS * 4);
+						break;
+					case PrimitiveType::Variant::Char:
+						ctx->text.addExternSymbol("_Char_typeinfo");
+						ctx->text.addf("cmp dword [eax + %d], _Char_typeinfo", OBJECT_CLASS * 4);
+						break;
+					case PrimitiveType::Variant::Boolean:
+						ctx->text.addExternSymbol("_Boolean_typeinfo");
+						ctx->text.addf("cmp dword [eax + %d], _Boolean_typeinfo", OBJECT_CLASS * 4);
+						break;
+					case PrimitiveType::Variant::Void:
+						break;
+				}
+				ctx->text.addf("jne exception");
+			}
+		}
+	} else {
+		if (type->nodeType == NodeType::NameType) {
+			const auto& decl = static_cast<NameType*>(type.get())->declaration;
+			if (decl->fqn != "java.lang.Object" &&
+				decl->fqn != "java.lang.Cloneable" &&
+				decl->fqn != "java.io.Serializable") {
+				// rhs is guaranteed to be a non-array NameType
+
+				genSubtypeCheck(ctx, type.get());
+			}
+		}
 	}
+	ctx->text.addf("%s:", endLabel.c_str());
+	ctx->text.add("; END - CastExpression (" + toCode() + ")");
 }
 
 void FieldAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
