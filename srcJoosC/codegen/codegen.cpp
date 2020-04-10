@@ -1045,14 +1045,33 @@ void AssignmentExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValu
 	ctx->text.add("; BEGIN - AssignmentExpression (" + toCode() + ")");
 
 	CodeGen::SText *text = &ctx->text;
-	auto item = (AssignmentExpression*)this;
 
-	// TODO Subtype test
-
-	item->lhs->codeGenerate(ctx, true);
+	lhs->codeGenerate(ctx, true);
 	text->add("push eax");
-	item->rhs->codeGenerate(ctx);
-	text->add("pop ebx");
+	text->add("push ebx");
+	rhs->codeGenerate(ctx);
+	text->add("pop ecx"); // lhs tag
+	text->add("pop ebx"); // lhs
+
+	text->add("push eax"); // rhs
+	text->add("push ebx"); // lhs
+
+	if (lhs->nodeType == NodeType::ArrayAccess) {
+		if (lhs->typeResult.isReferenceType()) {
+			ctx->text.addf("mov ebx, [eax + %d]", OBJECT_CLASS * 4); // rhs tag
+			ctx->text.addf("mov edx, [ecx + %d]", CLASS_TAG * 4);
+			ctx->text.addf("add edx, %d", ctx->methodTable.size() + 1);
+			ctx->text.addf("shl edx, 2");
+			ctx->text.addf("add edx, ebx");
+			ctx->text.addf("mov ecx, [edx]");
+			ctx->text.add("cmp ecx, 0");
+			ctx->text.add("je exception");
+		}
+	}
+
+	text->add("pop ebx"); // rhs
+	text->add("pop eax"); // lhs
+
 	text->add("mov [ebx], eax");
 	if (returnLValue)
 		text->add("mov eax, ebx");
@@ -1066,6 +1085,7 @@ void NameExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 
 void genSubtypeCheck(CodeGen::SContext *ctx, const Type *type) {
 	// checks if obj in eax is a subtype of type
+	// leaves eax unchanged, clobbers ebx and ecx
 	int i = 0;
 	for (const auto& [k, v] : ctx->typeMap) {
 		if (v->asType()->equals(type)) break;
@@ -1284,6 +1304,12 @@ void ArrayAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	if (!returnLValue) {
 		ctx->text.add("mov eax, [eax]");
 	}
+
+	// set ebx to type tag, to be used in AssignmentExpression::codeGenerate
+	if (returnLValue && typeResult.isReferenceType()) {
+		ctx->text.addf("mov ebx, [ebx + %d]", OBJECT_CLASS * 4);
+	}
+
 	ctx->text.add("; END - ArrayAccess (" + toCode() + ")");
 }
 
