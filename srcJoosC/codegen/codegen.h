@@ -93,7 +93,7 @@ struct MethodInfo {
 
 class SContext {
 public:
-	SContext(const std::unordered_map<std::string, AST::TypeDeclaration*>& typeMap) : typeMap(typeMap) {}
+	SContext(const std::unordered_map<std::string, AST::TypeDeclaration*>& typeMap_) : typeMap(typeMap_) {}
 	AST::TypeDeclaration *stringDecl; // for creating string from literal
 
 	std::vector<std::unique_ptr<MethodInfo>> methodTable;
