@@ -1046,6 +1046,8 @@ void AssignmentExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValu
 
 	CodeGen::SText *text = &ctx->text;
 
+	strdecl256(endLabel, "assn_skip_null_%d", ++ctx->counter);
+
 	lhs->codeGenerate(ctx, true);
 	text->add("push eax");
 	text->add("push ebx");
@@ -1056,11 +1058,14 @@ void AssignmentExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValu
 	text->add("push eax"); // rhs
 	text->add("push ebx"); // lhs
 
+	text->addf("cmp eax, 0");
+	text->addf("je %s", endLabel);
+
 	if (lhs->nodeType == NodeType::ArrayAccess) {
 		if (lhs->typeResult.isReferenceType()) {
 			ctx->text.addf("mov ebx, [eax + %d]", OBJECT_CLASS * 4); // rhs tag
 			ctx->text.addf("mov edx, [ecx + %d]", CLASS_TAG * 4);
-			ctx->text.addf("add edx, %d", ctx->methodTable.size() + 1);
+			ctx->text.addf("add edx, %lu", ctx->methodTable.size() + 1);
 			ctx->text.addf("shl edx, 2");
 			ctx->text.addf("add edx, ebx");
 			ctx->text.addf("mov ecx, [edx]");
@@ -1069,6 +1074,7 @@ void AssignmentExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValu
 		}
 	}
 
+	text->addf("%s:", endLabel);
 	text->add("pop ebx"); // rhs
 	text->add("pop eax"); // lhs
 
@@ -1174,6 +1180,9 @@ void CastExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 						ctx->text.addf("cmp dword [eax + %d], _Boolean_typeinfo", OBJECT_CLASS * 4);
 						break;
 					case PrimitiveType::Variant::Void:
+						break;
+					default:
+						ASSERT(false);
 						break;
 				}
 				ctx->text.addf("jne exception");
