@@ -60,7 +60,7 @@ namespace CodeGen {
 class SConstant {
 public:
 	std::string name;
-	std::variant<std::string, int> constant;
+	std::string value;
 };
 
 class SText {
@@ -74,14 +74,13 @@ public:
 	void addExternSymbol(const std::string& str);
 	void addExternSymbol(const std::vector<std::string> &symbol);
 	void declGlobalAndBegin(const std::string &name);
-	void addConstant(const std::string &name, const std::string &constant);
-	void addConstant(const std::string &name, unsigned int constant);
+	void addStringLiteral(const std::string &name, const std::string &value);
 
 private:
 	std::vector<std::string> lines;
 	std::unordered_set<std::string> externalLabels;
 	std::unordered_set<std::string> declaredGlobals;
-	std::vector<SConstant> constants;
+	std::vector<SConstant> stringLiterals;
 };
 
 struct MethodInfo {

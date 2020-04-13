@@ -259,35 +259,27 @@ void SText::declGlobalAndBegin(const string &name) {
 }
 
 string SText::toString() {
-	for (const auto& constant : constants) {
-		visit(visitor{
-			[&] (const string& str) {
-				ASSERT(OBJECT_CLASS == 0);
-				ASSERT(OBJECT_ISARRAY == 1);
-				ASSERT(ARRAY_LENGTH_OFFSET == 2);
-				ASSERT(ARRAY_DATA_OFFSET == 3);
-				addf("%s: dd %s", constant.name.c_str(), "_Char_typeinfo");
-				addf("dd 1");
-				addf("dd %ld", str.length());
+	for (const auto& literal : stringLiterals) {
+		ASSERT(OBJECT_CLASS == 0);
+		ASSERT(OBJECT_ISARRAY == 1);
+		ASSERT(ARRAY_LENGTH_OFFSET == 2);
+		ASSERT(ARRAY_DATA_OFFSET == 3);
+		addf("%s: dd %s", literal.name.c_str(), "_Char_typeinfo");
+		addf("dd 1");
+		addf("dd %ld", literal.value.length());
 
-				if (str.empty())
-					return;
+		if (literal.value.empty())
+			continue;
 
-				string result;
-				char buffer[16];
-				for (char c : str) {
-					snprintf(buffer, 16, "0x%x,", c);
-					result += buffer;
-				}
-				result.pop_back();
+		string result;
+		char buffer[16];
+		for (char c : literal.value) {
+			snprintf(buffer, 16, "0x%x,", c);
+			result += buffer;
+		}
+		result.pop_back();
 
-				this->lines.push_back("dd " + result);
-			},
-			[&] (int num) {
-				strdecl512(text , "%s: dd %d", constant.name.c_str(), num);
-				add(text);
-			}
-			}, constant.constant);
+		this->lines.push_back("dd " + result);
 	}
 
 	string res;
@@ -307,12 +299,8 @@ string SText::toString() {
 	return res;
 }
 
-void SText::addConstant(const string &name, const string &constant) {
-	constants.push_back(SConstant{name, constant});
-}
-
-void SText::addConstant(const string &name, unsigned int constant) {
-	constants.push_back(SConstant{name, constant});
+void SText::addStringLiteral(const string &name, const string &value) {
+	stringLiterals.push_back(SConstant{name, value});
 }
 
 void SText::add(const string &str) {
@@ -649,7 +637,7 @@ BackendResult doBackend2(const MiddleendResult &middleend) {
 
 	SText s;
 	s.addExternSymbol(runtimeSymbols);
-	s.addConstant("hello", "Hello from ASM!");
+	s.addStringLiteral("hello", "Hello from ASM!");
 
 	s.add("section .text");
 	s.declGlobalAndBegin("_start");
@@ -861,7 +849,7 @@ void Literal::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 
 			ctx->text.addExternSymbol("_Char_typeinfo");
 
-			ctx->text.addConstant(label, std::get<3>(item->value));
+			ctx->text.addStringLiteral(label, std::get<3>(item->value));
 
 			codeGenClassInstanceCreatePreamble(ctx, theStringDecl);
 
