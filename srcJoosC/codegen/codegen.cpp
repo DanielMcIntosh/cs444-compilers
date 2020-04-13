@@ -518,13 +518,6 @@ BackendResult doBackend(const MiddleendResult &middleend) {
 	BackendResult result;
 	SContext context(middleend.semanticDB.typeMap), *ctx = &context;
 
-	{
-		auto &typeMap = middleend.semanticDB.typeMap;
-		auto it = typeMap.find("java.lang.String");
-		ASSERT(it != typeMap.end());
-		ctx->stringDecl = it->second;
-	}
-
 	codeGenInitMethodSelectorTable(ctx, middleend.semanticDB.typeMap);
 
 	// constructor and method implementations
@@ -836,7 +829,6 @@ void Literal::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 			string labelS = string(label);
 
 			ConstructorDeclaration *ctorDecl = nullptr;
-			TypeDeclaration *theStringDecl = ctx->stringDecl;
 			for (auto &ctor : stringDecl->constructorSet) {
 				if (ctor->parameters.size() == 2 &&
 				    ctor->parameters[1]->type->isArray &&
@@ -851,7 +843,7 @@ void Literal::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 
 			ctx->text.addStringLiteral(label, std::get<3>(item->value));
 
-			codeGenClassInstanceCreatePreamble(ctx, theStringDecl);
+			codeGenClassInstanceCreatePreamble(ctx, stringDecl);
 
 			int numArg = 0;
 			ctx->text.add("push eax"); ++numArg;
