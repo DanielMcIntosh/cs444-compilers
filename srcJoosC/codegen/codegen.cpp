@@ -160,7 +160,7 @@ void BinaryExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 		case Variant::Mod:
 			// check for div by 0
 			ctx->text.addExternSymbol("exception");
-			ctx->text.add("cmp ebx, 0");
+			ctx->text.add("cmp ebx, 0; div by 0 check");
 			ctx->text.add("je exception");
 			// perform the division
 			ctx->text.add("cdq");
@@ -935,7 +935,7 @@ void ArrayCreationExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLV
 	item->size->codeGenerate(ctx);
 
 	// check for negative array size
-	ctx->text.add("cmp eax, 0");
+	ctx->text.add("cmp eax, 0; negative array size check");
 	ctx->text.addExternSymbol("exception");
 	ctx->text.add("jl exception");
 
@@ -989,6 +989,11 @@ void MethodInvocation::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 
 		// this
 		lExpr->codeGenerate(ctx);
+
+		// null check
+		ctx->text.addExternSymbol("exception");
+		ctx->text.add("cmp eax, 0; null check");
+		ctx->text.add("je exception");
 
 		ctx->text.add("push eax");
 		++numArg;
@@ -1046,8 +1051,6 @@ void AssignmentExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValu
 
 	CodeGen::SText *text = &ctx->text;
 
-	strdecl256(endLabel, "assn_skip_null_%d", ++ctx->counter);
-
 	lhs->codeGenerate(ctx, true);
 	text->add("push eax");
 	text->add("push ebx");
@@ -1055,28 +1058,28 @@ void AssignmentExpression::codeGenerate(CodeGen::SContext *ctx, bool returnLValu
 	text->add("pop ecx"); // lhs tag
 	text->add("pop ebx"); // lhs
 
-	text->add("push eax"); // rhs
-	text->add("push ebx"); // lhs
-
-	text->addf("cmp eax, 0");
-	text->addf("je %s", endLabel);
-
 	if (lhs->nodeType == NodeType::ArrayAccess) {
 		if (lhs->typeResult.isReferenceType()) {
+			text->add("push eax"); // rhs
+			text->add("push ebx"); // lhs
+
+			strdecl256(endLabel, "assn_skip_null_%d", ++ctx->counter);
+			text->addf("cmp eax, 0");
+			text->addf("je %s", endLabel);
+
 			ctx->text.addf("mov ebx, [eax + %d]", OBJECT_CLASS * 4); // rhs tag
 			ctx->text.addf("mov edx, [ecx + %d]", CLASS_TAG * 4);
 			ctx->text.addf("add edx, %lu", ctx->methodTable.size() + 1);
-			ctx->text.addf("shl edx, 2");
-			ctx->text.addf("add edx, ebx");
-			ctx->text.addf("mov ecx, [edx]");
+			ctx->text.addf("mov ecx, [edx * 4 + ebx]");
 			ctx->text.add("cmp ecx, 0");
 			ctx->text.add("je exception");
+
+			text->addf("%s:", endLabel);
+			text->add("pop ebx"); // rhs
+			text->add("pop eax"); // lhs
 		}
 	}
 
-	text->addf("%s:", endLabel);
-	text->add("pop ebx"); // rhs
-	text->add("pop eax"); // lhs
 
 	text->add("mov [ebx], eax");
 	if (returnLValue)
@@ -1228,6 +1231,11 @@ void FieldAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	auto &lExpr = std::get<0>(source);
 	lExpr->codeGenerate(ctx);
 
+	// null check
+	text->addExternSymbol("exception");
+	text->add("cmp eax, 0; null check");
+	text->add("je exception");
+
 	TypeResult *theTypeResult = &lExpr->typeResult;
 
 	if (theTypeResult->isArray) {
@@ -1296,17 +1304,23 @@ void ArrayAccess::codeGenerate(CodeGen::SContext *ctx, bool returnLValue) {
 	ctx->text.add("; BEGIN - ArrayAccess (" + toCode() + ")");
 
 	this->array->codeGenerate(ctx);
+
+	//null array check
+	ctx->text.addExternSymbol("exception");
+	ctx->text.add("cmp eax, 0; null check");
+	ctx->text.add("je exception;");
+
 	ctx->text.add("push eax");
 	this->index->codeGenerate(ctx);
 	ctx->text.add("pop ebx");
 
 	// runtime bounds check
-	ctx->text.addf("mov ecx, [ebx + %d]", ARRAY_LENGTH_OFFSET * 4);
-	ctx->text.add("cmp eax, ecx");
+	ctx->text.addf("mov ecx, [ebx + %d]; array length", ARRAY_LENGTH_OFFSET * 4);
+	ctx->text.add("cmp eax, ecx; array bounds check");
 	ctx->text.addExternSymbol("exception");
 	ctx->text.add("jge exception");
 
-	ctx->text.add("cmp eax, 0");
+	ctx->text.add("cmp eax, 0; negative index check");
 	ctx->text.add("jl exception");
 
 	ctx->text.addf("lea eax, [ebx + %d + eax * 4]", ARRAY_DATA_OFFSET * 4);
