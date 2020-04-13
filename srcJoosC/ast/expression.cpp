@@ -998,7 +998,10 @@ bool TypeResult::canAssignToMyType(const TypeResult &other) const {
 	// same type on both sides
 	if (*this == other)
 		return true;
-	if (!isArray) {
+
+	if (!isReferenceType()) {
+		if (other.isReferenceType())
+			return false;
 		// short <- byte
 		if (primitiveType == TypePrimitive::Short &&
 			other.primitiveType == TypePrimitive::Byte)
@@ -1015,10 +1018,13 @@ bool TypeResult::canAssignToMyType(const TypeResult &other) const {
 		if (primitiveType == TypePrimitive::Int &&
 			other.primitiveType == TypePrimitive::Char)
 			return true;
+		return false;
 	}
-	// C := null where C is any non-primitive
-	if (isReferenceType() && other.isPrimitiveType(TypePrimitive::Null))
+
+	// C := null where C is any reference type
+	if (other.isPrimitiveType(TypePrimitive::Null))
 		return true;
+
 	if (!isPrimitive && other.isArray)
 	{
 		if (userDefinedType->fqn == "java.lang.Object" ||
@@ -1029,7 +1035,7 @@ bool TypeResult::canAssignToMyType(const TypeResult &other) const {
 		}
 	}
 	// both are (either single or array of) objects
-	if (!isPrimitive && !other.isPrimitive) {
+	if (!isPrimitive && !other.isPrimitive && (isArray == other.isArray)) {
 		if (userDefinedType->fqn == "java.lang.Object" &&
 			other.userDefinedType->isInterface)
 		{
